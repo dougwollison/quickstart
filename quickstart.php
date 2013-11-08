@@ -23,10 +23,8 @@ require QS_ROOT . '/php/utilities.php';
 
 // Load classes
 require QS_ROOT . '/php/QuickStart/Callbacks.php';
+require QS_ROOT . '/php/QuickStart/Exception.php';
 require QS_ROOT . '/php/QuickStart/Form.php';
 require QS_ROOT . '/php/QuickStart/Setup.php';
 require QS_ROOT . '/php/QuickStart/Template.php';
 require QS_ROOT . '/php/QuickStart/Utilities.php';
-
-// Create the custom Exception
-class QuickStart\Exception extends Exception{}
