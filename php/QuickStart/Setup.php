@@ -10,5 +10,5 @@ namespace QuickStart;
  */
 
 class Setup{
-	public __construct(){}
+	public function __construct(){}
 }
