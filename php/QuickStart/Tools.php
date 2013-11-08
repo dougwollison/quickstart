@@ -165,15 +165,15 @@ class Tools{
 		} );
 
 		add_filter( 'tiny_mce_befor e_init', function( $settings ) use ( $styles ) {
-			$style_for mats = array();
+			$style_formats = array();
 
-			if ( isset( $settings['style_for mats'] ) ) {
-				$style_for mats = json_decode( $settings['style_for mats'] );
+			if ( isset( $settings['style_formats'] ) ) {
+				$style_formats = json_decode( $settings['style_formats'] );
 			}
 
-			$style_for mats = array_merge( $style_for mats, $styles );
+			$style_formats = array_merge( $style_formats, $styles );
 
-			$settings['style_for mats'] = json_encode( $style_for mats );
+			$settings['style_formats'] = json_encode( $style_formats );
 
 			return $settings;
 		} );
@@ -331,7 +331,7 @@ class Tools{
 	}
 
 	/**
-	 * Setup a series of shortcodes, in tag => callback for mat
+	 * Setup a series of shortcodes, in tag => callback format
 	 * ( specify comma separated list of tags to have them all use the same callback )
 	 *
 	 * @since 1.0.0

@@ -14,17 +14,17 @@ global $QuickStart;
 $QuickStart = null;
 
 // Create root constant
-define( 'QS_ROOT', __FILE__ );
+define( 'QS_FILE', __FILE__ );
+define( 'QS_DIR', __DIR__ );
 
 // Load functions
-require QS_ROOT . '/php/aliases.php';
-require QS_ROOT . '/php/helpers.php';
-require QS_ROOT . '/php/utilities.php';
+require QS_DIR . '/php/aliases.php';
+require QS_DIR . '/php/utilities.php';
 
 // Load classes
-require QS_ROOT . '/php/QuickStart/Callbacks.php';
-require QS_ROOT . '/php/QuickStart/Exception.php';
-require QS_ROOT . '/php/QuickStart/Form.php';
-require QS_ROOT . '/php/QuickStart/Setup.php';
-require QS_ROOT . '/php/QuickStart/Template.php';
-require QS_ROOT . '/php/QuickStart/Utilities.php';
+require QS_DIR . '/php/QuickStart/Callbacks.php';
+require QS_DIR . '/php/QuickStart/Exception.php';
+require QS_DIR . '/php/QuickStart/Form.php';
+require QS_DIR . '/php/QuickStart/Setup.php';
+require QS_DIR . '/php/QuickStart/Template.php';
+require QS_DIR . '/php/QuickStart/Tools.php';

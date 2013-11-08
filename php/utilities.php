@@ -78,7 +78,7 @@ function phpize( $array ) {
  * @return bool The result of the test
  */
 function is_assoc( $array ) {
-	return array_values( (array ) $array ) ! == $array;
+	return array_values( (array ) $array ) !== $array;
 }
 
 /**
