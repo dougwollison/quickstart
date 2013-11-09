@@ -62,7 +62,7 @@ class Callbacks{
 	 * Add counts for each post type to the Right Now widget on the dashboard
 	 *
 	 * @since 1.0.0
-	 * @uses legible()
+	 * @uses make_legible()
 	 * @uses pluralize()
 	 *
 	 * @param string $post_type The slug of the post type
@@ -73,7 +73,7 @@ class Callbacks{
 
 		// Auto create singular name if not provided
 		if ( ! isset( $args['singular'] ) ) {
-			$args['singular'] = legible( $post_type );
+			$args['singular'] = make_legible( $post_type );
 		}
 
 		// Auto create plural name if not provided
