@@ -44,7 +44,7 @@ class Tools{
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed $label A string of the new label ( singular ) or an array of singular, plural for ms.
+	 * @param mixed $label A string of the new label (singular) or an array of singular, plural for ms.
 	 */
 	public static function relabel_posts( $label = null ) {
 		if ( is_array( $label ) ) {
@@ -68,7 +68,7 @@ class Tools{
 		 * @uses string $singular The new singular form.
 		 * @uses string $plural The new plural form.
 		 */
-		add_action( 'init', function() use ( $singular, $plural ) {
+		add_action( 'init', function () use ( $singular, $plural ) {
 			global $wp_post_types;
 		    str_replace_in_array( array( 'Posts', 'Post' ), array( $plural, $singular ), $wp_post_types['post']->labels );
 		} );
@@ -85,7 +85,7 @@ class Tools{
 		 * @uses string $plural The new plural form.
 		 * @uses string $menuname The new menu name.
 		 */
-		add_action( 'admin_menu', function() use ( $singular, $plural, $menuname ) {
+		add_action( 'admin_menu', function () use ( $singular, $plural, $menuname ) {
 			global $menu, $submenu;
 		    $menu[5][0] = $menuname;
 		    str_replace_in_array( array( 'Posts', 'Post' ), array( $plural, $singular ), $submenu['edit.php'] );
@@ -105,20 +105,20 @@ class Tools{
 			if ( is_callable( $enqueues['css'] ) ) {
 				$enqueues['css'] = call_user_func( $enqueues['css'] );
 			}
-			foreach ( (array ) $enqueues['css'] as $handle => $style ) {
+			foreach ( (array) $enqueues['css'] as $handle => $style ) {
 				if ( is_numeric( $handle ) ) {
 					// Just enqueue it
 					wp_enqueue_style( $style );
 				} else {
 					// Must be registered first
-					$style = ( array ) $style;
+					$style = (array) $style;
 					$src = $deps = $ver = $media = null;
 					if ( is_assoc( $style ) ) {
 						extract( $style );
 					} else {
 						list( $src, $deps, $ver, $media ) = fill_array( $style, 4 );
 					}
-					$deps = ( array ) $deps;
+					$deps = (array) $deps;
 					wp_enqueue_style( $handle, $src, $deps, $ver, $media );
 				}
 			}
@@ -129,20 +129,20 @@ class Tools{
 			if ( is_callable( $enqueues['js'] ) ) {
 				$enqueues['js'] = call_user_func( $enqueues['js'] );
 			}
-			foreach ( (array ) $enqueues['js'] as $handle => $script ) {
+			foreach ( (array) $enqueues['js'] as $handle => $script ) {
 				if ( is_numeric( $handle ) ) {
 					// Just enqueue it
 					wp_enqueue_script( $script );
 				} else {
 					// Must be registered first
-					$script = ( array ) $script;
+					$script = (array) $script;
 					$src = $deps = $ver = $in_footer = null;
 					if ( is_assoc( $script ) ) {
 						extract( $script );
 					} else {
 						list( $src, $deps, $ver, $in_footer ) = fill_array( $script, 4 );
 					}
-					$deps = ( array ) $deps;
+					$deps = (array) $deps;
 					wp_enqueue_script( $handle, $src, $deps, $ver, $in_footer );
 				}
 			}
@@ -157,14 +157,14 @@ class Tools{
 	 * @param array $styles An array of styles to register
 	 */
 	public static function register_mce_styles( $styles ) {
-		add_filter( 'mce_buttons_2', function( $buttons ) {
+		add_filter( 'mce_buttons_2', function ( $buttons ) {
 			if ( ! in_array( 'styleselect', $buttons ) ) {
 				array_splice( $buttons, 1, 0, 'styleselect' );
 			}
 			return $buttons;
 		} );
 
-		add_filter( 'tiny_mce_befor e_init', function( $settings ) use ( $styles ) {
+		add_filter( 'tiny_mce_befor e_init', function ( $settings ) use ( $styles ) {
 			$style_formats = array();
 
 			if ( isset( $settings['style_formats'] ) ) {
@@ -194,7 +194,7 @@ class Tools{
 			$btns = preg_split( '/\s*,\s*/', $btns );
 		}
 
-		add_filter( 'mce_buttons', function( $buttons ) use ( $btns ) {
+		add_filter( 'mce_buttons', function ( $buttons ) use ( $btns ) {
 			$buttons = array_merge( $buttons, $btns );
 			return $buttons;
 		} );
@@ -209,7 +209,7 @@ class Tools{
 	 */
 	public static function add_hooks( $hooks ) {
 		foreach ( $hooks as $hook => $callbacks ) {
-			foreach ( (array ) $callbacks as $callback => $settings ) {
+			foreach ( (array) $callbacks as $callback => $settings ) {
 				$priority = 10;
 				$arguments = 1;
 				if ( is_numeric( $callback ) ) {
@@ -234,7 +234,7 @@ class Tools{
 			if ( is_int( $function ) ) {
 				$function = array_shift( $hooks );
 			}
-			foreach ( (array ) $hooks as $hook ) {
+			foreach ( (array) $hooks as $hook ) {
 				list( $priority, $arguments ) = fill_array( $hook, 2 );
 				add_filter( $hook, $function, $priority, $arguments );
 			}
@@ -287,11 +287,11 @@ class Tools{
 	 */
 	public static function fix_shortcodes( $tags ) {
 		if ( ! is_array( $tags ) ) {
-			$tags = preg_split( '/[\s,]+/', $tags, 0, PREG_SPLIT_NO_EMPTY );
+			$tags = csv_array( $tags );
 		}
 
 		$tags = implode( '|', $tags );
-		add_filter( 'the_content', function( $content ) use ( $tags ) {
+		add_filter( 'the_content', function ( $content ) use ( $tags ) {
 			// Strip closing p tags and opening p tags from beginning/end of string
 			$content = preg_replace( '#^\s*( ?:</p> )\s*( [\s\S]+ )\s*( ?:<p.*?> )\s*$#', '$1', $content );
 			// Unwrap tags
@@ -339,8 +339,13 @@ class Tools{
 	 * @param array $shortcodes The list of tags and their callbacks
 	 */
 	public static function register_shortcodes( $shortcodes ) {
+		$shortcodes = csv_array( $shortcodes );
 		foreach ( $shortcodes as $tags => $callback ) {
-			$tags = preg_split( '/[\s,]+/', $tags, 0, PREG_SPLIT_NO_EMPTY );
+			if ( is_int( $tags ) ) {
+				$tags = $callback;
+				$callback = array( __CLASS__, 'simple_shortcode' );
+			}
+			$tags = csv_array( $tags );
 			foreach ( $tags as $tag ) {
 				add_shortcode( $tag, $callback );
 			}
