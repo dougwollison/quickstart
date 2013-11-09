@@ -226,8 +226,11 @@ class Setup extends \SmartPlugin{
 	 *
 	 * @param array $post_types The list of post types to register.
 	 */
-	public function _register_post_types( $post_types ) {
-		
+	public function _register_post_types( array $post_types ) {
+		foreach ( $post_types as $post_type => $args ) {
+			make_associative( $post_type, $args );
+			$this->_register_post_type( $post_type, $args );
+		}
 	}
 	
 	/**
@@ -253,8 +256,11 @@ class Setup extends \SmartPlugin{
 	 *
 	 * @param array $taxonomies The list of taxonomies to register.
 	 */
-	public function _register_taxonomies( $taxonomies ) {
-		
+	public function _register_taxonomies( array $taxonomies ) {
+		foreach ( $taxonomies as $taxonomy => $args ) {
+			make_associative( $taxonomy, $args );
+			$this->_register_post_type( $taxonomy, $args );
+		}
 	}
 	
 	/**
@@ -278,7 +284,10 @@ class Setup extends \SmartPlugin{
 	 *
 	 * @param array $meta_boxes The list of meta boxes to register.
 	 */
-	public function register_meta_boxes( $meta_boxes ) {
-		
+	public function register_meta_boxes( array $meta_boxes ) {
+		foreach ( $meta_boxes as $meta_box => $args ) {
+			make_associative( $meta_box, $args );
+			$this->_register_post_type( $meta_box, $args );
+		}
 	}
 }
