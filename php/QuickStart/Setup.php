@@ -66,7 +66,7 @@ class Setup extends \SmartPlugin{
 		$this->configs = $configs;
 
 		// Merge default_args with passed defaults
-		$this->defaults = array_merge_recursive( $this->defaults, $defaults );
+		$this->defaults = wp_parse_args( $defaults, $this->defaults );
 		
 		foreach ( $configs as $key => $value ) {
 			// Proceed simple options based on what $key is
@@ -178,7 +178,7 @@ class Setup extends \SmartPlugin{
 						$tx_args['post_types'] = array( $post_type );
 						
 						// Add this taxonomy to $taxonomies, remove from this post type
-						$taxonomies[ $taxonomy ] = $tx_args;
+						$configs['taxonomies'][ $taxonomy ] = $tx_args;
 						unset( $pt_args['taxonomies'][ $taxonomy ] );
 					}
 				}
@@ -193,7 +193,7 @@ class Setup extends \SmartPlugin{
 					$mb_args['post_types'] = array( $post_type );
 					
 					// Add this taxonomy to $taxonomies, remove from this post type
-					$meta_boxes[ $meta_box ] = $mb_args;
+					$configs['meta_boxes'][ $meta_box ] = $mb_args;
 					unset( $pt_args['meta_boxes'][ $meta_box ] );
 				}
 			}
@@ -213,8 +213,77 @@ class Setup extends \SmartPlugin{
 	 * @param string $post_type The slug of the post type to register.
 	 * @param array  $args      The arguments for registration.
 	 */
-	public function _register_post_type( $post_type, $args ) {
+	public function _register_post_type( $post_type, array $args = array() ) {
+		// Make sure the post type doesn't already exist
+		if ( post_type_exists( $post_type ) ) return;
 		
+		// Check if labels need to be auto created
+		if ( ! isset( $args['labels'] ) ) {
+			// Auto create the singular form if needed
+			if ( ! isset( $args['singular'] ) ) {
+				if ( isset( $args['plural'] ) ) {
+					$args['singular'] = singularize( $args['plural'] );
+				} else {
+					$args['singular'] = make_legible( $post_type );
+				}
+			}
+			
+			// Auto create the plural form if needed
+			if ( ! isset( $args['plural'] ) ) {
+				$args['plural'] = pluralize( $args['singular'] );
+			}
+			
+			// Auto create the menu name if needed
+			if ( ! isset( $args['menu_name'] ) ) {
+				$args['menu_name'] = $args['plural'];
+			}
+			
+			$singular  = $args['singular'];
+			$plural    = $args['plural'];
+			$menu_name = $args['menu_name'];
+			
+			$args['labels'] = array(
+				'name'               => _x( $plural, 'post type general name' ),
+				'singular_name'      => _x( $singular, 'post type singular name' ),
+				'menu_name'          => _x( $singular, 'post type menu name' ),
+				'add_new'            => _x( 'Add New', $post_type ),
+				'add_new_item'       => __( 'Add New ' . $singular),
+				'edit_item'          => __( 'Edit ' . $singular ),
+				'new_item'           => __( 'New ' . $singular ),
+				'view_item'          => __( 'View ' . $singular ),
+				'search_items'       => __( 'Search ' . $plural ),
+				'not_found'          => __( 'No ' . strtolower($plural) . ' found.' ),
+				'not_found_in_trash' => __( 'No ' . strtolower($plural) . ' found in Trash.' ),
+				'parent_item_colon'  => __( 'Parent ' . $singular . ':' ),
+				'all_items'          => __( 'All ' . $plural )
+			);
+		}
+		
+		$default_args = array(
+			'public'          => true,
+			'rewrite'         => true,
+			'capability_type' => 'post',
+			'hierarchical'    => false,
+			'can_export'      => true,
+			'has_archive'     => true,
+		);
+		
+		// Parse the default defaults with the custom defaults
+		if ( is_array( $this->defaults['post_type'] ) ) {
+			$default_args = wp_parse_args( $this->defaults['post_type'], $default_args );
+		}
+		
+		// Parse the arguments with the defaults
+		$args = wp_parse_args( $args, $default_args );
+
+		// Now, register the post type
+		register_post_type( $post_type, $args );
+		
+		// Now that it's registered, fetch the resulting show_in_menu argument,
+		// and add the register_post_type_counts hook if true
+		if ( get_post_type_object( $post_type )->show_in_menu ){
+			add_action( 'right_now_content_table_end', Callbacks::make( 'post_type_count', $post_type ) );
+		}
 	}
 	
 	/**
@@ -259,7 +328,7 @@ class Setup extends \SmartPlugin{
 	public function _register_taxonomies( array $taxonomies ) {
 		foreach ( $taxonomies as $taxonomy => $args ) {
 			make_associative( $taxonomy, $args );
-			$this->_register_post_type( $taxonomy, $args );
+			$this->_register_taxonomy( $taxonomy, $args );
 		}
 	}
 	
@@ -287,7 +356,7 @@ class Setup extends \SmartPlugin{
 	public function register_meta_boxes( array $meta_boxes ) {
 		foreach ( $meta_boxes as $meta_box => $args ) {
 			make_associative( $meta_box, $args );
-			$this->_register_post_type( $meta_box, $args );
+			$this->register_meta_box( $meta_box, $args );
 		}
 	}
 }
