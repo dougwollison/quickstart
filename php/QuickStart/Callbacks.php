@@ -76,8 +76,8 @@ class Callbacks{
 
 		echo '<tr>';
 
-		$num = intval( $num->publish );
-		$text = _n( $singular, $plural, intval( $num->publish ) );
+		$num = intval( $num_posts->publish );
+		$text = _n( $singular, $plural, $num );
 		if ( current_user_can( 'edit_posts' ) ) {
 			$num = "<a href='edit.php?post_type=$post_type'>$num</a>";
 			$text = "<a href='edit.php?post_type=$post_type'>$text</a>";
@@ -87,7 +87,7 @@ class Callbacks{
 
 		if ( $num_posts->pending > 0 ) {
 			$num = intval( $num->pending );
-			$text = __( _n( $singular, $plural, intval( $num->pending ) ) . ' Pending' );
+			$text = __( _n( $singular, $plural, $num ) . ' Pending' );
 			if ( current_user_can( 'edit_posts' ) ) {
 				$num = "<a href='edit.php?post_type=$post_type'>$num->pending</a>";
 				$text = "<a href='edit.php?post_type=$post_type'>$text</a>";
