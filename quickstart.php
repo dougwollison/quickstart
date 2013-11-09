@@ -24,6 +24,7 @@ define( 'QS_DIR', __DIR__ );
 
 // Load functions
 require ( QS_DIR . '/php/aliases.php' );
+require ( QS_DIR . '/php/constants.php' );
 require ( QS_DIR . '/php/utilities.php' );
 
 // Load classes
