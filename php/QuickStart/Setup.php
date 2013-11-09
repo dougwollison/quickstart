@@ -44,7 +44,9 @@ class Setup extends \SmartPlugin{
 	protected $method_hooks = array(
 		'frontend_enqueue' => 'wp_enqueue_scripts',
 		'backend_enqueue' => 'admin_enqueue_scripts',
-		'run_theme_setups' => 'after_theme_setup'
+		'run_theme_setups' => 'after_theme_setup',
+		'save_meta_box' => 'save_post',
+		'add_meta_box' => 'add_meta_boxes'
 	);
 
 	/**
@@ -142,6 +144,20 @@ class Setup extends \SmartPlugin{
 	 * Custom Content Setups
 	 * =========================
 	 */
+	 
+	/**
+	 * Utility method: prepare the provided defaults with the custom ones from $this->defaults.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key       The key of the array in $this->defaults to pull.
+	 * @param array  &$defaults The defaults to parse.
+	 */
+	protected function prep_defaults( $key, &$defaults ) {
+		if ( isset( $this->defaults[ $key ] ) && is_array( $this->defaults[ $key ] ) ) {
+			$defaults = wp_parse_args( $this->defaults[ $key ], $defaults );
+		}
+	}
 	 
 	/**
 	 * Utility method: take care of processing the labels based on the provided arguments.
@@ -252,6 +268,13 @@ class Setup extends \SmartPlugin{
 					// Fix if dumb metabox was passed (numerically, not associatively)
 					make_associative( $meta_box, $mb_args );
 					
+					// Check if the arguments are a callable, restructure to proper form
+					if ( is_callable( $mb_args ) ) {
+						$mb_args = array(
+							'fields' => $mb_args
+						);
+					}
+					
 					// Add this post type to the post_types argument to this meta box
 					$mb_args['post_type'] = array( $post_type );
 					
@@ -292,10 +315,8 @@ class Setup extends \SmartPlugin{
 			'has_archive' => true,
 		);
 		
-		// Merge the local defaults with the custom defaults, if they exist
-		if ( is_array( $this->defaults['post_type'] ) ) {
-			$defaults = array_merge( $defaults, $this->defaults['post_type'] );
-		}
+		// Prep $defaults
+		$this->prep_defaults( 'post_type', $defaults );
 
 		// Parse the arguments with the defaults
 		$args = wp_parse_args($args, $defaults);
@@ -358,10 +379,16 @@ class Setup extends \SmartPlugin{
 			'choose_from_most_used' => 'Choose from most used %p',
 		) );
 		
-		// Parse the parse the arguments with the default ones, if they exist
-		if ( is_array( $this->defaults['taxonomy'] ) ) {
-			$args = wp_parse_args( $this->defaults['taxonomy'], $args );
-		}
+		// Default arguments for the post type
+		$defaults = array(
+			'hierarchical' => true,
+		);
+		
+		// Prep $defaults
+		$this->prep_defaults( 'taxonomy', $defaults );
+
+		// Parse the arguments with the defaults
+		$args = wp_parse_args($args, $defaults);
 
 		// Now, register the post type
 		register_taxonomy( $taxonomy, $args['post_type'], $args );
@@ -398,7 +425,35 @@ class Setup extends \SmartPlugin{
 	 * @param array  $args     The arguments for registration.
 	 */
 	public function register_meta_box( $meta_box, $args ) {
+		if ( is_callable( $args ) ) { // A callback, recreate into proper array
+			$args = array(
+				'fields' => $args
+			);
+		} elseif ( empty( $args ) ) { // Empty array; make dumb meta box
+			$args = array(
+				'fields' => array(
+					$meta_box => array(
+						'class' => 'full-width-text',
+						'_label' => false
+					)
+				)
+			);
+		}
 		
+		$defaults = array(
+			'title' => make_legible( $meta_box ),
+			'context' => 'normal',
+			'priority' => 'high',
+			'post_type' => 'post'
+		);
+
+		// Prep $defaults
+		$this->prep_defaults( 'meta_box', $defaults );
+		
+		$args = wp_parse_args( $args, $defaults );
+	
+		$this->save_meta_box( $meta_box, $args );
+		$this->add_meta_box( $meta_box, $args );
 	}
 	
 	/**
@@ -414,6 +469,43 @@ class Setup extends \SmartPlugin{
 		foreach ( $meta_boxes as $meta_box => $args ) {
 			make_associative( $meta_box, $args );
 			$this->register_meta_box( $meta_box, $args );
+		}
+	}
+	
+	/**
+	 * Setup the save hook for the meta box
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $meta_box The slug of the meta box to register.
+	 * @param array  $args     The arguments from registration.
+	 */
+	protected function _save_meta_box( $meta_box, $args ) {
+		
+	}
+	
+	/**
+	 * Add the meta box to WordPress
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $meta_box The slug of the meta box to register.
+	 * @param array  $args     The arguments from registration.
+	 */
+	protected function _add_meta_box( $meta_box, $args ) {
+		foreach ( (array) $args['post_type'] as $post_type ) {
+			add_meta_box(
+				$meta_box,
+				$args['title'],
+				array( __NAMESPACE__.'\Tools', 'build_meta_box' ),
+				$post_type,
+				$args['context'],
+				$args['priority'],
+				array(
+					'id' => $meta_box,
+					'args' => $args
+				)
+			);
 		}
 	}
 }
