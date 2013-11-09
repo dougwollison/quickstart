@@ -28,6 +28,7 @@ require ( QS_DIR . '/php/constants.php' );
 require ( QS_DIR . '/php/utilities.php' );
 
 // Load classes
+require ( QS_DIR . '/php/SmartPlugin.php' );
 require ( QS_DIR . '/php/QuickStart/Callbacks.php' );
 require ( QS_DIR . '/php/QuickStart/Exception.php' );
 require ( QS_DIR . '/php/QuickStart/Form.php' );
