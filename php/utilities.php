@@ -32,43 +32,6 @@ function fill_array( &$array, $length ) {
 }
 
 /**
- * "Serialize" an array into PHP code
- *
- * @since 1.0.0
- *
- * @param array	$array The array to be serialized
- *
- * @return string The resulting code
- */
-function phpize( $array ) {
-	if ( is_string( $array ) ) return json_encode( $array );
-
-	$code = array();
-	$assoc = is_assoc( $array );
-	foreach ( $array as $key => $value ) {
-		$_code = '';
-		if ( $assoc ) {
-			$key = json_encode( $key );
-			$_code .= "$key=>";
-		}
-		if ( is_array( $value ) ) {
-			$_code .= phpize( $value );
-		} elseif ( is_string( $value ) ) {
-			$_code .= json_encode( $value );
-		} elseif ( is_int( $value ) || is_float( $value ) ) {
-			$_code .= $value;
-		} elseif ( is_null( $value ) ) {
-			$_code .= "null";
-		} elseif ( is_bool( $value ) ) {
-			$_code .= $value ? 'true' : 'false';
-		}
-		$code[] = $_code;
-	}
-	$code = 'array( ' . implode( ',', $code ) . ' )';
-	return $code;
-}
-
-/**
  * Test if  an array is associative or numeric
  *
  * @since 1.0.0
@@ -106,21 +69,8 @@ function make_associative( &$key, &$value ) {
  *
  * @return string The input string ( hopefully ) converted to legible form
  */
-function legible( $string ) {
+function make_legible( $string ) {
 	return ucwords( str_replace( array( '_','-' ), ' ', $string ) );
-}
-
-/**
- * Convert a string to a machine safe form
- *
- * @since 1.0.0
- *
- * @param string $string The string that is to be converted to machine form
- *
- * @return string The input string ( hopefully ) converted to legible form
- */
-function machine( $string ) {
-	return strtolower( preg_replace( '/[^\w-]+/', '-', $string ) );
 }
 
 /**
@@ -242,7 +192,7 @@ function singularize( $string ) {
 		array( '/ives$/i', 'ife' ), // knives => knife
 		array( '/ves$/i', 'f' ), // halves => half
 		array( '/([^aeiou])ies$/', '$1y' ), // babies => baby
-		array( '/(ch|x|s)es$/', '$1' ) // batches => batch, boxes => box, buses => bus
+		array( '/(ch|x|s)es$/', '$1' ), // batches => batch, boxes => box, buses => bus
  		array( '/s$/i', '' ) // things => thing
 	);
 
