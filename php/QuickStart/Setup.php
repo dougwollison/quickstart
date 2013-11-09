@@ -61,6 +61,8 @@ class Setup{
 	 */
 	protected $method_hooks = array(
 		'register_supports' => 'after_theme_setup',
+		'frontend_enqueue' => 'wp_enqueue_scripts',
+		'backend_enqueue' => 'admin_enqueue_scripts',
 	);
 
 	/**
@@ -125,7 +127,7 @@ class Setup{
 		list( $method, $args ) = $this->callbacks[ $id ];
 
 		// Apply the method with the saved arguments
-		return call_user_func_array( array( $this, $method ), $args );
+		return call_user_func_array( array( $this, "_$method" ), $args );
 	}
 
 	/**
@@ -151,6 +153,63 @@ class Setup{
 
 		foreach ( $configs as $key => $value ) {
 			// Proceed based on what $key is
+			switch ( $key ) {
+				case 'hide':
+					// Hide certain aspects of the backend
+					Tools::these( $value );
+				break;
+				case 'shortcodes':
+					// Register the passed shortcodes
+					Tools::register_shortcodes( $value );
+				break;
+				case 'relabel_posts':
+					// Relabel Posts to the desired string(s)
+					Tools::relabel_posts( $value );
+				break;
+				case 'helpers':
+					// Load the requested helper files
+					foreach ( (array) $helpers as $helper ) {
+						$file = QS_DIR."/php/helpers/$helper.php";
+						if ( file_exists( $file ) ){
+							require_once( $file );
+						}
+					}
+				break;
+				case 'enqueue':
+					// Enqueue frontend scripts/styles if set
+					if ( isset( $value['frontend'] ) ) {
+						$this->frontend_enqueue( $value['frontend'] );
+					}
+					// Enqueue backend scripts/styles if set
+					if ( isset( $value['backend'] ) ) {
+						$this->backend_enqueue( $value['frontend'] );
+					}
+				break;
+			}
 		}
+	}
+
+	/**
+	 * Alias to Utilities::enqueue(), for the frontend
+	 *
+	 * @since 1.0
+	 * @uses Utilities::enqueue()
+	 *
+	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
+	 */
+	protected function _frontend_enqueue($enqueues){
+		Tools::enqueue( $enqueues );
+	}
+
+	/**
+	 * Alias to Utilities::enqueue() for the backend
+	 *
+	 * @since 1.0
+	 * @uses Utilities::enqueue()
+	 *
+	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
+	 */
+	protected function _backend_enqueue($enqueues){
+		Tools::enqueue( $enqueues );
 	}
 }
