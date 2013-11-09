@@ -356,7 +356,7 @@ class Tools{
 	 * @param mixed $helpers A name or array of helper files to load (sans extention)
 	 */
 	public static function load_helpers( $helpers ) {
-		csv_array_rev( $helpers );
+		csv_array_ref( $helpers );
 		foreach ( $helpers as $helper ) {
 			$file = QS_DIR."/php/helpers/$helper.php";
 			if ( file_exists( $file ) ){
