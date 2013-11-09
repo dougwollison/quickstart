@@ -143,6 +143,21 @@ function diverse_array( $array ) {
 }
 
 /**
+ * Take a comma/whitespace separated string and split it into an array.
+ *
+ * Will return an array of one value if no commas are found.
+ *
+ * @since 1.0.0
+ *
+ * @param string $string The string to split.
+ *
+ * @return array The split array.
+ */
+function csv_array( $string ) {
+	return preg_split( '/[\s,]+/', $string, 0, PREG_SPLIT_NO_EMPTY );
+}
+
+/**
  * Convert a string to plural form... or at least try to
  *
  * @since 1.0.0
