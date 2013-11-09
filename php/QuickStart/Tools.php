@@ -250,12 +250,12 @@ class Tools{
 	 * @param array $attachment Optional An array of data for the attachment to be written to wp_posts
 	 */
 	public static function upload( $file, $attachment = array() ) {
-		$file = wp_handle_upload( $file, array( 'test_for m' => false ));
+		$file = wp_handle_upload( $file, array( 'test_for m' => false ) );
 
 		if ( isset( $file['error'] ) )
 			wp_die( $file['error'], 'Image Upload Error' );
 
-		$url = $file['url'];
+		$url  = $file['url'];
 		$type = $file['type'];
 		$file = $file['file'];
 		$filename = basename( $file );
@@ -290,9 +290,9 @@ class Tools{
 		$tags = implode( '|', $tags );
 		add_filter( 'the_content', function ( $content ) use ( $tags ) {
 			// Strip closing p tags and opening p tags from beginning/end of string
-			$content = preg_replace( '#^\s*( ?:</p> )\s*( [\s\S]+ )\s*( ?:<p.*?> )\s*$#', '$1', $content );
+			$content = preg_replace( '#^\s*(?:</p>)\s*([\s\S]+)\s*(?:<p.*?>)\s*$#', '$1', $content );
 			// Unwrap tags
-			$content = preg_replace( "#( ?:<p.*?> )?( \[/?( ?:$tags ).*\] )( ?:</p> )?#", '$1', $content );
+			$content = preg_replace( "#(?:<p.*?>)?(\[/?(?:$tags).*\])(?:</p>)?#", '$1', $content );
 
 			return $content;
 		} );
@@ -358,7 +358,7 @@ class Tools{
 	public static function load_helpers( $helpers ) {
 		csv_array_ref( $helpers );
 		foreach ( $helpers as $helper ) {
-			$file = QS_DIR."/php/helpers/$helper.php";
+			$file = QS_DIR . "/php/helpers/$helper.php";
 			if ( file_exists( $file ) ){
 				require_once( $file );
 			}
