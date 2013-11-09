@@ -339,9 +339,12 @@ class Tools{
 	 * @param array $shortcodes The list of tags and their callbacks
 	 */
 	public static function register_shortcodes( $shortcodes ) {
-		$shortcodes = csv_array( $shortcodes );
+		if ( ! is_array( $shortcodes ) ) {
+			$shortcodes = csv_array( $shortcodes );
+		}
 		foreach ( $shortcodes as $tags => $callback ) {
 			if ( is_int( $tags ) ) {
+				// No actual callback, use simple_shortcode
 				$tags = $callback;
 				$callback = array( __CLASS__, 'simple_shortcode' );
 			}
