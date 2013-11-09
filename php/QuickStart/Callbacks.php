@@ -59,27 +59,15 @@ class Callbacks{
 	}
 
 	/**
-	 * Add counts for each post type to the Right Now widget on the dashboard
+	 * Add counts for a post type to the Right Now widget on the dashboard
 	 *
 	 * @since 1.0.0
-	 * @uses make_legible()
-	 * @uses pluralize()
 	 *
 	 * @param string $post_type The slug of the post type
 	 */
 	protected function post_type_count( $post_type ) {
 		// Make sure the post type exists
 		if ( ! $object = get_post_type_object( $post_type ) ) return;
-
-		// Auto create singular name if not provided
-		if ( ! isset( $args['singular'] ) ) {
-			$args['singular'] = make_legible( $post_type );
-		}
-
-		// Auto create plural name if not provided
-		if ( ! isset( $args['plural'] ) ) {
-			$args['plural'] = pluralize( $args['singular'] );
-		}
 
 		$singular = $object->labels->singular_name;
 		$plural = $object->labels->name;
@@ -107,6 +95,34 @@ class Callbacks{
 			echo "<td class='first b b-$post_type'>$num->pending</td>";
 			echo "<td class='t $post_type'>$text</td>";
 		}
+
+		echo '</tr>';
+	}
+
+	/**
+	 * Add counts for a taxonomy to the Right Now widget on the dashboard
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $taxonomy The slug of the taxonomy
+	 */
+	protected function taxonomy_count( $taxonomy ) {
+		// Make sure the post type exists
+		if ( ! $object = get_taxonomy( $taxonomy ) ) return;
+
+		$singular = $object->labels->singular_name;
+		$plural = $object->labels->name;
+
+		echo '<tr>';
+
+		$num = wp_count_terms( $taxonomy, 'hide_empty=0' );
+		$text = _n( $singular, $plural, $num );
+		if ( current_user_can( 'edit_posts' ) ) {
+			$num = "<a href='edit-tags.php?taxonomy=$taxonomy'>$num</a>";
+			$text = "<a href='edit-tags.php?taxonomy=$taxonomy'>$text</a>";
+		}
+		echo "<td class='first b b-$taxonomy'>$num</td>";
+		echo "<td class='t $taxonomy'>$text</td>";
 
 		echo '</tr>';
 	}
