@@ -2,7 +2,7 @@
 namespace QuickStart;
 
 /**
- * The Tool Kit: A collection of methods for use by the Setup class ( and also external use ).
+ * The Tools Kit: A collection of methods for use by the Setup class ( and also external use ).
  *
  * @package QuickStart
  * @subpackage Tools
