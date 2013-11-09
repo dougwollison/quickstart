@@ -215,6 +215,7 @@ function _process_n_form( $string, $rules ) {
 function pluralize( $string ) {
 	// The find/replace rules, ordered most specialised to most generic
 	$plurals = array(
+ 		array( '/erson$/', 'eople' ), // person => people
  		array( '/man$/', 'men' ), // woman => women
 		array( '/(fe?)$/i', '$1ves' ), // half => halves, knife > knives
 		array( '/([^aeiou])y$/', '$1ies' ),  // baby => babies
@@ -236,6 +237,7 @@ function pluralize( $string ) {
 function singularize( $string ) {
 	// The find/replace rules, ordered most specialised to most generic
 	$singulars = array(
+ 		array( '/eople$/', 'erson' ), // people => person
  		array( '/men$/', 'man' ), // women => woman
 		array( '/ives$/i', 'ife' ), // knives => knife
 		array( '/ves$/i', 'f' ), // halves => half
