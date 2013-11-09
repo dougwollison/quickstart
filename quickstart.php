@@ -31,7 +31,6 @@ require ( QS_DIR . '/php/utilities.php' );
 require ( QS_DIR . '/php/QuickStart/Callbacks.php' );
 require ( QS_DIR . '/php/QuickStart/Exception.php' );
 require ( QS_DIR . '/php/QuickStart/Form.php' );
-require ( QS_DIR . '/php/QuickStart/Hide.php' );
 require ( QS_DIR . '/php/QuickStart/Setup.php' );
 require ( QS_DIR . '/php/QuickStart/Template.php' );
 require ( QS_DIR . '/php/QuickStart/Tools.php' );
