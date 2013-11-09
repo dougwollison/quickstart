@@ -168,12 +168,7 @@ class Setup{
 				break;
 				case 'helpers':
 					// Load the requested helper files
-					foreach ( (array) $helpers as $helper ) {
-						$file = QS_DIR."/php/helpers/$helper.php";
-						if ( file_exists( $file ) ){
-							require_once( $file );
-						}
-					}
+					Tools::load_helpers( $value );
 				break;
 				case 'enqueue':
 					// Enqueue frontend scripts/styles if set

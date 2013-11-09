@@ -351,6 +351,21 @@ class Tools{
 	}
 	
 	/**
+	 * Load the requested helper files.
+	 *
+	 * @param mixed $helpers A name or array of helper files to load (sans extention)
+	 */
+	public static function load_helpers( $helpers ) {
+		csv_array_rev( $helpers );
+		foreach ( $helpers as $helper ) {
+			$file = QS_DIR."/php/helpers/$helper.php";
+			if ( file_exists( $file ) ){
+				require_once( $file );
+			}
+		}
+	}
+	
+	/**
 	 * Call the appropriate hide_[object] method(s)
 	 *
 	 * @since 1.0
