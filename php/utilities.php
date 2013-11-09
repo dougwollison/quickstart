@@ -158,6 +158,18 @@ function csv_array( $string ) {
 }
 
 /**
+ * Calls csv_array on the passed variable if it's not already an array.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed &$var The variable to process, passed by reference.
+ */
+function csv_array_ref( &$var ) {
+	if ( ! is_array( $var ) )
+		$var = csv_array( $var );
+}
+
+/**
  * Convert a string to plural form... or at least try to
  *
  * @since 1.0.0
