@@ -186,6 +186,25 @@ function csv_array_ref( &$var ) {
 }
 
 /**
+ * Utility for pluralize and singularize
+ *
+ * @since 1.0.0
+ *
+ * @param $string The string to process.
+ * @param $rules  The list of find/replace rules to test with
+ *
+ * @return string The processed string.
+ */
+function _process_n_form( $string, $rules ) {
+	foreach ( $rules as $rule ) {
+		if ( preg_match( $rule[0], $string ) )
+			return preg_replace( $rule[0], $rule[1], $string );
+	}
+
+	return $string;
+}
+
+/**
  * Convert a string to plural form... or at least try to
  *
  * @since 1.0.0
@@ -194,24 +213,16 @@ function csv_array_ref( &$var ) {
  * @return string The input string ( hopefully ) converted to plural form
  */
 function pluralize( $string ) {
+	// The find/replace rules, ordered most specialised to most generic
 	$plurals = array(
-		array( '/( x|ch|ss|sh )$/i', '$1es' ),
-		array( '/( [^aeiou] )y$/i', '$1es' ),
-		array( '/( ?:( [^f] )fe|( [lr] )f )$/i', '$1$2ves' ),
-		array( '/sis$/i', 'ses' ),
- 		array( '/( [ti] )um$/i', '$1a' ),
- 		array( '/man$/','men' ),
- 		array( '/erson$/','eople' ),
- 		array( '/s$/i', 's' ),
-		array( '/$/', 's' )
+ 		array( '/man$/', 'men' ), // woman => women
+		array( '/(fe?)$/i', '$1ves' ), // half => halves, knife > knives
+		array( '/([^aeiou])y$/', '$1ies' ),  // baby => babies
+		array( '/(ch|x|s)$/', '$1s' ), // batch => batches, box => boxes, bus => buses
+		array( '/$/', 's' ) // thing => things
 	);
 
-	foreach ( $plurals as $plural ) {
-		if ( preg_match( $plural[0], $string ) )
-			return preg_replace( $plural[0], $plural[1], $string );
-	}
-
-	return $string;
+	return _process_n_form( $string, $plurals );
 }
 
 /**
@@ -223,21 +234,17 @@ function pluralize( $string ) {
  * @return string The input string ( hopefully ) converted to singular form
  */
 function singularize( $string ) {
+	// The find/replace rules, ordered most specialised to most generic
 	$singulars = array(
-		array( '/ies$/i', '$1y' ),
-		array( '/ses$/i', 'sis' ),
- 		array( '/( [ti] )a$/i', '$1um' ),
- 		array( '/men$/','man' ),
- 		array( '/eople$/','erson' ),
- 		array( '/s$/i', '' )
+ 		array( '/men$/', 'man' ), // women => woman
+		array( '/ives$/i', 'ife' ), // knives => knife
+		array( '/ves$/i', 'f' ), // halves => half
+		array( '/([^aeiou])ies$/', '$1y' ), // babies => baby
+		array( '/(ch|x|s)es$/', '$1' ) // batches => batch, boxes => box, buses => bus
+ 		array( '/s$/i', '' ) // things => thing
 	);
 
-	foreach ( $singulars as $singular ) {
-		if ( preg_match( $singular[0], $string ) )
-			return preg_replace( $singular[0], $singular[1], $string );
-	}
-
-	return $string;
+	return _process_n_form( $string, $singulars );
 }
 
 /**
