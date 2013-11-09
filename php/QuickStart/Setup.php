@@ -185,7 +185,7 @@ class Setup extends \SmartPlugin{
 				'add_new'            => _x( 'Add New', $post_type ),
 			);
 			
-			$template = array_merge( array(
+			$template = wp_parse_args( $template, array(
 				'add_new_item'       => 'Add New %S',
 				'edit_item'          => 'Edit %S',
 				'new_item'           => 'New %S',
@@ -194,7 +194,7 @@ class Setup extends \SmartPlugin{
 				'search_items'       => 'Search %P',
 				'parent_item_colon'  => 'Parent %S:',
 				'not_found'          => 'No %p found.',
-			), $template );
+			) );
 			
 			$find = array( '%S', '%P', '%s', '%p' );
 			$replace = array( $singular, $plural, strtolower( $singular ), strtolower( $plural ) );
@@ -238,7 +238,7 @@ class Setup extends \SmartPlugin{
 					// Check if the taxonomy is registered yet
 					if ( ! taxonomy_exists( $taxonomy ) ) {
 						// Add this post type to the post_types argument to this taxonomy
-						$tx_args['post_types'] = array( $post_type );
+						$tx_args['post_type'] = array( $post_type );
 						
 						// Add this taxonomy to $taxonomies, remove from this post type
 						$configs['taxonomies'][ $taxonomy ] = $tx_args;
@@ -253,7 +253,7 @@ class Setup extends \SmartPlugin{
 					make_associative( $meta_box, $mb_args );
 					
 					// Add this post type to the post_types argument to this meta box
-					$mb_args['post_types'] = array( $post_type );
+					$mb_args['post_type'] = array( $post_type );
 					
 					// Add this taxonomy to $taxonomies, remove from this post type
 					$configs['meta_boxes'][ $meta_box ] = $mb_args;
@@ -286,28 +286,25 @@ class Setup extends \SmartPlugin{
 			'not_found_in_trash' => 'No %p found in Trash.'
 		) );
 		
-		$default_args = array(
-			'public'          => true,
-			'rewrite'         => true,
-			'capability_type' => 'post',
-			'hierarchical'    => false,
-			'can_export'      => true,
-			'has_archive'     => true,
+		// Default arguments for the post type
+		$defaults = array(
+			'public' => true,
+			'has_archive' => true,
 		);
 		
-		// Parse the default defaults with the custom defaults
+		// Merge the local defaults with the custom defaults, if they exist
 		if ( is_array( $this->defaults['post_type'] ) ) {
-			$default_args = wp_parse_args( $this->defaults['post_type'], $default_args );
+			$defaults = array_merge( $defaults, $this->defaults['post_type'] );
 		}
-		
+
 		// Parse the arguments with the defaults
-		$args = wp_parse_args( $args, $default_args );
+		$args = wp_parse_args($args, $defaults);
 
 		// Now, register the post type
 		register_post_type( $post_type, $args );
 		
 		// Now that it's registered, fetch the resulting show_in_menu argument,
-		// and add the register_post_type_counts hook if true
+		// and add the post_type_count callback if true
 		if ( get_post_type_object( $post_type )->show_in_menu ){
 			add_action( 'right_now_content_table_end', Callbacks::make( 'post_type_count', $post_type ) );
 		}
@@ -352,7 +349,7 @@ class Setup extends \SmartPlugin{
 		}
 		
 		// Setup the labels if needed
-		self::maybe_setup_labels( $post_type, $args, array(
+		self::maybe_setup_labels( $taxonomy, $args, array(
 			'new_item_name' => 'New %S Name',
 			'parent_item' => 'Parent %S',
 			'popular_items' => 'Popular %P',
@@ -360,6 +357,20 @@ class Setup extends \SmartPlugin{
 			'add_or_remove_items' => 'Add or remove %p',
 			'choose_from_most_used' => 'Choose from most used %p',
 		) );
+		
+		// Parse the parse the arguments with the default ones, if they exist
+		if ( is_array( $this->defaults['taxonomy'] ) ) {
+			$args = wp_parse_args( $this->defaults['taxonomy'], $args );
+		}
+
+		// Now, register the post type
+		register_taxonomy( $taxonomy, $args['post_type'], $args );
+		
+		// Now that it's registered, fetch the resulting show_ui argument,
+		// and add the taxonomy_count callback if true
+		if ( get_taxonomy( $taxonomy )->show_ui ){
+			add_action( 'right_now_content_table_end', Callbacks::make( 'taxonomy_count', $taxonomy ) );
+		}
 	}
 	
 	/**
