@@ -156,7 +156,7 @@ class Setup{
 			switch ( $key ) {
 				case 'hide':
 					// Hide certain aspects of the backend
-					Tools::these( $value );
+					Tools::hide( $value );
 				break;
 				case 'shortcodes':
 					// Register the passed shortcodes
