@@ -142,6 +142,69 @@ class Setup extends \SmartPlugin{
 	 * Custom Content Setups
 	 * =========================
 	 */
+	 
+	/**
+	 * Utility method: take care of processing the labels based on the provided arguments.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $object   The slug of teh post_type/taxonomy in question.
+	 * @param array  &$args    The arguments for the post_type/taxonomy registration.
+	 * @param array  $template The template of special labels to create.
+	 */
+	protected function maybe_setup_labels( $object, &$args, $template ) {
+		// Check if labels need to be auto created
+		if ( ! isset( $args['labels'] ) ) {
+			// Auto create the singular form if needed
+			if ( ! isset( $args['singular'] ) ) {
+				if ( isset( $args['plural'] ) ) {
+					$args['singular'] = singularize( $args['plural'] );
+				} else {
+					$args['singular'] = make_legible( $object );
+				}
+			}
+			
+			// Auto create the plural form if needed
+			if ( ! isset( $args['plural'] ) ) {
+				$args['plural'] = pluralize( $args['singular'] );
+			}
+			
+			// Auto create the menu name if needed
+			if ( ! isset( $args['menu_name'] ) ) {
+				$args['menu_name'] = $args['plural'];
+			}
+			
+			$singular  = $args['singular'];
+			$plural    = $args['plural'];
+			$menu_name = $args['menu_name'];
+			
+			$args['labels'] = array(
+				'name'               => _x( $plural, 'post type general name' ),
+				'singular_name'      => _x( $singular, 'post type singular name' ),
+				'menu_name'          => _x( $singular, 'post type menu name' ),
+				'add_new'            => _x( 'Add New', $post_type ),
+			);
+			
+			$template = array_merge( array(
+				'add_new_item'       => 'Add New %S',
+				'edit_item'          => 'Edit %S',
+				'new_item'           => 'New %S',
+				'view_item'          => 'View %S',
+				'all_items'          => 'All %P',
+				'search_items'       => 'Search %P',
+				'parent_item_colon'  => 'Parent %S:',
+				'not_found'          => 'No %p found.',
+			), $template );
+			
+			$find = array( '%S', '%P', '%s', '%p' );
+			$replace = array( $singular, $plural, strtolower( $singular ), strtolower( $plural ) );
+			
+			foreach ( $template as $label => $format ) {
+				$text = str_replace( $find, $replace, $format );
+				$args['labels'][ $label ] = __( $text );
+			}
+		}
+	}
 	
 	/**
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined
@@ -217,47 +280,11 @@ class Setup extends \SmartPlugin{
 		// Make sure the post type doesn't already exist
 		if ( post_type_exists( $post_type ) ) return;
 		
-		// Check if labels need to be auto created
-		if ( ! isset( $args['labels'] ) ) {
-			// Auto create the singular form if needed
-			if ( ! isset( $args['singular'] ) ) {
-				if ( isset( $args['plural'] ) ) {
-					$args['singular'] = singularize( $args['plural'] );
-				} else {
-					$args['singular'] = make_legible( $post_type );
-				}
-			}
-			
-			// Auto create the plural form if needed
-			if ( ! isset( $args['plural'] ) ) {
-				$args['plural'] = pluralize( $args['singular'] );
-			}
-			
-			// Auto create the menu name if needed
-			if ( ! isset( $args['menu_name'] ) ) {
-				$args['menu_name'] = $args['plural'];
-			}
-			
-			$singular  = $args['singular'];
-			$plural    = $args['plural'];
-			$menu_name = $args['menu_name'];
-			
-			$args['labels'] = array(
-				'name'               => _x( $plural, 'post type general name' ),
-				'singular_name'      => _x( $singular, 'post type singular name' ),
-				'menu_name'          => _x( $singular, 'post type menu name' ),
-				'add_new'            => _x( 'Add New', $post_type ),
-				'add_new_item'       => __( 'Add New ' . $singular),
-				'edit_item'          => __( 'Edit ' . $singular ),
-				'new_item'           => __( 'New ' . $singular ),
-				'view_item'          => __( 'View ' . $singular ),
-				'search_items'       => __( 'Search ' . $plural ),
-				'not_found'          => __( 'No ' . strtolower($plural) . ' found.' ),
-				'not_found_in_trash' => __( 'No ' . strtolower($plural) . ' found in Trash.' ),
-				'parent_item_colon'  => __( 'Parent ' . $singular . ':' ),
-				'all_items'          => __( 'All ' . $plural )
-			);
-		}
+		// Setup the labels if needed
+		self::maybe_setup_labels( $post_type, $args, array(
+			'new_item' => 'New %S',
+			'not_found_in_trash' => 'No %p found in Trash.'
+		) );
 		
 		$default_args = array(
 			'public'          => true,
@@ -313,7 +340,26 @@ class Setup extends \SmartPlugin{
 	 * @param array  $args     The arguments for registration.
 	 */
 	public function _register_taxonomy( $taxonomy, $args ) {
+		// Check if the taxonomy exists, if so, see if a post_type
+		// is set in the $args and then tie them together.
+		if ( taxonomy_exists( $taxonomy ) ) {
+			if ( isset( $args['post_type'] ) ) {
+				foreach ( (array) $args['post_type'] as $post_type ) {
+					register_taxonomy_for_object_type( $taxonomy, $post_type );
+				}
+			}
+			return;
+		}
 		
+		// Setup the labels if needed
+		self::maybe_setup_labels( $post_type, $args, array(
+			'new_item_name' => 'New %S Name',
+			'parent_item' => 'Parent %S',
+			'popular_items' => 'Popular %P',
+			'separate_items_with_commas' => 'Separate %p with commas',
+			'add_or_remove_items' => 'Add or remove %p',
+			'choose_from_most_used' => 'Choose from most used %p',
+		) );
 	}
 	
 	/**
