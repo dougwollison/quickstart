@@ -177,7 +177,7 @@ class Setup{
 					}
 					// Enqueue backend scripts/styles if set
 					if ( isset( $value['backend'] ) ) {
-						$this->backend_enqueue( $value['frontend'] );
+						$this->backend_enqueue( $value['backend'] );
 					}
 				break;
 			}
@@ -192,7 +192,7 @@ class Setup{
 	 *
 	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
 	 */
-	protected function _frontend_enqueue($enqueues){
+	protected function _frontend_enqueue( $enqueues ) {
 		Tools::enqueue( $enqueues );
 	}
 
@@ -204,7 +204,7 @@ class Setup{
 	 *
 	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
 	 */
-	protected function _backend_enqueue($enqueues){
+	protected function _backend_enqueue( $enqueues ) {
 		Tools::enqueue( $enqueues );
 	}
 }
