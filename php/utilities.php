@@ -82,6 +82,22 @@ function is_assoc( $array ) {
 }
 
 /**
+ * Check if the $key is an associative key (non numeric),
+ * Swap with $value and make new value empty array if so.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed &$key   The key being tested.
+ * @param mixed &$value The value that may be swapped.
+ */
+function make_associative( &$key, &$value ) {
+	if ( is_int( $key ) ) {
+		$key = $value;
+		$value = array();
+	}
+}
+
+/**
  * Convert a string to a more legible form... or at least try to
  *
  * @since 1.0.0
