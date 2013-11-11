@@ -163,10 +163,9 @@ class Form{
 		 */
 		$value = apply_filters('qs_form_field_value', $value, $field, $data );
 
-
 		// Build the field by calling the appropriate method
-		if ( method_exists( get_called_class(), $settings['type'] ) ) {
-			$method = 'build_' . $settings['type'];
+		$method = 'build_' . $settings['type'];
+		if ( $method != __FUNCTION__ && method_exists( get_called_class(), $method ) ) {
 			$html = static::$method( $field, $settings, $value );
 		} else { // Meant for text and similar fields; pass to the generic field builder
 			$html = static::build_generic( $field, $settings, $value );
