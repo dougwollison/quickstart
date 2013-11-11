@@ -74,19 +74,6 @@ function make_legible( $string ) {
 }
 
 /**
- * Convert a field name to a valid ID
- *
- * @since 1.0.0
- *
- * @param string $name The name of the field
- *
- * @return string The valid ID
- */
-function name_to_id( $name ) {
-	return preg_replace( '/\[(.+)\]/', '_$1', $name );
-}
-
-/**
  * Restructure an array into a more logical layout
  *
  * Best exable is the $_FILES array when you have multiple file fields with an array name
