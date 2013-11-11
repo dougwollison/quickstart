@@ -9,7 +9,7 @@ namespace QuickStart;
  * @since 1.0.0
  */
 
-class Callbacks extends \SmartPlugin{
+class Callbacks{
 	/**
 	 * Default admin page callback
 	 * This will server for most admin pages; uses the WordPress Settings API
