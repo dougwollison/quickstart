@@ -241,6 +241,8 @@ class Form{
 	/**
 	 * Build a textarea field.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @see Form::build_generic()
 	 */
 	public static function build_textarea( $field, $settings, $value ) {
@@ -253,6 +255,8 @@ class Form{
 
 	/**
 	 * Build a checkbox field.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
 	 */
@@ -275,6 +279,8 @@ class Form{
 
 	/**
 	 * Build a checklist or radio list.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
 	 */
@@ -341,6 +347,8 @@ class Form{
 	/**
 	 * Alias to build_inputlist; build a checklist.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @see Form::build_inputlist()
 	 */
 	public static function build_checklist( $field, $settings, $value ) {
@@ -350,6 +358,8 @@ class Form{
 	/**
 	 * Alias to build_inputlist; build a radiolist.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @see Form::build_inputlist()
 	 */
 	public static function build_radiolist( $field, $settings, $value ) {
@@ -358,6 +368,8 @@ class Form{
 
 	/**
 	 * Build a select field.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
 	 */
@@ -389,6 +401,46 @@ class Form{
 		$html = self::build_tag( 'select', $settings, $options );
 
 		$html = static::maybe_wrap_field( $html, $settings, '<p class="field select-field %id"><label>%label %html</label></p>' );
+
+		return $html;
+	}
+
+	/**
+	 * Build an image setter field.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_setimage( $field, $settings, $value ) {
+		$html = '<div class="qs-set-image-metabox">';
+			$html .= '<div class="qs-preview">';
+				$html .= wp_get_attachment_image( $value, 'thumbnail' );
+			$html .= '</div>';
+			$html .= '<button type="button" class="button qs-set-image">' . $settings['label'] . '</button>';
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s">', $settings['name'], $value );
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Build a gallery editor field.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_editgallery( $field, $settings, $value ) {
+		$html = '<div class="qs-edit-gallery-metabox">';
+			$html .= '<div class="qs-preview">';
+			foreach ( explode( ',', $value ) as $image ) {
+				$html .= wp_get_attachment_image( $image, 'thumbnail' );
+			}
+			$html .= '</div>';
+			$html .= '<button type="button" class="button qs-edit-gallery">' . $settings['label'] . '</button>';
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s">', $settings['name'], $value );
+		$html .= '</div>';
 
 		return $html;
 	}
