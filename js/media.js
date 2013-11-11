@@ -52,7 +52,50 @@ window.QS = window.QS || {};
 			} );
 
 			return attachments;
-		}
+		},
+
+
+		/**
+		 * media.init(attributes, options)
+		 *
+		 * Setup a new wp.media frame workflow, attach events, and set the trigger event
+		 *
+		 * @param {object} attributes The attributes for the frame workflow
+		 * @param {object} options The options passed to the hook function
+		 */
+		init: function( attributes, options ) {
+			var frame = wp.media(attributes);
+
+			//Run through each event and setup the handlers
+			if ( options.events !== undefined ) {
+				for ( var e in options.events ) {
+					//Bind the callback to the event, passing QS.media as the context
+					//from that they'll be able to access the frame and trigger element
+					frame.on( e, options.events[ e ], media );
+				}
+			}
+
+			//In case they need to hook into it, trigger "init" on the frame,
+			//passing the frame itself as an additional parameter, since it
+			//can't be linked into QS.media yet
+			frame.trigger( 'init', frame );
+
+			var trigger = $( options.trigger );
+
+			//Create the click event for the trigger if present
+			if ( trigger.length > 0 ) {
+				trigger.on( 'click', function( e ) {
+					e.preventDefault();
+
+					//Link the frame into QS.media
+					media.frame = frame;
+					//Link the trigger into QS.media
+					media.trigger = $( this );
+
+					frame.open();
+				} );
+			}
+		},
 
 		/**
 		 * Preload the media manager with provided attachment ids
