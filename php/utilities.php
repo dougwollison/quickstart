@@ -19,7 +19,7 @@
  */
 function fill_array( &$array, $length ) {
 	if ( ! is_array( $array ) ) {
-		$array = ( array ) $array;
+		$array = (array) $array;
 	}
 
 	for( $i = 0; $i < $length; $i++ ) {
@@ -41,7 +41,7 @@ function fill_array( &$array, $length ) {
  * @return bool The result of the test
  */
 function is_assoc( $array ) {
-	return array_values( (array ) $array ) !== $array;
+	return array_values( (array) $array ) !== $array;
 }
 
 /**
@@ -70,7 +70,7 @@ function make_associative( &$key, &$value ) {
  * @return string The input string ( hopefully ) converted to legible form
  */
 function make_legible( $string ) {
-	return ucwords( str_replace( array( '_','-' ), ' ', $string ) );
+	return ucwords( str_replace( array( '_', '-' ), ' ', $string ) );
 }
 
 /**
@@ -90,7 +90,7 @@ function diverse_array( $array ) {
     $result = array();
     foreach ( $array as $key1 => $value1 )
         foreach ( $value1 as $key2 => $value2 )
-            $result[$key2][$key1] = $value2;
+            $result[ $key2 ][ $key1 ] = $value2;
 
    return $result;
 }
@@ -212,7 +212,7 @@ function extract_value( $array, $map ) {
 		$value = $array;
 		foreach ( $matches[1] as $key ) {
 			// Check if  the current $value has that key
-			if ( is_array( $value ) && isset( $value[$key] ) ) {
+			if ( is_array( $value ) && isset( $value[ $key ] ) ) {
 				// Reassign that value to $value
 				$value = $value[ $key ];
 			} else {
