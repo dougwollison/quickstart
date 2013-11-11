@@ -156,7 +156,7 @@ window.QS = window.QS || {};
 				choose:   'Insert Selected Media',
 				media:    'image',
 				multiple: false,
-				trigger:  '.qs-setimage'
+				trigger:  '.qs-button'
 			};
 
 			options = _.extend( {}, defaults, options );
@@ -185,7 +185,7 @@ window.QS = window.QS || {};
 		gallery: function( options ) {
 			var defaults = {
 				title: wp.media.view.l10n.editGalleryTitle,
-				trigger: '.qs-editgallery'
+				trigger: '.qs-button'
 			};
 
 			options = _.extend( {}, defaults, options );
