@@ -191,7 +191,7 @@ class Setup extends \SmartPlugin{
 			$args['labels'] = array(
 				'name'               => _x( $plural, 'post type general name' ),
 				'singular_name'      => _x( $singular, 'post type singular name' ),
-				'menu_name'          => _x( $singular, 'post type menu name' ),
+				'menu_name'          => _x( $menu_name, 'post type menu name' ),
 				'add_new'            => _x( 'Add New', $post_type ),
 			);
 
@@ -388,9 +388,10 @@ class Setup extends \SmartPlugin{
 		register_taxonomy( $taxonomy, $args['post_type'], $args );
 
 		// Now that it's registered, fetch the resulting show_ui argument,
-		// and add the taxonomy_count hook if true
+		// and add the taxonomy_count and taxonomy_filter hooks if true
 		if ( get_taxonomy( $taxonomy )->show_ui ){
 			Hooks::taxonomy_count( $taxonomy );
+			Hooks::taxonomy_filter( $taxonomy );
 		}
 	}
 
