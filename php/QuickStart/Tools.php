@@ -68,7 +68,7 @@ class Tools{
 		 * @uses string $singular The new singular form.
 		 * @uses string $plural The new plural form.
 		 */
-		add_action( 'init', function () use ( $singular, $plural ) {
+		add_action( 'init', function() use ( $singular, $plural ) {
 			global $wp_post_types;
 		    str_replace_in_array( array( 'Posts', 'Post' ), array( $plural, $singular ), $wp_post_types['post']->labels );
 		} );
@@ -85,7 +85,7 @@ class Tools{
 		 * @uses string $plural The new plural form.
 		 * @uses string $menuname The new menu name.
 		 */
-		add_action( 'admin_menu', function () use ( $singular, $plural, $menuname ) {
+		add_action( 'admin_menu', function() use ( $singular, $plural, $menuname ) {
 			global $menu, $submenu;
 		    $menu[5][0] = $menuname;
 		    str_replace_in_array( array( 'Posts', 'Post' ), array( $plural, $singular ), $submenu['edit.php'] );
@@ -157,14 +157,14 @@ class Tools{
 	 * @param array $styles An array of styles to register
 	 */
 	public static function register_mce_styles( $styles ) {
-		add_filter( 'mce_buttons_2', function ( $buttons ) {
+		add_filter( 'mce_buttons_2', function( $buttons ) {
 			if ( ! in_array( 'styleselect', $buttons ) ) {
 				array_splice( $buttons, 1, 0, 'styleselect' );
 			}
 			return $buttons;
 		} );
 
-		add_filter( 'tiny_mce_before_init', function ( $settings ) use ( $styles ) {
+		add_filter( 'tiny_mce_before_init', function( $settings ) use ( $styles ) {
 			$style_formats = array();
 
 			if ( isset( $settings['style_formats'] ) ) {
@@ -194,7 +194,7 @@ class Tools{
 			$btns = preg_split( '/\s*,\s*/', $btns );
 		}
 
-		add_filter( 'mce_buttons', function ( $buttons ) use ( $btns ) {
+		add_filter( 'mce_buttons', function( $buttons ) use ( $btns ) {
 			$buttons = array_merge( $buttons, $btns );
 			return $buttons;
 		} );
@@ -369,24 +369,24 @@ class Tools{
 	 */
 	public static function hide_posts() {
 		// Remove Posts from admin menu
-		add_action( 'admin_menu', function () {
+		add_action( 'admin_menu', function() {
 			remove_menu_page( 'edit.php' );
 		} );
 
 		// Remove Posts from admin bar
-		add_action( 'admin_bar_menu', function () {
+		add_action( 'admin_bar_menu', function() {
 			global $wp_admin_bar;
 			$wp_admin_bar->remove_menu( 'new-post', 'new-content' );
 		}, 300 );
 
 		// Remove Posts from favorite actions
-		add_filter( 'favorite_actions', function ( $actions ) {
+		add_filter( 'favorite_actions', function( $actions ) {
 			unset( $actions['edit-posts.php'] );
 			return $actions;
 		} );
 
 		// Remove Recent Posts widget
-		add_action( 'widgets_init', function () {
+		add_action( 'widgets_init', function() {
 			unregister_widget( 'WP_Widget_Recent_Posts' );
 		} );
 	}
@@ -398,24 +398,24 @@ class Tools{
 	 */
 	public static function hide_pages() {
 		// Remove Pages from admin menu
-		add_action( 'admin_menu', function () {
+		add_action( 'admin_menu', function() {
 			remove_menu_page( 'edit.php?post_type=page' );
 		} );
 
 		// Remove Pages from admin bar
-		add_action( 'admin_bar_menu', function () {
+		add_action( 'admin_bar_menu', function() {
 			global $wp_admin_bar;
 			$wp_admin_bar->remove_menu( 'new-page', 'new-content' );
 		}, 300 );
 
 		// Remove Pages from favorite actions
-		add_filter( 'favorite_actions', function ( $actions ) {
+		add_filter( 'favorite_actions', function( $actions ) {
 			unset( $actions['edit-posts.php?post_type=page'] );
 			return $actions;
 		} );
 
 		// Remove Pages widget
-		add_action( 'widgets_init', function () {
+		add_action( 'widgets_init', function() {
 			unregister_widget( 'WP_Widget_Pages' );
 		} );
 	}
@@ -429,7 +429,7 @@ class Tools{
 	 */
 	public static function hide_comments() {
 		// Remove Comment support from all post_types with it
-		add_action( 'init', function () {
+		add_action( 'init', function() {
 			foreach ( get_post_types( array( 'public' => true, '_builtin' => true ) ) as $post_type ) {
 				if ( post_type_supports( $post_type, 'comments' ) ) {
 					remove_post_type_support( $post_type, 'comments' );
@@ -438,24 +438,24 @@ class Tools{
 		} );
 
 		// Remove edit comments and discussion options from admin menu
-		add_action( 'admin_menu', function () {
+		add_action( 'admin_menu', function() {
 			remove_menu_page( 'edit-comments.php' );
 			remove_submenu_page( 'options-general.php', 'options-discussion.php' );
 		} );
 
 		// Remove Comments from admin bar
-		add_action( 'admin_bar_menu', function () {
+		add_action( 'admin_bar_menu', function() {
 			global $wp_admin_bar;
 			$wp_admin_bar->remove_menu( 'comments' );
 		}, 300 );
 
 		// Remove Comments meta box from dashboard
-		add_action( 'wp_dashboard_setup', function () {
+		add_action( 'wp_dashboard_setup', function() {
 			remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
 		} );
 
 		// Remove Comments/Trackback meta boxes from post editor
-		add_action( 'admin_init', function () {
+		add_action( 'admin_init', function() {
 			remove_meta_box( 'trackbacksdiv','post','normal' );
 			remove_meta_box( 'commentstatusdiv','post','normal' );
 			remove_meta_box( 'commentsdiv','post','normal' );
@@ -465,7 +465,7 @@ class Tools{
 		} );
 
 		// Remove Comments column from Posts/Pages editor
-		$removeCommentsColumn = function ( $defaults ) {
+		$removeCommentsColumn = function( $defaults ) {
 			unset( $defaults["comments"] );
 			return $defaults;
 		};
@@ -473,23 +473,23 @@ class Tools{
 		add_filter( 'manage_pages_columns', $removeCommentsColumn );
 
 		// Remove Recent Comments widget
-		add_action( 'widgets_init', function () {
+		add_action( 'widgets_init', function() {
 			unregister_widget( 'WP_Widget_Recent_Comments' );
 		} );
 
 		// Remove Comments from favorite actions
-		add_filter( 'favorite_actions', function ( $actions ) {
+		add_filter( 'favorite_actions', function( $actions ) {
 			unset( $actions['edit-comments.php'] );
 			return $actions;
 		} );
 
 		// Make comments number always return 0
-		add_action( 'get_comments_number', function () {
+		add_action( 'get_comments_number', function() {
 			return 0;
 		} );
 
 		// Edit $wp_query to clear comment related data
-		add_action( 'comments_template', function () {
+		add_action( 'comments_template', function() {
 			global $wp_query;
 			$wp_query->comments = array();
 			$wp_query->comments_by_type = array();
@@ -508,24 +508,24 @@ class Tools{
 	 */
 	public static function hide_links() {
 		// Remove Links from admin menu
-		add_action( 'admin_menu', function () {
+		add_action( 'admin_menu', function() {
 			remove_menu_page( 'link-manager.php' );
 		} );
 
 		// Remove Links from admin bar
-		add_action( 'admin_bar_menu', function () {
+		add_action( 'admin_bar_menu', function() {
 			global $wp_admin_bar;
 			$wp_admin_bar->remove_menu( 'new-link', 'new-content' );
 		}, 300 );
 
 		// Remove Links from favorite actions
-		add_filter( 'favorite_actions', function ( $actions ) {
+		add_filter( 'favorite_actions', function( $actions ) {
 			unset( $actions['link-add.php'] );
 			return $actions;
 		} );
 
 		// Remove Links widget
-		add_action( 'widgets_init', function () {
+		add_action( 'widgets_init', function() {
 			unregister_widget( 'WP_Widget_Links' );
 		} );
 	}
