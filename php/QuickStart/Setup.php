@@ -188,11 +188,11 @@ class Setup extends \SmartPlugin{
 			$plural    = $args['plural'];
 			$menu_name = $args['menu_name'];
 
-			$args['labels'] = array(
+			$labels = array(
 				'name'               => _x( $plural, 'post type general name' ),
 				'singular_name'      => _x( $singular, 'post type singular name' ),
 				'menu_name'          => _x( $menu_name, 'post type menu name' ),
-				'add_new'            => _x( 'Add New', $post_type ),
+				'add_new'            => _x( 'Add New', $object ),
 			);
 
 			$template = wp_parse_args( $template, array(
@@ -211,8 +211,21 @@ class Setup extends \SmartPlugin{
 
 			foreach ( $template as $label => $format ) {
 				$text = str_replace( $find, $replace, $format );
-				$args['labels'][ $label ] = __( $text );
+				$labels[ $label ] = __( $text );
 			}
+
+			/**
+			 * Filter the processed labels list.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param array  $labels The list of labels for the object.
+			 * @param string $object The slug of the post_type/taxonomy.
+			 * @param array  $args   The registration arguments.
+			 */
+			$labels = apply_filters( 'qs_setup_labels', $labels, $object, $args );
+
+			$args['labels'] = $labels;
 		}
 	}
 
