@@ -13,6 +13,8 @@ window.QS = window.QS || {};
 		/**
 		 * Extract the selected attachment from the given frame.
 		 *
+		 * @since 1.0.0
+		 *
 		 * @param  wp.media frame The frame workflow.
 		 *
 		 * @return object The first attachment selected.
@@ -28,6 +30,8 @@ window.QS = window.QS || {};
 
 		/**
 		 * Extract the selected attachments from the given frame.
+		 *
+		 * @since 1.0.0
 		 *
 		 * @param wp.media frame The frame workflow.
 		 *
@@ -57,6 +61,8 @@ window.QS = window.QS || {};
 
 		/**
 		 * Setup a new wp.media frame workflow, attach events, and set the trigger event.
+		 *
+		 * @since 1.0.0
 		 *
 		 * @param object attributes The attributes for the frame workflow.
 		 * @param object options    The options passed to the hook function.
@@ -98,6 +104,8 @@ window.QS = window.QS || {};
 		/**
 		 * Preload the media manager with provided attachment ids.
 		 *
+		 * @since 1.0.0
+		 *
 		 * @param string|array ids   A comma separated string or array of ids.
 		 * @param wp.media     frame The frame workflow (defaults to current frame stored in QS.media).
 		 */
@@ -135,6 +143,91 @@ window.QS = window.QS || {};
 	 */
 
 	_.extend(media, {
+		/**
+		 * Hook into the media manager frame for selecting and inserting an image.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param object options A list of options.
+		 */
+		insert: function( options ) {
+			var defaults = {
+				title:    'Insert Media',
+				choose:   'Insert Selected Media',
+				media:    'image',
+				multiple: false,
+				trigger:  '.qs-setimage'
+			};
+
+			options = _.extend( {}, defaults, options );
+
+		    this.init( {
+				title:    options.title,
+				choose:   options.choose,
+				multiple: options.multiple,
+				library:  {
+					type:  options.media
+				},
+				button:   {
+					text:  options.choose,
+					close: true
+				}
+			}, options );
+		},
+
+		/**
+		 * Hook into the media manager for editing galleries.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param object options A list of options.
+		 */
+		gallery: function( options ) {
+			var defaults = {
+				title: wp.media.view.l10n.editGalleryTitle,
+				trigger: '.qs-editgallery'
+			};
+
+			options = _.extend( {}, defaults, options );
+
+			var gallery, attachments, selection;
+
+			if ( options.gallery !== undefined ) {
+				//If gallery was not a comma separated string, make it one
+				if ( typeof options.gallery != 'string' ) {
+					options.gallery = options.gallery.join( ',' );
+				}
+
+				//Generate and parse shortcode
+				gallery = wp.shortcode.next( 'gallery', '[gallery ids="' + options.gallery + '"]' );
+				gallery = gallery.shortcode;
+
+				//Get the attachments from the gallery shortcode
+				attachments = wp.media.gallery.attachments( gallery );
+				selection = new wp.media.model.Selection( attachments.models, {
+			        props:    attachments.props.toJSON(),
+			        multiple: true
+			    } );
+
+			    selection.gallery = attachments.gallery;
+
+			    //Fetch the query's attachments, and then break ties from the query to allow for sorting.
+			    selection.more().done( function() {
+			        selection.props.set( { query: false } );
+			        selection.unmirror();
+			        selection.props.unset( 'orderby' );
+			    } );
+			}
+
+		    this.init( {
+				state:     'gallery-edit',
+				frame:     'post',
+				title:     options.title,
+				multiple:  true,
+				editing:   true,
+				selection: selection
+			}, options );
+		}
 	});
 
 	/**
