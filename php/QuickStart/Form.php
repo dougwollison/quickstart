@@ -323,4 +323,41 @@ class Form{
 	public static function build_radiolist( $field, $settings, $value ) {
 		return static::build_inputlist( 'radio', $field, $settings, $value );
 	}
+
+	/**
+	 * Build a select field.
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_select( $field, $settings, $value ) {
+		$options = '';
+
+		if ( ! isset( $settings['values'] ) )
+			throw new Exception( 'Checklist/radiolist fields MUST have a values parameter.' );
+
+		csv_array_ref( $settings['values'] );
+
+		$is_assoc = is_assoc( $settings['values'] );
+
+		// Run through the values and build the options list
+		foreach ( $settings['values'] as $val => $label ) {
+			if ( ! $is_assoc ) {
+				$val = $label;
+			}
+
+			$options .= sprintf(
+				'<option value="%s" %s> %s</option>',
+				$val,
+				in_array( $val, (array) $value ) ? 'selected' : '',
+				$label
+			);
+		}
+
+		// Build the <select>
+		$html = self::build_tag( 'select', $settings, $options );
+
+		$html = static::maybe_wrap_field( $html, $settings, '<p class="field select-field %id"><label>%label %html</label></p>' );
+
+		return $html;
+	}
 }
