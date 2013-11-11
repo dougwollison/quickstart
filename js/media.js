@@ -11,11 +11,11 @@ window.QS = window.QS || {};
 
 	_.extend(media, {
 		/**
-		 * Extract the selected attachment from the given frame
+		 * Extract the selected attachment from the given frame.
 		 *
-		 * @param  wp.media frame The frame workflow
+		 * @param  wp.media frame The frame workflow.
 		 *
-		 * @return object The first attachment selected
+		 * @return object The first attachment selected.
 		 */
 		attachment: function( frame ) {
 			if ( frame == undefined )
@@ -27,11 +27,11 @@ window.QS = window.QS || {};
 		},
 
 		/**
-		 * Extract the selected attachments from the given frame
+		 * Extract the selected attachments from the given frame.
 		 *
-		 * @param wp.media frame The frame workflow
+		 * @param wp.media frame The frame workflow.
 		 *
-		 * @return array An array of attachments
+		 * @return array An array of attachments.
 		 */
 		attachments: function( frame ) {
 			if ( frame == undefined )
@@ -56,12 +56,10 @@ window.QS = window.QS || {};
 
 
 		/**
-		 * media.init(attributes, options)
+		 * Setup a new wp.media frame workflow, attach events, and set the trigger event.
 		 *
-		 * Setup a new wp.media frame workflow, attach events, and set the trigger event
-		 *
-		 * @param {object} attributes The attributes for the frame workflow
-		 * @param {object} options The options passed to the hook function
+		 * @param object attributes The attributes for the frame workflow.
+		 * @param object options    The options passed to the hook function.
 		 */
 		init: function( attributes, options ) {
 			var frame = wp.media(attributes);
@@ -98,10 +96,10 @@ window.QS = window.QS || {};
 		},
 
 		/**
-		 * Preload the media manager with provided attachment ids
+		 * Preload the media manager with provided attachment ids.
 		 *
-		 * @param string|array ids   A comma separated string or array of ids
-		 * @param wp.media     frame The frame workflow (defaults to current frame stored in QS.media)
+		 * @param string|array ids   A comma separated string or array of ids.
+		 * @param wp.media     frame The frame workflow (defaults to current frame stored in QS.media).
 		 */
 		preload: function( ids, frame ) {
 			if ( frame == undefined )
