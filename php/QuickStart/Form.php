@@ -218,7 +218,7 @@ class Form{
 	 */
 	public static function build_generic( $field, $settings, $value ) {
 		if ( ! isset( $settings['class'] ) ) {
-			$settings['class'] = array();
+			$settings['class'] = array( 'regular-text' );
 		} elseif ( ! is_array($settings['class'] ) ) {
 			$settings['class'] = (array) $settings['class'];
 		}
