@@ -413,11 +413,11 @@ class Form{
 	 * @see Form::build_generic()
 	 */
 	public static function build_setimage( $field, $settings, $value ) {
-		$html = '<div class="qs-set-image-metabox">';
+		$html = '<div class="qs-setimage-metabox">';
 			$html .= '<div class="qs-preview">';
 				$html .= wp_get_attachment_image( $value, 'thumbnail' );
 			$html .= '</div>';
-			$html .= '<button type="button" class="button qs-set-image">' . $settings['label'] . '</button>';
+			$html .= '<button type="button" class="button qs-setimage">' . $settings['label'] . '</button>';
 			$html .= sprintf( '<input type="hidden" name="%s" value="%s">', $settings['name'], $value );
 		$html .= '</div>';
 
@@ -432,13 +432,13 @@ class Form{
 	 * @see Form::build_generic()
 	 */
 	public static function build_editgallery( $field, $settings, $value ) {
-		$html = '<div class="qs-edit-gallery-metabox">';
+		$html = '<div class="qs-editgallery-metabox">';
 			$html .= '<div class="qs-preview">';
 			foreach ( explode( ',', $value ) as $image ) {
 				$html .= wp_get_attachment_image( $image, 'thumbnail' );
 			}
 			$html .= '</div>';
-			$html .= '<button type="button" class="button qs-edit-gallery">' . $settings['label'] . '</button>';
+			$html .= '<button type="button" class="button qs-editgallery">' . $settings['label'] . '</button>';
 			$html .= sprintf( '<input type="hidden" name="%s" value="%s">', $settings['name'], $value );
 		$html .= '</div>';
 
