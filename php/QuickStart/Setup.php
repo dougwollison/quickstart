@@ -387,9 +387,27 @@ class Setup extends \SmartPlugin{
 		// Now, register the post type
 		register_taxonomy( $taxonomy, $args['post_type'], $args );
 
+		// Proceed with post-registration stuff, provided it was successfully registered.
+		if ( ! ( $taxonomy_obj = get_taxonomy( $taxonomy ) ) ) return;
+
+		// Now that it's registered, see if there are preloaded terms to add
+		if ( isset( $args['preload'] ) ) {
+			csv_array_ref( $args['preload'] );
+			foreach ( $args['preload'] as $term => $args ) {
+				// Check if the term was added numerically on it's own
+				make_associative( $term, $args );
+
+				// Check if it exists, skip if so
+				if ( get_term_by( 'name', $term, $taxonomy ) ) continue;
+
+				// Insert the term
+				wp_insert_term( $term, $taxonomy, $args );
+			}
+		}
+
 		// Now that it's registered, fetch the resulting show_ui argument,
 		// and add the taxonomy_count and taxonomy_filter hooks if true
-		if ( get_taxonomy( $taxonomy )->show_ui ){
+		if ( $taxonomy_obj->show_ui ){
 			Hooks::taxonomy_count( $taxonomy );
 			Hooks::taxonomy_filter( $taxonomy );
 		}
