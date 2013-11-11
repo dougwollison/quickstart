@@ -174,10 +174,7 @@ class Form{
 		$settings['value'] = $value;
 
 		// Build the <input>
-		$html = static::build_tag(
-			'input',
-			$settings
-		);
+		$html = static::build_tag( 'input', $settings );
 
 		$settings['class'] = array(
 			$settings['type'] . '-field',
@@ -188,6 +185,55 @@ class Form{
 			$html = sprintf(
 				'<p class="field text-field %1$s-field %2$s"><label for="%2$s">%3$s:</label> %4$s</p>',
 				$settings['type'],
+				$settings['id'],
+				$settings['label'],
+				$html
+			);
+		}
+
+		return $html;
+	}
+
+	/**
+	 * Build a textarea field.
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_textarea( $field, $settings, $value ) {
+		$html = self::build_tag( 'textarea', $settings, $value );
+
+		if ( $settings['_label'] ) { // Wrap in label
+			$html = sprintf(
+				'<p class="field textarea-field %1$s"><label for="%1$s">%2$s:</label><br> %3$s</p>',
+				$settings['id'],
+				$settings['label'],
+				$html
+			);
+		}
+
+		return $html;
+	}
+
+	/**
+	 * Build a checkbox field.
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_checkbox( $field, $settings, $value ) {
+		if ( ! isset( $settings['value'] ) ) {
+			$settings['value'] = 1;
+		}
+
+		if ( $value == $settings['value'] ) {
+			$settings[] = 'checked';
+		}
+
+		// Build the <input>
+		$html = self::build_tag( 'input', $settings );
+
+		if ( $settings['_label'] ) { // Wrap in label
+			$html = sprintf(
+				'<p class="field checkbox-field %s"><label>%s %s</label></p>',
 				$settings['id'],
 				$settings['label'],
 				$html
