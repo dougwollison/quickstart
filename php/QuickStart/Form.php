@@ -138,7 +138,7 @@ class Form{
 		 * @param array  $settings The settings array for the field.
 		 * @param string $field    The original field name.
 		 */
-		$settings = apply_filters('qs_form_field_settings', $settings, $field);
+		$settings = apply_filters( 'qs_form_field_settings', $settings, $field );
 
 		// Get the value based on what $post is
 		if ( is_null( $data ) ) {
@@ -161,7 +161,7 @@ class Form{
 		 * @param string $field The field this value is for.
 		 * @param mixed  $data  The original data argument passed.
 		 */
-		$value = apply_filters('qs_form_field_value', $value, $field, $data );
+		$value = apply_filters( 'qs_form_field_value', $value, $field, $data );
 
 		// Build the field by calling the appropriate method
 		$method = 'build_' . $settings['type'];
