@@ -24,7 +24,7 @@ function fill_array( &$array, $length ) {
 
 	for( $i = 0; $i < $length; $i++ ) {
 		if ( ! isset( $array[ $i ] ) ) {
-			$array[$i] = null;
+			$array[ $i ] = null;
 		}
 	}
 
