@@ -44,8 +44,20 @@ class Form{
 	 * @return string The processed HTML.
 	 */
 	public static function maybe_wrap_field( $html, $settings, $format ) {
+
 		if ( isset( $settings['_label'] ) && $settings['_label'] ) {
 			$settings['html'] = $html;
+
+			/**
+			 * Filter the format string to be used.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param string $format   The format string being used.
+			 * @param array  $settings The settings array used by the field.
+			 */
+			$format = apply_filters( 'qs_form_field_wrap_format', $format, $settings );
+
 			$html = sprintp( $format, $settings );
 		}
 
@@ -55,7 +67,7 @@ class Form{
 	/**
 	 * Build an HTML tag.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 *
 	 * @param string $tag     The tag name.
 	 * @param array  $atts    The tag attributes.
@@ -118,6 +130,16 @@ class Form{
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
 
+		/**
+		 * Filter the settings array for this field.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array  $settings The settings array for the field.
+		 * @param string $field    The original field name.
+		 */
+		$settings = apply_filters('qs_form_field_settings', $settings, $field);
+
 		// Get the value based on what $post is
 		if ( is_null( $data ) ) {
 			// Assume it's an option, retrieve it
@@ -129,6 +151,17 @@ class Form{
 			// Assume literal value
 			$value = $data;
 		}
+
+		/**
+		 * Filter the value to be used for the field.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param mixed  $value The original value for this field.
+		 * @param string $field The field this value is for.
+		 * @param mixed  $data  The original data argument passed.
+		 */
+		$value = apply_filters('qs_form_field_value', $value, $field, $data );
 
 
 		// Build the field by calling the appropriate method
