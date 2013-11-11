@@ -417,8 +417,8 @@ class Form{
 			$html .= '<div class="qs-preview">';
 				$html .= wp_get_attachment_image( $value, 'thumbnail' );
 			$html .= '</div>';
-			$html .= '<button type="button" class="button qs-setimage">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s">', $settings['name'], $value );
+			$html .= '<button type="button" class="button qs-setimage qs-button">' . $settings['label'] . '</button>';
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
 		$html .= '</div>';
 
 		return $html;
@@ -438,8 +438,8 @@ class Form{
 				$html .= wp_get_attachment_image( $image, 'thumbnail' );
 			}
 			$html .= '</div>';
-			$html .= '<button type="button" class="button qs-editgallery">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s">', $settings['name'], $value );
+			$html .= '<button type="button" class="button qs-editgallery qs-button">' . $settings['label'] . '</button>';
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
 		$html .= '</div>';
 
 		return $html;
