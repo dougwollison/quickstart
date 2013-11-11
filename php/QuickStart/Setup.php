@@ -45,7 +45,7 @@ class Setup extends \SmartPlugin{
 		'frontend_enqueue' => 'wp_enqueue_scripts',
 		'backend_enqueue' => 'admin_enqueue_scripts',
 		'run_theme_setups' => 'after_theme_setup',
-		'save_meta_box' => 'save_post',
+		'save_meta_box' => array( 'save_post', 10, 1 ),
 		'add_meta_box' => 'add_meta_boxes'
 	);
 
@@ -69,7 +69,7 @@ class Setup extends \SmartPlugin{
 
 		// Merge default_args with passed defaults
 		$this->defaults = wp_parse_args( $defaults, $this->defaults );
-		
+
 		foreach ( $configs as $key => $value ) {
 			// Proceed simple options based on what $key is
 			switch ( $key ) {
@@ -144,7 +144,7 @@ class Setup extends \SmartPlugin{
 	 * Custom Content Setups
 	 * =========================
 	 */
-	 
+
 	/**
 	 * Utility method: prepare the provided defaults with the custom ones from $this->defaults.
 	 *
@@ -158,7 +158,7 @@ class Setup extends \SmartPlugin{
 			$defaults = wp_parse_args( $this->defaults[ $key ], $defaults );
 		}
 	}
-	 
+
 	/**
 	 * Utility method: take care of processing the labels based on the provided arguments.
 	 *
@@ -179,28 +179,28 @@ class Setup extends \SmartPlugin{
 					$args['singular'] = make_legible( $object );
 				}
 			}
-			
+
 			// Auto create the plural form if needed
 			if ( ! isset( $args['plural'] ) ) {
 				$args['plural'] = pluralize( $args['singular'] );
 			}
-			
+
 			// Auto create the menu name if needed
 			if ( ! isset( $args['menu_name'] ) ) {
 				$args['menu_name'] = $args['plural'];
 			}
-			
+
 			$singular  = $args['singular'];
 			$plural    = $args['plural'];
 			$menu_name = $args['menu_name'];
-			
+
 			$args['labels'] = array(
 				'name'               => _x( $plural, 'post type general name' ),
 				'singular_name'      => _x( $singular, 'post type singular name' ),
 				'menu_name'          => _x( $singular, 'post type menu name' ),
 				'add_new'            => _x( 'Add New', $post_type ),
 			);
-			
+
 			$template = wp_parse_args( $template, array(
 				'add_new_item'       => 'Add New %S',
 				'edit_item'          => 'Edit %S',
@@ -211,17 +211,17 @@ class Setup extends \SmartPlugin{
 				'parent_item_colon'  => 'Parent %S:',
 				'not_found'          => 'No %p found.',
 			) );
-			
+
 			$find = array( '%S', '%P', '%s', '%p' );
 			$replace = array( $singular, $plural, strtolower( $singular ), strtolower( $plural ) );
-			
+
 			foreach ( $template as $label => $format ) {
 				$text = str_replace( $find, $replace, $format );
 				$args['labels'][ $label ] = __( $text );
 			}
 		}
 	}
-	
+
 	/**
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined
 	 * within a post_type configuration.
@@ -235,13 +235,13 @@ class Setup extends \SmartPlugin{
 		if ( is_null( $configs ) ) {
 			$configs = &$this->configs;
 		}
-		
+
 		$configs = array_merge( array(
 			'post_types' => array(),
 			'taxonomies' => array(),
 			'meta_boxes' => array()
 		), $configs );
-	
+
 		// Loop through each post_type, check for taxonomies or meta_boxes
 		foreach ( $configs['post_types'] as $post_type => &$pt_args ) {
 			make_associative( $post_type, $pt_args );
@@ -250,47 +250,47 @@ class Setup extends \SmartPlugin{
 				foreach ( $pt_args['taxonomies'] as $taxonomy => $tx_args ) {
 					// Fix if dumb taxonomy was passed (numerically, not associatively)
 					make_associative( $taxonomy, $tx_args );
-					
+
 					// Check if the taxonomy is registered yet
 					if ( ! taxonomy_exists( $taxonomy ) ) {
 						// Add this post type to the post_types argument to this taxonomy
 						$tx_args['post_type'] = array( $post_type );
-						
+
 						// Add this taxonomy to $taxonomies, remove from this post type
 						$configs['taxonomies'][ $taxonomy ] = $tx_args;
 						unset( $pt_args['taxonomies'][ $taxonomy ] );
 					}
 				}
 			}
-			
+
 			if ( isset( $pt_args['meta_boxes'] ) ) {
 				foreach ( $pt_args['meta_boxes'] as $meta_box => $mb_args ) {
 					// Fix if dumb metabox was passed (numerically, not associatively)
 					make_associative( $meta_box, $mb_args );
-					
+
 					// Check if the arguments are a callable, restructure to proper form
 					if ( is_callable( $mb_args ) ) {
 						$mb_args = array(
 							'fields' => $mb_args
 						);
 					}
-					
+
 					// Add this post type to the post_types argument to this meta box
 					$mb_args['post_type'] = array( $post_type );
-					
+
 					// Add this taxonomy to $taxonomies, remove from this post type
 					$configs['meta_boxes'][ $meta_box ] = $mb_args;
 					unset( $pt_args['meta_boxes'][ $meta_box ] );
 				}
 			}
 		}
-		
+
 		// Run the content setups
 		$this->register_post_types( $configs['post_types'] ); // Will run during "init"
 		$this->register_taxonomies( $configs['taxonomies'] ); // Will run during "init"
 		$this->register_meta_boxes( $configs['meta_boxes'] ); // Will run now and setup various hooks
 	}
-	
+
 	/**
 	 * Register the requested post_type.
 	 *
@@ -302,19 +302,19 @@ class Setup extends \SmartPlugin{
 	public function _register_post_type( $post_type, array $args = array() ) {
 		// Make sure the post type doesn't already exist
 		if ( post_type_exists( $post_type ) ) return;
-		
+
 		// Setup the labels if needed
 		self::maybe_setup_labels( $post_type, $args, array(
 			'new_item' => 'New %S',
 			'not_found_in_trash' => 'No %p found in Trash.'
 		) );
-		
+
 		// Default arguments for the post type
 		$defaults = array(
 			'public' => true,
 			'has_archive' => true,
 		);
-		
+
 		// Prep $defaults
 		$this->prep_defaults( 'post_type', $defaults );
 
@@ -323,14 +323,14 @@ class Setup extends \SmartPlugin{
 
 		// Now, register the post type
 		register_post_type( $post_type, $args );
-		
+
 		// Now that it's registered, fetch the resulting show_in_menu argument,
 		// and add the post_type_count callback if true
 		if ( get_post_type_object( $post_type )->show_in_menu ){
 			add_action( 'right_now_content_table_end', Callbacks::make( 'post_type_count', $post_type ) );
 		}
 	}
-	
+
 	/**
 	 * Register the requested post types.
 	 *
@@ -346,7 +346,7 @@ class Setup extends \SmartPlugin{
 			$this->_register_post_type( $post_type, $args );
 		}
 	}
-	
+
 	/**
 	 * Register the requested taxonomy.
 	 *
@@ -368,7 +368,7 @@ class Setup extends \SmartPlugin{
 			}
 			return;
 		}
-		
+
 		// Setup the labels if needed
 		self::maybe_setup_labels( $taxonomy, $args, array(
 			'new_item_name' => 'New %S Name',
@@ -378,12 +378,12 @@ class Setup extends \SmartPlugin{
 			'add_or_remove_items' => 'Add or remove %p',
 			'choose_from_most_used' => 'Choose from most used %p',
 		) );
-		
+
 		// Default arguments for the post type
 		$defaults = array(
 			'hierarchical' => true,
 		);
-		
+
 		// Prep $defaults
 		$this->prep_defaults( 'taxonomy', $defaults );
 
@@ -392,14 +392,14 @@ class Setup extends \SmartPlugin{
 
 		// Now, register the post type
 		register_taxonomy( $taxonomy, $args['post_type'], $args );
-		
+
 		// Now that it's registered, fetch the resulting show_ui argument,
 		// and add the taxonomy_count callback if true
 		if ( get_taxonomy( $taxonomy )->show_ui ){
 			add_action( 'right_now_content_table_end', Callbacks::make( 'taxonomy_count', $taxonomy ) );
 		}
 	}
-	
+
 	/**
 	 * Register the requested taxonomies
 	 *
@@ -415,7 +415,7 @@ class Setup extends \SmartPlugin{
 			$this->_register_taxonomy( $taxonomy, $args );
 		}
 	}
-	
+
 	/**
 	 * Register the requested meta box.
 	 *
@@ -439,7 +439,7 @@ class Setup extends \SmartPlugin{
 				)
 			);
 		}
-		
+
 		$defaults = array(
 			'title' => make_legible( $meta_box ),
 			'context' => 'normal',
@@ -449,13 +449,13 @@ class Setup extends \SmartPlugin{
 
 		// Prep $defaults
 		$this->prep_defaults( 'meta_box', $defaults );
-		
+
 		$args = wp_parse_args( $args, $defaults );
-	
+
 		$this->save_meta_box( $meta_box, $args );
 		$this->add_meta_box( $meta_box, $args );
 	}
-	
+
 	/**
 	 * Register the requested meta boxes.
 	 *
@@ -471,19 +471,19 @@ class Setup extends \SmartPlugin{
 			$this->register_meta_box( $meta_box, $args );
 		}
 	}
-	
+
 	/**
 	 * Setup the save hook for the meta box
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param string $post_id  The ID of the post being saved. (skip when saving the hook)
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments from registration.
 	 */
-	protected function _save_meta_box( $meta_box, $args ) {
-		
+	protected function _save_meta_box( $post_id, $meta_box, $args ) {
 	}
-	
+
 	/**
 	 * Add the meta box to WordPress
 	 *
