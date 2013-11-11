@@ -45,13 +45,13 @@ abstract class SmartPlugin{
 	 */
 	public function __call( $method, $args ) {
 		/**
-		 * Check if the method name is a callback alias,
-		 * or a real method to setup the hook for.
+		 * Check if the method name is a real method,
+		 * or a callback alias.
 		 * Abort if neither.
 		 */
 		if ( method_exists( $this, "_$method" ) ) {
 			return $this->save_callback( $method, $args );
-		} elseif ( preg_match( '/^callback-(.+)/', $method, $matches ) ) {
+		} elseif ( preg_match( '/^cb(\d+)/', $method, $matches ) ) {
 			return $this->load_callback( $matches[1], $args );
 		} else {
 			return;
@@ -80,9 +80,9 @@ abstract class SmartPlugin{
 
 		// Get the name, priority and number of args for the hook,
 		// based on the hook plus default arguments if needed.
-		list( $name, $priority, $args ) = (array) $hook + array( 'init', 10, 0 );
+		list( $tag, $priority, $accepted_args ) = (array) $hook + array( 'init', 10, 0 );
 
-		add_action( $name, array( $this, "callback-$id" ), $priority, $args );
+		add_filter( $tag, array( $this, "cb$id" ), $priority, $accepted_args );
 
 		return $id;
 	}
@@ -151,14 +151,14 @@ abstract class SmartPlugin{
 	 */
 	public static function __callStatic( $method, $args ) {
 		/**
-		 * Check if the method name is a callback alias,
-		 * or a real method to setup the hook for.
+		 * Check if the method name is a real method,
+		 * or a callback alias.
 		 * Abort if neither.
 		 */
 		if ( method_exists( get_called_class(), "_$method" ) ) {
-			return self::save_static_callback( $method, $args );
-		} elseif ( preg_match( '/^callback-(.+)/', $method, $matches ) ) {
-			return self::load_static_callback( $matches[1], $args );
+			return static::save_static_callback( $method, $args );
+		} elseif ( preg_match( '/^cb(\d+)/', $method, $matches ) ) {
+			return static::load_static_callback( $matches[1], $args );
 		} else {
 			return;
 		}
@@ -177,15 +177,19 @@ abstract class SmartPlugin{
 		if ( ! method_exists( get_called_class(), "_$method" ) ) return;
 
 		$hook = 'init';
-		if ( isset( self::$static_method_hooks[ $method ] ) )
-			$hook = self::$static_method_hooks[ $method ];
+		if ( isset( static::$static_method_hooks[ $method ] ) )
+			$hook = static::$static_method_hooks[ $method ];
 
-		++self::$static_callback_counts;
-		$id = self::$static_callback_counts;
+		++static::$static_callback_counts;
+		$id = static::$static_callback_counts;
 
-		self::$static_callbacks[ $id ] = array( $method, $args );
+		static::$static_callbacks[ $id ] = array( $method, $args );
 
-		add_action( $hook, array( get_called_class(), "callback-$id" ) );
+		// Get the name, priority and number of args for the hook,
+		// based on the hook plus default arguments if needed.
+		list( $tag, $priority, $accepted_args ) = (array) $hook + array( 'init', 10, 0 );
+
+		add_filter( $tag, array( get_called_class(), "cb$id" ), $priority, $accepted_args );
 
 		return $id;
 	}
@@ -201,10 +205,10 @@ abstract class SmartPlugin{
 	 */
 	protected function load_static_callback( $id, $_args ) {
 		// First, make sure the callback exists, abort if not
-		if ( ! isset( self::$static_callbacks[ $id ] ) ) return;
+		if ( ! isset( static::$static_callbacks[ $id ] ) ) return;
 
 		// Fetch the method name and saved arguments
-		list( $method, $args ) = self::$static_callbacks[ $id ];
+		list( $method, $args ) = static::$static_callbacks[ $id ];
 
 		// Apply the method with the saved arguments
 		return call_user_func_array( array( get_called_class(), "_$method" ), $args );
