@@ -43,7 +43,7 @@ class Form{
 	 *
 	 * @return string The processed HTML.
 	 */
-	public static function wrap_field( $html, $settings, $format ) {
+	public static function maybe_wrap_field( $html, $settings, $format ) {
 		if ( isset( $settings['_label'] ) && $settings['_label'] ) {
 			$settings['html'] = $html;
 			$html = sprintp( $format, $settings );
@@ -201,7 +201,7 @@ class Form{
 			$settings['id']
 		);
 
-		$html = static::wrap_field( $html, $settings, '<p class="field text-field %type-field %id"><label for="%id">%label:</label> %html</p>' );
+		$html = static::maybe_wrap_field( $html, $settings, '<p class="field text-field %type-field %id"><label for="%id">%label:</label> %html</p>' );
 
 		return $html;
 	}
@@ -214,7 +214,7 @@ class Form{
 	public static function build_textarea( $field, $settings, $value ) {
 		$html = self::build_tag( 'textarea', $settings, $value );
 
-		$html = static::wrap_field( $html, $settings, '<p class="field textarea-field %id"><label for="%id">%label</label><br> %html</p>' );
+		$html = static::maybe_wrap_field( $html, $settings, '<p class="field textarea-field %id"><label for="%id">%label</label><br> %html</p>' );
 
 		return $html;
 	}
@@ -236,8 +236,91 @@ class Form{
 		// Build the <input>
 		$html = self::build_tag( 'input', $settings );
 
-		$html = static::wrap_field( $html, $settings, '<p class="field checkbox-field %id"><label>%label %html</label></p>' );
+		$html = static::maybe_wrap_field( $html, $settings, '<p class="field checkbox-field %id"><label>%label %html</label></p>' );
 
 		return $html;
+	}
+
+	/**
+	 * Build a checklist or radio list.
+	 *
+	 * @see Form::build_generic()
+	 */
+	protected static function build_inputlist( $type, $field, $settings, $value ) {
+		$settings['type'] = $type;
+
+		$items = '';
+
+		if ( ! isset( $settings['values'] ) )
+			throw new Exception( 'Checklist/radiolist fields MUST have a values parameter.' );
+
+		csv_array_ref( $settings['values'] );
+
+		$is_assoc = is_assoc( $settings['values'] );
+
+		// Run through the values and build the input list
+		foreach ( $settings['values'] as $val => $label ) {
+			if ( ! $is_assoc ) {
+				$val = $label;
+			}
+
+			// Build the attributes for the <input>
+			$atts = array(
+				'type' => $type,
+				'id' => $settings['id'] . '__' . sanitize_key( $val ),
+				'name' => $settings['name'],
+				'value' => $val
+			);
+
+			// Check if the value is present or the default one.
+			if ( in_array( $val, (array) $value ) || ( ! $value && isset( $settings['default'] ) && $val == $settings['default'] ) ) {
+				$atts[] = 'checked';
+			}
+
+			// Build the li > label > input markup
+			$items .= sprintf(
+				'<li class="%1$s %1$s-%2$s"><label>%3$s %4$s</label></li>',
+				$settings['id'],
+				sanitize_key( $val ),
+				static::build_tag(
+					'input',
+					$atts
+				),
+				$label
+			);
+		}
+
+		if ( ! isset( $settings['class'] ) ) {
+			$settings['class'] = array();
+		} elseif ( ! is_array($settings['class'] ) ) {
+			$settings['class'] = (array) $settings['class'];
+		}
+
+		$settings['class'][] = $settings['type'] . '-list';
+
+		// Build the <ul>
+		$html = self::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
+
+		$html = static::maybe_wrap_field( $html, $settings, '<p class="field %type-field %id"><label>%label</label></p> %html' );
+
+		return $html;
+	}
+
+	/**
+	 * Alias to build_inputlist; build a checklist.
+	 *
+	 * @see Form::build_inputlist()
+	 */
+	public static function build_checklist( $field, $settings, $value ) {
+		return static::build_inputlist( 'checkbox', $field, $settings, $value );
+	}
+
+	/**
+	 * Alias to build_inputlist; build a radiolist.
+	 *
+	 * @see Form::build_inputlist()
+	 */
+	public static function build_radiolist( $field, $settings, $value ) {
+		return static::build_inputlist( 'radio', $field, $settings, $value );
 	}
 }
