@@ -88,15 +88,15 @@ class Form{
 	public static function build_field( $field, $settings = array(), $data = null ) {
 		$default_settings = array(
 			'type' => 'text',
-			'id' => self::make_id($field),
+			'id' => static::make_id( $field ),
 			'name' => $field,
-			'label' => legible(name_to_id($field)),
+			'label' => make_legible( static::make_id( $field ) ),
 			'_name' => $field, //The name of the postmeta or option to retrieve
 			'_label' => true //Wether or not to wrap the input in a label
 		);
 
 		// Parse the passed settings with the defaults
-		$settings = wp_parse_args($settings, $default_settings);
+		$settings = wp_parse_args( $settings, $default_settings );
 
 		// Get the value based on what $post is
 		if ( is_null( $data ) ) {
