@@ -1,0 +1,15 @@
+.qs-setimage-metabox .qs-preview,
+.qs-editgallery-metabox .qs-preview{
+	margin: 12px 0 6px;
+	padding: 0;
+	overflow: hidden;
+}
+	.qs-setimage-metabox img{
+		display: block;
+		border: 1px solid #dfdfdf;
+	}
+	.qs-editgallery-metabox img{
+		float: left;
+		margin: 0 4px 4px 0;
+		border: 1px solid #dfdfdf;
+	}
