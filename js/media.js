@@ -236,4 +236,29 @@ window.QS = window.QS || {};
 	 * =========================
 	 */
 
+	jQuery.fn.QS = function(plugin, options){
+		return $(this).QS[plugin].call(this, options);
+	};
+
+	jQuery.fn.QS.setImage = function(options){
+		return $(this).each(function(){
+		});
+	}
+
+	jQuery.fn.QS.editGallery = function(options){
+		return $(this).each(function(){
+		});
+	};
+
+	// Clean up. Prevents mobile browsers caching
+	$(window).on('unload', function(){
+		window.QS = null;
+	});
+
+	// Auto register hooks for setImage and editGallery
+	$(function(){
+		$('.qs-setimage').QS('setImage');
+		$('.qs-editgallery').QS('editGallery');
+	});
+
 })(jQuery);
