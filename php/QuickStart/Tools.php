@@ -2,7 +2,7 @@
 namespace QuickStart;
 
 /**
- * The Tools Kit: A collection of methods for use by the Setup class ( and also external use ).
+ * The Tools Kit: A collection of methods for use by the Setup class (and also external use).
  *
  * @package QuickStart
  * @subpackage Tools
@@ -279,26 +279,6 @@ class Tools{
 	}
 
 	/**
-	 * Setup filter to unwrap shortcodes for proper processing
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param mixed $tags The list of block level shortcode tags that should be unwrapped, either and array or comma/space separated list
-	 */
-	public static function fix_shortcodes( $tags ) {
-		csv_array_ref( $tags );
-		$tags = implode( '|', $tags );
-		add_filter( 'the_content', function ( $content ) use ( $tags ) {
-			// Strip closing p tags and opening p tags from beginning/end of string
-			$content = preg_replace( '#^\s*(?:</p>)\s*([\s\S]+)\s*(?:<p.*?>)\s*$#', '$1', $content );
-			// Unwrap tags
-			$content = preg_replace( "#(?:<p.*?>)?(\[/?(?:$tags).*\])(?:</p>)?#", '$1', $content );
-
-			return $content;
-		} );
-	}
-
-	/**
 	 * Simple div shortcode with name as class and attributes taken verbatim
 	 *
 	 * @since 1.0.0
@@ -349,7 +329,7 @@ class Tools{
 			}
 		}
 	}
-	
+
 	/**
 	 * Load the requested helper files.
 	 *
@@ -364,7 +344,7 @@ class Tools{
 			}
 		}
 	}
-	
+
 	/**
 	 * Call the appropriate hide_[object] method(s)
 	 *

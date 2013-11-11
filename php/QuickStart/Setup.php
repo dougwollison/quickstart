@@ -29,12 +29,6 @@ class Setup extends \SmartPlugin{
 	protected $defaults = array();
 
 	/**
-	 * =========================
-	 * Method Overloading
-	 * =========================
-	 */
-
-	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
 	 * @since 1.0
@@ -325,9 +319,9 @@ class Setup extends \SmartPlugin{
 		register_post_type( $post_type, $args );
 
 		// Now that it's registered, fetch the resulting show_in_menu argument,
-		// and add the post_type_count callback if true
+		// and add the post_type_count hook if true
 		if ( get_post_type_object( $post_type )->show_in_menu ){
-			add_action( 'right_now_content_table_end', Callbacks::make( 'post_type_count', $post_type ) );
+			Hooks::post_type_count( $post_type );
 		}
 	}
 
@@ -394,9 +388,9 @@ class Setup extends \SmartPlugin{
 		register_taxonomy( $taxonomy, $args['post_type'], $args );
 
 		// Now that it's registered, fetch the resulting show_ui argument,
-		// and add the taxonomy_count callback if true
+		// and add the taxonomy_count hook if true
 		if ( get_taxonomy( $taxonomy )->show_ui ){
-			add_action( 'right_now_content_table_end', Callbacks::make( 'taxonomy_count', $taxonomy ) );
+			Hooks::taxonomy_count( $taxonomy );
 		}
 	}
 

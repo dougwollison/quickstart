@@ -32,6 +32,7 @@ require ( QS_DIR . '/php/SmartPlugin.php' );
 require ( QS_DIR . '/php/QuickStart/Callbacks.php' );
 require ( QS_DIR . '/php/QuickStart/Exception.php' );
 require ( QS_DIR . '/php/QuickStart/Form.php' );
+require ( QS_DIR . '/php/QuickStart/Hooks.php' );
 require ( QS_DIR . '/php/QuickStart/Setup.php' );
 require ( QS_DIR . '/php/QuickStart/Template.php' );
 require ( QS_DIR . '/php/QuickStart/Tools.php' );
