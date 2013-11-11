@@ -245,3 +245,44 @@ function str_replace_in_array( $find, $replace, &$array ) {
 		$item = str_replace( $find, $replace, $item );
 	} );
 }
+
+/**
+ * Parse a format string and replace the placeholders with the matched values.
+ *
+ * Formatting is similar to in vprintf; placeholders are prefixed with a %,
+ * %% results in a literal %. Placeholder names must be alphanumeric + underscore,
+ * and can be prematurely terminated with a $ (e.g. %myfield$name matches myfield).
+ *
+ * @since 1.0.0
+ *
+ * @param string $format The format string to parse.
+ * @param array  $values The values to parse with.
+ *
+ * @return string The formated string.
+ */
+function sprintp( $format, $values ) {
+	$result = preg_replace_callback( '/(?:(?<!%)%(\w+)\$?)/', function ( $matches ) use ( $values ) {
+		$var = $matches[1];
+
+		$result = $matches[0];
+		if ( isset( $values[ $var ] ) ) {
+			$result = $values[ $var ];
+		}
+
+		return $result;
+	}, $format );
+
+	// Fix double %
+	$result = str_replace( '%%', '%', $result );
+
+	return $result;
+}
+
+/**
+ * Echo's the output of  sprintp()
+ *
+ * @see sprintp()
+ */
+function printp( $format, $values ) {
+	echo sprintp( $format, $values );
+}
