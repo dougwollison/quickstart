@@ -33,6 +33,26 @@ class Form{
 	}
 
 	/**
+	 * Wrap the fields in a label, if $settings['_label'] is true.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $html     The html to wrap.
+	 * @param array  $settings The settings array for the field.
+	 * @param string $format   The format to use.
+	 *
+	 * @return string The processed HTML.
+	 */
+	public static function wrap_field( $html, $settings, $format ) {
+		if ( isset( $settings['_label'] ) && $settings['_label'] ) {
+			$settings['html'] = $html;
+			$html = sprintp( $format, $settings );
+		}
+
+		return $html;
+	}
+
+	/**
 	 * Build an HTML tag.
 	 *
 	 * @since 1.0
@@ -181,15 +201,7 @@ class Form{
 			$settings['id']
 		);
 
-		if ( $settings['_label'] ) { // Wrap in label
-			$html = sprintf(
-				'<p class="field text-field %1$s-field %2$s"><label for="%2$s">%3$s:</label> %4$s</p>',
-				$settings['type'],
-				$settings['id'],
-				$settings['label'],
-				$html
-			);
-		}
+		$html = static::wrap_field( $html, $settings, '<p class="field text-field %type-field %id"><label for="%id">%label:</label> %html</p>' );
 
 		return $html;
 	}
@@ -202,14 +214,7 @@ class Form{
 	public static function build_textarea( $field, $settings, $value ) {
 		$html = self::build_tag( 'textarea', $settings, $value );
 
-		if ( $settings['_label'] ) { // Wrap in label
-			$html = sprintf(
-				'<p class="field textarea-field %1$s"><label for="%1$s">%2$s:</label><br> %3$s</p>',
-				$settings['id'],
-				$settings['label'],
-				$html
-			);
-		}
+		$html = static::wrap_field( $html, $settings, '<p class="field textarea-field %id"><label for="%id">%label</label><br> %html</p>' );
 
 		return $html;
 	}
@@ -231,14 +236,7 @@ class Form{
 		// Build the <input>
 		$html = self::build_tag( 'input', $settings );
 
-		if ( $settings['_label'] ) { // Wrap in label
-			$html = sprintf(
-				'<p class="field checkbox-field %s"><label>%s %s</label></p>',
-				$settings['id'],
-				$settings['label'],
-				$html
-			);
-		}
+		$html = static::wrap_field( $html, $settings, '<p class="field checkbox-field %id"><label>%label %html</label></p>' );
 
 		return $html;
 	}
