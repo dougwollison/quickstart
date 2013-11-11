@@ -131,7 +131,7 @@ class Form{
 	 * @param array  $data   The source for the values; see self::build_field() for details.
 	 * @param mixed  $echo   Wether or not to echo the output.
 	 *
-	 * @return string The HTML for the field.
+	 * @return string The HTML for the fields.
 	 */
 	public static function build_fields( $fields, $data = null, $echo = false ) {
 		$html = '';
@@ -193,5 +193,7 @@ class Form{
 				$html
 			);
 		}
+
+		return $html;
 	}
 }
