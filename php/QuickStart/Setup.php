@@ -38,7 +38,12 @@ class Setup extends \SmartPlugin{
 	protected $method_hooks = array(
 		'run_theme_setups' => array( 'after_theme_setup', 10, 0 ),
 		'save_meta_box' => array( 'save_post', 10, 1 ),
-		'add_meta_box' => array( 'add_meta_boxes', 10, 0 )
+		'add_meta_box' => array( 'add_meta_boxes', 10, 0 ),
+		'add_mce_buttons' => array( 'mce_buttons', 10, 1 ),
+		'add_mce_buttons_2' => array( 'mce_buttons_2', 10, 1 ),
+		'add_mce_buttons_3' => array( 'mce_buttons_3', 10, 1 ),
+		'add_mce_plugin' => array( 'mce_external_plugins', 10, 1),
+		'register_mce_style_formats' => array( 'tiny_mce_before_init', 10, 1 )
 	);
 
 	/**
@@ -81,20 +86,6 @@ class Setup extends \SmartPlugin{
 					// Load the requested helper files
 					Tools::load_helpers( $value );
 				break;
-				case 'mce':
-					// Enable buttons if set
-					if(isset($value['buttons'])){
-						Tools::enable_mce_buttons($value['buttons']);
-					}
-					// Register plugins if set
-					if(isset($value['plugins'])){
-						Tools::register_mce_plugins($value['plugins']);
-					}
-					// Register custom styles if set
-					if(isset($value['styles'])){
-						Tools::register_mce_styles($value['styles']);
-					}
-				break;
 				case 'enqueue':
 					// Enqueue frontend scripts/styles if set
 					if ( isset( $value['frontend'] ) ) {
@@ -103,6 +94,20 @@ class Setup extends \SmartPlugin{
 					// Enqueue backend scripts/styles if set
 					if ( isset( $value['backend'] ) ) {
 						Hooks::backend_enqueue( $value['backend'] );
+					}
+				break;
+				case 'mce':
+					// Enable buttons if set
+					if(isset($value['buttons'])){
+						$this->add_mce_buttons($value['buttons']);
+					}
+					// Register plugins if set
+					if(isset($value['plugins'])){
+						$this->register_mce_plugins($value['plugins']);
+					}
+					// Register custom styles if set
+					if(isset($value['styles'])){
+						$this->register_mce_styles($value['styles']);
 					}
 				break;
 			}
@@ -587,5 +592,166 @@ class Setup extends \SmartPlugin{
 				)
 			);
 		}
+	}
+
+	/**
+	 * =========================
+	 * MCE Setups
+	 * =========================
+	 */
+
+	/**
+	 * Add buttons for MCE.
+	 *
+	 * This simply adds them; there must be associated JavaScript to display them.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array        $buttons        The currently enabled buttons. (skip when saving)
+	 * @param array|string $buttons_to_add A list of buttons to enable.
+	 * @param int          $position       Optional An exact position to inser the button.
+	 */
+	public function _add_mce_buttons( $buttons, $buttons_to_add, $position = null ) {
+		csv_array_ref( $buttons_to_add );
+
+		// Go through each button and remove them if they are already present;
+		// We'll be re-adding them in the new desired position.
+		foreach ( $buttons_to_add as $button ) {
+			if ( ( $i = array_search( $button, $buttons ) ) && $i !== false ) {
+				unset( $buttons[ $i ] );
+			}
+		}
+
+		if ( is_int( $position ) ) { // Insert at desired position
+			array_splice( $buttons, $position, 0, $buttons_to_add );
+		} else { // Just append to the end
+			$buttons = array_merge( $buttons, $buttons_to_add );
+		}
+
+		return $buttons;
+	}
+
+	/**
+	 * Add buttons for MCE (specifically the second row)
+	 *
+	 * @see Setup::_enable_mce_buttons()
+	 */
+	public function _add_mce_buttons_2( $buttons, $buttons_to_add, $position = null ) {
+		return $this->_add_mce_buttons( $buttons, $buttons_to_add, $position );
+	}
+
+	/**
+	 * Add buttons for MCE (specifically the third row)
+	 *
+	 * @see Setup::_enable_mce_buttons()
+	 */
+	public function _add_mce_buttons_3( $buttons, $buttons_to_add, $position = null ) {
+		return $this->_add_mce_buttons( $buttons, $buttons_to_add, $position );
+	}
+
+	/**
+	 * Add a plugin to the MCE plugins list.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array  $plugins The current list of plugins. (skip when saving)
+	 * @param string $plugin  The slug/key of the plugin to add.
+	 * @param string $src     The URL to the javascript file for the plugin.
+	 *
+	 * @return $plugins The modified plugins array.
+	 */
+	public function _add_mce_plugin( $plugins, $plugin, $src ) {
+		$plugin_array[ $plugin ] = $src;
+		return $plugin_array;
+	}
+
+	/**
+	 * Register an MCE Plugin/Button
+	 *
+	 * @since 1.0
+	 *
+	 * @param string $plugin The slug of the MCE plugin to be registered
+	 * @param string $src    The URL of the plugin
+	 * @param string $button Optional the ID of the button to be added to the toolbar
+	 * @param int    $row    Optional the row number of the toolbar (1, 2, or 3) to add the button to
+	 */
+	public function _register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
+		// Skip if the current use can't edit posts/pages
+		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+
+		// Only bother if rich editing is true
+		if ( get_user_option( 'rich_editing' ) == 'true' ) {
+			if( $button ) {
+				// If $button is literal true, make it the same as the plugin slug
+				if ( $button === true ) {
+					$button = $plugin;
+				}
+
+				// Add the button to the appropriate row
+				$method = 'add_mce_buttons' . ( $row > 1 ? "_$row" : '');
+				$this->$method( array( '|', $button ) ); // Aslo add a seperator before it
+			}
+
+			$this->add_mce_plugin( $plugin, $src );
+		}
+	}
+
+	/**
+	 * Register multiple MCE Plugins/Buttons
+	 *
+	 * @since 1.0
+	 *
+	 * @param array $plugins The list of MCE plugins to be registered
+	 */
+	public function register_mce_plugins( $plugins ) {
+		if( is_array( $plugins) ) {
+			foreach( $plugins as $plugin => $args ) {
+				list( $src, $button, $row ) = fill_array( $args, 3 );
+
+				if ( ! $button ) $button = $plugin;
+				if ( ! $row ) $row = 1;
+
+				$this->register_mce_plugin( $plugin, $src, $button, $row );
+			}
+		}
+	}
+
+	/**
+	 * Helper; add style formats to the MCE settings.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @
+	 * @param array $styles An array of styles to register.
+	 */
+	public function _add_mce_style_formats( $settings, $styles ) {
+		$style_formats = array();
+
+		if ( isset( $settings['style_formats'] ) ) {
+			$style_formats = json_decode( $settings['style_formats'] );
+		}
+
+		$style_formats = array_merge( $style_formats, $styles );
+
+		$settings['style_formats'] = json_encode( $style_formats );
+
+		return $settings;
+	}
+
+	/**
+	 * Register custom styles for MCE.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $styles An array of styles to register.
+	 */
+	public function register_mce_styles( $styles ) {
+		// Add the styleselect item to the second row of buttons.
+		$this->add_mce_buttons_2( 'styleselect', 1 );
+
+		// Actually add the styles
+		$this->add_mce_style_formats( $styles );
 	}
 }
