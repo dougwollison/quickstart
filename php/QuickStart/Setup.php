@@ -635,9 +635,58 @@ class Setup extends \SmartPlugin{
 			add_editor_style( $configs['editor_style'] );
 		}
 
-		// Nvigation menus
+		// Navigation menus
 		if ( isset( $configs['menus'] ) ) {
 			register_nav_menus( $configs['menus'] );
+		}
+
+		// Sidebars
+		if ( isset( $setups['sidebars'] ) ) {
+			$defaults = null;
+
+			// Prep defaults, if present
+			if ( isset( $this->defaults['sidebars'] ) ) {
+				$defaults = $this->defaults['sidebars'];
+				$find = '/.*<(\w+).*>.*/';
+				$replace = '$1';
+
+				if ( isset( $defaults['before_widget'] ) && ! isset( $defaults['after_widget'] ) ) {
+					$defaults['after_widget'] = '</' . preg_replace( $find, $replace, $defaults['before_widget'] ) . '>';
+				}
+				if ( isset( $defaults['before_title'] ) && ! isset( $defaults['after_title'] ) ) {
+					$defaults['after_title'] = '</' . preg_replace( $find, $replace, $defaults['before_title'] ) . '>';
+				}
+			}
+
+			foreach ( $setups['sidebars'] as $id => $args ) {
+				$args['id'] = $id;
+
+				// Process args with defaults, it present
+				if ( $defaults ) {
+					// Set default before_widget if default exists
+					if ( ! isset( $args['before_widget'] ) && isset( $defaults['before_widget'] ) ) {
+						$args['before_widget'] = $defaults['before_widget'];
+					}
+
+					// Set default before_title if default exists
+					if ( ! isset( $args['before_title'] ) && isset( $defaults['before_title'] ) ) {
+						$args['before_title'] = $defaults['before_title'];
+					}
+
+					// Auto set after_widget if not set but before_widget is
+					if ( isset( $args['before_widget'] ) && ! isset( $args['after_widget'] ) ) {
+						$args['after_widget'] = $defaults['after_widget'];
+					}
+
+					// Auto set after_title if not set but before_title is
+					if ( isset( $args['before_title'] ) && ! isset( $args['after_title'] ) ) {
+						$args['after_title'] = $defaults['after_title'];
+					}
+				}
+
+				// Finally, register the sidebar
+				register_sidebar( $args );
+			}
 		}
 	}
 
