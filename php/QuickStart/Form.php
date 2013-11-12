@@ -152,6 +152,12 @@ class Form{
 			$value = $data;
 		}
 
+		// Check if the "values" key is a callback,
+		// Apply it and replace it with the returned value.
+		if ( is_callable( $settings['values'] ) ) {
+			$settings['values'] = call_user_func( $settings['values'], $field, $settings, $data );
+		}
+
 		/**
 		 * Filter the value to be used for the field.
 		 *
