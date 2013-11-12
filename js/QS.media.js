@@ -24,7 +24,7 @@ window.QS = window.QS || {};
 		var newOptions = _.extend( {}, defaults, options );
 		var k, v;
 		
-		for ( var k in newOptions ) {
+		for ( k in newOptions ) {
 			v = newOptions[ k ];
 			if ( k.indexOf( '$' ) === 0 ) {
 				// This should be a jQuery element.
@@ -49,7 +49,7 @@ window.QS = window.QS || {};
 		 * @return object The first attachment selected.
 		 */
 		attachment: function( frame ) {
-			if ( frame == undefined )
+			if ( undefined === frame )
 				frame = this.frame;
 
 			var attachment = frame.state().get( 'selection' ).first();
@@ -67,7 +67,7 @@ window.QS = window.QS || {};
 		 * @return array An array of attachments.
 		 */
 		attachments: function( frame ) {
-			if ( frame == undefined )
+			if ( undefined === frame )
 				frame = this.frame;
 
 			var attachments = [];
@@ -139,10 +139,10 @@ window.QS = window.QS || {};
 		 * @param wp.media     frame The frame workflow (defaults to current frame stored in QS.media).
 		 */
 		preload: function( ids, frame ) {
-			if ( frame == undefined )
+			if ( undefined === frame )
 				frame = this.frame;
 
-			if ( ids != undefined ) {
+			if ( ids !== undefined ) {
 				var selection = frame.state().get('selection');
 				var attachment;
 
@@ -290,7 +290,7 @@ window.QS = window.QS || {};
 						thisOptions.$input.val( attachment.id );
 					}
 				}
-			}
+			};
 			
 			// Process the options with the defaults
 			thisOptions = setupOptions( $this, options, defaults );
@@ -301,7 +301,7 @@ window.QS = window.QS || {};
 			//Setup the media selector hook
 			media.insert( thisOptions );
 		});
-	}
+	};
 
 	jQuery.fn.QS.editGallery = function(options){
 		return $(this).each(function() {
@@ -329,7 +329,7 @@ window.QS = window.QS || {};
 						options.$input.val( items.join( ',' ) );
 					}
 				}
-			}
+			};
 			
 			// Process the options with the defaults
 			thisOptions = setupOptions( $this, options, defaults );
