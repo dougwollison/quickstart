@@ -152,10 +152,10 @@ class Form{
 			$value = $data;
 		}
 
-		// Check if the "values" key is a callback,
-		// Apply it and replace it with the returned value.
-		if ( is_callable( $settings['values'] ) ) {
-			$settings['values'] = call_user_func( $settings['values'], $field, $settings, $data );
+		// Check if the "get_values" key is present (and a callback),
+		// Apply it and replace "values" key with the returned value.
+		if ( isset ( $settings['get_values'] ) && is_callable( $settings['get_values'] ) ) {
+			$settings['values'] = call_user_func( $settings['get_values'], $field, $settings, $data );
 		}
 
 		/**
