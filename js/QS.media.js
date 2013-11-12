@@ -8,8 +8,37 @@ window.QS = window.QS || {};
 	 * Utilities
 	 * =========================
 	 */
+	
+	/**
+	 * Proccess the options with the defaults,
+	 * also querying the $elements and returning
+	 * a new extended object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param jQuery $elm     The jQuery element.
+	 * @param object options  The options to process.
+	 * @param object defaults The defaults to use.
+	 */
+	function setupOptions( $elm, options, defaults ) {
+		var newOptions = _.extend( {}, defaults, options );
+		var k, v;
+		
+		for ( var k in newOptions ) {
+			v = newOptions[ k ];
+			if ( k.indexOf( '$' ) === 0 ) {
+				// This should be a jQuery element.
+				// if it's a string, query it.
+				if ( typeof v == 'string' ) {
+					newOptions[ k ] = $elm.find( v );
+				}
+			}
+		}
+		
+		return newOptions;
+	}
 
-	_.extend(media, {
+	_.extend( media, {
 		/**
 		 * Extract the selected attachment from the given frame.
 		 *
@@ -134,7 +163,7 @@ window.QS = window.QS || {};
 				}
 			}
 		},
-	});
+	} );
 
 	/**
 	 * =========================
@@ -142,7 +171,7 @@ window.QS = window.QS || {};
 	 * =========================
 	 */
 
-	_.extend(media, {
+	_.extend( media, {
 		/**
 		 * Hook into the media manager frame for selecting and inserting an image.
 		 *
@@ -228,7 +257,7 @@ window.QS = window.QS || {};
 				selection: selection
 			}, options );
 		}
-	});
+	} );
 
 	/**
 	 * =========================
@@ -242,6 +271,33 @@ window.QS = window.QS || {};
 
 	jQuery.fn.QS.setImage = function(options){
 		return $(this).each(function(){
+			var $this = $(this);
+			var thisOptions;
+			var defaults = {
+				$input:   '.qs-input',
+				$preview: '.qs-preview',
+				$trigger: '.qs-button',
+				title:    $this.text(),
+				choose:   'Use Selected Image',
+				events:   {
+					open:   function() {
+						media.preload( thisOptions.$input.val() );
+					},
+					select: function() {
+						var attachment = media.attachment();
+						var img = $( '<img src="' + attachment.sizes.thumbnail.url + '">' );
+						thisOptions.$preview.empty().append( img );
+						thisOptions.$input.val( attachment.id );
+					}
+				}
+			}
+			
+			thisOptions = setupOptions( $this, options, defaults );
+
+			thisOptions.gallery = thisOptions.$input.val();
+
+			//Setup the media selector hook
+			media.insert(thisOptions);
 		});
 	}
 
