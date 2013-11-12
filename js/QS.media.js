@@ -292,8 +292,10 @@ window.QS = window.QS || {};
 				}
 			}
 			
+			// Process the options with the defaults
 			thisOptions = setupOptions( $this, options, defaults );
 
+			// Preload with the current images
 			thisOptions.gallery = thisOptions.$input.val();
 
 			//Setup the media selector hook
@@ -316,7 +318,7 @@ window.QS = window.QS || {};
 						var items = [];
 						var img;
 	
-						options.preview.empty();
+						options.$preview.empty();
 	
 						for ( var i in attachments ) {
 							items.push( attachments[ i ].id );
@@ -329,8 +331,10 @@ window.QS = window.QS || {};
 				}
 			}
 			
+			// Process the options with the defaults
 			thisOptions = setupOptions( $this, options, defaults );
 
+			// Preload with the current images
 			thisOptions.gallery = thisOptions.$input.val();
 
 			//Setup the media selector hook
