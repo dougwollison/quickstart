@@ -508,6 +508,67 @@ class Setup extends \SmartPlugin{
 	 * @param array  $args     The arguments from registration.
 	 */
 	protected function _save_meta_box( $post_id, $meta_box, $args ) {
+		// Check for autosave and post revisions
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+		if ( wp_is_post_revision( $post_id ) ) return;
+
+		// Make sure the post type is correct
+		if ( ! in_array( $_POST['post_type'], (array) $args['post_type'] ) ) return;
+
+		// Check the nonce for this metabox
+		$nonce = "_qsnonce-$meta_box";
+		if ( ! isset( $_POST[ $nonce ] ) || ! wp_verify_nonce( $_POST[ $nonce ], $meta_box ) ) return;
+
+		// Check for capability to edit this post
+		$post_type = get_post_type_object( $_POST['post_type'] );
+		if ( ! current_user_can( $post_type->cap->edit_post ) ) return;
+
+		// Proceed with saving, determining appropriate method to use
+		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
+			// Save callback is passed, apply it
+			call_user_func( $args['save'], $post_id );
+		} elseif ( is_callable( $args['fields'] ) ) {
+			// Callback passed for fields, attempt to save $_POST[$meta_box] if present
+			if ( isset( $_POST[ $meta_box ] ) ) {
+				update_post_meta( $post_id, $meta_box, $_POST[ $meta_box ] );
+			}
+
+			// Alternately/Additionally, see if a save_fields list is set, and save each one if so
+			if ( isset( $args['save_fields'] ) ) {
+				foreach ( (array) $args['save_fields'] as $meta_key => $field ) {
+					if ( is_int( $meta_key ) ) {
+						$meta_key = $field;
+					}
+
+					if ( isset( $_POST[ $field ] ) ) {
+						update_post_meta( $post_id, $meta_key, $_POST[ $field ] );
+					}
+				}
+			}
+		} elseif ( is_array( $args['fields'] ) ) {
+			// Form configuration passed for fields, save individual fields
+			foreach ( $args['fields'] as $field => $settings ) {
+				if ( is_int( $field ) ) {
+					$field = $settings;
+				}
+
+				$post_key = $meta_key = $field;
+
+				if ( is_array( $settings ) ) {
+					// Overide $name with name setting if present
+					if ( isset( $settings['name'] ) ) {
+						$post_key = $settings['name'];
+					}
+
+					// Overide $meta_key with data_name setting if present
+					if ( isset( $settings['data_name'] ) ) {
+						$meta_key = $settings['data_name'];
+					}
+				}
+
+				update_post_meta( $post_id, $meta_key, $post_key );
+			}
+		}
 	}
 
 	/**
