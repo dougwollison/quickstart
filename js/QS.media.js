@@ -80,9 +80,9 @@ window.QS = window.QS || {};
 				collection = frame.state().get( 'selection' );
 			}
 
-			collection.map( function( item, i, items ) {
+			collection.map(function( item, i, items ) {
 				attachments.push( item.attributes );
-			} );
+			});
 
 			return attachments;
 		},
@@ -123,10 +123,10 @@ window.QS = window.QS || {};
 					//Link the frame into QS.media
 					media.frame = frame;
 					//Link the trigger into QS.media
-					media.trigger = $( this );
+					media.trigger = $(this);
 
 					frame.open();
-				} );
+				});
 			}
 		},
 
@@ -163,7 +163,7 @@ window.QS = window.QS || {};
 				}
 			}
 		},
-	} );
+	});
 
 	/**
 	 * =========================
@@ -213,7 +213,7 @@ window.QS = window.QS || {};
 		 */
 		gallery: function( options ) {
 			var defaults = {
-				title: wp.media.view.l10n.editGalleryTitle,
+				title:   'Edit Gallery',
 				trigger: '.qs-button'
 			};
 
@@ -236,16 +236,16 @@ window.QS = window.QS || {};
 				selection = new wp.media.model.Selection( attachments.models, {
 			        props:    attachments.props.toJSON(),
 			        multiple: true
-			    } );
+			    });
 
 			    selection.gallery = attachments.gallery;
 
 			    //Fetch the query's attachments, and then break ties from the query to allow for sorting.
-			    selection.more().done( function() {
-			        selection.props.set( { query: false } );
+			    selection.more().done(function() {
+			        selection.props.set( { query: false });
 			        selection.unmirror();
 			        selection.props.unset( 'orderby' );
-			    } );
+			    });
 			}
 
 		    this.init( {
@@ -257,7 +257,7 @@ window.QS = window.QS || {};
 				selection: selection
 			}, options );
 		}
-	} );
+	});
 
 	/**
 	 * =========================
@@ -270,7 +270,7 @@ window.QS = window.QS || {};
 	};
 
 	jQuery.fn.QS.setImage = function(options){
-		return $(this).each(function(){
+		return $(this).each(function() {
 			var $this = $(this);
 			var thisOptions;
 			var defaults = {
@@ -299,12 +299,12 @@ window.QS = window.QS || {};
 			thisOptions.gallery = thisOptions.$input.val();
 
 			//Setup the media selector hook
-			media.insert(thisOptions);
+			media.insert( thisOptions );
 		});
 	}
 
 	jQuery.fn.QS.editGallery = function(options){
-		return $(this).each(function(){
+		return $(this).each(function() {
 			var $this = $(this);
 			var thisOptions;
 			var defaults = {
@@ -338,19 +338,19 @@ window.QS = window.QS || {};
 			thisOptions.gallery = thisOptions.$input.val();
 
 			//Setup the media selector hook
-			media.gallery(thisOptions);
+			media.gallery( thisOptions );
 		});
 	};
 
 	// Clean up. Prevents mobile browsers caching
-	$(window).on('unload', function(){
+	$(window).on( 'unload', function() {
 		window.QS = null;
 	});
 
 	// Auto register hooks for setImage and editGallery
-	$(function(){
-		$('.qs-setimage').QS('setImage');
-		$('.qs-editgallery').QS('editGallery');
+	$(function() {
+		$( '.qs-setimage' ).QS( 'setImage' );
+		$( '.qs-editgallery' ).QS( 'editGallery' );
 	});
 
 })(jQuery);
