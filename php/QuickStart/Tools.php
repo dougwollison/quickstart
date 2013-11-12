@@ -150,57 +150,6 @@ class Tools{
 	}
 
 	/**
-	 * Register custom styles for MCE
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array $styles An array of styles to register
-	 */
-	public static function register_mce_styles( $styles ) {
-		add_filter( 'mce_buttons_2', function( $buttons ) {
-			if ( ! in_array( 'styleselect', $buttons ) ) {
-				array_splice( $buttons, 1, 0, 'styleselect' );
-			}
-			return $buttons;
-		} );
-
-		add_filter( 'tiny_mce_before_init', function( $settings ) use ( $styles ) {
-			$style_formats = array();
-
-			if ( isset( $settings['style_formats'] ) ) {
-				$style_formats = json_decode( $settings['style_formats'] );
-			}
-
-			$style_formats = array_merge( $style_formats, $styles );
-
-			$settings['style_formats'] = json_encode( $style_formats );
-
-			return $settings;
-		} );
-	}
-
-	/**
-	 * Enable existing buttons for MCE
-	 *
-	 * This simply adds them, if they aren't registered, nothing happens.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array|string $_buttons A list of buttons to enable
-	 */
-	public static function enable_mce_buttons( $btns ) {
-		// comma split if string
-		if ( is_string( $btns ) ) {
-			$btns = preg_split( '/\s*,\s*/', $btns );
-		}
-
-		add_filter( 'mce_buttons', function( $buttons ) use ( $btns ) {
-			$buttons = array_merge( $buttons, $btns );
-			return $buttons;
-		} );
-	}
-
-	/**
 	 * Add various callbacks to specified hooks
 	 *
 	 * @since 1.0.0
