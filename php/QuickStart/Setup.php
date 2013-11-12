@@ -36,11 +36,9 @@ class Setup extends \SmartPlugin{
 	 * @var array
 	 */
 	protected $method_hooks = array(
-		'frontend_enqueue' => 'wp_enqueue_scripts',
-		'backend_enqueue' => 'admin_enqueue_scripts',
-		'run_theme_setups' => 'after_theme_setup',
+		'run_theme_setups' => array( 'after_theme_setup', 10, 0 ),
 		'save_meta_box' => array( 'save_post', 10, 1 ),
-		'add_meta_box' => 'add_meta_boxes'
+		'add_meta_box' => array( 'add_meta_boxes', 10, 0 )
 	);
 
 	/**
@@ -83,14 +81,28 @@ class Setup extends \SmartPlugin{
 					// Load the requested helper files
 					Tools::load_helpers( $value );
 				break;
+				case 'mce':
+					// Enable buttons if set
+					if(isset($value['buttons'])){
+						Tools::enable_mce_buttons($value['buttons']);
+					}
+					// Register plugins if set
+					if(isset($value['plugins'])){
+						Tools::register_mce_plugins($value['plugins']);
+					}
+					// Register custom styles if set
+					if(isset($value['styles'])){
+						Tools::register_mce_styles($value['styles']);
+					}
+				break;
 				case 'enqueue':
 					// Enqueue frontend scripts/styles if set
 					if ( isset( $value['frontend'] ) ) {
-						$this->frontend_enqueue( $value['frontend'] );
+						Hooks::frontend_enqueue( $value['frontend'] );
 					}
 					// Enqueue backend scripts/styles if set
 					if ( isset( $value['backend'] ) ) {
-						$this->backend_enqueue( $value['backend'] );
+						Hooks::backend_enqueue( $value['backend'] );
 					}
 				break;
 			}
@@ -101,36 +113,6 @@ class Setup extends \SmartPlugin{
 
 		// Run the theme setups
 		$this->run_theme_setups();
-	}
-
-	/**
-	 * =========================
-	 * Enqueue Related Methods
-	 * =========================
-	 */
-
-	/**
-	 * Alias to Utilities::enqueue(), for the frontend
-	 *
-	 * @since 1.0
-	 * @uses Tools::enqueue()
-	 *
-	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
-	 */
-	public function _frontend_enqueue( $enqueues ) {
-		Tools::enqueue( $enqueues );
-	}
-
-	/**
-	 * Alias to Utilities::enqueue() for the backend
-	 *
-	 * @since 1.0
-	 * @uses Tools::enqueue()
-	 *
-	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
-	 */
-	public function _backend_enqueue( $enqueues ) {
-		Tools::enqueue( $enqueues );
 	}
 
 	/**

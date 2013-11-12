@@ -21,7 +21,9 @@ class Hooks extends \SmartPlugin{
 		'fix_shortcodes' => array( 'the_content', 10, 1 ),
 		'post_type_count' => array( 'right_now_content_table_end', 10, 0 ),
 		'taxonomy_count' => array( 'right_now_content_table_end', 10, 0 ),
-		'taxonomy_filter' => array( 'restrict_manage_posts', 10, 0 )
+		'taxonomy_filter' => array( 'restrict_manage_posts', 10, 0 ),
+		'frontend_enqueue' => array( 'wp_enqueue_scripts', 10, 0 ),
+		'backend_enqueue' => array( 'admin_enqueue_scripts', 10, 0 )
 	);
 
 	/**
@@ -136,5 +138,29 @@ class Hooks extends \SmartPlugin{
 				}
 			echo '</select>';
 		}
+	}
+
+	/**
+	 * Alias to Tools::enqueue(), for the frontend
+	 *
+	 * @since 1.0
+	 * @uses Tools::enqueue()
+	 *
+	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
+	 */
+	public function _frontend_enqueue( $enqueues ) {
+		Tools::enqueue( $enqueues );
+	}
+
+	/**
+	 * Alias to Tools::enqueue() for the backend
+	 *
+	 * @since 1.0
+	 * @uses Tools::enqueue()
+	 *
+	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
+	 */
+	public function _backend_enqueue( $enqueues ) {
+		Tools::enqueue( $enqueues );
 	}
 }
