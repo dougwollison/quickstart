@@ -43,7 +43,8 @@ class Setup extends \SmartPlugin{
 		'add_mce_buttons_2' => array( 'mce_buttons_2', 10, 1 ),
 		'add_mce_buttons_3' => array( 'mce_buttons_3', 10, 1 ),
 		'add_mce_plugin' => array( 'mce_external_plugins', 10, 1),
-		'register_mce_style_formats' => array( 'tiny_mce_before_init', 10, 1 )
+		'register_mce_style_formats' => array( 'tiny_mce_before_init', 10, 1 ),
+		'register_settings' => array( 'admin_init', 10, 0 )
 	);
 
 	/**
@@ -109,6 +110,9 @@ class Setup extends \SmartPlugin{
 					if(isset($value['styles'])){
 						$this->register_mce_styles($value['styles']);
 					}
+				break;
+				case 'settings':
+					$this->register_settings( $value );
 				break;
 			}
 		}
@@ -849,5 +853,39 @@ class Setup extends \SmartPlugin{
 
 		// Actually add the styles
 		$this->add_mce_style_formats( $styles );
+	}
+
+	/**
+	 * =========================
+	 * Settings Setups
+	 * =========================
+	 */
+
+	/**
+	 * Register and build a setting
+	 *
+	 * @since 1.0
+	 * @uses Form::build_fields()
+	 * @uses legible()
+	 *
+	 * @param string       $setting The id of the setting to register
+	 * @param array|string $args    The setting configuration (string accepted for name or html)
+	 * @param string       $group   The id of the group this setting belongs to
+	 * @param string       $page    The id of the page this setting belongs to
+	 */
+	protected function _register_setting( $setting, $args, $section, $page ) {
+	}
+
+	/**
+	 * Register multiple settings
+	 *
+	 * @since 1.0
+	 * @uses Setup::register_setting
+	 *
+	 * @param array  $settings An array of settings to register
+	 * @param string $group    The id of the group this setting belongs to
+	 * @param string $page     The id of the page this setting belongs to
+	 */
+	protected function _register_settings( $settings, $section = null, $page = null ) {
 	}
 }
