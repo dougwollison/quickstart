@@ -596,6 +596,53 @@ class Setup extends \SmartPlugin{
 
 	/**
 	 * =========================
+	 * Theme Setups
+	 * =========================
+	 */
+
+	/**
+	 * Proccess the theme setups; registering the various features and supports.
+	 *
+	 * @since 1.0
+	 *
+	 * @param array &$configs Optional. The features and supports for the theme.
+	 */
+	public function run_theme_setups( $configs = null ) {
+		// If no $configs is passed, load the locally stored ones.
+		if ( is_null( $configs ) ) {
+			$configs = &$this->configs;
+		}
+
+		// Theme supports
+		if ( isset( $configs['supports'] ) ) {
+			csv_array_ref( $configs['supports'] );
+			foreach ( $configs['supports'] as $key => $value ) {
+				make_associative( $key, $value );
+				add_theme_support( $key, (array) $value );
+			}
+		}
+
+		// Custom image sizes
+		if ( isset( $configs['image_sizes'] ) ) {
+			foreach( $configs['image_sizes'] as $name => $specs ) {
+				list( $width, $height, $crop ) = $specs + array( 0, 0, false );
+				add_image_size( $name, $width, $height, $crop );
+			}
+		}
+
+		// Editor style sheet(s)
+		if ( isset( $configs['editor_style'] ) ) {
+			add_editor_style( $configs['editor_style'] );
+		}
+
+		// Nvigation menus
+		if ( isset( $configs['menus'] ) ) {
+			register_nav_menus( $configs['menus'] );
+		}
+	}
+
+	/**
+	 * =========================
 	 * MCE Setups
 	 * =========================
 	 */
