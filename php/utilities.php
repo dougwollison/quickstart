@@ -22,11 +22,7 @@ function fill_array( &$array, $length ) {
 		$array = (array) $array;
 	}
 
-	for( $i = 0; $i < $length; $i++ ) {
-		if ( ! isset( $array[ $i ] ) ) {
-			$array[ $i ] = null;
-		}
-	}
+	$array += array_fill( 0, $length, null );
 
 	return $array;
 }
