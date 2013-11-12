@@ -45,7 +45,7 @@ class Form{
 	 */
 	public static function maybe_wrap_field( $html, $settings, $format ) {
 
-		if ( isset( $settings['_label'] ) && $settings['_label'] ) {
+		if ( isset( $settings['wrap_with_label'] ) && $settings['wrap_with_label'] ) {
 			$settings['html'] = $html;
 
 			/**
@@ -123,8 +123,8 @@ class Form{
 			'id' => static::make_id( $field ),
 			'name' => $field,
 			'label' => make_legible( static::make_id( $field ) ),
-			'_name' => $field, //The name of the postmeta or option to retrieve
-			'_label' => true //Wether or not to wrap the input in a label
+			'data_name' => $field, //The name of the postmeta or option to retrieve
+			'wrap_with_label' => true //Wether or not to wrap the input in a label
 		);
 
 		// Parse the passed settings with the defaults
@@ -143,10 +143,10 @@ class Form{
 		// Get the value based on what $post is
 		if ( is_null( $data ) ) {
 			// Assume it's an option, retrieve it
-			$value = get_option( $settings['_name'] );
+			$value = get_option( $settings['data_name'] );
 		} elseif ( is_object( $data ) ) {
 			// Assume a post object, get the metadata for it
-			$value = get_post_meta( $data->ID, $settings['_name'], true );
+			$value = get_post_meta( $data->ID, $settings['data_name'], true );
 		} else {
 			// Assume literal value
 			$value = $data;
