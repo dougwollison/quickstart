@@ -27,6 +27,19 @@ class Tools{
 		// Print nonce field
 		wp_nonce_field( $id, "_qsnonce-$id" );
 
+		// Restructure if "field" key is present instead of "fields"
+		if ( isset( $args['field'] ) ) {
+			$field = $args['field'];
+			// Turn off wrapping by default
+			if ( ! isset( $field['wrap_with_label'] ) ) {
+				$field['wrap_with_label'] = false;
+			}
+
+			$args['fields'] = array(
+				$id => $field
+			);
+		}
+
 		// Wrap in container for any specific targeting needed
 		echo '<div class="quickstart-meta-box">';
 			if ( is_callable( $args['fields'] ) ) {
