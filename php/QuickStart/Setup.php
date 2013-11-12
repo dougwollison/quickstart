@@ -464,6 +464,17 @@ class Setup extends \SmartPlugin{
 					)
 				)
 			);
+		} elseif ( isset( $args['field'] ) ) { // Single field passed, recreate into proper array
+			$field = $args['field'];
+
+			// Turn off wrapping by default
+			if ( ! isset( $field['wrap_with_label'] ) ) {
+				$field['wrap_with_label'] = false;
+			}
+
+			$args['fields'] = array(
+				$id => $field
+			);
 		}
 
 		$defaults = array(
