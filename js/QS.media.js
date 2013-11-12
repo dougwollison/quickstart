@@ -303,6 +303,38 @@ window.QS = window.QS || {};
 
 	jQuery.fn.QS.editGallery = function(options){
 		return $(this).each(function(){
+			var $this = $(this);
+			var thisOptions;
+			var defaults = {
+				$input:   '.qs-input',
+				$preview: '.qs-preview',
+				$trigger: '.qs-button',
+				title:    $this.text(),
+				events:   {
+					update: function() {
+						var attachments = media.attachments();
+						var items = [];
+						var img;
+	
+						options.preview.empty();
+	
+						for ( var i in attachments ) {
+							items.push( attachments[ i ].id );
+							img = $( '<img src="' + attachments[ i ].sizes.thumbnail.url + '">' );
+							options.$preview.append( img );
+						}
+	
+						options.$input.val( items.join( ',' ) );
+					}
+				}
+			}
+			
+			thisOptions = setupOptions( $this, options, defaults );
+
+			thisOptions.gallery = thisOptions.$input.val();
+
+			//Setup the media selector hook
+			media.gallery(thisOptions);
 		});
 	};
 
