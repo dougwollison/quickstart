@@ -38,8 +38,6 @@ class Hooks extends \SmartPlugin{
 		csv_array_ref( $tags );
 		$tags = implode( '|', $tags );
 
-		var_dump($content);
-
 		// Strip closing p tags and opening p tags from beginning/end of string
 		$content = preg_replace( '#^\s*(?:</p>)\s*([\s\S]+)\s*(?:<p.*?>)\s*$#', '$1', $content );
 		// Unwrap tags
