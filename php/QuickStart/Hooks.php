@@ -13,7 +13,7 @@ class Hooks extends \SmartPlugin{
 	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -141,7 +141,7 @@ class Hooks extends \SmartPlugin{
 	/**
 	 * Alias to Tools::enqueue(), for the frontend
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @uses Tools::enqueue()
 	 *
 	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
@@ -153,7 +153,7 @@ class Hooks extends \SmartPlugin{
 	/**
 	 * Alias to Tools::enqueue() for the backend
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @uses Tools::enqueue()
 	 *
 	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
