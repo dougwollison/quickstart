@@ -13,7 +13,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * The configuration array.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -22,7 +22,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * The defaults array.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -31,7 +31,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -56,7 +56,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 *
 	 * @param array $configs The theme configuration options.
 	 * @param array $defaults The default values. Optional.
@@ -224,7 +224,7 @@ class Setup extends \SmartPlugin{
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined
 	 * within a post_type configuration.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 *
 	 * @param array &$configs Optional. The post types, taxonomies and meta boxes to setup.
 	 */
@@ -237,7 +237,8 @@ class Setup extends \SmartPlugin{
 		$configs = array_merge( array(
 			'post_types' => array(),
 			'taxonomies' => array(),
-			'meta_boxes' => array()
+			'meta_boxes' => array(),
+			'features'   => array() // Custom QuickStart features
 		), $configs );
 
 		// Loop through each post_type, check for taxonomies or meta_boxes
@@ -281,12 +282,34 @@ class Setup extends \SmartPlugin{
 					unset( $pt_args['meta_boxes'][ $meta_box ] );
 				}
 			}
+
+			if ( isset( $pt_args['features'] ) ) {
+				foreach ( $pt_args['features'] as $feature => $ft_args ) {
+					// Fix if dumb metabox was passed (numerically, not associatively)
+					make_associative( $feature, $ft_args );
+
+					// Check if the arguments are a callable, restructure to proper form
+					if ( is_callable( $ft_args ) ) {
+						$ft_args = array(
+							'fields' => $ft_args
+						);
+					}
+
+					// Add this post type to the post_types argument to this meta box
+					$ft_args['post_type'] = array( $post_type );
+
+					// Add this taxonomy to $taxonomies, remove from this post type
+					$configs['features'][ $feature ] = $ft_args;
+					unset( $ft_args['features'][ $feature ] );
+				}
+			}
 		}
 
 		// Run the content setups
 		$this->register_post_types( $configs['post_types'] ); // Will run during "init"
 		$this->register_taxonomies( $configs['taxonomies'] ); // Will run during "init"
 		$this->register_meta_boxes( $configs['meta_boxes'] ); // Will run now and setup various hooks
+		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
 	}
 
 	/**
@@ -347,8 +370,6 @@ class Setup extends \SmartPlugin{
 
 	/**
 	 * Register the requested taxonomy.
-	 *
-	 * Simply loops through and calls Setup::_register_post_type()
 	 *
 	 * @since 1.0.0
 	 *
@@ -599,6 +620,33 @@ class Setup extends \SmartPlugin{
 	}
 
 	/**
+	 * Setup the requested feature.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $feature The slug of the taxonomy to register.
+	 * @param array  $args     The arguments for registration.
+	 */
+	public function _setup_feature( $feature, $args ) {
+	}
+
+	/**
+	 * Sets up the requested features
+	 *
+	 * Simply loops through and calls Setup::_register_feature()
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $feature The list of features to register.
+	 */
+	public function _setup_features( array $feature ) {
+		foreach ( $feature as $feature => $args ) {
+			make_associative( $feature, $args );
+			$this->_setup_feature( $feature, $args );
+		}
+	}
+
+	/**
 	 * =========================
 	 * Theme Setups
 	 * =========================
@@ -607,7 +655,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * Proccess the theme setups; registering the various features and supports.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 *
 	 * @param array &$configs Optional. The features and supports for the theme.
 	 */
@@ -768,7 +816,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * Register an MCE Plugin/Button
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 *
 	 * @param string $plugin The slug of the MCE plugin to be registered
 	 * @param string $src    The URL of the plugin
@@ -801,7 +849,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * Register multiple MCE Plugins/Buttons
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 *
 	 * @param array $plugins The list of MCE plugins to be registered
 	 */
@@ -864,7 +912,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * Register and build a setting
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @uses Form::build_fields()
 	 * @uses legible()
 	 *
@@ -879,7 +927,7 @@ class Setup extends \SmartPlugin{
 	/**
 	 * Register multiple settings
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @uses Setup::register_setting
 	 *
 	 * @param array  $settings An array of settings to register
