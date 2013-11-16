@@ -116,6 +116,9 @@ class Setup extends \SmartPlugin {
 				case 'settings':
 					$this->register_settings( $value );
 				break;
+				case 'pages':
+					$this->register_pages( $value );
+				break;
 			}
 		}
 
