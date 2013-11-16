@@ -286,6 +286,7 @@ class Setup extends \SmartPlugin{
 			}
 
 			if ( isset( $pt_args['features'] ) ) {
+				csv_array_ref( $pt_args['features'] );
 				foreach ( $pt_args['features'] as $feature => $ft_args ) {
 					// Fix if dumb metabox was passed (numerically, not associatively)
 					make_associative( $feature, $ft_args );
@@ -622,12 +623,6 @@ class Setup extends \SmartPlugin{
 	}
 
 	/**
-	 * =========================
-	 * Feature Setups
-	 * =========================
-	 */
-
-	/**
 	 * Setup the requested feature.
 	 *
 	 * @since 1.0.0
@@ -653,12 +648,18 @@ class Setup extends \SmartPlugin{
 	 *
 	 * @param array $feature The list of features to register.
 	 */
-	public function _setup_features( array $feature ) {
-		foreach ( $feature as $feature => $args ) {
+	public function _setup_features( $features ) {
+		foreach ( $features as $feature => $args ) {
 			make_associative( $feature, $args );
 			$this->_setup_feature( $feature, $args );
 		}
 	}
+
+	/**
+	 * =========================
+	 * Feature Setups
+	 * =========================
+	 */
 
 	/**
 	 * Setup an order manager for certain post types
@@ -667,22 +668,22 @@ class Setup extends \SmartPlugin{
 	 *
 	 * @param array $args A list of options for the order manager.
 	 */
-	public function setup_order_manager( $args ) {
+	public function setup_order_manager_feature( $args ) {
 		// Don't bother if on the admin side.
 		if ( ! is_admin() ) {
 			return;
 		}
 
 		// Default post_type option to page
-		if ( ! isset( $options['post_type'] ) ) {
-			$options['post_type'] = 'page';
+		if ( ! isset( $args['post_type'] ) ) {
+			$args['post_type'] = 'page';
 		}
 
-		$post_types = csv_array( $options['post_type'] );
+		$post_types = csv_array( $args['post_type'] );
 
 		// Use the provided save callback if provided
-		if ( isset( $options['save'] ) && is_callable( $options['save'] ) ) {
-			$callback = $options['save'];
+		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
+			$callback = $args['save'];
 		} else { // Otherwise, use the built in one
 			$callback = array( __NAMESPACE__ . '\Features', 'save_menu_order' );
 		}
@@ -704,8 +705,8 @@ class Setup extends \SmartPlugin{
 		foreach ( $post_types as $post_type ) {
 			$this->register_page( "$post_type-order", array(
 				'title'      => sprintf( '%s Order', make_legible( $post_type ) ),
-				'capability' => get_post_type_object($post_type)->cap->edit_posts,
-				'callback'   => array( __CLASS__, 'menu_order_manager' )
+				'capability' => get_post_type_object( $post_type )->cap->edit_posts,
+				'callback'   => array( __NAMESPACE__ . '\Features', 'menu_order_manager' )
 			), $post_type );
 		}
 	}
@@ -983,7 +984,7 @@ class Setup extends \SmartPlugin{
 	 * @param string       $group   The id of the group this setting belongs to
 	 * @param string       $page    The id of the page this setting belongs to
 	 */
-	public function _register_setting( $setting, $args, $section, $page ) {
+	public function _register_setting( $setting, $args = null, $section = null, $page = null ) {
 		make_associative( $setting, $args );
 
 		// Default arguments
@@ -994,12 +995,12 @@ class Setup extends \SmartPlugin{
 		);
 
 		// Default $section to 'default'
-		if ( ! $section ) {
+		if ( is_null( $section ) ) {
 			$section = 'default';
 		}
 		
 		// Default $page to 'general'
-		if ( ! $page ) {
+		if ( is_null( $page ) ) {
 			$page = 'general';
 		}
 
@@ -1098,7 +1099,7 @@ class Setup extends \SmartPlugin{
 	 *
 	 * @param string $setting The id of the page to register
 	 * @param array  $args    The page configuration
-	 * @param string $parent  The id of the group this setting belongs to
+	 * @param string $parent  Optional The id of the group this setting belongs to
 	 */
 	public function register_page( $page, $args, $parent = null ) {
 		// Add settings for the page
@@ -1134,8 +1135,27 @@ class Setup extends \SmartPlugin{
 	 * @param string $setting The id of the page to register
 	 * @param array  $args    The page configuration
 	 */
-	public function register_page_settings( $page, $args ) {
-		
+	public function _register_page_settings( $page, $args ) {
+		// Run through each section, add them, and register the settings for them
+		if ( isset( $args['sections'] ) ) {
+			foreach ( $args['sections'] as $id => $section ) {
+				add_settings_section( $id, $section['title'], $args['callback'], $page );
+				if ( isset( $section['fields'] ) ) {
+					$this->_register_settings( $section['fields'], $id, $page );
+				}
+			}
+		}
+
+		// Run through any bare fields (assume belonging to default, which will be added automatically)
+		if ( isset( $args['fields'] ) ) {
+			add_settings_section('default', null, null, $page);
+			$this->_register_settings( $args['fields'], 'default', $page );
+		}
+
+		// Run through any submenus in this page and set them up
+		if ( isset( $args['submenu'] ) ) {
+			$this->_register_page_settings( $args['submenu'] );
+		}
 	}
 	
 	/**
@@ -1146,7 +1166,60 @@ class Setup extends \SmartPlugin{
 	 * @param string $setting The id of the page to register
 	 * @param array  $args    The page configuration
 	 */
-	public function add_page_to_menu( $page, $args ) {
-		
+	public function _add_page_to_menu( $page, $args, $parent ) {
+		$_parent = $parent;
+
+		$default_args = array(
+			'title'      => make_legible( $page ),
+			'type'       => 'menu',
+			'capability' => 'manage_options',
+			'callback'   => array( __NAMESPACE__ . '\Callbacks', 'default_admin_page' )
+		);
+
+		// Parse the arguments with the defaults
+		$args = wp_parse_args( $args, $default_args );
+
+		// Set the menu and page titles if not set, based on the title and menu title, respectively
+		if ( ! isset( $args['menu_title'] ) ) {
+			$args['menu_title'] = $args['title'];
+		}
+		if ( ! isset( $args['page_title'] ) ) {
+			$args['page_title'] = $args['menu_title'];
+		}
+
+		// Set the parent if provided
+		if ( ! empty( $args['parent'] ) ) {
+			$_parent = $args['parent'];
+		}
+
+		// Defaut the type to menu if not a valid type
+		if ( ! in_array( $type, array( 'menu', 'object', 'helper' ) ) ) {
+			$args['type'] == 'menu';
+		}
+
+		if ( ! empty( $_parent ) ) {
+			// Submenu page, create function based on parent
+			$func = 'add_' . $_parent . '_page';
+			if ( function_exists( $func ) ) {
+				// Parent is one of the main menu items, call the specific function for it
+				$func( $args['page_title'], $args['menu_title'], $args['capability'], $page, $args['callback'] );
+			} else {
+				// Check if parent is a post type, set slug accordingly
+				if ( post_type_exists( $_parent ) ) {
+					$_parent = 'edit.php?post_type=' . $_parent;
+				}
+				// Otherwise, treat parent slug as literal
+				add_submenu_page( $_parent, $args['page_title'], $args['menu_title'], $args['capability'], $page, $args['callback'] );
+			}
+		} else {
+			// Top level page, call appropriate function based on type
+			$func = 'add_' . $args['type'] . '_page';
+			$func( $args['page_title'], $args['menu_title'], $args['capability'], $page, $args['callback'], $args['icon'], $args['position'] );
+		}
+
+		// Run through any submenus in this page and set them up
+		if ( isset( $args['submenu'] ) ) {
+			$this->_add_page_to_menu( $args['submenu'], $page );
+		}
 	}
 }
