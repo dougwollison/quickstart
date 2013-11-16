@@ -497,7 +497,7 @@ class Tools {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function hide_wphead() {
+	public static function hide_wp_head() {
 		// links for adjacent posts
 		remove_action('wp_head', 'adjacent_posts_rel_link_wp_head', 10, 0);
 		// category feeds
