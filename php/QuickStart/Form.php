@@ -386,7 +386,7 @@ class Form {
 		$options = '';
 
 		if ( ! isset( $settings['values'] ) ) {
-			throw new Exception( 'Checklist/radiolist fields MUST have a values parameter.' );
+			throw new Exception( 'Select fields MUST have a values parameter.' );
 		}
 
 		csv_array_ref( $settings['values'] );
