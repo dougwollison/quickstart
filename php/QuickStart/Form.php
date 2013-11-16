@@ -9,7 +9,7 @@ namespace QuickStart;
  * @since 1.0.0
  */
 
-class Form{
+class Form {
 	/**
 	 * A list of accepted attributes for tag building.
 	 *

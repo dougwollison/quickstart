@@ -9,7 +9,7 @@ namespace QuickStart;
  * @since 1.0.0
  */
 
-class Features{
+class Features {
 	/**
 	 * =========================
 	 * Order Manager

@@ -9,7 +9,7 @@ namespace QuickStart;
  * @since 1.0.0
  */
 
-class Template{
+class Template {
 	/**
 	 * Print out the start of the document.
 	 *

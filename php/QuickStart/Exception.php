@@ -1,6 +1,6 @@
 <?php
 namespace QuickStart;
 
-class Exception extends \Exception{
+class Exception extends \Exception {
 	
 }

@@ -9,7 +9,7 @@ namespace QuickStart;
  * @since 1.0.0
  */
 
-class Setup extends \SmartPlugin{
+class Setup extends \SmartPlugin {
 	/**
 	 * The configuration array.
 	 *
