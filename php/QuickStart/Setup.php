@@ -242,9 +242,20 @@ class Setup extends \SmartPlugin {
 			'features'   => array(), // Custom QuickStart features
 		), $configs );
 
-		// Loop through each post_type, check for taxonomies or meta_boxes
+		// Loop through each post_type, check for supports, taxonomies or meta_boxes
 		foreach ( $configs['post_types'] as $post_type => &$pt_args ) {
 			make_associative( $post_type, $pt_args );
+			
+			// Force theme and post type supports into array form
+			csv_array_ref( $configs['supports'] );
+			csv_array_ref( $pt_args['supports'] );
+			
+			// Check if this post type uses thumbnails, and
+			// make sure the theme supports includes it
+			if ( in_array( 'thumbnail', $pt_args['supports'] ) && ! in_array( 'post-thumbnails', $configs['supports'] ) ) {
+				$configs['supports'][] = 'post-thumbnails';
+			}
+			
 			if ( isset( $pt_args['taxonomies'] ) ) {
 				// Loop through each taxonomy, move it to $taxonomies if not registered yet
 				foreach ( $pt_args['taxonomies'] as $taxonomy => $tx_args ) {
@@ -734,7 +745,12 @@ class Setup extends \SmartPlugin {
 			csv_array_ref( $configs['supports'] );
 			foreach ( $configs['supports'] as $key => $value ) {
 				make_associative( $key, $value );
-				add_theme_support( $key, (array) $value );
+				// Pass just $key or $key & $value depending on $value
+				if ( empty( $value ) ) {
+					add_theme_support( $key );
+				} else {
+					add_theme_support( $key, $value );
+				}
 			}
 		}
 
