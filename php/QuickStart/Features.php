@@ -31,9 +31,9 @@ class Features {
 
 				// Update the post
 				wp_update_post( array(
-					'ID' => $id,
-					'menu_order' => $order,
-					'post_parent' => $parent
+					'ID'          => $id,
+					'menu_order'  => $order,
+					'post_parent' => $parent,
 				) );
 			}
 
@@ -121,7 +121,11 @@ class Features {
 					<input type="hidden" class="qs-order-parent" name="parent[<?php echo $post->ID?>]" value="<?php echo $post->post_parent?>">
 					<?php echo $post->post_title?>
 				</div>
-				<?php if ( $post->children ) static::menu_order_list( $post->children )?>
+				<?php
+				if ( $post->children ) {
+					static::menu_order_list( $post->children );
+				}
+				?>
 			</li>
 		<?php endforeach;?>
 		</ol>

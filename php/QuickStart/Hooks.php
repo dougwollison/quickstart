@@ -18,12 +18,12 @@ class Hooks extends \SmartPlugin {
 	 * @var array
 	 */
 	protected static $static_method_hooks = array(
-		'fix_shortcodes' => array( 'the_content', 10, 1 ),
-		'post_type_count' => array( 'right_now_content_table_end', 10, 0 ),
-		'taxonomy_count' => array( 'right_now_content_table_end', 10, 0 ),
-		'taxonomy_filter' => array( 'restrict_manage_posts', 10, 0 ),
+		'fix_shortcodes'   => array( 'the_content', 10, 1 ),
+		'post_type_count'  => array( 'right_now_content_table_end', 10, 0 ),
+		'taxonomy_count'   => array( 'right_now_content_table_end', 10, 0 ),
+		'taxonomy_filter'  => array( 'restrict_manage_posts', 10, 0 ),
 		'frontend_enqueue' => array( 'wp_enqueue_scripts', 10, 0 ),
-		'backend_enqueue' => array( 'admin_enqueue_scripts', 10, 0 )
+		'backend_enqueue'  => array( 'admin_enqueue_scripts', 10, 0 )
 	);
 
 	/**
@@ -55,7 +55,9 @@ class Hooks extends \SmartPlugin {
 	 */
 	protected function _post_type_count( $post_type ) {
 		// Make sure the post type exists
-		if ( ! $object = get_post_type_object( $post_type ) ) return;
+		if ( ! $object = get_post_type_object( $post_type ) ) {
+			return;
+		}
 
 		$singular = $object->labels->singular_name;
 		$plural = $object->labels->name;
@@ -96,7 +98,9 @@ class Hooks extends \SmartPlugin {
 	 */
 	protected function _taxonomy_count( $taxonomy ) {
 		// Make sure the post type exists
-		if ( ! $object = get_taxonomy( $taxonomy ) ) return;
+		if ( ! $object = get_taxonomy( $taxonomy ) ) {
+			return;
+		}
 
 		$singular = $object->labels->singular_name;
 		$plural = $object->labels->name;

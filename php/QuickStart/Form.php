@@ -119,11 +119,11 @@ class Form {
 	 */
 	public static function build_field( $field, $settings = array(), $data = null ) {
 		$default_settings = array(
-			'type' => 'text',
-			'id' => static::make_id( $field ),
-			'name' => $field,
-			'label' => make_legible( static::make_id( $field ) ),
-			'data_name' => $field, //The name of the postmeta or option to retrieve
+			'type'            => 'text',
+			'id'              => static::make_id( $field ),
+			'name'            => $field,
+			'label'           => make_legible( static::make_id( $field ) ),
+			'data_name'       => $field, //The name of the postmeta or option to retrieve
 			'wrap_with_label' => true //Wether or not to wrap the input in a label
 		);
 
@@ -207,7 +207,9 @@ class Form {
 		}
 
 		// Echo the output if desired
-		if ( $echo ) echo $html;
+		if ( $echo ) {
+			echo $html;
+		}
 
 		return $html;
 	}
@@ -295,8 +297,9 @@ class Form {
 
 		$items = '';
 
-		if ( ! isset( $settings['values'] ) )
+		if ( ! isset( $settings['values'] ) ) {
 			throw new Exception( 'Checklist/radiolist fields MUST have a values parameter.' );
+		}
 
 		csv_array_ref( $settings['values'] );
 
@@ -382,8 +385,9 @@ class Form {
 	public static function build_select( $field, $settings, $value ) {
 		$options = '';
 
-		if ( ! isset( $settings['values'] ) )
+		if ( ! isset( $settings['values'] ) ) {
 			throw new Exception( 'Checklist/radiolist fields MUST have a values parameter.' );
+		}
 
 		csv_array_ref( $settings['values'] );
 

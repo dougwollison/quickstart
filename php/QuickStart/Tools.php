@@ -201,8 +201,9 @@ class Tools {
 	public static function upload( $file, $attachment = array() ) {
 		$file = wp_handle_upload( $file, array( 'test_for m' => false ) );
 
-		if ( isset( $file['error'] ) )
+		if ( isset( $file['error'] ) ) {
 			wp_die( $file['error'], 'Image Upload Error' );
+		}
 
 		$url  = $file['url'];
 		$type = $file['type'];

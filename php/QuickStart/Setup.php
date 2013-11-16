@@ -36,17 +36,17 @@ class Setup extends \SmartPlugin {
 	 * @var array
 	 */
 	protected $method_hooks = array(
-		'run_theme_setups' => array( 'after_theme_setup', 10, 0 ),
-		'save_meta_box' => array( 'save_post', 10, 1 ),
-		'add_meta_box' => array( 'add_meta_boxes', 10, 0 ),
-		'add_mce_buttons' => array( 'mce_buttons', 10, 1 ),
-		'add_mce_buttons_2' => array( 'mce_buttons_2', 10, 1 ),
-		'add_mce_buttons_3' => array( 'mce_buttons_3', 10, 1 ),
-		'add_mce_plugin' => array( 'mce_external_plugins', 10, 1),
+		'run_theme_setups'           => array( 'after_theme_setup', 10, 0 ),
+		'save_meta_box'              => array( 'save_post', 10, 1 ),
+		'add_meta_box'               => array( 'add_meta_boxes', 10, 0 ),
+		'add_mce_buttons'            => array( 'mce_buttons', 10, 1 ),
+		'add_mce_buttons_2'          => array( 'mce_buttons_2', 10, 1 ),
+		'add_mce_buttons_3'          => array( 'mce_buttons_3', 10, 1 ),
+		'add_mce_plugin'             => array( 'mce_external_plugins', 10, 1),
 		'register_mce_style_formats' => array( 'tiny_mce_before_init', 10, 1 ),
-		'register_setting' => array( 'admin_init', 10, 0 ),
-		'register_settings' => array( 'admin_init', 10, 0 ),
-		'add_page_to_menu' => array('admin_menu', 0),
+		'register_setting'           => array( 'admin_init', 10, 0 ),
+		'register_settings'          => array( 'admin_init', 10, 0 ),
+		'add_page_to_menu'           => array('admin_menu', 0),
 	);
 
 	/**
@@ -243,7 +243,7 @@ class Setup extends \SmartPlugin {
 			'post_types' => array(),
 			'taxonomies' => array(),
 			'meta_boxes' => array(),
-			'features'   => array() // Custom QuickStart features
+			'features'   => array(), // Custom QuickStart features
 		), $configs );
 
 		// Loop through each post_type, check for taxonomies or meta_boxes
@@ -275,7 +275,7 @@ class Setup extends \SmartPlugin {
 					// Check if the arguments are a callable, restructure to proper form
 					if ( is_callable( $mb_args ) ) {
 						$mb_args = array(
-							'fields' => $mb_args
+							'fields' => $mb_args,
 						);
 					}
 
@@ -297,7 +297,7 @@ class Setup extends \SmartPlugin {
 					// Check if the arguments are a callable, restructure to proper form
 					if ( is_callable( $ft_args ) ) {
 						$ft_args = array(
-							'fields' => $ft_args
+							'fields' => $ft_args,
 						);
 					}
 
@@ -328,17 +328,19 @@ class Setup extends \SmartPlugin {
 	 */
 	public function _register_post_type( $post_type, array $args = array() ) {
 		// Make sure the post type doesn't already exist
-		if ( post_type_exists( $post_type ) ) return;
+		if ( post_type_exists( $post_type ) ) {
+			return;
+		}
 
 		// Setup the labels if needed
 		self::maybe_setup_labels( $post_type, $args, array(
-			'new_item' => 'New %S',
-			'not_found_in_trash' => 'No %p found in Trash.'
+			'new_item'           => 'New %S',
+			'not_found_in_trash' => 'No %p found in Trash.',
 		) );
 
 		// Default arguments for the post type
 		$defaults = array(
-			'public' => true,
+			'public'      => true,
 			'has_archive' => true,
 		);
 
@@ -419,7 +421,9 @@ class Setup extends \SmartPlugin {
 		register_taxonomy( $taxonomy, $args['post_type'], $args );
 
 		// Proceed with post-registration stuff, provided it was successfully registered.
-		if ( ! ( $taxonomy_obj = get_taxonomy( $taxonomy ) ) ) return;
+		if ( ! ( $taxonomy_obj = get_taxonomy( $taxonomy ) ) ) {
+			return;
+		}
 
 		// Now that it's registered, see if there are preloaded terms to add
 		if ( isset( $args['preload'] ) ) {
@@ -471,14 +475,14 @@ class Setup extends \SmartPlugin {
 	public function register_meta_box( $meta_box, $args ) {
 		if ( is_callable( $args ) ) { // A callback, recreate into proper array
 			$args = array(
-				'fields' => $args
+				'fields' => $args,
 			);
 		} elseif ( empty( $args ) ) { // Empty array; make dumb meta box
 			$args = array(
 				'fields' => array(
 					$meta_box => array(
 						'class'           => 'full-width-text',
-						'wrap_with_label' => false
+						'wrap_with_label' => false,
 					)
 				)
 			);
@@ -491,7 +495,7 @@ class Setup extends \SmartPlugin {
 			}
 
 			$args['fields'] = array(
-				$id => $field
+				$id => $field,
 			);
 		}
 
@@ -499,7 +503,7 @@ class Setup extends \SmartPlugin {
 			'title'     => make_legible( $meta_box ),
 			'context'   => 'normal',
 			'priority'  => 'high',
-			'post_type' => 'post'
+			'post_type' => 'post',
 		);
 
 		// Prep $defaults
@@ -537,20 +541,20 @@ class Setup extends \SmartPlugin {
 	 * @param array  $args     The arguments from registration.
 	 */
 	public function _save_meta_box( $post_id, $meta_box, $args ) {
-		// Check for autosave and post revisions
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
-		if ( wp_is_post_revision( $post_id ) ) return;
-
-		// Make sure the post type is correct
-		if ( ! in_array( $_POST['post_type'], (array) $args['post_type'] ) ) return;
-
-		// Check the nonce for this metabox
 		$nonce = "_qsnonce-$meta_box";
-		if ( ! isset( $_POST[ $nonce ] ) || ! wp_verify_nonce( $_POST[ $nonce ], $meta_box ) ) return;
-
-		// Check for capability to edit this post
 		$post_type = get_post_type_object( $_POST['post_type'] );
-		if ( ! current_user_can( $post_type->cap->edit_post ) ) return;
+		
+		// Check for autosave and post revisions
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ||
+			wp_is_post_revision( $post_id ) ||
+			// Make sure the post type is correct
+			! in_array( $_POST['post_type'], (array) $args['post_type'] ) ||
+			// Check the nonce for this metabox
+			! isset( $_POST[ $nonce ] ) || ! wp_verify_nonce( $_POST[ $nonce ], $meta_box ) ||
+			// Check for capability to edit this post
+			! current_user_can( $post_type->cap->edit_post ) ) {
+			return;
+		}
 
 		// Proceed with saving, determining appropriate method to use
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
@@ -619,7 +623,7 @@ class Setup extends \SmartPlugin {
 				$args['priority'],
 				array(
 					'id' => $meta_box,
-					'args' => $args
+					'args' => $args,
 				)
 			);
 		}
@@ -696,12 +700,12 @@ class Setup extends \SmartPlugin {
 		// Enqueue the necessary scripts
 		Hooks::backend_enqueue( array(
 			'css' => array(
-				'qs-order-css' => array( plugins_url('/css/QS.order.css', QS_FILE ) )
+				'qs-order-css' => array( plugins_url('/css/QS.order.css', QS_FILE ) ),
 			),
 			'js' => array(
 				'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_FILE ), array( 'jquery-ui-sortable' ) ),
-				'qs-order-js' => array( plugins_url( '/js/QS.order.js', QS_FILE ), array( 'jquery-ui-nested-sortable' ) )
-			)
+				'qs-order-js' => array( plugins_url( '/js/QS.order.js', QS_FILE ), array( 'jquery-ui-nested-sortable' ) ),
+			),
 		) );
 
 		// Setup the admin pages for each post type
@@ -709,7 +713,7 @@ class Setup extends \SmartPlugin {
 			$this->register_page( "$post_type-order", array(
 				'title'      => sprintf( '%s Order', make_legible( $post_type ) ),
 				'capability' => get_post_type_object( $post_type )->cap->edit_posts,
-				'callback'   => array( __NAMESPACE__ . '\Features', 'menu_order_manager' )
+				'callback'   => array( __NAMESPACE__ . '\Features', 'menu_order_manager' ),
 			), $post_type );
 		}
 	}
@@ -994,7 +998,7 @@ class Setup extends \SmartPlugin {
 		$default_args = array(
 			'title'           => make_legible( $setting ),
 			'sanitize'        => null,
-			'wrap_with_label' => false //since the label should be taken care of automatically when adding the field
+			'wrap_with_label' => false, // since the label should be taken care of automatically when adding the field
 		);
 
 		// Default $section to 'default'
@@ -1018,7 +1022,7 @@ class Setup extends \SmartPlugin {
 				$args['field']['wrap_with_label'] = false;
 			}
 			$fields = array(
-				$setting => $args['field']
+				$setting => $args['field'],
 			);
 		} elseif ( isset( $args['fields'] ) ) {
 			// An array of fields is provided, run through and rewrite the names to be in $setting[$name] style
@@ -1031,7 +1035,7 @@ class Setup extends \SmartPlugin {
 		} else {
 			// Assume $args is the literal arguments for the field
 			$fields = array(
-				$setting => $args
+				$setting => $args,
 			);
 		}
 
@@ -1040,7 +1044,7 @@ class Setup extends \SmartPlugin {
 			'fields' => $fields,
 			'post'   => false,
 			'echo'   => true,
-			'__extract'
+			'__extract',
 		);
 
 		// Register the setting
@@ -1071,7 +1075,7 @@ class Setup extends \SmartPlugin {
 		// If page is provided, rebuild $settings to be in $page => $settings format
 		if ( $page ) {
 			$settings = array(
-				$page => $settings
+				$page => $settings,
 			);
 		}
 
@@ -1176,7 +1180,7 @@ class Setup extends \SmartPlugin {
 			'title'      => make_legible( $page ),
 			'type'       => 'menu',
 			'capability' => 'manage_options',
-			'callback'   => array( __NAMESPACE__ . '\Callbacks', 'default_admin_page' )
+			'callback'   => array( __NAMESPACE__ . '\Callbacks', 'default_admin_page' ),
 		);
 
 		// Parse the arguments with the defaults
