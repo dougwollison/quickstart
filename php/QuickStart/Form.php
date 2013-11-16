@@ -424,7 +424,7 @@ class Form{
 				$html .= wp_get_attachment_image( $value, 'thumbnail' );
 			$html .= '</div>';
 			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-input">', $settings['name'], $value );
 		$html .= '</div>';
 
 		return $html;
@@ -445,7 +445,7 @@ class Form{
 			}
 			$html .= '</div>';
 			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-input">', $settings['name'], $value );
 		$html .= '</div>';
 
 		return $html;
