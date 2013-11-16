@@ -1,6 +1,6 @@
 window.QS = window.QS || {};
 
-(function($){
+(function( $ ) {
 	var media = window.QS.media = {};
 
 	/**
@@ -49,8 +49,9 @@ window.QS = window.QS || {};
 		 * @return object The first attachment selected.
 		 */
 		attachment: function( frame ) {
-			if ( undefined === frame )
+			if ( undefined === frame ) {
 				frame = this.frame;
+			}
 
 			var attachment = frame.state().get( 'selection' ).first();
 
@@ -97,7 +98,7 @@ window.QS = window.QS || {};
 		 * @param object options    The options passed to the hook function.
 		 */
 		init: function( attributes, options ) {
-			var frame = wp.media(attributes);
+			var frame = wp.media(attributes), $trigger;
 
 			//Run through each event and setup the handlers
 			if ( options.events !== undefined ) {
@@ -108,16 +109,23 @@ window.QS = window.QS || {};
 				}
 			}
 
-			//In case they need to hook into it, trigger "init" on the frame,
-			//passing the frame itself as an additional parameter, since it
-			//can't be linked into QS.media yet
+			// In case they need to hook into it, trigger "init" on the frame,
+			// passing the frame itself as an additional parameter, since it
+			// can't be linked into QS.media yet
 			frame.trigger( 'init', frame );
-
-			var trigger = $( options.trigger );
+			
+			// Assign $trigger based on which is present in options
+			// If a special jQuery object is present, use that.
+			// Otherwise, query using the provided selector.
+			if ( options.$trigger ) {
+				$trigger = options.$trigger
+			} else {
+				$trigger = $( options.trigger );
+			}
 
 			//Create the click event for the trigger if present
-			if ( trigger.length > 0 ) {
-				trigger.on( 'click', function( e ) {
+			if ( $trigger.length > 0 ) {
+				$trigger.on( 'click', function( e ) {
 					e.preventDefault();
 
 					//Link the frame into QS.media
@@ -139,8 +147,9 @@ window.QS = window.QS || {};
 		 * @param wp.media     frame The frame workflow (defaults to current frame stored in QS.media).
 		 */
 		preload: function( ids, frame ) {
-			if ( undefined === frame )
+			if ( undefined === frame ) {
 				frame = this.frame;
+			}
 
 			if ( ids !== undefined ) {
 				var selection = frame.state().get('selection');
@@ -248,7 +257,7 @@ window.QS = window.QS || {};
 			    });
 			}
 
-		    this.init( {
+		    this.init({
 				state:     'gallery-edit',
 				frame:     'post',
 				title:     options.title,
@@ -265,13 +274,13 @@ window.QS = window.QS || {};
 	 * =========================
 	 */
 
-	jQuery.fn.QS = function(plugin, options){
-		return $(this).QS[plugin].call(this, options);
+	jQuery.fn.QS = function( plugin, options ) {
+		return $( this ).QS[ plugin ].call( this, options );
 	};
 
-	jQuery.fn.QS.setImage = function(options){
-		return $(this).each(function() {
-			var $this = $(this);
+	jQuery.fn.QS.setImage = function( options ) {
+		return $( this ).each(function() {
+			var $this = $( this );
 			var thisOptions;
 			var defaults = {
 				$input:   '.qs-input',
@@ -303,8 +312,8 @@ window.QS = window.QS || {};
 		});
 	};
 
-	jQuery.fn.QS.editGallery = function(options){
-		return $(this).each(function() {
+	jQuery.fn.QS.editGallery = function( options ) {
+		return $( this ).each(function() {
 			var $this = $(this);
 			var thisOptions;
 			var defaults = {
@@ -318,15 +327,15 @@ window.QS = window.QS || {};
 						var items = [];
 						var img;
 	
-						options.$preview.empty();
+						thisOptions.$preview.empty();
 	
 						for ( var i in attachments ) {
 							items.push( attachments[ i ].id );
 							img = $( '<img src="' + attachments[ i ].sizes.thumbnail.url + '">' );
-							options.$preview.append( img );
+							thisOptions.$preview.append( img );
 						}
 	
-						options.$input.val( items.join( ',' ) );
+						thisOptions.$input.val( items.join( ',' ) );
 					}
 				}
 			};
@@ -343,7 +352,7 @@ window.QS = window.QS || {};
 	};
 
 	// Clean up. Prevents mobile browsers caching
-	$(window).on( 'unload', function() {
+	$( window ).on( 'unload', function() {
 		window.QS = null;
 	});
 
@@ -353,4 +362,4 @@ window.QS = window.QS || {};
 		$( '.qs-editgallery' ).QS( 'editGallery' );
 	});
 
-})(jQuery);
+})( jQuery );
