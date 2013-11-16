@@ -12,10 +12,10 @@
  *
  * @since 1.0.0
  *
- * @param array $array The array of arguments
- * @param int   $lenth The length to fill the array to
+ * @param array $array The array of arguments.
+ * @param int   $lenth The length to fill the array to.
  *
- * @return $array The newly filled array
+ * @return $array The newly filled array.
  */
 function fill_array( &$array, $length ) {
 	if ( ! is_array( $array ) ) {
@@ -28,13 +28,13 @@ function fill_array( &$array, $length ) {
 }
 
 /**
- * Test if  an array is associative or numeric
+ * Test if  an array is associative or numeric.
  *
  * @since 1.0.0
  *
- * @param array	$array The array to be tested
+ * @param array	$array The array to be tested.
  *
- * @return bool The result of the test
+ * @return bool The result of the test.
  */
 function is_assoc( $array ) {
 	return array_values( (array) $array ) !== $array;
@@ -58,30 +58,31 @@ function make_associative( &$key, &$value, $fill = array() ) {
 }
 
 /**
- * Convert a string to a more legible form... or at least try to
+ * Convert a string to a more legible form... or at least try to.
  *
  * @since 1.0.0
  *
- * @param string $string The string that is to be converted to legible form
+ * @param string $string The string that is to be converted to legible form.
  *
- * @return string The input string ( hopefully ) converted to legible form
+ * @return string The input string ( hopefully ) converted to legible form.
  */
 function make_legible( $string ) {
 	return ucwords( str_replace( array( '_', '-' ), ' ', $string ) );
 }
 
 /**
- * Restructure an array into a more logical layout
+ * Restructure an array into a more logical layout.
  *
  * Best exable is the $_FILES array when you have multiple file fields with an array name
  * <input type="file" name="import[something]">
- * This would restructure $_FILES so instead of $_FILES['import']['name']['something'] we get $_FILES['import']['something']['name']
+ * This would restructure $_FILES so instead of $_FILES['import']['name']['something'],
+ * we get $_FILES['import']['something']['name']
  *
  * @since 1.0.0
  *
- * @param array $array The array that is to be restructured
+ * @param array $array The array that is to be restructured.
  *
- * @return array The restructured array
+ * @return array The restructured array.
  */
 function diverse_array( $array ) {
     $result = array();
@@ -131,7 +132,7 @@ function csv_array_ref( &$var ) {
  * @since 1.0.0
  *
  * @param $string The string to process.
- * @param $rules  The list of find/replace rules to test with
+ * @param $rules  The list of find/replace rules to test with.
  *
  * @return string The processed string.
  */
@@ -146,12 +147,12 @@ function _process_n_form( $string, $rules ) {
 }
 
 /**
- * Convert a string to plural form... or at least try to
+ * Convert a string to plural form... or at least try to.
  *
  * @since 1.0.0
  *
- * @param string $string The string that is to be converted to plural form
- * @return string The input string ( hopefully ) converted to plural form
+ * @param string $string The string that is to be converted to plural form.
+ * @return string The input string ( hopefully ) converted to plural form.
  */
 function pluralize( $string ) {
 	// The find/replace rules, ordered most specialised to most generic
@@ -168,12 +169,12 @@ function pluralize( $string ) {
 }
 
 /**
- * Convert a string to singular form... or at least try to
+ * Convert a string to singular form... or at least try to.
  *
  * @since 1.0.0
  *
- * @param string $string The string that is to be converted to singular form
- * @return string The input string ( hopefully ) converted to singular form
+ * @param string $string The string that is to be converted to singular form.
+ * @return string The input string ( hopefully ) converted to singular form.
  */
 function singularize( $string ) {
 	// The find/replace rules, ordered most specialised to most generic
@@ -191,13 +192,14 @@ function singularize( $string ) {
 }
 
 /**
- * Given an array, extract the disired value defined like so: myvar[mykey][0]
+ * Given an array, extract the disired value defined like so: myvar[mykey][0].
  *
  * @since 1.0.0
  *
- * @param array $array The array to extract from
- * @param string $map The array map representation to work from
- * @return mixed The extracted value
+ * @param array  $array The array to extract from.
+ * @param string $map   The array map representation to work from.
+ *
+ * @return mixed The extracted value.
  */
 function extract_value( $array, $map ) {
 	if ( ! is_array( $array ) ) return $array;
@@ -236,13 +238,13 @@ function extract_value( $array, $map ) {
 }
 
 /**
- * Replace a string within all array values
+ * Replace a string within all array values.
  *
  * @since 1.0.0
  *
- * @param mixed $find The string( s ) to find in the array
- * @param mixed $replace The string( s ) to replace in the array
- * @param array &$array The array to be processed, passed by reference
+ * @param mixed $find    The string( s ) to find in the array.
+ * @param mixed $replace The string( s ) to replace in the array.
+ * @param array &$array  The array to be processed, passed by reference.
  */
 function str_replace_in_array( $find, $replace, &$array ) {
 	array_walk_recursive( $array, function( &$item ) use ( $find, $replace ) {
@@ -283,7 +285,7 @@ function sprintp( $format, $values ) {
 }
 
 /**
- * Echo's the output of  sprintp()
+ * Echo's the output of  sprintp().
  *
  * @see sprintp()
  */
