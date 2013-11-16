@@ -693,11 +693,11 @@ class Setup extends \SmartPlugin{
 		// Enqueue the necessary scripts
 		Hooks::backend_enqueue( array(
 			'css' => array(
-				'qs-order-css' => array( plugins_url('/css/QS.order.css', QS_DIR ) )
+				'qs-order-css' => array( plugins_url('/css/QS.order.css', QS_FILE ) )
 			),
 			'js' => array(
-				'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_DIR ), array( 'jquery-ui-sortable' ) ),
-				'qs-order-js' => array( plugins_url( '/js/QS.order.js', QS_DIR ), array( 'jquery-ui-nested-sortable' ) )
+				'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_FILE ), array( 'jquery-ui-sortable' ) ),
+				'qs-order-js' => array( plugins_url( '/js/QS.order.js', QS_FILE ), array( 'jquery-ui-nested-sortable' ) )
 			)
 		) );
 
