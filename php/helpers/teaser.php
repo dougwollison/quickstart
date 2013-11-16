@@ -19,7 +19,7 @@
  * @param string $trailer     Optional a string to trail the teaser with, such as an elipsis of some fashion
  * @return string The resulting teaser text
  */
-function get_the_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = false, $trailer = '...' ) {
+function get_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = false, $trailer = '...' ) {
 	if ( is_null( $post ) ) {
 		global $post;
 	}
@@ -74,5 +74,5 @@ function get_the_teaser( $length = 50, $post = null, $use_excerpt = false, &$mor
  * @param string $trailer     Optional a string to trail the teaser with, such as an elipsis of some fashion
  */
 function the_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = false, $trailer = '...' ) {
-	echo get_the_teaser( $length, $post, $use_excerpt, $more );
+	echo get_teaser( $length, $post, $use_excerpt, $more );
 }
