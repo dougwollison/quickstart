@@ -66,7 +66,7 @@ class Features{
 
 			<form method="post" action="edit.php">
 				<?php wp_nonce_field( 'manage_menu_order', '_qsnonce' )?>
-				<div class="qs-menu-order-manager <?php if ( $post_type->hierarchical ) echo 'qs-nested'?>">
+				<div class="qs-order-manager <?php if ( $post_type->hierarchical ) echo 'qs-nested'?>">
 					<?php static::menu_order_list($posts)?>
 				</div>
 				<button type="submit" class="button-primary">Save Order</button>
