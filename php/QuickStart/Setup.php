@@ -413,9 +413,10 @@ class Setup extends \SmartPlugin {
 			'choose_from_most_used' => 'Choose from most used %p',
 		) );
 
-		// Default arguments for the post type
+		// Default arguments for the taxonomy
 		$defaults = array(
 			'hierarchical' => true,
+			'show_admin_column' => true,
 		);
 
 		// Prep $defaults
