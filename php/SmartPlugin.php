@@ -3,7 +3,7 @@
  * The SmartPlugin base; a base class for handling the hook setup of methods.
  *
  * @package QuickStart
- * @subpackage SmartHooks
+ * @subpackage SmartPlugin
  * @since 1.0.0
  */
 
