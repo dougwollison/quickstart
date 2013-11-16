@@ -21,7 +21,7 @@
  */
 function get_postfield( $field, $id ) {
 	global $wpdb;
-	
+
 	$post_fields = array(
 		'author',
 		'date',

@@ -2,5 +2,5 @@
 namespace QuickStart;
 
 class Exception extends \Exception {
-	
+
 }

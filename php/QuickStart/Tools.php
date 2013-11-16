@@ -24,7 +24,7 @@ class Tools {
 			}
 		}
 	}
-	
+
 	/**
 	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.
 	 *
@@ -201,7 +201,7 @@ class Tools {
 
 		return $attachment_id;
 	}
-	
+
 	// =========================
 	// !Hook/Callback Methods
 	// =========================
@@ -246,7 +246,7 @@ class Tools {
 			}
 		}
 	}
-	
+
 	// =========================
 	// !Shortcode Methods
 	// =========================
@@ -302,7 +302,7 @@ class Tools {
 			}
 		}
 	}
-	
+
 	// =========================
 	// !Hide Methods
 	// =========================

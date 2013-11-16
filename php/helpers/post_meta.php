@@ -21,7 +21,7 @@
  */
 function get_postmeta( $key, $id = null ) {
 	global $wpdb;
-	
+
 	if ( is_null( $id ) ) {
 		global $post;
 		$id = $post->ID;

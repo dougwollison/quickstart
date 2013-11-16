@@ -6,7 +6,7 @@
  * @subpackage Teaser
  * @since 1.0.0
  */
- 
+
 /**
  * Creates the teaser from a post of a specified length
  *

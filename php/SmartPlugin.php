@@ -11,7 +11,7 @@ abstract class SmartPlugin{
 	// =========================
 	// !Instantiated Version
 	// =========================
-	
+
 	/**
 	 * The stored callbacks.
 	 *
@@ -117,7 +117,7 @@ abstract class SmartPlugin{
 		// Apply the method with the saved arguments
 		return call_user_func_array( array( $this, "_$method" ), $args );
 	}
-	
+
 	// =========================
 	// !Static Version
 	// =========================

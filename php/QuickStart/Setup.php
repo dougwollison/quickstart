@@ -539,7 +539,7 @@ class Setup extends \SmartPlugin {
 	public function _save_meta_box( $post_id, $meta_box, $args ) {
 		$nonce = "_qsnonce-$meta_box";
 		$post_type = get_post_type_object( $_POST['post_type'] );
-		
+
 		// Check for autosave and post revisions
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ||
 			wp_is_post_revision( $post_id ) ||
@@ -993,7 +993,7 @@ class Setup extends \SmartPlugin {
 		if ( is_null( $section ) ) {
 			$section = 'default';
 		}
-		
+
 		// Default $page to 'general'
 		if ( is_null( $page ) ) {
 			$page = 'general';
@@ -1117,7 +1117,7 @@ class Setup extends \SmartPlugin {
 			$this->register_page( $page, $args, $parent );
 		}
 	}
-	
+
 	/**
 	 * Register the settings for this page
 	 *
@@ -1150,7 +1150,7 @@ class Setup extends \SmartPlugin {
 			$this->_register_page_settings( $args['submenu'] );
 		}
 	}
-	
+
 	/**
 	 * Register the settings for this page
 	 *
