@@ -28,7 +28,7 @@ class Tools {
 		wp_nonce_field( $id, "_qsnonce-$id" );
 
 		// Wrap in container for any specific targeting needed
-		echo '<div class="quickstart-meta-box">';
+		echo '<div class="qs-meta-box">';
 			if ( is_callable( $args['fields'] ) ) {
 				// Call the function, passing the post, the metabox args, and the id if it's needed
 				call_user_func( $args['fields'], $post, $args, $id );
