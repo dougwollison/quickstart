@@ -48,11 +48,12 @@ function is_assoc( $array ) {
  *
  * @param mixed &$key   The key being tested.
  * @param mixed &$value The value that may be swapped.
+ * @param mixed $fill   The new value for $value.
  */
-function make_associative( &$key, &$value ) {
+function make_associative( &$key, &$value, $fill = array() ) {
 	if ( is_int( $key ) ) {
 		$key = $value;
-		$value = array();
+		$value = $fill;
 	}
 }
 
