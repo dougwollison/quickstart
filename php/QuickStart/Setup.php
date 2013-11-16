@@ -620,6 +620,12 @@ class Setup extends \SmartPlugin{
 	}
 
 	/**
+	 * =========================
+	 * Feature Setups
+	 * =========================
+	 */
+
+	/**
 	 * Setup the requested feature.
 	 *
 	 * @since 1.0.0
@@ -628,6 +634,12 @@ class Setup extends \SmartPlugin{
 	 * @param array  $args     The arguments for registration.
 	 */
 	public function _setup_feature( $feature, $args ) {
+		// Call the appropriate setup function from the Features kit.
+
+		$method = "setup_{$feature}_feature";
+		if ( method_exists( $this, $method ) ) {
+			$this->$method( $args );
+		}
 	}
 
 	/**
@@ -643,6 +655,56 @@ class Setup extends \SmartPlugin{
 		foreach ( $feature as $feature => $args ) {
 			make_associative( $feature, $args );
 			$this->_setup_feature( $feature, $args );
+		}
+	}
+
+	/**
+	 * Setup an order manager for certain post types
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $args A list of options for the order manager.
+	 */
+	public function setup_order_manager( $args ) {
+		// Don't bother if on the admin side.
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Default post_type option to page
+		if ( ! isset( $options['post_type'] ) ) {
+			$options['post_type'] = 'page';
+		}
+
+		$post_types = csv_array( $options['post_type'] );
+
+		// Use the provided save callback if provided
+		if ( isset( $options['save'] ) && is_callable( $options['save'] ) ) {
+			$callback = $options['save'];
+		} else { // Otherwise, use the built in one
+			$callback = array( __NAMESPACE__ . '\Features', 'save_menu_order' );
+		}
+
+		add_action( 'admin_init', $callback );
+
+		// Enqueue the necessary scripts
+		Hooks::backend_enqueue( array(
+			'css' => array(
+				'qs-menuorder-css' => array( plugins_url('/css/QS.menuorder.css', QS_ROOT ) )
+			),
+			'js' => array(
+				'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_ROOT ), array( 'jquery-ui-sortable' ) ),
+				'qs-menuorder-js' => array( plugins_url( '/js/QS.menuorder.js', QS_ROOT ), array( 'jquery-ui-nested-sortable' ) )
+			)
+		) );
+
+		// Setup the admin pages for each post type
+		foreach ( $post_types as $post_type ) {
+			$this->register_page( "$post_type-order", array(
+				'title'      => sprintf( '%s Order', make_legible( $post_type ) ),
+				'capability' => get_post_type_object($post_type)->cap->edit_posts,
+				'callback'   => array( __CLASS__, 'menu_order_manager' )
+			), $post_type );
 		}
 	}
 
@@ -823,7 +885,7 @@ class Setup extends \SmartPlugin{
 	 * @param string $button Optional the ID of the button to be added to the toolbar
 	 * @param int    $row    Optional the row number of the toolbar (1, 2, or 3) to add the button to
 	 */
-	public function _register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
+	public function register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
 		// Skip if the current use can't edit posts/pages
 		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
 			return;
@@ -913,8 +975,6 @@ class Setup extends \SmartPlugin{
 	 * Register and build a setting
 	 *
 	 * @since 1.0.0
-	 * @uses Form::build_fields()
-	 * @uses legible()
 	 *
 	 * @param string       $setting The id of the setting to register
 	 * @param array|string $args    The setting configuration (string accepted for name or html)
@@ -928,12 +988,42 @@ class Setup extends \SmartPlugin{
 	 * Register multiple settings
 	 *
 	 * @since 1.0.0
-	 * @uses Setup::register_setting
+	 * @uses Setup::register_setting()
 	 *
 	 * @param array  $settings An array of settings to register
 	 * @param string $group    The id of the group this setting belongs to
 	 * @param string $page     The id of the page this setting belongs to
 	 */
 	protected function _register_settings( $settings, $section = null, $page = null ) {
+	}
+
+	/**
+	 * =========================
+	 * Menu Pages Setups
+	 * =========================
+	 */
+
+	/**
+	 * Register and build a page
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $setting The id of the page to register
+	 * @param array  $args    The page configuration
+	 * @param string $parent  The id of the group this setting belongs to
+	 */
+	protected function _register_page( $page, $args, $parent = null ) {
+	}
+
+	/**
+	 * Register multiple pages
+	 *
+	 * @since 1.0.0
+	 * @uses Setup::register_page()
+	 *
+	 * @param array  $settings An array of pages to register
+	 * @param string $parent   Optional The id of the page this one is a childe of
+	 */
+	protected function _register_pages( $pages, $parent = null ) {
 	}
 }
