@@ -11,6 +11,21 @@ namespace QuickStart;
 
 class Tools {
 	/**
+	 * Load the requested helper files.
+	 *
+	 * @param mixed $helpers A name or array of helper files to load (sans extention)
+	 */
+	public static function load_helpers( $helpers ) {
+		csv_array_ref( $helpers );
+		foreach ( $helpers as $helper ) {
+			$file = QS_DIR . "/php/helpers/$helper.php";
+			if ( file_exists( $file ) ){
+				require_once( $file );
+			}
+		}
+	}
+	
+	/**
 	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.
 	 *
 	 * @since 1.0.0
@@ -150,6 +165,48 @@ class Tools {
 	}
 
 	/**
+	 * Take care of uploading and inserting an attachment
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $file The desired entry in $_FILES
+	 * @param array $attachment Optional An array of data for the attachment to be written to wp_posts
+	 */
+	public static function upload( $file, $attachment = array() ) {
+		$file = wp_handle_upload( $file, array( 'test_for m' => false ) );
+
+		if ( isset( $file['error'] ) ) {
+			wp_die( $file['error'], 'Image Upload Error' );
+		}
+
+		$url  = $file['url'];
+		$type = $file['type'];
+		$file = $file['file'];
+		$filename = basename( $file );
+
+		$defaults = array(
+			'post_title'     => $filename,
+			'post_content'   => '',
+			'post_mime_type' => $type,
+			'post_status'	 => 'publish',
+			'guid'           => $url
+		);
+
+		$attachment = wp_parse_args( $attachment, $defaults );
+
+		//  Save the data
+		$attachment_id = wp_insert_attachment( $attachment, $file );
+		$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file );
+		wp_update_attachment_metadata( $attachment_id, $attachment_data );
+
+		return $attachment_id;
+	}
+	
+	// =========================
+	// !Hook/Callback Methods
+	// =========================
+
+	/**
 	 * Add various callbacks to specified hooks
 	 *
 	 * @since 1.0.0
@@ -189,44 +246,10 @@ class Tools {
 			}
 		}
 	}
-
-	/**
-	 * Take care of uploading and inserting an attachment
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array $file The desired entry in $_FILES
-	 * @param array $attachment Optional An array of data for the attachment to be written to wp_posts
-	 */
-	public static function upload( $file, $attachment = array() ) {
-		$file = wp_handle_upload( $file, array( 'test_for m' => false ) );
-
-		if ( isset( $file['error'] ) ) {
-			wp_die( $file['error'], 'Image Upload Error' );
-		}
-
-		$url  = $file['url'];
-		$type = $file['type'];
-		$file = $file['file'];
-		$filename = basename( $file );
-
-		$defaults = array(
-			'post_title'     => $filename,
-			'post_content'   => '',
-			'post_mime_type' => $type,
-			'post_status'	 => 'publish',
-			'guid'           => $url
-		);
-
-		$attachment = wp_parse_args( $attachment, $defaults );
-
-		//  Save the data
-		$attachment_id = wp_insert_attachment( $attachment, $file );
-		$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file );
-		wp_update_attachment_metadata( $attachment_id, $attachment_data );
-
-		return $attachment_id;
-	}
+	
+	// =========================
+	// !Shortcode Methods
+	// =========================
 
 	/**
 	 * Simple div shortcode with name as class and attributes taken verbatim
@@ -279,21 +302,10 @@ class Tools {
 			}
 		}
 	}
-
-	/**
-	 * Load the requested helper files.
-	 *
-	 * @param mixed $helpers A name or array of helper files to load (sans extention)
-	 */
-	public static function load_helpers( $helpers ) {
-		csv_array_ref( $helpers );
-		foreach ( $helpers as $helper ) {
-			$file = QS_DIR . "/php/helpers/$helper.php";
-			if ( file_exists( $file ) ){
-				require_once( $file );
-			}
-		}
-	}
+	
+	// =========================
+	// !Hide Methods
+	// =========================
 
 	/**
 	 * Call the appropriate hide_[object] method(s)

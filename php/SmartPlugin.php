@@ -8,6 +8,10 @@
  */
 
 abstract class SmartPlugin{
+	// =========================
+	// !Instantiated Version
+	// =========================
+	
 	/**
 	 * The stored callbacks.
 	 *
@@ -67,11 +71,14 @@ abstract class SmartPlugin{
 	 * @param array  $args   The arguments for the method.
 	 */
 	protected function save_callback( $method, $args ) {
-		if ( ! method_exists( $this, "_$method" ) ) return;
+		if ( ! method_exists( $this, "_$method" ) ) {
+			return;
+		}
 
 		$hook = 'init';
-		if ( isset( $this->method_hooks[ $method ] ) )
+		if ( isset( $this->method_hooks[ $method ] ) ) {
 			$hook = $this->method_hooks[ $method ];
+		}
 
 		++$this->callback_counts;
 		$id = $this->callback_counts;
@@ -97,7 +104,9 @@ abstract class SmartPlugin{
 	 */
 	protected function load_callback( $id, $_args ) {
 		// First, make sure the callback exists, abort if not
-		if ( ! isset( $this->callbacks[ $id ] ) ) return;
+		if ( ! isset( $this->callbacks[ $id ] ) ) {
+			return;
+		}
 
 		// Fetch the method name and saved arguments
 		list( $method, $args ) = $this->callbacks[ $id ];
@@ -108,10 +117,10 @@ abstract class SmartPlugin{
 		// Apply the method with the saved arguments
 		return call_user_func_array( array( $this, "_$method" ), $args );
 	}
-
-	/* ============================================== */
-	/* =============== Static Version =============== */
-	/* ============================================== */
+	
+	// =========================
+	// !Static Version
+	// =========================
 
 	/**
 	 * The stored static callbacks.
@@ -174,11 +183,14 @@ abstract class SmartPlugin{
 	 * @param array  $args   The arguments for the method.
 	 */
 	protected function save_static_callback( $method, $args ) {
-		if ( ! method_exists( get_called_class(), "_$method" ) ) return;
+		if ( ! method_exists( get_called_class(), "_$method" ) ) {
+			return;
+		}
 
 		$hook = 'init';
-		if ( isset( static::$static_method_hooks[ $method ] ) )
+		if ( isset( static::$static_method_hooks[ $method ] ) ) {
 			$hook = static::$static_method_hooks[ $method ];
+		}
 
 		++static::$static_callback_counts;
 		$id = static::$static_callback_counts;
@@ -205,7 +217,9 @@ abstract class SmartPlugin{
 	 */
 	protected function load_static_callback( $id, $_args ) {
 		// First, make sure the callback exists, abort if not
-		if ( ! isset( static::$static_callbacks[ $id ] ) ) return;
+		if ( ! isset( static::$static_callbacks[ $id ] ) ) {
+			return;
+		}
 
 		// Fetch the method name and saved arguments
 		list( $method, $args ) = static::$static_callbacks[ $id ];

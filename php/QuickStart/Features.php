@@ -10,11 +10,9 @@ namespace QuickStart;
  */
 
 class Features {
-	/**
-	 * =========================
-	 * Order Manager
-	 * =========================
-	 */
+	// =========================
+	// !Order Manager
+	// =========================
 
 	/**
 	 * Default save callback for order manager.

@@ -49,11 +49,9 @@ class Setup extends \SmartPlugin {
 		'add_page_to_menu'           => array('admin_menu', 0),
 	);
 
-	/**
-	 * =========================
-	 * Main Setup Function
-	 * =========================
-	 */
+	// =========================
+	// !Main Setup Function
+	// =========================
 
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
@@ -129,11 +127,9 @@ class Setup extends \SmartPlugin {
 		$this->run_theme_setups();
 	}
 
-	/**
-	 * =========================
-	 * Custom Content Setups
-	 * =========================
-	 */
+	// =========================
+	// !Custom Content Setups
+	// =========================
 
 	/**
 	 * Utility method: prepare the provided defaults with the custom ones from $this->defaults.
@@ -662,11 +658,9 @@ class Setup extends \SmartPlugin {
 		}
 	}
 
-	/**
-	 * =========================
-	 * Feature Setups
-	 * =========================
-	 */
+	// =========================
+	// !Feature Setups
+	// =========================
 
 	/**
 	 * Setup an order manager for certain post types
@@ -711,18 +705,16 @@ class Setup extends \SmartPlugin {
 		// Setup the admin pages for each post type
 		foreach ( $post_types as $post_type ) {
 			$this->register_page( "$post_type-order", array(
-				'title'      => sprintf( '%s Order', make_legible( $post_type ) ),
+				'title'      => sprintf( __( '%s Order' ), make_legible( $post_type ) ),
 				'capability' => get_post_type_object( $post_type )->cap->edit_posts,
 				'callback'   => array( __NAMESPACE__ . '\Features', 'menu_order_manager' ),
 			), $post_type );
 		}
 	}
 
-	/**
-	 * =========================
-	 * Theme Setups
-	 * =========================
-	 */
+	// =========================
+	// !Theme Setups
+	// =========================
 
 	/**
 	 * Proccess the theme setups; registering the various features and supports.
@@ -814,11 +806,9 @@ class Setup extends \SmartPlugin {
 		}
 	}
 
-	/**
-	 * =========================
-	 * MCE Setups
-	 * =========================
-	 */
+	// =========================
+	// !MCE Setups
+	// =========================
 
 	/**
 	 * Add buttons for MCE.
@@ -975,11 +965,9 @@ class Setup extends \SmartPlugin {
 		$this->add_mce_style_formats( $styles );
 	}
 
-	/**
-	 * =========================
-	 * Settings Setups
-	 * =========================
-	 */
+	// =========================
+	// !Settings Setups
+	// =========================
 
 	/**
 	 * Register and build a setting
@@ -1090,11 +1078,9 @@ class Setup extends \SmartPlugin {
 		}
 	}
 
-	/**
-	 * =========================
-	 * Menu Pages Setups
-	 * =========================
-	 */
+	// =========================
+	// !Menu Pages Setups
+	// =========================
 
 	/**
 	 * Register and build a page
