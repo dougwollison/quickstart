@@ -118,7 +118,7 @@ window.QS = window.QS || {};
 			// If a special jQuery object is present, use that.
 			// Otherwise, query using the provided selector.
 			if ( options.$trigger ) {
-				$trigger = options.$trigger
+				$trigger = options.$trigger;
 			} else {
 				$trigger = $( options.trigger );
 			}
@@ -199,7 +199,7 @@ window.QS = window.QS || {};
 
 			options = _.extend( {}, defaults, options );
 
-		    this.init( {
+			this.init( {
 				title:    options.title,
 				choose:   options.choose,
 				multiple: options.multiple,
@@ -243,21 +243,21 @@ window.QS = window.QS || {};
 				//Get the attachments from the gallery shortcode
 				attachments = wp.media.gallery.attachments( gallery );
 				selection = new wp.media.model.Selection( attachments.models, {
-			        props:    attachments.props.toJSON(),
-			        multiple: true
-			    });
+					props:    attachments.props.toJSON(),
+					multiple: true
+				});
 
-			    selection.gallery = attachments.gallery;
+				selection.gallery = attachments.gallery;
 
-			    //Fetch the query's attachments, and then break ties from the query to allow for sorting.
-			    selection.more().done(function() {
-			        selection.props.set( { query: false });
-			        selection.unmirror();
-			        selection.props.unset( 'orderby' );
-			    });
+				//Fetch the query's attachments, and then break ties from the query to allow for sorting.
+				selection.more().done(function() {
+					selection.props.set( { query: false });
+					selection.unmirror();
+					selection.props.unset( 'orderby' );
+				});
 			}
 
-		    this.init({
+			this.init({
 				state:     'gallery-edit',
 				frame:     'post',
 				title:     options.title,
