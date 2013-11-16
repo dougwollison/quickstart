@@ -84,9 +84,11 @@ function make_legible( $string ) {
  */
 function diverse_array( $array ) {
     $result = array();
-    foreach ( $array as $key1 => $value1 )
-        foreach ( $value1 as $key2 => $value2 )
+    foreach ( $array as $key1 => $value1 ) {
+        foreach ( $value1 as $key2 => $value2 ) {
             $result[ $key2 ][ $key1 ] = $value2;
+        }
+    }
 
    return $result;
 }
@@ -98,12 +100,15 @@ function diverse_array( $array ) {
  *
  * @since 1.0.0
  *
- * @param string $string The string to split.
+ * @param string $var The string to split.
  *
  * @return array The split array.
  */
-function csv_array( $string ) {
-	return preg_split( '/[\s,]+/', $string, 0, PREG_SPLIT_NO_EMPTY );
+function csv_array( $var ) {
+	if ( is_array( $var ) ) {
+		return $var;
+	}
+	return preg_split( '/[\s,]+/', $var, 0, PREG_SPLIT_NO_EMPTY );
 }
 
 /**
@@ -114,8 +119,9 @@ function csv_array( $string ) {
  * @param mixed &$var The variable to process, passed by reference.
  */
 function csv_array_ref( &$var ) {
-	if ( ! is_array( $var ) )
+	if ( ! is_array( $var ) ) {
 		$var = csv_array( $var );
+	}
 }
 
 /**
@@ -130,8 +136,9 @@ function csv_array_ref( &$var ) {
  */
 function _process_n_form( $string, $rules ) {
 	foreach ( $rules as $rule ) {
-		if ( preg_match( $rule[0], $string ) )
+		if ( preg_match( $rule[0], $string ) ) {
 			return preg_replace( $rule[0], $rule[1], $string );
+		}
 	}
 
 	return $string;
