@@ -44,7 +44,9 @@ class Setup extends \SmartPlugin{
 		'add_mce_buttons_3' => array( 'mce_buttons_3', 10, 1 ),
 		'add_mce_plugin' => array( 'mce_external_plugins', 10, 1),
 		'register_mce_style_formats' => array( 'tiny_mce_before_init', 10, 1 ),
-		'register_settings' => array( 'admin_init', 10, 0 )
+		'register_setting' => array( 'admin_init', 10, 0 ),
+		'register_settings' => array( 'admin_init', 10, 0 ),
+		'add_page_to_menu' => array('admin_menu', 0),
 	);
 
 	/**
@@ -471,8 +473,8 @@ class Setup extends \SmartPlugin{
 			$args = array(
 				'fields' => array(
 					$meta_box => array(
-						'class' => 'full-width-text',
-						'_label' => false
+						'class'           => 'full-width-text',
+						'wrap_with_label' => false
 					)
 				)
 			);
@@ -490,9 +492,9 @@ class Setup extends \SmartPlugin{
 		}
 
 		$defaults = array(
-			'title' => make_legible( $meta_box ),
-			'context' => 'normal',
-			'priority' => 'high',
+			'title'     => make_legible( $meta_box ),
+			'context'   => 'normal',
+			'priority'  => 'high',
 			'post_type' => 'post'
 		);
 
@@ -530,7 +532,7 @@ class Setup extends \SmartPlugin{
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments from registration.
 	 */
-	protected function _save_meta_box( $post_id, $meta_box, $args ) {
+	public function _save_meta_box( $post_id, $meta_box, $args ) {
 		// Check for autosave and post revisions
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 		if ( wp_is_post_revision( $post_id ) ) return;
@@ -602,7 +604,7 @@ class Setup extends \SmartPlugin{
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments from registration.
 	 */
-	protected function _add_meta_box( $meta_box, $args ) {
+	public function _add_meta_box( $meta_box, $args ) {
 		foreach ( (array) $args['post_type'] as $post_type ) {
 			add_meta_box(
 				$meta_box,
@@ -981,7 +983,74 @@ class Setup extends \SmartPlugin{
 	 * @param string       $group   The id of the group this setting belongs to
 	 * @param string       $page    The id of the page this setting belongs to
 	 */
-	protected function _register_setting( $setting, $args, $section, $page ) {
+	public function _register_setting( $setting, $args, $section, $page ) {
+		make_associative( $setting, $args );
+
+		// Default arguments
+		$default_args = array(
+			'title'           => make_legible( $setting ),
+			'sanitize'        => null,
+			'wrap_with_label' => false //since the label should be taken care of automatically when adding the field
+		);
+
+		// Default $section to 'default'
+		if ( ! $section ) {
+			$section = 'default';
+		}
+		
+		// Default $page to 'general'
+		if ( ! $page ) {
+			$page = 'general';
+		}
+
+		// Parse the arguments with the defaults
+		$args = wp_parse_args( $args, $default_args );
+
+		// Build the $fields array based on provided data
+		if ( isset( $args['field'] ) ) {
+			// A single field is provided, the name of the setting is also the name of the field
+			if ( ! isset( $args['field']['wrap_with_label'] ) ) {
+				// Auto set _label to false if not present already
+				$args['field']['wrap_with_label'] = false;
+			}
+			$fields = array(
+				$setting => $args['field']
+			);
+		} elseif ( isset( $args['fields'] ) ) {
+			// An array of fields is provided, run through and rewrite the names to be in $setting[$name] style
+			$fields = array();
+			foreach ( $args['fields'] as $name => $field ) {
+				// Rebuild the field names based on ID; array style
+				$name = preg_replace( '/^([^\[\]]+)(\[.+?\])?$/', $setting . '[$1]$2', $name );
+				$fields[ $name ] = $field;
+			}
+		} else {
+			// Assume $args is the literal arguments for the field
+			$fields = array(
+				$setting => $args
+			);
+		}
+
+		// Set the current arguments
+		$_args = array(
+			'fields' => $fields,
+			'post'   => false,
+			'echo'   => true,
+			'__extract'
+		);
+
+		// Register the setting
+		register_setting( $page, $setting, $args['sanitize'] );
+
+		// Add the field
+		add_settings_field(
+			$setting,
+			'<label for="' . $setting . '">' . $args['title'] . '</label>',
+			array( __NAMESPACE__ . '\Form', 'build_fields' ),
+			$page,
+			$section,
+			$_args
+		);
 	}
 
 	/**
@@ -994,7 +1063,23 @@ class Setup extends \SmartPlugin{
 	 * @param string $group    The id of the group this setting belongs to
 	 * @param string $page     The id of the page this setting belongs to
 	 */
-	protected function _register_settings( $settings, $section = null, $page = null ) {
+	public function _register_settings( $settings, $section = null, $page = null ) {
+		// If page is provided, rebuild $settings to be in $page => $settings format
+		if ( $page ) {
+			$settings = array(
+				$page => $settings
+			);
+		}
+
+		// $settings should now be in page => settings format
+
+		if ( is_array( $settings ) ) {
+			foreach ( $settings as $page => $_settings ) {
+				foreach ( $_settings as $id => $setting ) {
+					$this->_register_setting( $id, $setting, $section, $page );
+				}
+			}
+		}
 	}
 
 	/**
@@ -1008,22 +1093,60 @@ class Setup extends \SmartPlugin{
 	 *
 	 * @since 1.0.0
 	 *
+	 * @uses Setup::register_page_settings()
+	 * @uses Setup::add_page_to_menu()
+	 *
 	 * @param string $setting The id of the page to register
 	 * @param array  $args    The page configuration
 	 * @param string $parent  The id of the group this setting belongs to
 	 */
-	protected function _register_page( $page, $args, $parent = null ) {
+	public function register_page( $page, $args, $parent = null ) {
+		// Add settings for the page
+		$this->register_page_settings( $page, $args );
+
+		// Now, add this page to the admin menu
+		$this->add_page_to_menu( $page, $args, $parent );
 	}
 
 	/**
 	 * Register multiple pages
 	 *
 	 * @since 1.0.0
+	 *
 	 * @uses Setup::register_page()
 	 *
 	 * @param array  $settings An array of pages to register
 	 * @param string $parent   Optional The id of the page this one is a childe of
 	 */
-	protected function _register_pages( $pages, $parent = null ) {
+	public function register_pages( $pages, $parent = null ) {
+		foreach ( $pages as $page => $args ) {
+			$this->register_page( $page, $args, $parent );
+		}
+	}
+	
+	/**
+	 * Register the settings for this page
+	 *
+	 * @since 1.0.0
+	 *
+	 * @uses Setup::register_settings()
+	 *
+	 * @param string $setting The id of the page to register
+	 * @param array  $args    The page configuration
+	 */
+	public function register_page_settings( $page, $args ) {
+		
+	}
+	
+	/**
+	 * Register the settings for this page
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $setting The id of the page to register
+	 * @param array  $args    The page configuration
+	 */
+	public function add_page_to_menu( $page, $args ) {
+		
 	}
 }
