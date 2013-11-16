@@ -85,7 +85,7 @@ class Tools {
 		 */
 		add_action( 'init', function() use ( $singular, $plural ) {
 			global $wp_post_types;
-		    str_replace_in_array( array( 'Posts', 'Post' ), array( $plural, $singular ), $wp_post_types['post']->labels );
+		    str_replace_in_array( array( __( 'Posts' ), __( 'Post' ) ), array( $plural, $singular ), $wp_post_types['post']->labels );
 		} );
 
 		/**
@@ -103,7 +103,7 @@ class Tools {
 		add_action( 'admin_menu', function() use ( $singular, $plural, $menuname ) {
 			global $menu, $submenu;
 		    $menu[5][0] = $menuname;
-		    str_replace_in_array( array( 'Posts', 'Post' ), array( $plural, $singular ), $submenu['edit.php'] );
+		    str_replace_in_array( array( __( 'Posts' ), __( 'Post' ) ), array( $plural, $singular ), $submenu['edit.php'] );
 		} );
 	}
 
@@ -176,7 +176,7 @@ class Tools {
 		$file = wp_handle_upload( $file, array( 'test_for m' => false ) );
 
 		if ( isset( $file['error'] ) ) {
-			wp_die( $file['error'], 'Image Upload Error' );
+			wp_die( $file['error'], __( 'Image Upload Error' ) );
 		}
 
 		$url  = $file['url'];
