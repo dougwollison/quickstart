@@ -34,6 +34,7 @@ class Template{
 <![endif]-->
 <!--[if !(IE 6) | !(IE 7) | !(IE 8) | !(IE 9)  ]><!-->
 <html <?php language_attributes(); ?>>
-<!--<![endif]--><?php
+<!--<![endif]-->
+<?php
 	}
 }
