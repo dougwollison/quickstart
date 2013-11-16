@@ -210,6 +210,9 @@ abstract class SmartPlugin{
 		// Fetch the method name and saved arguments
 		list( $method, $args ) = static::$static_callbacks[ $id ];
 
+		// Append the saved arguments to the passed arguments
+		$args = array_merge( $_args, $args );
+
 		// Apply the method with the saved arguments
 		return call_user_func_array( array( get_called_class(), "_$method" ), $args );
 	}
