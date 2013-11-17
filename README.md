@@ -59,6 +59,22 @@ Below is a list of helpers currently available:
 - `post_meta`: utility functions (`get_postmeta` and `the_postneta`) for fetching post metadata (aliases to `get_post_meta` but lets you pass the field first, then optionally the post ID, without needing to specify $single = true).
 - `teaser`: utility functions (`get_teaser` and `the_teaser`) for creating a teaser of the post (similar to get_excerpt but with more control).
 
+## Bare Minimum Information
+
+QuickStart is designed to take the bare minimum amount of information, and fill in the blanks for you.
+
+For example, let's say you create a post_type called "project". Obviously, the labels will be pretty obvious; "Project" for singular and "Projects" for plural. QuickStart will automatically create these singular and plural forms if none are present. Included are utility functions that convert slugs into legible names (underscores become spaces and the whole string is titlecased), as well as into singular and plural form (or at least try to, basic plural forms tend to be generated perfectly).
+
+Another example is fields and meta boxes. By default, all fields are plain text inputs with a label. If that's all you need, you can just pass the field name as the entry for it, rather than an array of options. Metaboxes are by default just a text input with no label (the title of the meta box serving that function).
+
+In short, QuickStart does as much of the work as it can for you; you just point it in the right direction.
+
+NOTE: QuickStart's defaults for post types and taxonomies vary slightly from WordPress';
+- post types are by default public and have has_archive enabled.
+- taxonomies are by default hierarchical and have show_admin_column enabled.
+
+You can override these defaults by passing an array of new defaults to the Setup class when you call it.
+
 ## Examples
 
 Coming soon.
