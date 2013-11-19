@@ -56,6 +56,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
 	 *
+	 * @since 1.1.0 Added tinymce key; mce is deprecated.
 	 * @since 1.0.0
 	 *
 	 * @param array $configs The theme configuration options.
@@ -740,6 +741,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Proccess the theme setups; registering the various features and supports.
 	 *
+	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
 	 * @since 1.0.0
 	 *
 	 * @param array &$configs Optional. The features and supports for the theme.
@@ -783,7 +785,7 @@ class Setup extends \SmartPlugin {
 		}
 
 		// Sidebars
-		if ( isset( $setups['sidebar'] ) ) {
+		if ( isset( $setups['sidebars'] ) ) {
 			$defaults = null;
 
 			// Prep defaults, if present
@@ -998,6 +1000,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register and build a setting
 	 *
+	 * @since 1.1.0 Dropped stupid $args['fields'] processing.
 	 * @since 1.0.0
 	 *
 	 * @param string       $setting The id of the setting to register
@@ -1176,6 +1179,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the settings for this page
 	 *
+	 * @since 1.1.0 'submenus' is no 'children'
 	 * @since 1.0.0
 	 *
 	 * @param string $setting The id of the page to register

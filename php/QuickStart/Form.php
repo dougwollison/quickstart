@@ -109,6 +109,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.1.0 Added check if $settings is a callback.
 	 * @since 1.0.0
 	 *
 	 * @param string $field    The name/id of the field.

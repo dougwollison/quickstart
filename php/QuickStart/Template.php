@@ -16,6 +16,7 @@ class Template {
 	 * Doctype and opening html tag with
 	 * IE conditional comments for classes.
 	 *
+	 * @sicne 1.1.0 Fixed IE9 tagging.
 	 * @since 1.0.0
 	 */
 	public static function doc_start() {
