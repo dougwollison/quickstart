@@ -118,13 +118,18 @@ class Form {
 	 * @return string The HTML for the field.
 	 */
 	public static function build_field( $field, $settings = array(), $data = null ) {
+		// Check if $settings is a callback, call and return it's result if so
+		if ( is_callable( $settings ) ) {
+			return call_user_func( $settings, $data, $field );
+		}
+		
 		$default_settings = array(
-			'type'            => 'text',
-			'id'              => static::make_id( $field ),
-			'name'            => $field,
-			'label'           => make_legible( static::make_id( $field ) ),
-			'data_name'       => $field, //The name of the postmeta or option to retrieve
-			'wrap_with_label' => true //Wether or not to wrap the input in a label
+			'type'        => 'text',
+			'id'          => static::make_id( $field ),
+			'name'        => $field,
+			'label'       => make_legible( static::make_id( $field ) ),
+			'data_name'   => $field, //The name of the postmeta or option to retrieve
+			'print_label' => true //Wether or not to print a label
 		);
 
 		// Parse the passed settings with the defaults
@@ -199,11 +204,18 @@ class Form {
 		if ( in_array( '__extract', $fields ) ) {
 			extract( $fields );
 		}
-
-		// Run through each field; key is the field name, value is the settings
-		foreach ( $fields as $field => $settings ) {
-			make_associative( $field, $settings );
-			$html .= static::build_field( $field, $settings, $data );
+		
+		// Check if $fields is a callback, run it if so.
+		if ( is_callable( $fields ) ) {
+			$html .= call_user_func( $fields, $data );
+		} else {
+			csv_array_ref( $fields );
+			
+			// Run through each field; key is the field name, value is the settings
+			foreach ( $fields as $field => $settings ) {
+				make_associative( $field, $settings );
+				$html .= static::build_field( $field, $settings, $data );
+			}
 		}
 
 		// Echo the output if desired
