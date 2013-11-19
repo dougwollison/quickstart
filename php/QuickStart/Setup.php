@@ -782,12 +782,12 @@ class Setup extends \SmartPlugin {
 		}
 
 		// Sidebars
-		if ( isset( $setups['sidebars'] ) ) {
+		if ( isset( $setups['sidebar'] ) ) {
 			$defaults = null;
 
 			// Prep defaults, if present
-			if ( isset( $this->defaults['sidebars'] ) ) {
-				$defaults = $this->defaults['sidebars'];
+			if ( isset( $this->defaults['sidebar'] ) ) {
+				$defaults = $this->defaults['sidebar'];
 				$find = '/.*<(\w+).*>.*/';
 				$replace = '$1';
 
