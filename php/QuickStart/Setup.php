@@ -36,17 +36,17 @@ class Setup extends \SmartPlugin {
 	 * @var array
 	 */
 	protected $method_hooks = array(
-		'run_theme_setups'           => array( 'after_theme_setup', 10, 0 ),
-		'save_meta_box'              => array( 'save_post', 10, 1 ),
-		'add_meta_box'               => array( 'add_meta_boxes', 10, 0 ),
-		'add_mce_buttons'            => array( 'mce_buttons', 10, 1 ),
-		'add_mce_buttons_2'          => array( 'mce_buttons_2', 10, 1 ),
-		'add_mce_buttons_3'          => array( 'mce_buttons_3', 10, 1 ),
-		'add_mce_plugin'             => array( 'mce_external_plugins', 10, 1),
-		'register_mce_style_formats' => array( 'tiny_mce_before_init', 10, 1 ),
-		'register_setting'           => array( 'admin_init', 10, 0 ),
-		'register_settings'          => array( 'admin_init', 10, 0 ),
-		'add_page_to_menu'           => array('admin_menu', 0),
+		'run_theme_setups'      => array( 'after_theme_setup', 10, 0 ),
+		'save_meta_box'         => array( 'save_post', 10, 1 ),
+		'add_meta_box'          => array( 'add_meta_boxes', 10, 0 ),
+		'add_mce_buttons'       => array( 'mce_buttons', 10, 1 ),
+		'add_mce_buttons_2'     => array( 'mce_buttons_2', 10, 1 ),
+		'add_mce_buttons_3'     => array( 'mce_buttons_3', 10, 1 ),
+		'add_mce_plugin'        => array( 'mce_external_plugins', 10, 1),
+		'add_mce_style_formats' => array( 'tiny_mce_before_init', 10, 1 ),
+		'register_setting'      => array( 'admin_init', 10, 0 ),
+		'register_settings'     => array( 'admin_init', 10, 0 ),
+		'add_page_to_menu'      => array('admin_menu', 0),
 	);
 
 	// =========================
