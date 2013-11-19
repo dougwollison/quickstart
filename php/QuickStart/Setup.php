@@ -1207,7 +1207,7 @@ class Setup extends \SmartPlugin {
 		}
 
 		// Defaut the type to menu if not a valid type
-		if ( ! in_array( $type, array( 'menu', 'object', 'helper' ) ) ) {
+		if ( ! in_array( $type, array( 'menu', 'object', 'utility' ) ) ) {
 			$args['type'] == 'menu';
 		}
 
