@@ -97,6 +97,7 @@ class Setup extends \SmartPlugin {
 						Hooks::backend_enqueue( $value['backend'] );
 					}
 				break;
+				case 'tinymce':
 				case 'mce':
 					// Enable buttons if set
 					if(isset($value['buttons'])){
