@@ -773,8 +773,8 @@ class Setup extends \SmartPlugin {
 		}
 
 		// Editor style(s)
-		if ( isset( $configs['editor_styles'] ) ) {
-			add_editor_style( $configs['editor_styles'] );
+		if ( isset( $configs['editor_style'] ) ) {
+			add_editor_style( $configs['editor_style'] );
 		}
 
 		// Navigation menus
