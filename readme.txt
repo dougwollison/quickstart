@@ -23,5 +23,8 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
-= 1.0 =
+= 1.1.0 =
+Bug fixes, key changes, documented example code.
+
+= 1.0.0 =
 Initial public release.
