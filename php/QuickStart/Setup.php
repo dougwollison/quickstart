@@ -1153,7 +1153,7 @@ class Setup extends \SmartPlugin {
 		// Run through each section, add them, and register the settings for them
 		if ( isset( $args['sections'] ) ) {
 			foreach ( $args['sections'] as $id => $section ) {
-				add_settings_section( $id, $section['title'], $args['callback'], $page );
+				add_settings_section( $id, $section['title'], $section['callback'], $page );
 				if ( isset( $section['fields'] ) ) {
 					$this->_register_settings( $section['fields'], $id, $page );
 				}
