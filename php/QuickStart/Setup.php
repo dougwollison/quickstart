@@ -550,6 +550,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Setup the save hook for the meta box
 	 *
+	 * @since 1.1.1 Fixed typo causing $args['fields'] saving to save the $_POST key, not the value.
 	 * @since 1.0.0
 	 *
 	 * @param string $post_id  The ID of the post being saved. (skip when saving the hook)
