@@ -245,17 +245,17 @@ class Setup extends \SmartPlugin {
 		// Loop through each post_type, check for supports, taxonomies or meta_boxes
 		foreach ( $configs['post_types'] as $post_type => &$pt_args ) {
 			make_associative( $post_type, $pt_args );
-			
+
 			// Force theme and post type supports into array form
 			csv_array_ref( $configs['supports'] );
 			csv_array_ref( $pt_args['supports'] );
-			
+
 			// Check if this post type uses thumbnails, and
 			// make sure the theme supports includes it
 			if ( in_array( 'thumbnail', $pt_args['supports'] ) && ! in_array( 'post-thumbnails', $configs['supports'] ) ) {
 				$configs['supports'][] = 'post-thumbnails';
 			}
-			
+
 			if ( isset( $pt_args['taxonomies'] ) ) {
 				// Loop through each taxonomy, move it to $taxonomies if not registered yet
 				foreach ( $pt_args['taxonomies'] as $taxonomy => $tx_args ) {
@@ -434,14 +434,20 @@ class Setup extends \SmartPlugin {
 		}
 
 		// Now that it's registered, see if there are preloaded terms to add
-		if ( isset( $args['preload'] ) ) {
-			csv_array_ref( $args['preload'] );
+		if ( isset( $args['preload'] ) && is_array( $args['preload'] ) ) {
+			$is_assoc = is_assoc( $args['preload'] );
+
 			foreach ( $args['preload'] as $term => $args ) {
 				// Check if the term was added numerically on it's own
-				make_associative( $term, $args );
+				if ( $is_assoc ) {
+					$term = $args;
+					$args = array();
+				}
 
 				// Check if it exists, skip if so
-				if ( get_term_by( 'name', $term, $taxonomy ) ) continue;
+				if ( get_term_by( 'name', $term, $taxonomy ) ) {
+					continue;
+				}
 
 				// Insert the term
 				wp_insert_term( $term, $taxonomy, $args );
@@ -576,7 +582,8 @@ class Setup extends \SmartPlugin {
 
 			// Alternately/Additionally, see if a save_fields list is set, and save each one if so
 			if ( isset( $args['save_fields'] ) ) {
-				foreach ( (array) $args['save_fields'] as $meta_key => $field ) {
+				csv_array_ref( $args['save_fields'] );
+				foreach ( $args['save_fields'] as $meta_key => $field ) {
 					if ( is_int( $meta_key ) ) {
 						$meta_key = $field;
 					}
@@ -621,7 +628,8 @@ class Setup extends \SmartPlugin {
 	 * @param array  $args     The arguments from registration.
 	 */
 	public function _add_meta_box( $meta_box, $args ) {
-		foreach ( (array) $args['post_type'] as $post_type ) {
+		$post_types = csv_array( $args['post_type'] );
+		foreach ( $post_types as $post_type ) {
 			add_meta_box(
 				$meta_box,
 				$args['title'],
@@ -755,7 +763,7 @@ class Setup extends \SmartPlugin {
 			}
 		}
 
-		// Custom image sizes
+		// Custom image sizes(s)
 		if ( isset( $configs['image_sizes'] ) ) {
 			foreach( $configs['image_sizes'] as $name => $specs ) {
 				list( $width, $height, $crop ) = $specs + array( 0, 0, false );
@@ -763,14 +771,14 @@ class Setup extends \SmartPlugin {
 			}
 		}
 
-		// Editor style sheet(s)
-		if ( isset( $configs['editor_style'] ) ) {
-			add_editor_style( $configs['editor_style'] );
+		// Editor style(s)
+		if ( isset( $configs['editor_styles'] ) ) {
+			add_editor_style( $configs['editor_styles'] );
 		}
 
 		// Navigation menus
-		if ( isset( $configs['menus'] ) ) {
-			register_nav_menus( $configs['menus'] );
+		if ( isset( $configs['nav_menus'] ) ) {
+			register_nav_menus( $configs['nav_menus'] );
 		}
 
 		// Sidebars
@@ -1001,9 +1009,8 @@ class Setup extends \SmartPlugin {
 
 		// Default arguments
 		$default_args = array(
-			'title'           => make_legible( $setting ),
-			'sanitize'        => null,
-			'wrap_with_label' => false, // since the label should be taken care of automatically when adding the field
+			'title'    => make_legible( $setting ),
+			'sanitize' => null
 		);
 
 		// Default $section to 'default'
@@ -1022,32 +1029,29 @@ class Setup extends \SmartPlugin {
 		// Build the $fields array based on provided data
 		if ( isset( $args['field'] ) ) {
 			// A single field is provided, the name of the setting is also the name of the field
-			if ( ! isset( $args['field']['wrap_with_label'] ) ) {
-				// Auto set _label to false if not present already
+			
+			// Default the wrap_with_label argument to false if applicable
+			if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
+				// Auto set wrap_with_label to false if not present already
 				$args['field']['wrap_with_label'] = false;
 			}
-			$fields = array(
+			
+			// Create a fields entry
+			$args['fields'] = array(
 				$setting => $args['field'],
 			);
-		} elseif ( isset( $args['fields'] ) ) {
-			// An array of fields is provided, run through and rewrite the names to be in $setting[$name] style
-			$fields = array();
-			foreach ( $args['fields'] as $name => $field ) {
-				// Rebuild the field names based on ID; array style
-				$name = preg_replace( '/^([^\[\]]+)(\[.+?\])?$/', $setting . '[$1]$2', $name );
-				$fields[ $name ] = $field;
-			}
-		} else {
-			// Assume $args is the literal arguments for the field
-			$fields = array(
+		} elseif ( ! isset( $args['fields'] ) ) {
+			// Assume $args is the literal arguments for the field,
+			// create a fields entry
+			$args['fields'] = array(
 				$setting => $args,
 			);
 		}
 
 		// Set the current arguments
 		$_args = array(
-			'fields' => $fields,
-			'post'   => false,
+			'fields' => $args['fields'],
+			'data'   => null,
 			'echo'   => true,
 			'__extract',
 		);
