@@ -23,6 +23,9 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
+= 1.1.2 =
+Fixed preloading when passing a numeric array of terms.
+
 = 1.1.1 =
 Fixed save_meta_box issue when saving field data.
 
