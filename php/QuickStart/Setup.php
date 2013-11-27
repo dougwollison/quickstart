@@ -441,7 +441,7 @@ class Setup extends \SmartPlugin {
 
 			foreach ( $args['preload'] as $term => $args ) {
 				// Check if the term was added numerically on it's own
-				if ( $is_assoc ) {
+				if ( !$is_assoc ) {
 					$term = $args;
 					$args = array();
 				}
