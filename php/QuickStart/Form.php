@@ -123,18 +123,26 @@ class Form {
 		if ( is_callable( $settings ) ) {
 			return call_user_func( $settings, $data, $field );
 		}
-		
+
 		$default_settings = array(
-			'type'        => 'text',
-			'id'          => static::make_id( $field ),
-			'name'        => $field,
-			'label'       => make_legible( static::make_id( $field ) ),
-			'data_name'   => $field, //The name of the postmeta or option to retrieve
-			'print_label' => true //Wether or not to print a label
+			'type'            => 'text',
+			'id'              => static::make_id( $field ),
+			'name'            => $field,
+			'label'           => make_legible( static::make_id( $field ) ),
+			'data_name'       => $field, //The name of the postmeta or option to retrieve
+			'wrap_with_label' => true //Wether or not to wrap the field in a label
 		);
 
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
+
+		// Set a default value for the class setting;
+		// otherwise, make sure it's an array
+		if ( ! isset( $settings['class'] ) ) {
+			$settings['class'] = array();
+		} elseif ( ! is_array($settings['class'] ) ) {
+			$settings['class'] = (array) $settings['class'];
+		}
 
 		/**
 		 * Filter the settings array for this field.
@@ -205,13 +213,13 @@ class Form {
 		if ( in_array( '__extract', $fields ) ) {
 			extract( $fields );
 		}
-		
+
 		// Check if $fields is a callback, run it if so.
 		if ( is_callable( $fields ) ) {
 			$html .= call_user_func( $fields, $data );
 		} else {
 			csv_array_ref( $fields );
-			
+
 			// Run through each field; key is the field name, value is the settings
 			foreach ( $fields as $field => $settings ) {
 				make_associative( $field, $settings );
@@ -238,12 +246,6 @@ class Form {
 	 * @return string The HTML for the field.
 	 */
 	public static function build_generic( $field, $settings, $value ) {
-		if ( ! isset( $settings['class'] ) ) {
-			$settings['class'] = array( 'regular-text' );
-		} elseif ( ! is_array($settings['class'] ) ) {
-			$settings['class'] = (array) $settings['class'];
-		}
-
 		$settings['value'] = $value;
 
 		// Build the <input>
@@ -348,12 +350,6 @@ class Form {
 				),
 				$label
 			);
-		}
-
-		if ( ! isset( $settings['class'] ) ) {
-			$settings['class'] = array();
-		} elseif ( ! is_array($settings['class'] ) ) {
-			$settings['class'] = (array) $settings['class'];
 		}
 
 		$settings['class'][] = $settings['type'] . '-list';
