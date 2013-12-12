@@ -46,7 +46,9 @@ class Setup extends \SmartPlugin {
 		'add_mce_style_formats' => array( 'tiny_mce_before_init', 10, 1 ),
 		'register_setting'      => array( 'admin_init', 10, 0 ),
 		'register_settings'     => array( 'admin_init', 10, 0 ),
-		'add_page_to_menu'      => array('admin_menu', 0),
+		'register_page_setting'      => array( 'admin_init', 10, 0 ),
+		'register_page_settings'     => array( 'admin_init', 10, 0 ),
+		'add_page_to_menu'      => array( 'admin_menu', 0 ),
 	);
 
 	// =========================
