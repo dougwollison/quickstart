@@ -201,6 +201,38 @@ class Tools {
 
 		return $attachment_id;
 	}
+	
+	/**
+	 * Run the appropriate checks to make sure that
+	 * this save_post callback should proceed.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param int    $post_id The ID of the post being saved.
+	 * @param string $nonce   Optional The nonce to check as well.
+	 *
+	 * @return bool Wether or not to proceed.
+	 */
+	public static function save_post_check( $post_id, $nonce = '' ) {
+		$post_type = get_post_type_object( $_POST['post_type'] );
+		
+		// Save the nonce check
+		$nonce_check = ! isset( $_POST[ $nonce ] ) || ! wp_verify_nonce( $_POST[ $nonce ], $meta_box );
+
+		// Check for autosave and post revisions
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ||
+			wp_is_post_revision( $post_id ) ||
+			// Make sure the post type is correct
+			! in_array( $_POST['post_type'], (array) $args['post_type'] ) ||
+			// Check the nonce (if provided)
+			$nonce_check ||
+			// Check for capability to edit this post
+			! current_user_can( $post_type->cap->edit_post ) ) {
+			return false;
+		}
+		
+		return true;
+	}
 
 	// =========================
 	// !Hook/Callback Methods

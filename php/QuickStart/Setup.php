@@ -31,6 +31,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
+	 * @since 1.1.4 Added regster_page_setting(s) entries.
 	 * @since 1.0.0
 	 * @access protected
 	 * @var array
@@ -552,28 +553,16 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Setup the save hook for the meta box
 	 *
+	 * @since 1.2.0 Moved save check functionality to Tools::save_post_check().
 	 * @since 1.1.1 Fixed typo causing $args['fields'] saving to save the $_POST key, not the value.
 	 * @since 1.0.0
 	 *
-	 * @param string $post_id  The ID of the post being saved. (skip when saving the hook)
+	 * @param int    $post_id  The ID of the post being saved. (skip when saving the hook)
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments from registration.
 	 */
 	public function _save_meta_box( $post_id, $meta_box, $args ) {
-		$nonce = "_qsnonce-$meta_box";
-		$post_type = get_post_type_object( $_POST['post_type'] );
-
-		// Check for autosave and post revisions
-		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ||
-			wp_is_post_revision( $post_id ) ||
-			// Make sure the post type is correct
-			! in_array( $_POST['post_type'], (array) $args['post_type'] ) ||
-			// Check the nonce for this metabox
-			! isset( $_POST[ $nonce ] ) || ! wp_verify_nonce( $_POST[ $nonce ], $meta_box ) ||
-			// Check for capability to edit this post
-			! current_user_can( $post_type->cap->edit_post ) ) {
-			return;
-		}
+		if ( ! Tools::save_post_check( $post_id, "_qsnonce-$meta_box" ) ) return;
 
 		// Proceed with saving, determining appropriate method to use
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
@@ -1113,6 +1102,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register and build a page
 	 *
+	 * @since 1.2.0 Added child page registration from other methods.
 	 * @since 1.0.0
 	 *
 	 * @uses Setup::register_page_settings()
@@ -1128,6 +1118,11 @@ class Setup extends \SmartPlugin {
 
 		// Now, add this page to the admin menu
 		$this->add_page_to_menu( $page, $args, $parent );
+
+		// Run through any submenus in this page and set them up
+		if ( isset( $args['children'] ) ) {
+			$this->register_page( $args['children'], $page );
+		}
 	}
 
 	/**
@@ -1149,6 +1144,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the settings for this page
 	 *
+	 * @since 1.2.0 Moved child page registration to Setup::register_page()
 	 * @since 1.0.0
 	 *
 	 * @uses Setup::register_settings()
@@ -1172,16 +1168,12 @@ class Setup extends \SmartPlugin {
 			add_settings_section('default', null, null, $page);
 			$this->_register_settings( $args['fields'], 'default', $page );
 		}
-
-		// Run through any submenus in this page and set them up
-		if ( isset( $args['children'] ) ) {
-			$this->_register_page_settings( $args['children'] );
-		}
 	}
 
 	/**
 	 * Register the settings for this page
 	 *
+	 * @since 1.2.0 Moved child page registration to Setup::register_page()
 	 * @since 1.1.0 'submenus' is no 'children'
 	 * @since 1.0.0
 	 *
@@ -1237,11 +1229,6 @@ class Setup extends \SmartPlugin {
 			// Top level page, call appropriate function based on type
 			$func = 'add_' . $args['type'] . '_page';
 			$func( $args['page_title'], $args['menu_title'], $args['capability'], $page, $args['callback'], $args['icon'], $args['position'] );
-		}
-
-		// Run through any submenus in this page and set them up
-		if ( isset( $args['children'] ) ) {
-			$this->_add_page_to_menu( $args['children'], $page );
 		}
 	}
 }
