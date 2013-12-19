@@ -1174,7 +1174,7 @@ class Setup extends \SmartPlugin {
 	 * Register the settings for this page
 	 *
 	 * @since 1.2.0 Moved child page registration to Setup::register_page()
-	 * @since 1.1.0 'submenus' is no 'children'
+	 * @since 1.1.0 'submenus' is now 'children'
 	 * @since 1.0.0
 	 *
 	 * @param string $setting The id of the page to register
