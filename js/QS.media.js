@@ -277,6 +277,40 @@ window.QS = window.QS || {};
 	jQuery.fn.QS = function( plugin, options ) {
 		return $( this ).QS[ plugin ].call( this, options );
 	};
+	
+	jQuery.fn.QS.addFile = function( options ) {
+		return $( this ).each(function() {
+			var $this = $( this );
+			var thisOptions;
+			var defaults = {
+				$input:   '.qs-input',
+				$preview: '.qs-preview',
+				$trigger: '.qs-button',
+				title:    $this.text(),
+				choose:   'Use Selected File',
+				events:   {
+					select: function() {
+						var attachment = media.attachment();
+						var file = attachment.url.replace(/.+?([^\/]+)$/, '$1');
+						
+						if(preview.is('input')){
+							thisOptions.$preview.val(file);
+						}else{
+							thisOptions.$preview.html(file);
+						}
+						
+						thisOptions.$input.val(attachment.id);
+					}
+				}
+			};
+			
+			// Process the options with the defaults
+			thisOptions = setupOptions( $this, options, defaults );
+
+			//Setup the media selector hook
+			media.insert( thisOptions );
+		});
+	};
 
 	jQuery.fn.QS.setImage = function( options ) {
 		return $( this ).each(function() {
