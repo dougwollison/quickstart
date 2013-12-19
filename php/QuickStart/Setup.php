@@ -225,11 +225,36 @@ class Setup extends \SmartPlugin {
 			$args['labels'] = $labels;
 		}
 	}
+	
+	/**
+	 * Process the metabox args to define a dumb metabox.
+	 * (simple text field with no label)
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param array  $args The metabox arguments.
+	 * @param string $name The name of the metabox the args belong to.
+	 *
+	 * @return array The processed $args.
+	 */
+	protected static function make_dumb_metabox( $args, $name ) {
+		$args = (array) $args;
+		
+		$args['fields'] = array(
+			$name => array(
+				'class'           => 'widefat',
+				'wrap_with_label' => false,
+			),
+		);
+		
+		return $args;
+	}
 
 	/**
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined
 	 * within a post_type configuration.
 	 *
+	 * @since 1.2.0 Added check for dumb metabox setup
 	 * @since 1.0.0
 	 *
 	 * @param array &$configs Optional. The post types, taxonomies and meta boxes to setup.
@@ -289,6 +314,8 @@ class Setup extends \SmartPlugin {
 						$mb_args = array(
 							'fields' => $mb_args,
 						);
+					} elseif ( empty( $mb_args ) ) { // Also check if empty args, make dumb metabox if so
+						$mb_args = self::make_dumb_metabox( $mb_args, $meta_box );
 					}
 
 					// Add this post type to the post_types argument to this meta box
@@ -486,6 +513,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @since 1.2.0 Moved dumb metabox logic to self::make_dumb_metabox()
 	 * @since 1.0.0
 	 *
 	 * @param string $meta_box The slug of the meta box to register.
@@ -497,14 +525,7 @@ class Setup extends \SmartPlugin {
 				'fields' => $args,
 			);
 		} elseif ( empty( $args ) ) { // Empty array; make dumb meta box
-			$args = array(
-				'fields' => array(
-					$meta_box => array(
-						'class'           => 'full-width-text',
-						'wrap_with_label' => false,
-					)
-				)
-			);
+			$args = self::make_dumb_metabox( $args, $meta_box );
 		} elseif ( isset( $args['field'] ) ) { // Single field passed, recreate into proper array
 			$field = $args['field'];
 
