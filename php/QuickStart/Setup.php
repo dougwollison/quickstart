@@ -919,6 +919,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register an MCE Plugin/Button
 	 *
+	 * @since 1.2.0 Removed separator before each button.
 	 * @since 1.0.0
 	 *
 	 * @param string $plugin The slug of the MCE plugin to be registered
@@ -942,7 +943,7 @@ class Setup extends \SmartPlugin {
 
 				// Add the button to the appropriate row
 				$method = 'add_mce_buttons' . ( $row > 1 ? "_$row" : '');
-				$this->$method( array( '|', $button ) ); // Aslo add a seperator before it
+				$this->$method( $button );
 			}
 
 			$this->add_mce_plugin( $plugin, $src );
@@ -952,16 +953,27 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register multiple MCE Plugins/Buttons
 	 *
+	 * @since 1.2.0 Revised $args logic and flexibility.
 	 * @since 1.0.0
 	 *
 	 * @param array $plugins The list of MCE plugins to be registered
 	 */
 	public function register_mce_plugins( $plugins ) {
-		if( is_array( $plugins) ) {
+		if( is_array( $plugins ) ) {
 			foreach( $plugins as $plugin => $args ) {
-				list( $src, $button, $row ) = fill_array( $args, 3 );
-
-				if ( ! $button ) $button = $plugin;
+				$src = $button = $row = null;
+				
+				// $args can be a source string or an arguments array
+				if ( ! is_array( $args ) ) {
+					$button = true; // By default, any plugin will have a button by the same name
+					$src = $args;
+				} elseif ( is_assoc( $args ) ) {
+					extract( $args );
+				} else {
+					list( $src, $button, $row ) = fill_array( $args, 3 );
+				}
+				
+				// Default value for row
 				if ( ! $row ) $row = 1;
 
 				$this->register_mce_plugin( $plugin, $src, $button, $row );
