@@ -583,7 +583,7 @@ class Setup extends \SmartPlugin {
 	 * @param array  $args     The arguments from registration.
 	 */
 	public function _save_meta_box( $post_id, $meta_box, $args ) {
-		if ( ! Tools::save_post_check( $post_id, "_qsnonce-$meta_box" ) ) return;
+		if ( ! Tools::save_post_check( $post_id, $args['post_type'], "_qsnonce-$meta_box", $meta_box ) ) return;
 
 		// Proceed with saving, determining appropriate method to use
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
