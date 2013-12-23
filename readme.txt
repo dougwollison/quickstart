@@ -24,7 +24,7 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
 = 1.2.0 =
-New save_post_check tool, metabox saving and MCE plugin registration fixes.
+New php/js tools, metabox saving and plugin registration fixes.
 
 = 1.1.4 =
 Fixed issue with custom page registration.
