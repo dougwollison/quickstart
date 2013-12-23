@@ -912,8 +912,8 @@ class Setup extends \SmartPlugin {
 	 * @return $plugins The modified plugins array.
 	 */
 	public function _add_mce_plugin( $plugins, $plugin, $src ) {
-		$plugin_array[ $plugin ] = $src;
-		return $plugin_array;
+		$plugins[ $plugin ] = $src;
+		return $plugins;
 	}
 
 	/**
