@@ -360,6 +360,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested post_type.
 	 *
+	 * @since 1.2.0 Added use of save argument for general save_post callback.
 	 * @since 1.0.0
 	 *
 	 * @param string $post_type The slug of the post type to register.
@@ -391,6 +392,11 @@ class Setup extends \SmartPlugin {
 
 		// Now, register the post type
 		register_post_type( $post_type, $args );
+		
+		// If a save hook is passed, register it
+		if ( isset( $args['save'] ) ) {
+			add_action( 'save_post', $args['save'] );
+		}
 
 		// Now that it's registered, fetch the resulting show_in_menu argument,
 		// and add the post_type_count hook if true
