@@ -528,7 +528,7 @@ class Setup extends \SmartPlugin {
 	public function register_meta_box( $meta_box, $args ) {
 		if ( is_callable( $args ) ) { // A callback, recreate into proper array
 			$args = array(
-				'fields' => $args,
+				'callback' => $args,
 			);
 		} elseif ( empty( $args ) ) { // Empty array; make dumb meta box
 			$args = self::make_dumb_metabox( $args, $meta_box );
@@ -1031,6 +1031,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register and build a setting
 	 *
+	 * @since 1.3.0 Added 'wrap' to build_fields $args.
 	 * @since 1.1.0 Dropped stupid $args['fields'] processing.
 	 * @since 1.0.0
 	 *
@@ -1088,6 +1089,7 @@ class Setup extends \SmartPlugin {
 			'fields' => $args['fields'],
 			'data'   => null,
 			'echo'   => true,
+			'wrap'   => false,
 			'__extract',
 		);
 
@@ -1147,9 +1149,9 @@ class Setup extends \SmartPlugin {
 	 * @uses Setup::register_page_settings()
 	 * @uses Setup::add_page_to_menu()
 	 *
-	 * @param string $setting The id of the page to register
-	 * @param array  $args    The page configuration
-	 * @param string $parent  Optional The id of the group this setting belongs to
+	 * @param string $setting The id of the page to register.
+	 * @param array  $args    The page configuration.
+	 * @param string $parent  Optional The slug of the parent page.
 	 */
 	public function register_page( $page, $args, $parent = null ) {
 		// Add settings for the page
@@ -1171,8 +1173,8 @@ class Setup extends \SmartPlugin {
 	 *
 	 * @uses Setup::register_page()
 	 *
-	 * @param array  $settings An array of pages to register
-	 * @param string $parent   Optional The id of the page this one is a childe of
+	 * @param array  $settings An array of pages to register.
+	 * @param string $parent   Optional The id of the page these are children of.
 	 */
 	public function register_pages( $pages, $parent = null ) {
 		foreach ( $pages as $page => $args ) {
@@ -1183,6 +1185,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the settings for this page
 	 *
+	 * @since 1.3.0 Reordered so bare fields go before sections.
 	 * @since 1.2.0 Moved child page registration to Setup::register_page()
 	 * @since 1.0.0
 	 *
@@ -1192,6 +1195,12 @@ class Setup extends \SmartPlugin {
 	 * @param array  $args    The page configuration
 	 */
 	public function _register_page_settings( $page, $args ) {
+		// Run through any bare fields (assume belonging to default, which will be added automatically)
+		if ( isset( $args['fields'] ) ) {
+			add_settings_section('default', null, null, $page);
+			$this->_register_settings( $args['fields'], 'default', $page );
+		}
+		
 		// Run through each section, add them, and register the settings for them
 		if ( isset( $args['sections'] ) ) {
 			foreach ( $args['sections'] as $id => $section ) {
@@ -1201,17 +1210,12 @@ class Setup extends \SmartPlugin {
 				}
 			}
 		}
-
-		// Run through any bare fields (assume belonging to default, which will be added automatically)
-		if ( isset( $args['fields'] ) ) {
-			add_settings_section('default', null, null, $page);
-			$this->_register_settings( $args['fields'], 'default', $page );
-		}
 	}
 
 	/**
 	 * Register the settings for this page
 	 *
+	 * @since 1.3.0 Reworked processing, now supports passing a file and no callback/function
 	 * @since 1.2.0 Moved child page registration to Setup::register_page()
 	 * @since 1.1.0 'submenus' is now 'children'
 	 * @since 1.0.0
@@ -1219,14 +1223,15 @@ class Setup extends \SmartPlugin {
 	 * @param string $setting The id of the page to register
 	 * @param array  $args    The page configuration
 	 */
-	public function _add_page_to_menu( $page, $args, $parent ) {
-		$_parent = $parent;
-
+	public function _add_page_to_menu( $page, $args, $parent = null ) {
 		$default_args = array(
-			'title'      => make_legible( $page ),
 			'type'       => 'menu',
+			'title'      => make_legible( $page ),
+			'slug'       => $page,
 			'capability' => 'manage_options',
 			'callback'   => array( __NAMESPACE__ . '\Callbacks', 'default_admin_page' ),
+			'icon'       => '',
+			'position'   => null,
 		);
 
 		// Parse the arguments with the defaults
@@ -1240,34 +1245,43 @@ class Setup extends \SmartPlugin {
 			$args['page_title'] = $args['menu_title'];
 		}
 
-		// Set the parent if provided
+		// Override the parent if provided
 		if ( ! empty( $args['parent'] ) ) {
-			$_parent = $args['parent'];
+			$parent = $args['parent'];
 		}
 
-		// Defaut the type to menu if not a valid type
-		if ( ! in_array( $type, array( 'menu', 'object', 'utility' ) ) ) {
+		// Defaut the type to menu if not a level type
+		$levels = array( 'object', 'utility' );
+		if ( ! in_array( $args['type'], $levels ) ) {
 			$args['type'] == 'menu';
 		}
-
-		if ( ! empty( $_parent ) ) {
-			// Submenu page, create function based on parent
-			$func = 'add_' . $_parent . '_page';
-			if ( function_exists( $func ) ) {
-				// Parent is one of the main menu items, call the specific function for it
-				$func( $args['page_title'], $args['menu_title'], $args['capability'], $page, $args['callback'] );
-			} else {
-				// Check if parent is a post type, set slug accordingly
-				if ( post_type_exists( $_parent ) ) {
-					$_parent = 'edit.php?post_type=' . $_parent;
-				}
-				// Otherwise, treat parent slug as literal
-				add_submenu_page( $_parent, $args['page_title'], $args['menu_title'], $args['capability'], $page, $args['callback'] );
+		
+		// Extract $args
+		extract( $args, EXTR_SKIP );
+		
+		// Determine function name and arguments...
+		if ( empty( $parent ) ) {
+			// Top level page, call add_{type}_page
+			$function = 'add_' . $type . '_page';
+			$func_args = array( $page_title, $menu_title, $capability, $slug, $callback, $icon );
+			
+			// Add $position for add_menu_page
+			if ( $type == 'menu' ) {
+				$func_args[] = $position;
 			}
 		} else {
-			// Top level page, call appropriate function based on type
-			$func = 'add_' . $args['type'] . '_page';
-			$func( $args['page_title'], $args['menu_title'], $args['capability'], $page, $args['callback'], $args['icon'], $args['position'] );
+			// Submenu page, see if it's one of the builtin menus
+			$builtin = array( 'dashboard', 'posts', 'media', 'links', 'pages', 'comments', 'theme', 'plugins', 'users', 'management', 'options' );
+			if ( in_array( $parent, $builtin ) ) {
+				$function = 'add_' . $parent . '_page';
+				$func_args = array( $page_title, $menu_title, $capability, $slug, $callback );
+			} else {
+				$function = 'add_submenu_page';
+				$func_args = array( $parent, $page_title, $menu_title, $capability, $slug, $callback );
+			}
 		}
+
+		// Call the determined function with the determined arguments
+		call_user_func_array( $function, $func_args );
 	}
 }
