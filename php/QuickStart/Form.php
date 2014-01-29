@@ -109,18 +109,31 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.3.0 Added $wrap argument for setting default wrap_with_label value,
+	 *				also merged filters into one, and added 'build' callback.
 	 * @since 1.1.0 Added check if $settings is a callback.
 	 * @since 1.0.0
 	 *
 	 * @param string $field    The name/id of the field.
 	 * @param array  $settings The settings to use in creating the field.
-	 * @param mixed  $data     The source for the value; WP_Post/stdClass object for a post, null for an option, or anything else for the literal value.
+	 * @param mixed  $data     The source for the value; WP_Post/stdClass = post, null = get_option, otherwise a literal value.
+	 * @param bool   $wrap     Default value for wrap_with_label option.
 	 *
 	 * @return string The HTML for the field.
 	 */
-	public static function build_field( $field, $settings = array(), $data = null ) {
+	public static function build_field( $field, $settings = array(), $data = null, $wrap = true ) {
 		// Check if $settings is a callback, call and return it's result if so
 		if ( is_callable( $settings ) ) {
+			/**
+			 * Build the HTML of the field
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param mixed  $data  The source for the value.
+			 * @param string $field The name of the field to build.
+			 *
+			 * @return string The HTML for the field.
+			 */
 			return call_user_func( $settings, $data, $field );
 		}
 
@@ -129,8 +142,8 @@ class Form {
 			'id'              => static::make_id( $field ),
 			'name'            => $field,
 			'label'           => make_legible( static::make_id( $field ) ),
-			'data_name'       => $field, //The name of the postmeta or option to retrieve
-			'wrap_with_label' => true //Wether or not to wrap the field in a label
+			'data_name'       => $field, // The name of the postmeta or option to retrieve
+			'wrap_with_label' => $wrap // Wether or not to wrap the field in a label
 		);
 
 		// Parse the passed settings with the defaults
@@ -143,16 +156,6 @@ class Form {
 		} elseif ( ! is_array($settings['class'] ) ) {
 			$settings['class'] = (array) $settings['class'];
 		}
-
-		/**
-		 * Filter the settings array for this field.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param array  $settings The settings array for the field.
-		 * @param string $field    The original field name.
-		 */
-		$settings = apply_filters( 'qs_form_field_settings', $settings, $field );
 
 		// Get the value based on what $post is
 		if ( is_null( $data ) ) {
@@ -169,27 +172,55 @@ class Form {
 		// Check if the "get_values" key is present (and a callback),
 		// Apply it and replace "values" key with the returned value.
 		if ( isset ( $settings['get_values'] ) && is_callable( $settings['get_values'] ) ) {
-			$settings['values'] = call_user_func( $settings['get_values'], $field, $settings, $data );
+			/**
+			 * Custom callback for getting the values setting for the field.
+			 *
+			 * @since 1.3.0
+			 *
+			 * @param string $field    The name of the field to build.
+			 * @param array  $settings The settings for the field.
+			 * @param mixed  $data     The original data passed to this function.
+			 *
+			 * @return mixed The values setting for the field.
+			 */
+			$settings['value'] = call_user_func( $settings['get_values'], $field, $settings, $data );
 		}
-
-		/**
-		 * Filter the value to be used for the field.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param mixed  $value The original value for this field.
-		 * @param string $field The field this value is for.
-		 * @param mixed  $data  The original data argument passed.
-		 */
-		$value = apply_filters( 'qs_form_field_value', $value, $field, $data );
 
 		// Build the field by calling the appropriate method
 		$method = 'build_' . $settings['type'];
-		if ( $method != __FUNCTION__ && method_exists( get_called_class(), $method ) ) {
+		if ( isset( $settings['build'] ) && is_callable( $settings['build'] ) ) {
+			/**
+			 * Custom callback for building the field's HTML.
+			 *
+			 * @since 1.3.0
+			 *
+			 * @param string $field    The name of the field to build.
+			 * @param array  $settings The settings for the field.
+			 * @param mixed  $value    The retrieved value of the field.
+			 *
+			 * @return string The HTML of the field.
+			 */
+			$html = call_user_func( $settings['build'], $field, $settings, $value );
+		} elseif ( $method != __FUNCTION__ && method_exists( get_called_class(), $method ) ) {
 			$html = static::$method( $field, $settings, $value );
 		} else { // Meant for text and similar fields; pass to the generic field builder
 			$html = static::build_generic( $field, $settings, $value );
 		}
+
+		/**
+		 * Filter the HTML of the field.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param mixed  $value    The original html for this field.
+		 * @param string $field    The field this html is for.
+		 * @param mixed  $settings The settings for this field.
+		 * @param mixed  $value    The processed value for this field.
+		 * @param mixed  $data     The source of the value for this field.
+		 *
+		 * @return string The HTML of the field.
+		 */
+		$html = apply_filters( 'qs_form_field', $html, $field, $settings, $value, $data );
 
 		return $html;
 	}
@@ -197,15 +228,17 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.3.0 Added 'wrap' argument.
 	 * @since 1.0.0
 	 *
 	 * @param string $fields The name/id of the field.
 	 * @param array  $data   The source for the values; see self::build_field() for details.
 	 * @param mixed  $echo   Wether or not to echo the output.
+	 * @param bool   $wrap   Default value for wrap_with_label option.
 	 *
 	 * @return string The HTML for the fields.
 	 */
-	public static function build_fields( $fields, $data = null, $echo = false ) {
+	public static function build_fields( $fields, $data = null, $echo = false, $wrap = true ) {
 		$html = '';
 
 		// If $fields is actually meant to be an array of all arguments for this
@@ -223,7 +256,7 @@ class Form {
 			// Run through each field; key is the field name, value is the settings
 			foreach ( $fields as $field => $settings ) {
 				make_associative( $field, $settings );
-				$html .= static::build_field( $field, $settings, $data );
+				$html .= static::build_field( $field, $settings, $data, $wrap );
 			}
 		}
 
