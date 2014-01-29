@@ -18,12 +18,13 @@ class Hooks extends \SmartPlugin {
 	 * @var array
 	 */
 	protected static $static_method_hooks = array(
-		'fix_shortcodes'   => array( 'the_content', 10, 1 ),
-		'post_type_count'  => array( 'right_now_content_table_end', 10, 0 ),
-		'taxonomy_count'   => array( 'right_now_content_table_end', 10, 0 ),
-		'taxonomy_filter'  => array( 'restrict_manage_posts', 10, 0 ),
-		'frontend_enqueue' => array( 'wp_enqueue_scripts', 10, 0 ),
-		'backend_enqueue'  => array( 'admin_enqueue_scripts', 10, 0 )
+		'fix_shortcodes'    => array( 'the_content', 10, 1 ),
+		'disable_quickedit' => array( 'post_row_actions', 10, 2 ),
+		'post_type_count'   => array( 'right_now_content_table_end', 10, 0 ),
+		'taxonomy_count'    => array( 'right_now_content_table_end', 10, 0 ),
+		'taxonomy_filter'   => array( 'restrict_manage_posts', 10, 0 ),
+		'frontend_enqueue'  => array( 'wp_enqueue_scripts', 10, 0 ),
+		'backend_enqueue'   => array( 'admin_enqueue_scripts', 10, 0 )
 	);
 
 	/**
@@ -44,6 +45,23 @@ class Hooks extends \SmartPlugin {
 		$content = preg_replace( "#(?:<p.*?>)?(\[/?(?:$tags).*\])(?:</p>)?#", '$1', $content );
 
 		return $content;
+	}
+	
+	/**
+	 * Remove inline quickediting from a post type
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param array $actions The list of actions for the post row. (skip when saving).
+	 * @param \WP_Post $post The post object for this row. (skip when saving).
+	 * @param mixed $post_types The list of post types to affect, either an array or comma/space separated list.
+	 */
+	public static function disable_quickedit( $actions, $post, $post_types ) {
+		csv_array_ref( $post_types );
+		if(in_array($post->post_type, $post_types)){
+			unset($actions['inline hide-if-no-js']);
+		}
+		return $actions;
 	}
 
 	/**
