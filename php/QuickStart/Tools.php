@@ -28,6 +28,7 @@ class Tools {
 	/**
 	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.
 	 *
+	 * @since 1.3.0 Added option of callback key instead of fields for a callback.
 	 * @since 1.0.0
 	 * @uses Form::build_fields()
 	 *
@@ -41,15 +42,25 @@ class Tools {
 
 		// Print nonce field
 		wp_nonce_field( $id, "_qsnonce-$id" );
+		
+		// Determine the callback or fields argument
+		$callback = $fields = null;
+		if ( isset( $args['callback'] ) ) {
+			$callback = $args['callback'];
+		} elseif ( is_callable( $args['fields'] ) ) {
+			$callback = $args['fields'];
+		} elseif ( isset( $args['fields'] ) ) {
+			$fields = $args['fields'];
+		}
 
 		// Wrap in container for any specific targeting needed
 		echo '<div class="qs-meta-box">';
-			if ( is_callable( $args['fields'] ) ) {
-				// Call the function, passing the post, the metabox args, and the id if it's needed
-				call_user_func( $args['fields'], $post, $args, $id );
-			} else {
+			if ( $callback ) {
+				// Pass the post, metabox args, and id if it's needed
+				call_user_func( $callback, $post, $args, $id );
+			} elseif ( isset( $args['fields'] ) ) {
 				// Build the fields
-				Form::build_fields( $args['fields'], $post, true );
+				Form::build_fields( $fields, $post, true );
 			}
 		echo '</div>';
 	}
