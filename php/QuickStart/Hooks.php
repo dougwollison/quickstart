@@ -56,7 +56,7 @@ class Hooks extends \SmartPlugin {
 	 * @param \WP_Post $post The post object for this row. (skip when saving).
 	 * @param mixed $post_types The list of post types to affect, either an array or comma/space separated list.
 	 */
-	public static function disable_quickedit( $actions, $post, $post_types ) {
+	public static function _disable_quickedit( $actions, $post, $post_types ) {
 		csv_array_ref( $post_types );
 		if(in_array($post->post_type, $post_types)){
 			unset($actions['inline hide-if-no-js']);
