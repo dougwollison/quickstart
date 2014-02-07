@@ -804,7 +804,7 @@ class Setup extends \SmartPlugin {
 		}
 
 		// Sidebars
-		if ( isset( $setups['sidebars'] ) ) {
+		if ( isset( $configs['sidebars'] ) ) {
 			$defaults = null;
 
 			// Prep defaults, if present
@@ -821,7 +821,7 @@ class Setup extends \SmartPlugin {
 				}
 			}
 
-			foreach ( $setups['sidebars'] as $id => $args ) {
+			foreach ( $configs['sidebars'] as $id => $args ) {
 				$args['id'] = $id;
 
 				// Process args with defaults, it present
