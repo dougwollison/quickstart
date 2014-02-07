@@ -225,7 +225,7 @@ class Setup extends \SmartPlugin {
 			$args['labels'] = $labels;
 		}
 	}
-	
+
 	/**
 	 * Process the metabox args to define a dumb metabox.
 	 * (simple text field with no label)
@@ -239,14 +239,14 @@ class Setup extends \SmartPlugin {
 	 */
 	protected static function make_dumb_metabox( $args, $name ) {
 		$args = (array) $args;
-		
+
 		$args['fields'] = array(
 			$name => array(
 				'class'           => 'widefat',
 				'wrap_with_label' => false,
 			),
 		);
-		
+
 		return $args;
 	}
 
@@ -392,7 +392,7 @@ class Setup extends \SmartPlugin {
 
 		// Now, register the post type
 		register_post_type( $post_type, $args );
-		
+
 		// If a save hook is passed, register it
 		if ( isset( $args['save'] ) ) {
 			add_action( 'save_post', $args['save'] );
@@ -424,6 +424,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested taxonomy.
 	 *
+	 * @since 1.3.1 Removed Hooks::taxonomy_count call.
 	 * @since 1.0.0
 	 *
 	 * @param string $taxonomy The slug of the taxonomy to register.
@@ -493,9 +494,8 @@ class Setup extends \SmartPlugin {
 		}
 
 		// Now that it's registered, fetch the resulting show_ui argument,
-		// and add the taxonomy_count and taxonomy_filter hooks if true
+		// and add the taxonomy_filter hooks if true
 		if ( $taxonomy_obj->show_ui ){
-			Hooks::taxonomy_count( $taxonomy );
 			Hooks::taxonomy_filter( $taxonomy );
 		}
 	}
@@ -968,7 +968,7 @@ class Setup extends \SmartPlugin {
 		if( is_array( $plugins ) ) {
 			foreach( $plugins as $plugin => $args ) {
 				$src = $button = $row = null;
-				
+
 				// $args can be a source string or an arguments array
 				if ( ! is_array( $args ) ) {
 					$button = true; // By default, any plugin will have a button by the same name
@@ -978,7 +978,7 @@ class Setup extends \SmartPlugin {
 				} else {
 					list( $src, $button, $row ) = fill_array( $args, 3 );
 				}
-				
+
 				// Default value for row
 				if ( ! $row ) $row = 1;
 
@@ -1200,7 +1200,7 @@ class Setup extends \SmartPlugin {
 			add_settings_section('default', null, null, $page);
 			$this->_register_settings( $args['fields'], 'default', $page );
 		}
-		
+
 		// Run through each section, add them, and register the settings for them
 		if ( isset( $args['sections'] ) ) {
 			foreach ( $args['sections'] as $id => $section ) {
@@ -1255,16 +1255,16 @@ class Setup extends \SmartPlugin {
 		if ( ! in_array( $args['type'], $levels ) ) {
 			$args['type'] == 'menu';
 		}
-		
+
 		// Extract $args
 		extract( $args, EXTR_SKIP );
-		
+
 		// Determine function name and arguments...
 		if ( empty( $parent ) ) {
 			// Top level page, call add_{type}_page
 			$function = 'add_' . $type . '_page';
 			$func_args = array( $page_title, $menu_title, $capability, $slug, $callback, $icon );
-			
+
 			// Add $position for add_menu_page
 			if ( $type == 'menu' ) {
 				$func_args[] = $position;

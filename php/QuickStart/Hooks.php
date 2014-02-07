@@ -20,15 +20,14 @@ class Hooks extends \SmartPlugin {
 	protected static $static_method_hooks = array(
 		'fix_shortcodes'    => array( 'the_content', 10, 1 ),
 		'disable_quickedit' => array( 'post_row_actions', 10, 2 ),
-		'post_type_count'   => array( 'right_now_content_table_end', 10, 0 ),
-		'taxonomy_count'    => array( 'right_now_content_table_end', 10, 0 ),
+		'post_type_count'   => array( 'dashboard_glance_items', 10, 1 ),
 		'taxonomy_filter'   => array( 'restrict_manage_posts', 10, 0 ),
 		'frontend_enqueue'  => array( 'wp_enqueue_scripts', 10, 0 ),
 		'backend_enqueue'   => array( 'admin_enqueue_scripts', 10, 0 )
 	);
 
 	/**
-	 * Setup filter to unwrap shortcodes for proper processing
+	 * Setup filter to unwrap shortcodes for proper processing.
 	 *
 	 * @since 1.0.0
 	 *
@@ -46,9 +45,9 @@ class Hooks extends \SmartPlugin {
 
 		return $content;
 	}
-	
+
 	/**
-	 * Remove inline quickediting from a post type
+	 * Remove inline quickediting from a post type.
 	 *
 	 * @since 1.3.0
 	 *
@@ -65,84 +64,43 @@ class Hooks extends \SmartPlugin {
 	}
 
 	/**
-	 * Add counts for a post type to the Right Now widget on the dashboard
+	 * Add counts for a post type to the Right Now widget on the dashboard.
 	 *
+	 * @since 1.3.1 Revised logic to work with the new dashboard_right_now markup.
 	 * @since 1.0.0
 	 *
-	 * @param string $post_type The slug of the post type
+	 * @param array  $elements  The list of items to add (skip when saving).
+	 * @param string $post_type The slug of the post type.
 	 */
-	protected function _post_type_count( $post_type ) {
+	protected function _post_type_count( $elements, $post_type ) {
 		// Make sure the post type exists
 		if ( ! $object = get_post_type_object( $post_type ) ) {
 			return;
 		}
 
-		$singular = $object->labels->singular_name;
-		$plural = $object->labels->name;
-
+		// Get the number of posts of this type
 		$num_posts = wp_count_posts( $post_type );
+		if ( $num_posts && $num_posts->publish ) {
+			$singular = $object->labels->singular_name;
+			$plural = $object->labels->name;
 
-		echo '<tr>';
+			// Get the label based on number of posts
+			$format = _n( "%s $singular", "%s $plural", $num_posts->publish );
+			$label = sprintf( $format, number_format_i18n( $num_posts->publish ) );
 
-		$num = intval( $num_posts->publish );
-		$text = _n( $singular, $plural, $num );
-		if ( current_user_can( 'edit_posts' ) ) {
-			$num = "<a href='edit.php?post_type=$post_type'>$num</a>";
-			$text = "<a href='edit.php?post_type=$post_type'>$text</a>";
-		}
-		echo "<td class='first b b-$post_type'>$num</td>";
-		echo "<td class='t $post_type'>$text</td>";
-
-		if ( $num_posts->pending > 0 ) {
-			$num = intval( $num->pending );
-			$text = __( _n( $singular, $plural, $num ) . ' Pending' );
-			if ( current_user_can( 'edit_posts' ) ) {
-				$num = "<a href='edit.php?post_type=$post_type'>$num->pending</a>";
-				$text = "<a href='edit.php?post_type=$post_type'>$text</a>";
-			}
-			echo "<td class='first b b-$post_type'>$num->pending</td>";
-			echo "<td class='t $post_type'>$text</td>";
+			// Add the new item to the list
+			$elements[] = '<a href="edit.php?post_type=' . $post_type . '">' . $label . '</a>';
 		}
 
-		echo '</tr>';
+		return $elements;
 	}
 
 	/**
-	 * Add counts for a taxonomy to the Right Now widget on the dashboard
+	 * Add a dropdown for filtering by the custom taxonomy.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $taxonomy The slug of the taxonomy
-	 */
-	protected function _taxonomy_count( $taxonomy ) {
-		// Make sure the post type exists
-		if ( ! $object = get_taxonomy( $taxonomy ) ) {
-			return;
-		}
-
-		$singular = $object->labels->singular_name;
-		$plural = $object->labels->name;
-
-		echo '<tr>';
-
-		$num = wp_count_terms( $taxonomy, 'hide_empty=0' );
-		$text = _n( $singular, $plural, $num );
-		if ( current_user_can( 'edit_posts' ) ) {
-			$num = "<a href='edit-tags.php?taxonomy=$taxonomy'>$num</a>";
-			$text = "<a href='edit-tags.php?taxonomy=$taxonomy'>$text</a>";
-		}
-		echo "<td class='first b b-$taxonomy'>$num</td>";
-		echo "<td class='t $taxonomy'>$text</td>";
-
-		echo '</tr>';
-	}
-
-	/**
-	 * Add a dropdown for filtering by the custom taxonomy
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param object $taxonomy The taxonomy object to build from
+	 * @param object $taxonomy The taxonomy object to build from.
 	 */
 	public static function _taxonomy_filter( $taxonomy ) {
 		global $typenow;
@@ -161,12 +119,12 @@ class Hooks extends \SmartPlugin {
 	}
 
 	/**
-	 * Alias to Tools::enqueue(), for the frontend
+	 * Alias to Tools::enqueue(), for the frontend.
 	 *
 	 * @since 1.0.0
 	 * @uses Tools::enqueue()
 	 *
-	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
+	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
 	public function _frontend_enqueue( $enqueues ) {
 		Tools::enqueue( $enqueues );
@@ -178,7 +136,7 @@ class Hooks extends \SmartPlugin {
 	 * @since 1.0.0
 	 * @uses Tools::enqueue()
 	 *
-	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css)
+	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
 	public function _backend_enqueue( $enqueues ) {
 		Tools::enqueue( $enqueues );
