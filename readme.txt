@@ -2,8 +2,8 @@
 Contributors: dougwollison
 Tags: development, function, utility, utilities, framework, code, coding
 Requires at least: 3.5
-Tested up to: 3.7.x
-Stable tag: 1.3.0
+Tested up to: 3.8.x
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,9 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 == Changelog ==
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
+
+= 1.3.1 =
+Updated post_type_count, dropped taxonomy_count.
 
 = 1.3.0 =
 Revisions to custom page/settings handling, field building, and metabox building. Added disable_quickedit.
