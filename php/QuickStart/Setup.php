@@ -333,13 +333,6 @@ class Setup extends \SmartPlugin {
 					// Fix if dumb metabox was passed (numerically, not associatively)
 					make_associative( $feature, $ft_args );
 
-					// Check if the arguments are a callable, restructure to proper form
-					if ( is_callable( $ft_args ) ) {
-						$ft_args = array(
-							'fields' => $ft_args,
-						);
-					}
-
 					// Add this post type to the post_types argument to this meta box
 					$ft_args['post_type'] = array( $post_type );
 
