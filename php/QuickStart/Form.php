@@ -33,6 +33,19 @@ class Form {
 	}
 
 	/**
+	 * Convert a field name to a legible Label
+	 *
+	 * @since 1.3.3
+	 *
+	 * @param string $name The name of the field
+	 *
+	 * @return string The legible label
+	 */
+	public static function make_label( $name ) {
+		return make_legible( static::make_id( $name ) );
+	}
+
+	/**
 	 * Wrap the fields in a label, if $settings['_label'] is true.
 	 *
 	 * @since 1.0.0
@@ -109,6 +122,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.3.3 Added use of new make_label() method.
 	 * @since 1.3.0 Added $wrap argument for setting default wrap_with_label value,
 	 *				also merged filters into one, and added 'build' callback.
 	 * @since 1.1.0 Added check if $settings is a callback.
@@ -141,7 +155,7 @@ class Form {
 			'type'            => 'text',
 			'id'              => static::make_id( $field ),
 			'name'            => $field,
-			'label'           => make_legible( static::make_id( $field ) ),
+			'label'           => static::make_label( $field ),
 			'data_name'       => $field, // The name of the postmeta or option to retrieve
 			'wrap_with_label' => $wrap // Wether or not to wrap the field in a label
 		);
