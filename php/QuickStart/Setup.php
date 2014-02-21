@@ -254,6 +254,7 @@ class Setup extends \SmartPlugin {
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined
 	 * within a post_type configuration.
 	 *
+	 * @since 1.3.3 Removed callback chek on feature args.
 	 * @since 1.2.0 Added check for dumb metabox setup
 	 * @since 1.0.0
 	 *
@@ -515,6 +516,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @since 1.3.3 Fixed bug with single field expansion
 	 * @since 1.2.0 Moved dumb metabox logic to self::make_dumb_metabox()
 	 * @since 1.0.0
 	 *
