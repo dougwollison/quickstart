@@ -8,7 +8,7 @@ window.QS = window.QS || {};
 	 * Utilities
 	 * =========================
 	 */
-	
+
 	/**
 	 * Proccess the options with the defaults,
 	 * also querying the $elements and returning
@@ -23,7 +23,7 @@ window.QS = window.QS || {};
 	function setupOptions( $elm, options, defaults ) {
 		var newOptions = _.extend( {}, defaults, options );
 		var k, v;
-		
+
 		for ( k in newOptions ) {
 			v = newOptions[ k ];
 			if ( k.indexOf( '$' ) === 0 ) {
@@ -34,7 +34,7 @@ window.QS = window.QS || {};
 				}
 			}
 		}
-		
+
 		return newOptions;
 	}
 
@@ -113,7 +113,7 @@ window.QS = window.QS || {};
 			// passing the frame itself as an additional parameter, since it
 			// can't be linked into QS.media yet
 			frame.trigger( 'init', frame );
-			
+
 			// Assign $trigger based on which is present in options
 			// If a special jQuery object is present, use that.
 			// Otherwise, query using the provided selector.
@@ -277,7 +277,7 @@ window.QS = window.QS || {};
 	jQuery.fn.QS = function( plugin, options ) {
 		return $( this ).QS[ plugin ].call( this, options );
 	};
-	
+
 	jQuery.fn.QS.addFile = function( options ) {
 		return $( this ).each(function() {
 			var $this = $( this );
@@ -292,18 +292,18 @@ window.QS = window.QS || {};
 					select: function() {
 						var attachment = media.attachment();
 						var file = attachment.url.replace(/.+?([^\/]+)$/, '$1');
-						
+
 						if(preview.is('input')){
 							thisOptions.$preview.val(file);
 						}else{
 							thisOptions.$preview.html(file);
 						}
-						
+
 						thisOptions.$input.val(attachment.id);
 					}
 				}
 			};
-			
+
 			// Process the options with the defaults
 			thisOptions = setupOptions( $this, options, defaults );
 
@@ -334,7 +334,7 @@ window.QS = window.QS || {};
 					}
 				}
 			};
-			
+
 			// Process the options with the defaults
 			thisOptions = setupOptions( $this, options, defaults );
 
@@ -360,20 +360,20 @@ window.QS = window.QS || {};
 						var attachments = media.attachments();
 						var items = [];
 						var img;
-	
+
 						thisOptions.$preview.empty();
-	
+
 						for ( var i in attachments ) {
 							items.push( attachments[ i ].id );
 							img = $( '<img src="' + attachments[ i ].sizes.thumbnail.url + '">' );
 							thisOptions.$preview.append( img );
 						}
-	
+
 						thisOptions.$input.val( items.join( ',' ) );
 					}
 				}
 			};
-			
+
 			// Process the options with the defaults
 			thisOptions = setupOptions( $this, options, defaults );
 
@@ -392,6 +392,7 @@ window.QS = window.QS || {};
 
 	// Auto register hooks for setImage and editGallery
 	$(function() {
+		$( '.qs-addfile' ).QS( 'addFile' );
 		$( '.qs-setimage' ).QS( 'setImage' );
 		$( '.qs-editgallery' ).QS( 'editGallery' );
 	});
