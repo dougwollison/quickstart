@@ -192,7 +192,6 @@ window.QS = window.QS || {};
 			var defaults = {
 				title:    'Insert Media',
 				choose:   'Insert Selected Media',
-				media:    'image',
 				multiple: false,
 				trigger:  '.qs-button'
 			};
@@ -290,13 +289,14 @@ window.QS = window.QS || {};
 				choose:   'Use Selected File',
 				events:   {
 					select: function() {
+						var preview = thisOptions.$preview;
 						var attachment = media.attachment();
 						var file = attachment.url.replace(/.+?([^\/]+)$/, '$1');
 
 						if(preview.is('input')){
-							thisOptions.$preview.val(file);
+							preview.val(file);
 						}else{
-							thisOptions.$preview.html(file);
+							preview.html(file);
 						}
 
 						thisOptions.$input.val(attachment.id);
@@ -317,6 +317,7 @@ window.QS = window.QS || {};
 			var $this = $( this );
 			var thisOptions;
 			var defaults = {
+				media:    'image',
 				$input:   '.qs-input',
 				$preview: '.qs-preview',
 				$trigger: '.qs-button',
@@ -351,6 +352,7 @@ window.QS = window.QS || {};
 			var $this = $(this);
 			var thisOptions;
 			var defaults = {
+				media:    'image',
 				$input:   '.qs-input',
 				$preview: '.qs-preview',
 				$trigger: '.qs-button',
