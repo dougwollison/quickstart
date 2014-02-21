@@ -297,9 +297,10 @@ class Setup extends \SmartPlugin {
 						// Add this post type to the post_types argument to this taxonomy
 						$tx_args['post_type'] = array( $post_type );
 
-						// Add this taxonomy to $taxonomies, remove from this post type
-						$configs['taxonomies'][ $taxonomy ] = $tx_args;
-						unset( $pt_args['taxonomies'][ $taxonomy ] );
+						// Add this feauture to features list
+						$configs['taxonomies'][ $taxonomy ] = $ft_args;
+						//and remove from this post type
+						unset( $tx_args['taxonomies'][ $taxonomy ] );
 					}
 				}
 			}
@@ -321,8 +322,9 @@ class Setup extends \SmartPlugin {
 					// Add this post type to the post_types argument to this meta box
 					$mb_args['post_type'] = array( $post_type );
 
-					// Add this taxonomy to $taxonomies, remove from this post type
-					$configs['meta_boxes'][ $meta_box ] = $mb_args;
+					// Add this feauture to features list
+					$configs['meta_boxes'][ $meta_box ] = $ft_args;
+					//and remove from this post type
 					unset( $pt_args['meta_boxes'][ $meta_box ] );
 				}
 			}
@@ -330,14 +332,15 @@ class Setup extends \SmartPlugin {
 			if ( isset( $pt_args['features'] ) ) {
 				csv_array_ref( $pt_args['features'] );
 				foreach ( $pt_args['features'] as $feature => $ft_args ) {
-					// Fix if dumb metabox was passed (numerically, not associatively)
+					// Fix if dumb feature was passed (numerically, not associatively)
 					make_associative( $feature, $ft_args );
 
 					// Add this post type to the post_types argument to this meta box
 					$ft_args['post_type'] = array( $post_type );
 
-					// Add this taxonomy to $taxonomies, remove from this post type
+					// Add this feauture to features list
 					$configs['features'][ $feature ] = $ft_args;
+					//and remove from this post type
 					unset( $ft_args['features'][ $feature ] );
 				}
 			}
