@@ -458,6 +458,25 @@ class Form {
 	}
 
 	/**
+	 * Build a file adder field.
+	 *
+	 * @since 1.3.3
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_addfile( $field, $settings, $value ) {
+		$html = '<div class="qs-addfile">';
+			$html .= '<div class="qs-preview">';
+				$html .= basename(wp_get_attachment_url($value));
+			$html .= '</div>';
+			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-input">', $settings['name'], $value );
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
 	 * Build an image setter field.
 	 *
 	 * @since 1.0.0
