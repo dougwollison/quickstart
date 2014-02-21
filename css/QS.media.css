@@ -1,3 +1,7 @@
+.qs-addfile .qs-preview{
+	margin: 0 0 10px;
+	font-style: italic;
+}
 .qs-setimage .qs-preview,
 .qs-editgallery .qs-preview{
 	margin: 12px 0 6px;
