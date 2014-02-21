@@ -1213,6 +1213,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the settings for this page
 	 *
+	 * @since 1.3.3 Fixed submenu registration for custom post types.
 	 * @since 1.3.0 Reworked processing, now supports passing a file and no callback/function
 	 * @since 1.2.0 Moved child page registration to Setup::register_page()
 	 * @since 1.1.0 'submenus' is now 'children'
