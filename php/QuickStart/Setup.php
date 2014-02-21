@@ -541,7 +541,7 @@ class Setup extends \SmartPlugin {
 			}
 
 			$args['fields'] = array(
-				$id => $field,
+				$meta_box => $field,
 			);
 		}
 
