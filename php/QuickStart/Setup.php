@@ -1277,6 +1277,15 @@ class Setup extends \SmartPlugin {
 				$func_args = array( $page_title, $menu_title, $capability, $slug, $callback );
 			} else {
 				$function = 'add_submenu_page';
+
+				if ( post_type_exists( $parent ) ) {
+					if ( $parent == 'post' ) {
+						$parent = 'edit.php';
+					} else {
+						$parent = "edit.php?post_type=$parent";
+					}
+				}
+
 				$func_args = array( $parent, $page_title, $menu_title, $capability, $slug, $callback );
 			}
 		}
