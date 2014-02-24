@@ -299,9 +299,9 @@ class Setup extends \SmartPlugin {
 						$tx_args['post_type'] = array( $post_type );
 
 						// Add this feauture to features list
-						$configs['taxonomies'][ $taxonomy ] = $ft_args;
+						$configs['taxonomies'][ $taxonomy ] = $tx_args;
 						//and remove from this post type
-						unset( $tx_args['taxonomies'][ $taxonomy ] );
+						unset( $pt_args['taxonomies'][ $taxonomy ] );
 					}
 				}
 			}
@@ -324,7 +324,7 @@ class Setup extends \SmartPlugin {
 					$mb_args['post_type'] = array( $post_type );
 
 					// Add this feauture to features list
-					$configs['meta_boxes'][ $meta_box ] = $ft_args;
+					$configs['meta_boxes'][ $meta_box ] = $mb_args;
 					//and remove from this post type
 					unset( $pt_args['meta_boxes'][ $meta_box ] );
 				}
@@ -342,7 +342,7 @@ class Setup extends \SmartPlugin {
 					// Add this feauture to features list
 					$configs['features'][ $feature ] = $ft_args;
 					//and remove from this post type
-					unset( $ft_args['features'][ $feature ] );
+					unset( $pt_args['features'][ $feature ] );
 				}
 			}
 		}
