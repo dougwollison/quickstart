@@ -216,8 +216,10 @@ class Form {
 			 */
 			$html = call_user_func( $settings['build'], $field, $settings, $value );
 		} elseif ( $method != __FUNCTION__ && method_exists( get_called_class(), $method ) ) {
+			// Matches one of the specialized internal field builders
 			$html = static::$method( $field, $settings, $value );
-		} else { // Meant for text and similar fields; pass to the generic field builder
+		} else {
+			// Assume a text-like input, use the generic field builder
 			$html = static::build_generic( $field, $settings, $value );
 		}
 
