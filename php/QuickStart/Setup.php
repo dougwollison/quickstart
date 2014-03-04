@@ -516,6 +516,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @since 1.3.5 Added use-args-as-field-args handling
 	 * @since 1.3.3 Fixed bug with single field expansion
 	 * @since 1.2.0 Moved dumb metabox logic to self::make_dumb_metabox()
 	 * @since 1.0.0
@@ -540,6 +541,11 @@ class Setup extends \SmartPlugin {
 
 			$args['fields'] = array(
 				$meta_box => $field,
+			);
+		} elseif ( ! isset( $args['fields'] ) && ! isset( $args['callback'] ) ) { // No separate fields list or callback passed
+			// Use meta box args as the field args as well
+			$args['fields'] = array(
+				$meta_box => $args,
 			);
 		}
 
