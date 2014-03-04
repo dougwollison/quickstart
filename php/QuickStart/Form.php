@@ -197,7 +197,7 @@ class Form {
 			 *
 			 * @return mixed The values setting for the field.
 			 */
-			$settings['value'] = call_user_func( $settings['get_values'], $field, $settings, $data );
+			$settings['values'] = call_user_func( $settings['get_values'], $field, $settings, $data );
 		}
 
 		// Build the field by calling the appropriate method
