@@ -547,8 +547,14 @@ class Setup extends \SmartPlugin {
 				$meta_box => $field,
 			);
 		} elseif ( ! isset( $args['fields'] ) && ! isset( $args['callback'] ) ) {
-			// No separate fields list or callback passed;
-			// use meta box args as the field args as well
+			// No separate fields list or callback passed
+
+			// Turn off wrapping by default
+			if ( ! isset( $args['wrap_with_label'] ) ) {
+				$args['wrap_with_label'] = false;
+			}
+
+			// Use meta box args as the field args as well
 			$args['fields'] = array(
 				$meta_box => $args,
 			);
