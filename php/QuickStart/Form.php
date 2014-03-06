@@ -333,7 +333,7 @@ class Form {
 			$settings['id']
 		);
 
-		$html = static::maybe_wrap_field( $html, $settings, '<p class="field text-field %type-field %id"><label for="%id">%label:</label> %html</p>' );
+		$html = static::maybe_wrap_field( $html, $settings, '<div class="qs-field generic %type %id-field"><label for="%id" class="qs-label">%label</label> %html</div>' );
 
 		return $html;
 	}
@@ -348,7 +348,7 @@ class Form {
 	public static function build_textarea( $field, $settings, $value ) {
 		$html = self::build_tag( 'textarea', $settings, $value );
 
-		$html = static::maybe_wrap_field( $html, $settings, '<p class="field textarea-field %id"><label for="%id">%label</label><br> %html</p>' );
+		$html = static::maybe_wrap_field( $html, $settings, '<div class="qs-field textarea %id-field"><label for="%id" class="qs-label">%label</label> %html</div>' );
 
 		return $html;
 	}
@@ -372,7 +372,47 @@ class Form {
 		// Build the <input>
 		$html = self::build_tag( 'input', $settings );
 
-		$html = static::maybe_wrap_field( $html, $settings, '<p class="field checkbox-field %id"><label>%label %html</label></p>' );
+		$html = static::maybe_wrap_field( $html, $settings, '<div class="qs-field checkbox %id-field"><label for="%id" class="qs-label">%label</label> %html</div>' );
+
+		return $html;
+	}
+
+	/**
+	 * Build a select field.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_select( $field, $settings, $value ) {
+		$options = '';
+
+		if ( ! isset( $settings['values'] ) ) {
+			throw new Exception( 'Select fields MUST have a values parameter.' );
+		}
+
+		csv_array_ref( $settings['values'] );
+
+		$is_assoc = is_assoc( $settings['values'] );
+
+		// Run through the values and build the options list
+		foreach ( $settings['values'] as $val => $label ) {
+			if ( ! $is_assoc ) {
+				$val = $label;
+			}
+
+			$options .= sprintf(
+				'<option value="%s" %s> %s</option>',
+				$val,
+				in_array( $val, (array) $value ) ? 'selected' : '',
+				$label
+			);
+		}
+
+		// Build the <select>
+		$html = self::build_tag( 'select', $settings, $options );
+
+		$html = static::maybe_wrap_field( $html, $settings, '<div class="qs-field select %id-field"><label for="%id" class="qs-label">%label</label> %html</div>' );
 
 		return $html;
 	}
@@ -462,46 +502,6 @@ class Form {
 	}
 
 	/**
-	 * Build a select field.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @see Form::build_generic()
-	 */
-	public static function build_select( $field, $settings, $value ) {
-		$options = '';
-
-		if ( ! isset( $settings['values'] ) ) {
-			throw new Exception( 'Select fields MUST have a values parameter.' );
-		}
-
-		csv_array_ref( $settings['values'] );
-
-		$is_assoc = is_assoc( $settings['values'] );
-
-		// Run through the values and build the options list
-		foreach ( $settings['values'] as $val => $label ) {
-			if ( ! $is_assoc ) {
-				$val = $label;
-			}
-
-			$options .= sprintf(
-				'<option value="%s" %s> %s</option>',
-				$val,
-				in_array( $val, (array) $value ) ? 'selected' : '',
-				$label
-			);
-		}
-
-		// Build the <select>
-		$html = self::build_tag( 'select', $settings, $options );
-
-		$html = static::maybe_wrap_field( $html, $settings, '<p class="field select-field %id"><label>%label %html</label></p>' );
-
-		return $html;
-	}
-
-	/**
 	 * Build a file adder field.
 	 *
 	 * @since 1.3.3
@@ -514,7 +514,7 @@ class Form {
 				$html .= basename(wp_get_attachment_url($value));
 			$html .= '</div>';
 			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-input">', $settings['name'], $value );
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
 		$html .= '</div>';
 
 		return $html;
@@ -533,7 +533,7 @@ class Form {
 				$html .= wp_get_attachment_image( $value, 'thumbnail' );
 			$html .= '</div>';
 			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-input">', $settings['name'], $value );
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
 		$html .= '</div>';
 
 		return $html;
@@ -554,7 +554,7 @@ class Form {
 			}
 			$html .= '</div>';
 			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-input">', $settings['name'], $value );
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
 		$html .= '</div>';
 
 		return $html;
