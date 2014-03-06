@@ -46,6 +46,7 @@ class Features {
 	 *
 	 * Prints a sortable list of all posts of a specific type, to manage menu_order.
 	 *
+	 * @since 1.4.0 Added use of $nested option.
 	 * @since 1.0.0
 	 */
 	public static function menu_order_manager() {
@@ -54,7 +55,8 @@ class Features {
 		$icon      = $type == 'post' ? 'post' : 'page';
 		$post_type = get_post_type_object( $type );
 
-		$posts = static::menu_order_array( $type );
+		// Get the post, nesting if the post type is hierarchical
+		$posts = static::menu_order_array( $type, $post_type->hierarchical );
 		?>
 		<div class="wrap">
 			<?php screen_icon( $icon )?>
@@ -76,12 +78,21 @@ class Features {
 	/**
 	 * Build the tree of posts.
 	 *
+	 * @since 1.4.0 Added $nested argument.
 	 * @since 1.0.0
 	 *
-	 * @param  array $posts The list of posts to go through
+	 * @param array $posts  The list of posts to go through.
+	 * @param bool  $nested Wether or not to create a nested array.
+	 * @param int   $parent The parent ID to filter by (if nesting).
 	 */
-	protected static function menu_order_array( $type, $parent = 0 ) {
+	protected static function menu_order_array( $type, $nested = false, $parent = 0 ) {
 		global $wpdb;
+
+		$post_parent = '';
+		// If nesting, include the post_parent clause
+		if ( $nested ) {
+			$post_parent = "AND post_parent = $parent";
+		}
 
 		// Fetch the posts for the specified parent
 		$posts = $wpdb->get_results( $wpdb->prepare( "
@@ -89,14 +100,16 @@ class Features {
 			FROM $wpdb->posts
 			WHERE post_type = %s
 			AND post_status != 'auto-draft'
-			AND post_parent = %d
+			$post_parent
 			ORDER BY menu_order ASC
 		", $type, $parent ) );
 
-		foreach ( $posts as $post ) {
-			// Loop through and repeat, deeper... and deeper... and deeper...
-			// We must go deeper!
-			$post->children = static::menu_order_array( $type, $post->ID );
+		if ( $nested ) {
+			foreach ( $posts as $post ) {
+				// Loop through and repeat, deeper... and deeper... and deeper...
+				// We must go deeper!
+				$post->children = static::menu_order_array( $type, $nested, $post->ID );
+			}
 		}
 
 		return $posts;
@@ -105,23 +118,27 @@ class Features {
 	/**
 	 * Print out the tree of posts.
 	 *
+	 * @since 1.4.0 Added $nested argument.
 	 * @since 1.0.0
 	 *
-	 * @param  array $posts The list of posts to go through
+	 * @param array $posts  The list of posts to go through.
+	 * @param bool  $nested Wether or not to list the nested posts and include a parent field.
 	 */
-	protected static function menu_order_list( $posts ) {
+	protected static function menu_order_list( $posts, $nested = false ) {
 		?>
 		<ol>
-		<?php foreach ( $posts as $post ):?>
+		<?php foreach ( $posts as $post ) : ?>
 			<li>
 				<div class="inner">
 					<input type="hidden" class="qs-order-id" name="menu_order[]" value="<?php echo $post->ID?>">
-					<input type="hidden" class="qs-order-parent" name="parent[<?php echo $post->ID?>]" value="<?php echo $post->post_parent?>">
+					<?php if ( $nested ) : ?>
+						<input type="hidden" class="qs-order-parent" name="parent[<?php echo $post->ID?>]" value="<?php echo $post->post_parent?>">
+					<?php endif; ?>
 					<?php echo $post->post_title?>
 				</div>
 				<?php
-				if ( $post->children ) {
-					static::menu_order_list( $post->children );
+				if ( $nested && $post->children ) {
+					static::menu_order_list( $post->children, $nested );
 				}
 				?>
 			</li>
