@@ -76,7 +76,7 @@ class Form {
 
 		return $html;
 	}
-	
+
 	/**
 	 * Get the value to use for the field.
 	 *
@@ -91,7 +91,7 @@ class Form {
 	public static function get_value( $data, $type, $key ) {
 		// Proceed based on what $type is
 		switch ( $type ) {
-			case 'post':	
+			case 'post':
 				// Get the matching meta value for this post
 				if ( is_object( $data ) ) {
 					$data = $data->ID;
@@ -196,7 +196,7 @@ class Form {
 
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
-		
+
 		// Get the value to use, based on $source and data_name
 		$value = static::get_value( $data, $source, $settings['data_name'] );
 
@@ -509,7 +509,7 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_addfile( $field, $settings, $value ) {
-		$html = '<div class="qs-addfile">';
+		$html = '<div class="qs-field qs-media qs-addfile">';
 			$html .= '<div class="qs-preview">';
 				$html .= basename(wp_get_attachment_url($value));
 			$html .= '</div>';
@@ -528,7 +528,7 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_setimage( $field, $settings, $value ) {
-		$html = '<div class="qs-setimage">';
+		$html = '<div class="qs-field qs-media qs-setimage">';
 			$html .= '<div class="qs-preview">';
 				$html .= wp_get_attachment_image( $value, 'thumbnail' );
 			$html .= '</div>';
@@ -547,7 +547,7 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_editgallery( $field, $settings, $value ) {
-		$html = '<div class="qs-editgallery">';
+		$html = '<div class="qs-field qs-media qs-editgallery">';
 			$html .= '<div class="qs-preview">';
 			foreach ( explode( ',', $value ) as $image ) {
 				$html .= wp_get_attachment_image( $image, 'thumbnail' );
