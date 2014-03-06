@@ -838,6 +838,23 @@ class Setup extends \SmartPlugin {
 			}
 
 			foreach ( $configs['sidebars'] as $id => $args ) {
+				make_associative($id, $args);
+
+				// If just a string is passed for $args,
+				// assume it's to be the name of the sidebar
+				if ( is_string( $args ) ) {
+					$args = array(
+						'name' => $args;
+					);
+				}
+				// If no args are passed,
+				// Auto create name from $id
+				elseif ( is_array( $args ) && empty( $args ) ) {
+					$args = array(
+						'name' => make_legible( $id );
+					);
+				}
+
 				$args['id'] = $id;
 
 				// Process args with defaults, it present
