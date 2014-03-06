@@ -1049,6 +1049,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register and build a setting
 	 *
+	 * @since 1.4.0 Added 'source' to build_fields $args.
 	 * @since 1.3.0 Added 'wrap' to build_fields $args.
 	 * @since 1.1.0 Dropped stupid $args['fields'] processing.
 	 * @since 1.0.0
@@ -1106,6 +1107,7 @@ class Setup extends \SmartPlugin {
 		$_args = array(
 			'fields' => $args['fields'],
 			'data'   => null,
+			'source' => 'option',
 			'echo'   => true,
 			'wrap'   => false,
 			'__extract',
