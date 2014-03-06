@@ -282,7 +282,7 @@ window.QS = window.QS || {};
 			var $this = $( this );
 			var thisOptions;
 			var defaults = {
-				$input:   '.qs-input',
+				$input:   '.qs-value',
 				$preview: '.qs-preview',
 				$trigger: '.qs-button',
 				title:    $this.text(),
@@ -318,7 +318,7 @@ window.QS = window.QS || {};
 			var thisOptions;
 			var defaults = {
 				media:    'image',
-				$input:   '.qs-input',
+				$input:   '.qs-value',
 				$preview: '.qs-preview',
 				$trigger: '.qs-button',
 				title:    $this.text(),
@@ -353,7 +353,7 @@ window.QS = window.QS || {};
 			var thisOptions;
 			var defaults = {
 				media:    'image',
-				$input:   '.qs-input',
+				$input:   '.qs-value',
 				$preview: '.qs-preview',
 				$trigger: '.qs-button',
 				title:    $this.text(),
