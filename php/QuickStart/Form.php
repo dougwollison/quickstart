@@ -154,6 +154,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.4.0 Added 'source' argument.
 	 * @since 1.3.3 Added use of new make_label() method.
 	 * @since 1.3.0 Added $wrap argument for setting default wrap_with_label value,
 	 *				also merged filters into one, and added 'build' callback.
@@ -162,12 +163,13 @@ class Form {
 	 *
 	 * @param string $field    The name/id of the field.
 	 * @param array  $settings The settings to use in creating the field.
-	 * @param mixed  $data     The source for the value; WP_Post/stdClass = post, null = get_option, otherwise a literal value.
+	 * @param mixed  $data     The source for the value; use $type argument to specify.
+	 * @param string $source   The type of value source; see self::get_value().
 	 * @param bool   $wrap     Default value for wrap_with_label option.
 	 *
 	 * @return string The HTML for the field.
 	 */
-	public static function build_field( $field, $settings = array(), $data = null, $wrap = true ) {
+	public static function build_field( $field, $settings = array(), $data = null, $source = 'raw', $wrap = true ) {
 		// Check if $settings is a callback, call and return it's result if so
 		if ( is_callable( $settings ) ) {
 			/**
@@ -267,17 +269,19 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.4.0 Added 'source' argument.
 	 * @since 1.3.0 Added 'wrap' argument.
 	 * @since 1.0.0
 	 *
 	 * @param string $fields The name/id of the field.
 	 * @param array  $data   The source for the values; see self::build_field() for details.
+	 * @param string $source Identifies the type of values source; see self::build_field() for details.
 	 * @param mixed  $echo   Wether or not to echo the output.
 	 * @param bool   $wrap   Default value for wrap_with_label option.
 	 *
 	 * @return string The HTML for the fields.
 	 */
-	public static function build_fields( $fields, $data = null, $echo = false, $wrap = true ) {
+	public static function build_fields( $fields, $data = null, $source = 'raw', $echo = false, $wrap = true ) {
 		$html = '';
 
 		// If $fields is actually meant to be an array of all arguments for this
