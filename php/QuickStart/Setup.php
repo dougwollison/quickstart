@@ -844,14 +844,14 @@ class Setup extends \SmartPlugin {
 				// assume it's to be the name of the sidebar
 				if ( is_string( $args ) ) {
 					$args = array(
-						'name' => $args;
+						'name' => $args,
 					);
 				}
 				// If no args are passed,
 				// Auto create name from $id
 				elseif ( is_array( $args ) && empty( $args ) ) {
 					$args = array(
-						'name' => make_legible( $id );
+						'name' => make_legible( $id ),
 					);
 				}
 
