@@ -76,6 +76,38 @@ class Form {
 
 		return $html;
 	}
+	
+	/**
+	 * Get the value to use for the field.
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param mixed  $data The raw data source.
+	 * @param string $type The type of source to expect. e.g. "post", "option", "array", or "raw".
+	 * @param string $key  The field to extract from the source.
+	 *
+	 * @return mixed The extracted value.
+	 */
+	public static function get_value( $data, $type, $key ) {
+		// Proceed based on what $type is
+		switch ( $type ) {
+			case 'post':	
+				// Get the matching meta value for this post
+				if ( is_object( $data ) ) {
+					$data = $data->ID;
+				}
+				return get_post_meta( $data, $key, true );
+			case 'option':
+				// Get the matching option value
+				return get_option( $key );
+			case 'array':
+				// Get the matching entry if present
+				return isset( $data[ $key ] ) ? $data[ $key ] : null;
+			default:
+				// No processing required
+				return $data;
+		}
+	}
 
 	/**
 	 * Build an HTML tag.
