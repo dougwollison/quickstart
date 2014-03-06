@@ -258,10 +258,11 @@ class Form {
 		 * @param mixed  $settings The settings for this field.
 		 * @param mixed  $value    The processed value for this field.
 		 * @param mixed  $data     The source of the value for this field.
+		 * @param string $source   The type of value source; see self::get_value().
 		 *
 		 * @return string The HTML of the field.
 		 */
-		$html = apply_filters( 'qs_form_field', $html, $field, $settings, $value, $data );
+		$html = apply_filters( 'qs_form_field', $html, $field, $settings, $value, $data, $source );
 
 		return $html;
 	}
