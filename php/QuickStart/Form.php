@@ -194,6 +194,9 @@ class Form {
 
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
+		
+		// Get the value to use, based on $source and data_name
+		$value = static::get_value( $data, $source, $settings['data_name'] );
 
 		// Set a default value for the class setting;
 		// otherwise, make sure it's an array
@@ -201,18 +204,6 @@ class Form {
 			$settings['class'] = array();
 		} elseif ( ! is_array($settings['class'] ) ) {
 			$settings['class'] = (array) $settings['class'];
-		}
-
-		// Get the value based on what $post is
-		if ( is_null( $data ) ) {
-			// Assume it's an option, retrieve it
-			$value = get_option( $settings['data_name'] );
-		} elseif ( is_object( $data ) ) {
-			// Assume a post object, get the metadata for it
-			$value = get_post_meta( $data->ID, $settings['data_name'], true );
-		} else {
-			// Assume literal value
-			$value = $data;
 		}
 
 		// Check if the "get_values" key is present (and a callback),
