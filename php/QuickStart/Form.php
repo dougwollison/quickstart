@@ -274,19 +274,19 @@ class Form {
 			 *
 			 * @since 1.3.0
 			 *
-			 * @param string $field    The name of the field to build.
 			 * @param array  $settings The settings for the field.
 			 * @param mixed  $value    The retrieved value of the field.
+			 * @param string $field    The name of the field to build.
 			 *
 			 * @return string The HTML of the field.
 			 */
-			$html = call_user_func( $settings['build'], $field, $settings, $value );
+			$html = call_user_func( $settings['build'], $settings, $value, $field );
 		} elseif ( $method != __FUNCTION__ && method_exists( get_called_class(), $method ) ) {
 			// Matches one of the specialized internal field builders
-			$html = static::$method( $field, $settings, $value );
+			$html = static::$method( $settings, $value );
 		} else {
 			// Assume a text-like input, use the generic field builder
-			$html = static::build_generic( $field, $settings, $value );
+			$html = static::build_generic( $settings, $value );
 		}
 
 		/**
@@ -356,17 +356,16 @@ class Form {
 	/**
 	 * Build a generic field (e.g. text, number, email, etc.)
 	 *
-	 * @since 1.4.0 Added $wrapper arg, build_format usage, and wrapper_class extra.
+	 * @since 1.4.0 Dropped $field arg, added $wrapper arg, revised wrapping usage.
 	 * @since 1.0.0
 	 *
-	 * @param string $field    The name/id of the field.
 	 * @param array  $settings The settings to use in creating the field.
 	 * @param mixed  $value    The value to fill the field with.
 	 * @param string $wrapper  The format string to use when wrapping the field.
 	 *
 	 * @return string The HTML for the field.
 	 */
-	public static function build_generic( $field, $settings, $value, $wrapper = null ) {
+	public static function build_generic( $settings, $value, $wrapper = null ) {
 		// Load the value attribute with the field value
 		$settings['value'] = $value;
 
@@ -389,7 +388,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_textarea( $field, $settings, $value, $wrapper = null ) {
+	public static function build_textarea( $settings, $value, $wrapper = null ) {
 		// Build the <input>
 		$input = static::build_tag( 'textarea', $settings, $value );
 
@@ -406,7 +405,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_checkbox( $field, $settings, $value, $wrapper = null ) {
+	public static function build_checkbox( $settings, $value, $wrapper = null ) {
 		// Default the value to 1 if it's a checkbox
 		if ( $settings['type'] == 'checkbox' && ! isset( $settings['value'] ) ) {
 			$settings['value'] = 1;
@@ -436,8 +435,8 @@ class Form {
 	 *
 	 * @see Form::build_checkbox()
 	 */
-	public static function build_radio( $field, $settings, $value, $wrapper = null ) {
-		return static::build_checkbox( $field, $settings, $value, $wrapper );
+	public static function build_radio( $settings, $value, $wrapper = null ) {
+		return static::build_checkbox( $settings, $value, $wrapper );
 	}
 
 	/**
@@ -447,7 +446,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_select( $field, $settings, $value, $wrapper = null ) {
+	public static function build_select( $settings, $value, $wrapper = null ) {
 		$options = '';
 
 		if ( ! isset( $settings['values'] ) ) {
@@ -487,7 +486,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	protected static function build_inputlist( $type, $field, $settings, $value ) {
+	protected static function build_inputlist( $type, $settings, $value, $wrapper = null ) {
 		if ( ! isset( $settings['values'] ) ) {
 			throw new Exception( 'Checklist/radiolist fieldsets MUST have a values parameter.' );
 		}
@@ -532,9 +531,13 @@ class Form {
 
 		// Build the list
 		$list = static::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
+		
+		if ( is_null( $wrapper ) ) {
+			$wrapper = '<div class="qs-fieldset inputlist %type %wrapper_class %id"><p class="qs-legend">%label</p> %input</div>';
+		}
 
 		// Optionally wrap the fieldset
-		$html = static::maybe_wrap_field( $list, $settings, '<div class="qs-fieldset inputlist %type %wrapper_class %id"><p class="qs-legend">%label</p> %input</div>' );
+		$html = static::maybe_wrap_field( $list, $settings, $wrapper );
 
 		return $html;
 	}
@@ -546,8 +549,8 @@ class Form {
 	 *
 	 * @see Form::build_inputlist()
 	 */
-	public static function build_checklist( $field, $settings, $value ) {
-		return static::build_inputlist( 'checkbox', $field, $settings, $value );
+	public static function build_checklist( $settings, $value, $wrapper = null ) {
+		return static::build_inputlist( 'checkbox', $settings, $value, $wrapper );
 	}
 
 	/**
@@ -557,8 +560,8 @@ class Form {
 	 *
 	 * @see Form::build_inputlist()
 	 */
-	public static function build_radiolist( $field, $settings, $value ) {
-		return static::build_inputlist( 'radio', $field, $settings, $value );
+	public static function build_radiolist( $settings, $value, $wrapper = null ) {
+		return static::build_inputlist( 'radio', $settings, $value, $wrapper );
 	}
 
 	/**
@@ -568,7 +571,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_addfile( $field, $settings, $value ) {
+	public static function build_addfile( $settings, $value ) {
 		$html = '<div class="qs-field qs-media qs-addfile">';
 			$html .= '<div class="qs-preview">';
 				$html .= basename(wp_get_attachment_url($value));
@@ -587,7 +590,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_setimage( $field, $settings, $value ) {
+	public static function build_setimage( $settings, $value ) {
 		$html = '<div class="qs-field qs-media qs-setimage">';
 			$html .= '<div class="qs-preview">';
 				$html .= wp_get_attachment_image( $value, 'thumbnail' );
@@ -606,7 +609,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_editgallery( $field, $settings, $value ) {
+	public static function build_editgallery( $settings, $value ) {
 		$html = '<div class="qs-field qs-media qs-editgallery">';
 			$html .= '<div class="qs-preview">';
 			foreach ( explode( ',', $value ) as $image ) {
