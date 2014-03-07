@@ -272,6 +272,7 @@ class Form {
 			/**
 			 * Custom callback for building the field's HTML.
 			 *
+			 * @since 1.4.0 Argument order is now $settings, $value, $field.
 			 * @since 1.3.0
 			 *
 			 * @param array  $settings The settings for the field.
