@@ -46,20 +46,60 @@ class Form {
 	}
 
 	/**
-	 * Wrap the fields in a label, if $settings['_label'] is true.
+	 * Generate the format string to use in sprintp
 	 *
+	 * @since 1.4.0
+	 *
+	 * @param string $side Which side the label should appear on (left/right).
+	 * @param string $tag  The tag name to use in the format.
+	 *
+	 * @return string The generated format string.
+	 */
+	public static function build_field_wrapper( $side = 'left', $tag = 'div' ) {
+		$format = '<' . $tag . ' class="qs-field %type %wrapper_class %id-field">';
+
+		$label = '<label for="%id" class="qs-label">%label</label>';
+		if ( $side == 'right' ) {
+			$format .= "%input $label";
+		} else {
+			$format .= "$label %input";
+		}
+
+		$format .= '</' . $tag . '>';
+
+		return $format;
+	}
+
+	/**
+	 * Wrap the field in a label, if wrap_with_label is true.
+	 *
+	 * @since 1.4.0 Renamed $html to $input, revised $format handling
 	 * @since 1.0.0
 	 *
-	 * @param string $html     The html to wrap.
+	 * @param string $input    The html of the input to wrap.
 	 * @param array  $settings The settings array for the field.
 	 * @param string $format   The format to use.
 	 *
 	 * @return string The processed HTML.
 	 */
-	public static function maybe_wrap_field( $html, $settings, $format ) {
+	public static function maybe_wrap_field( $input, $settings, $format = null ) {
+		// If format setting exists, overwrite $format with it
+		if ( isset( $settings['format'] ) ) {
+			$format = $settings['format'];
+		}
+
+		// If no format provided, make it an empty array
+		if ( is_null( $format ) ) {
+			$format = array();
+		}
+
+		// If $format is an array, run through build_field_wrapper()
+		if ( is_array( $format ) ) {
+			$format = call_user_func_array( 'static::build_field_wrapper', $format );
+		}
 
 		if ( isset( $settings['wrap_with_label'] ) && $settings['wrap_with_label'] ) {
-			$settings['html'] = $html;
+			$settings['input'] = $input;
 
 			/**
 			 * Filter the format string to be used.
@@ -71,10 +111,10 @@ class Form {
 			 */
 			$format = apply_filters( 'qs_form_field_wrap_format', $format, $settings );
 
-			$html = sprintp( $format, $settings );
+			return sprintp( $format, $settings );
+		} else {
+			return $input;
 		}
-
-		return $html;
 	}
 
 	/**
@@ -191,7 +231,8 @@ class Form {
 			'name'            => $field,
 			'label'           => static::make_label( $field ),
 			'data_name'       => $field, // The name of the postmeta or option to retrieve
-			'wrap_with_label' => $wrap // Wether or not to wrap the field in a label
+			'wrap_with_label' => $wrap, // Wether or not to wrap the field in a label
+			'wrapper_class'   => '', // The class to apply to the wrapper
 		);
 
 		// Parse the passed settings with the defaults
@@ -315,25 +356,28 @@ class Form {
 	/**
 	 * Build a generic field (e.g. text, number, email, etc.)
 	 *
+	 * @since 1.4.0 Added $wrapper arg, build_format usage, and wrapper_class extra.
+	 * @since 1.0.0
 	 *
 	 * @param string $field    The name/id of the field.
 	 * @param array  $settings The settings to use in creating the field.
 	 * @param mixed  $value    The value to fill the field with.
+	 * @param string $wrapper  The format string to use when wrapping the field.
 	 *
 	 * @return string The HTML for the field.
 	 */
-	public static function build_generic( $field, $settings, $value ) {
+	public static function build_generic( $field, $settings, $value, $wrapper = null ) {
+		// Load the value attribute with the field value
 		$settings['value'] = $value;
 
 		// Build the <input>
-		$html = static::build_tag( 'input', $settings );
+		$input = static::build_tag( 'input', $settings );
 
-		$settings['class'] = array(
-			$settings['type'] . '-field',
-			$settings['id']
-		);
+		// Add the generic class to the wrapper classes
+		$settings['wrapper_class'] .= ' generic';
 
-		$html = static::maybe_wrap_field( $html, $settings, '<div class="qs-field generic %type %id-field"><label for="%id" class="qs-label">%label</label> %html</div>' );
+		// Wrap the input in the html if needed
+		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
 
 		return $html;
 	}
@@ -345,10 +389,12 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_textarea( $field, $settings, $value ) {
-		$html = self::build_tag( 'textarea', $settings, $value );
+	public static function build_textarea( $field, $settings, $value, $wrapper = null ) {
+		// Build the <input>
+		$input = static::build_tag( 'textarea', $settings, $value );
 
-		$html = static::maybe_wrap_field( $html, $settings, '<div class="qs-field textarea %id-field"><label for="%id" class="qs-label">%label</label> %html</div>' );
+		// Wrap the input in the html if needed
+		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
 
 		return $html;
 	}
@@ -360,21 +406,38 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_checkbox( $field, $settings, $value ) {
-		if ( ! isset( $settings['value'] ) ) {
+	public static function build_checkbox( $field, $settings, $value, $wrapper = null ) {
+		// Default the value to 1 if it's a checkbox
+		if ( $settings['type'] == 'checkbox' && ! isset( $settings['value'] ) ) {
 			$settings['value'] = 1;
 		}
 
-		if ( $value == $settings['value'] ) {
+		// If the values match, mark as checked
+		if ( $value == $settings['value'] || ( is_array( $value ) && in_array( $settings['value'], $value ) ) ) {
 			$settings[] = 'checked';
 		}
 
 		// Build the <input>
-		$html = self::build_tag( 'input', $settings );
+		$input = static::build_tag( 'input', $settings );
 
-		$html = static::maybe_wrap_field( $html, $settings, '<div class="qs-field checkbox %id-field"><label for="%id" class="qs-label">%label</label> %html</div>' );
+		// Wrap the input in the html if needed
+		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
 
 		return $html;
+	}
+
+	/**
+	 * Build a radio field.
+	 *
+	 * This uses build_checkbox wrather than build_generic,
+	 * since it's not a text-style input.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @see Form::build_checkbox()
+	 */
+	public static function build_radio( $field, $settings, $value, $wrapper = null ) {
+		return static::build_checkbox( $field, $settings, $value, $wrapper );
 	}
 
 	/**
@@ -384,7 +447,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_select( $field, $settings, $value ) {
+	public static function build_select( $field, $settings, $value, $wrapper = null ) {
 		$options = '';
 
 		if ( ! isset( $settings['values'] ) ) {
@@ -410,9 +473,9 @@ class Form {
 		}
 
 		// Build the <select>
-		$html = self::build_tag( 'select', $settings, $options );
+		$input = static::build_tag( 'select', $settings, $options );
 
-		$html = static::maybe_wrap_field( $html, $settings, '<div class="qs-field select %id-field"><label for="%id" class="qs-label">%label</label> %html</div>' );
+		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
 
 		return $html;
 	}
@@ -425,56 +488,53 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	protected static function build_inputlist( $type, $field, $settings, $value ) {
-		$settings['type'] = $type;
-
-		$items = '';
-
 		if ( ! isset( $settings['values'] ) ) {
-			throw new Exception( 'Checklist/radiolist fields MUST have a values parameter.' );
+			throw new Exception( 'Checklist/radiolist fieldsets MUST have a values parameter.' );
+		}
+
+		// If no value exists, and there is a default value set, use it.
+		if ( is_null( $value ) && isset( $settings['default'] ) ) {
+			$value = $settings['default'];
 		}
 
 		csv_array_ref( $settings['values'] );
-
 		$is_assoc = is_assoc( $settings['values'] );
 
+		$items = '';
 		// Run through the values and build the input list
 		foreach ( $settings['values'] as $val => $label ) {
 			if ( ! $is_assoc ) {
 				$val = $label;
 			}
 
-			// Build the attributes for the <input>
-			$atts = array(
-				'type' => $type,
-				'id' => $settings['id'] . '__' . sanitize_key( $val ),
-				'name' => $settings['name'],
-				'value' => $val
+			// Build the settings for the item
+			$item_settings = array(
+				'type'            => $type,
+				'id'              => $settings['id'] . '__' . sanitize_key( $val ),
+				'name'            => $settings['name'],
+				'value'           => $val,
+				'label'           => $label,
+				'wrap_with_label' => true,
+				'wrapper_class'   => '',
 			);
 
-			// Check if the value is present or the default one.
-			if ( in_array( $val, (array) $value ) || ( ! $value && isset( $settings['default'] ) && $val == $settings['default'] ) ) {
-				$atts[] = 'checked';
+			if ( $type == 'checkbox' ) {
+				// Append brackets to name attribute
+				$item_settings['name'] .= '[]';
 			}
 
-			// Build the li > label > input markup
-			$items .= sprintf(
-				'<li class="%1$s %1$s-%2$s"><label>%3$s %4$s</label></li>',
-				$settings['id'],
-				sanitize_key( $val ),
-				static::build_tag(
-					'input',
-					$atts
-				),
-				$label
-			);
+			$build = "build_$type";
+
+			$items .= static::$build( $field, $item_settings, $value, array('right', 'li') );
 		}
 
-		$settings['class'][] = $settings['type'] . '-list';
+		$settings['class'][] = 'inputlist';
 
-		// Build the <ul>
-		$html = self::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
+		// Build the list
+		$list = static::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
 
-		$html = static::maybe_wrap_field( $html, $settings, '<p class="field %type-field %id"><label>%label</label></p> %html' );
+		// Optionally wrap the fieldset
+		$html = static::maybe_wrap_field( $list, $settings, '<div class="qs-fieldset inputlist %type %wrapper_class %id"><p class="qs-legend">%label</p> %input</div>' );
 
 		return $html;
 	}
