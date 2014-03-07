@@ -1,0 +1,61 @@
+.qs-field:after, .qs-fieldset .inputlist:after, .qs-repeater .qs-item:after {
+  content: '';
+  display: table;
+  clear: both; }
+
+.qs-field,
+.qs-fieldset {
+  margin-top: 10px; }
+
+.qs-field {
+  line-height: 1.5; }
+  .qs-fieldset .qs-field {
+    padding-top: 0; }
+  .qs-field.generic .qs-label, .qs-field.select .qs-label {
+    float: left;
+    padding: 5px 0;
+    margin: 0 10px 0 0; }
+
+.qs-label {
+  margin: 0; }
+
+.qs-legend {
+  padding: 0 0 2px;
+  margin: 0 0 5px;
+  border-bottom: 1px solid #eee; }
+
+.qs-fieldset .inputlist {
+  margin: 5px 0 0; }
+.qs-fieldset.horizontal .qs-legend,
+.qs-fieldset.horizontal .qs-field,
+.qs-fieldset.horizontal .inputlist {
+  float: left; }
+.qs-fieldset.horizontal .qs-legend {
+  margin: 0;
+  padding: 0;
+  border: none; }
+.qs-fieldset.horizontal .qs-field,
+.qs-fieldset.horizontal .inputlist {
+  margin: 0 5px; }
+.qs-fieldset .horizontal .qs-field {
+  float: left;
+  margin: 0 10px 0 0; }
+
+.qs-repeater .qs-item {
+  margin: 0 -10px;
+  padding: 0 10px;
+  background: #fff; }
+  .qs-repeater .qs-item:after {
+    display: block;
+    border-bottom: 1px solid #ddd; }
+  .qs-repeater .qs-item .qs-field {
+    float: left;
+    margin: 10px 10px 8px 0; }
+  .qs-repeater .qs-item label {
+    display: block; }
+.qs-repeater .qs-delete {
+  float: right;
+  margin: 10px 0 0; }
+
+.qs-template {
+  display: none; }

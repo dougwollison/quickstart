@@ -1,0 +1,27 @@
+.qs-addfile{
+	.qs-preview{
+		margin: 0 0 10px;
+		font-style: italic;
+	}
+}
+.qs-setimage,
+.qs-editgallery{
+	.qs-preview{
+		margin: 12px 0 6px;
+		padding: 0;
+		overflow: hidden;
+	}
+}
+.qs-setimage{
+	img{
+		display: block;
+		border: 1px solid #dfdfdf;
+	}
+}
+.qs-editgallery{
+	img{
+		float: left;
+		margin: 0 4px 4px 0;
+		border: 1px solid #dfdfdf;
+	}
+}
