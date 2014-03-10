@@ -649,10 +649,11 @@ class Setup extends \SmartPlugin {
 					$field = $settings;
 				}
 
+				// By default, post and meta keys are the same as the field id
 				$post_key = $meta_key = $field;
 
 				if ( is_array( $settings ) ) {
-					// Overide $name with name setting if present
+					// Overide $post_key with name setting if present
 					if ( isset( $settings['name'] ) ) {
 						$post_key = $settings['name'];
 					}
