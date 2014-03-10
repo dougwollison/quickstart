@@ -66,6 +66,12 @@
 	}
 }
 
+.qs-item{
+	@extend %clearfix;
+	background: #fff;
+	position: relative;
+}
+
 .qs-template{
 	display: none;
 }

@@ -1,4 +1,4 @@
-.qs-field:after, .qs-fieldset .inputlist:after {
+.qs-field:after, .qs-fieldset .inputlist:after, .qs-item:after {
   content: '';
   display: table;
   clear: both; }
@@ -40,6 +40,10 @@
 .qs-fieldset .horizontal .qs-field {
   float: left;
   margin: 0 10px 0 0; }
+
+.qs-item {
+  background: #fff;
+  position: relative; }
 
 .qs-template {
   display: none; }
