@@ -568,6 +568,7 @@ class Form {
 	/**
 	 * Build a file adder field.
 	 *
+	 * @since 1.4.0 Added semi-intelligent button text guessing.
 	 * @since 1.3.3
 	 *
 	 * @see Form::build_generic()
@@ -592,6 +593,7 @@ class Form {
 	/**
 	 * Build an image setter field.
 	 *
+	 * @since 1.4.0 Added semi-intelligent button text guessing.
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
@@ -616,6 +618,7 @@ class Form {
 	/**
 	 * Build a gallery editor field.
 	 *
+	 * @since 1.4.0 Added semi-intelligent button text guessing.
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
