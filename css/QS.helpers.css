@@ -1,4 +1,4 @@
-.qs-field:after, .qs-fieldset .inputlist:after, .qs-repeater .qs-item:after {
+.qs-field:after, .qs-fieldset .inputlist:after {
   content: '';
   display: table;
   clear: both; }
@@ -40,22 +40,6 @@
 .qs-fieldset .horizontal .qs-field {
   float: left;
   margin: 0 10px 0 0; }
-
-.qs-repeater .qs-item {
-  margin: 0 -10px;
-  padding: 0 10px;
-  background: #fff; }
-  .qs-repeater .qs-item:after {
-    display: block;
-    border-bottom: 1px solid #ddd; }
-  .qs-repeater .qs-item .qs-field {
-    float: left;
-    margin: 10px 10px 8px 0; }
-  .qs-repeater .qs-item label {
-    display: block; }
-.qs-repeater .qs-delete {
-  float: right;
-  margin: 10px 0 0; }
 
 .qs-template {
   display: none; }

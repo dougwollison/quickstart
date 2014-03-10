@@ -14,11 +14,11 @@
 .qs-field{
 	@extend %clearfix;
 	line-height: 1.5;
-	
+
 	.qs-fieldset &{
 		padding-top: 0;
 	}
-	
+
 	&.generic,
 	&.select{
 		.qs-label{
@@ -42,7 +42,7 @@
 		@extend %clearfix;
 		margin: 5px 0 0;
 	}
-	
+
 	// Fields AND Legend Horizontal
 	&.horizontal{
 		.qs-legend,
@@ -50,19 +50,19 @@
 		.inputlist{
 			float: left;
 		}
-		
+
 		.qs-legend{
 			margin: 0;
 			padding: 0;
 			border: none;
 		}
-		
+
 		.qs-field,
 		.inputlist{
 			margin: 0 5px;
 		}
 	}
-	
+
 	// Fields-only Horizontal
 	.horizontal{
 		.qs-field{
@@ -70,31 +70,6 @@
 			margin: 0 10px 0 0;
 		}
 	}
-}
-
-.qs-repeater{
-	.qs-item{
-		@extend %clearfix;
-		margin: 0 -10px;
-		padding: 0 10px;
-		background: #fff;
-		
-		&:after{
-			display: block;
-			border-bottom: 1px solid #ddd;
-		}
-		.qs-field{
-			float: left;
-			margin: 10px 10px 8px 0;
-		}
-			label{
-				display: block;
-			}
-	}
-		.qs-delete{
-			float: right;
-			margin: 10px 0 0;
-		}
 }
 
 .qs-template{
