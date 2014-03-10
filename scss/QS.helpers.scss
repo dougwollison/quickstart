@@ -1,10 +1,4 @@
-%clearfix{
-	&:after{
-		content: '';
-		display: table;
-		clear: both;
-	}
-}
+@import 'utilities';
 
 .qs-field,
 .qs-fieldset{
