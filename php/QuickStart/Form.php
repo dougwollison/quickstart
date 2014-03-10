@@ -525,7 +525,7 @@ class Form {
 
 			$build = "build_$type";
 
-			$items .= static::$build( $field, $item_settings, $value, array('right', 'li') );
+			$items .= static::$build( $item_settings, $value, array('right', 'li') );
 		}
 
 		$settings['class'][] = 'inputlist';
