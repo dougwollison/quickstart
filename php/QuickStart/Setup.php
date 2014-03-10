@@ -59,6 +59,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
 	 *
+	 * @since 1.4.0 Added helpers css/js backend enqueue.
 	 * @since 1.1.0 Added tinymce key; mce is deprecated.
 	 * @since 1.0.0
 	 *
