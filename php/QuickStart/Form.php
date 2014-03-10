@@ -610,7 +610,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_addfile( $field, $settings, $value ) {
+	public static function build_addfile( $settings, $value ) {
 		// Get the field name
 		$name = $settings['name'];
 
@@ -676,11 +676,11 @@ class Form {
 	 *
 	 * @see Form::build_addfile()
 	 */
-	public static function build_setimage( $field, $settings, $value ) {
+	public static function build_setimage( $settings, $value ) {
 		// Force the media type to image
 		$settings['media'] = 'image';
 
-		return static::build_addfile( $field, $settings, $value );
+		return static::build_addfile( $settings, $value );
 	}
 
 	/**
