@@ -130,6 +130,19 @@ class Setup extends \SmartPlugin {
 
 		// Run the theme setups
 		$this->run_theme_setups();
+
+		// Enqueue the general css/js if not already
+		if ( is_admin() && ( ! defined( 'QS_HELPERS_ENQUEUED' ) || ! QS_HELPERS_ENQUEUED ) ) {
+			Hooks::backend_enqueue( array(
+				'css' => array(
+					'qs-helpers-css' => array( plugins_url('/css/QS.helpers.css', QS_FILE ) ),
+				),
+				'js' => array(
+					'qs-helpers-js' => array( plugins_url( '/js/QS.helpers.js', QS_FILE ), array( 'jquery' ) ),
+				),
+			) );
+			define( 'QS_HELPERS_ENQUEUED', true );
+		}
 	}
 
 	// =========================
