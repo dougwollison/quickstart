@@ -162,7 +162,7 @@ class Form {
 	 */
 	public static function build_tag( $tag, $atts, $content = null, $accepted = null ) {
 		if ( is_null( $accepted ) ) {
-			$accepted = self::$accepted_attrs;
+			$accepted = static::$accepted_attrs;
 		}
 
 		$html = "<$tag";
@@ -204,7 +204,7 @@ class Form {
 	 * @param string $field    The name/id of the field.
 	 * @param array  $settings The settings to use in creating the field.
 	 * @param mixed  $data     The source for the value; use $type argument to specify.
-	 * @param string $source   The type of value source; see self::get_value().
+	 * @param string $source   The type of value source; see static::get_value().
 	 * @param bool   $wrap     Default value for wrap_with_label option.
 	 *
 	 * @return string The HTML for the field.
@@ -300,7 +300,7 @@ class Form {
 		 * @param mixed  $settings The settings for this field.
 		 * @param mixed  $value    The processed value for this field.
 		 * @param mixed  $data     The source of the value for this field.
-		 * @param string $source   The type of value source; see self::get_value().
+		 * @param string $source   The type of value source; see static::get_value().
 		 *
 		 * @return string The HTML of the field.
 		 */
@@ -317,8 +317,8 @@ class Form {
 	 * @since 1.0.0
 	 *
 	 * @param string $fields The name/id of the field.
-	 * @param array  $data   The source for the values; see self::build_field() for details.
-	 * @param string $source Identifies the type of values source; see self::build_field() for details.
+	 * @param array  $data   The source for the values; see static::build_field() for details.
+	 * @param string $source Identifies the type of values source; see static::build_field() for details.
 	 * @param mixed  $echo   Wether or not to echo the output.
 	 * @param bool   $wrap   Default value for wrap_with_label option.
 	 *
@@ -532,7 +532,7 @@ class Form {
 
 		// Build the list
 		$list = static::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
-		
+
 		if ( is_null( $wrapper ) ) {
 			$wrapper = '<div class="qs-fieldset inputlist %type %wrapper_class %id"><p class="qs-legend">%label</p> %input</div>';
 		}
