@@ -573,6 +573,11 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_addfile( $settings, $value ) {
+		// If the label seems auto generated, modify the label text to Choose [label]
+		if ( $settings['label'] == make_legible( $settings['name'] ) ) {
+			$settings['label'] = 'Choose ' . $settings['label'];
+		}
+
 		$html = '<div class="qs-field qs-media qs-addfile">';
 			$html .= '<div class="qs-preview">';
 				$html .= basename(wp_get_attachment_url($value));
@@ -592,6 +597,11 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_setimage( $settings, $value ) {
+		// If the label seems auto generated, modify the label text to Choose [label]
+		if ( $settings['label'] == make_legible( $settings['name'] ) ) {
+			$settings['label'] = 'Choose ' . $settings['label'];
+		}
+
 		$html = '<div class="qs-field qs-media qs-setimage">';
 			$html .= '<div class="qs-preview">';
 				$html .= wp_get_attachment_image( $value, 'thumbnail' );
@@ -611,13 +621,18 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_editgallery( $settings, $value ) {
+		// If the label seems auto generated, modify the label text to Edit [label]
+		if ( $settings['label'] == make_legible( $settings['name'] ) ) {
+			$settings['label'] = 'Edit ' . $settings['label'];
+		}
+
 		$html = '<div class="qs-field qs-media qs-editgallery">';
+			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
 			$html .= '<div class="qs-preview">';
 			foreach ( explode( ',', $value ) as $image ) {
 				$html .= wp_get_attachment_image( $image, 'thumbnail' );
 			}
 			$html .= '</div>';
-			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
 			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
 		$html .= '</div>';
 
