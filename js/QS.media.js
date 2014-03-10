@@ -295,70 +295,111 @@ window.QS = window.QS || {};
 		return $( this ).each(function() {
 			var $this = $( this );
 			var thisOptions;
-			var defaults = {
-				$input:   '.qs-value',
-				$preview: '.qs-preview',
-				$trigger: '.qs-button',
-				title:    $this.text(),
-				choose:   'Use Selected File',
-				events:   {
-					select: function() {
-						var preview = thisOptions.$preview;
-						var attachment = media.attachment();
-						var file = attachment.url.replace(/.+?([^\/]+)$/, '$1');
 
-						if(preview.is('input')){
-							preview.val(file);
-						}else{
-							preview.html(file);
+			// Determin multiple mode and media type
+			var multi = $this.hasClass('multiple');
+			var type  = $this.data('type');
+
+			// Title and choose button text
+			var title = 'Select ' + ucwords( type );
+			var choose = 'Use Selected ' + ucwords( type );
+
+			// Add "file" to text bits for non images
+			if ( type != 'image' ) {
+				title += ' File';
+				choose += ' File';
+			}
+
+			// Pluralize text bits if needed
+			if ( multi ) {
+				title += 's';
+				choose += 's';
+			}
+
+			var defaults = {
+				multiple:   multi,
+				$trigger:   '.qs-button', // will convert to jQuery object
+				$container: '.qs-container', // will convert to jQuery object
+				$template:  '.qs-template', // will convert to jQuery object
+				preview:    '.qs-preview',
+				input:      '.qs-input',
+				title:      title,
+				choose:     choose,
+				media: 		type,
+				events:     {
+					select: function() {
+						// Get the selected files
+						var attachments = media.attachments();
+
+						// Loop vars
+						var attachment, item, preview, input;
+
+						// Empty the container if not in multiple mode
+						if ( ! multi ) {
+							thisOptions.$container.empty();
 						}
 
-						thisOptions.$input.val(attachment.id);
+						// Loop through all attachments found
+						for ( var i in attachments ) {
+							// Get the current attachment
+							attachment = attachments[ i ];
+
+							// Make a copty of the template item
+							item = thisOptions.$template.clone();
+
+							// Get the preview and input elements
+							preview = item.find( thisOptions.preview );
+							input = item.find( thisOptions.input );
+
+							// Update preview accordingly
+							if ( preview.is( 'img' ) && attachment.type == 'image' ) {
+								// Preview is an image, update the source
+								preview.attr( 'src', attachment.sizes.thumbnail.url );
+							} else {
+								// Preview should be a span, update the content
+								preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
+							}
+
+							// Store the ID in the input field
+							input.val( attachment.id );
+
+							// Add the item to the container
+							thisOptions.$container.append( item );
+
+							// No multiple = stop after the first one
+							if ( ! multi ) break;
+						}
 					}
 				}
 			};
 
+			// Combine the options with the data args
+			$.extend( options, $this.data() );
+
 			// Process the options with the defaults
 			thisOptions = setupOptions( $this, options, defaults );
 
-			//Setup the media selector hook
+			// Create the template object
+			thisOptions.$template = $( thisOptions.$template.html() );
+
+			// Setup the media selector hook
 			media.insert( thisOptions );
+
+			// Setup sortability if multiple
+			if ( multi ) {
+				thisOptions.$container.sortable( {
+					items: '.qs-item',
+					axis: type == 'image' ? false : 'y', // If images, allow sideways sorting
+				} );
+			}
 		});
 	};
 
 	jQuery.fn.QS.setImage = function( options ) {
-		return $( this ).each(function() {
-			var $this = $( this );
-			var thisOptions;
-			var defaults = {
-				media:    'image',
-				$input:   '.qs-value',
-				$preview: '.qs-preview',
-				$trigger: '.qs-button',
-				title:    $this.text(),
-				choose:   'Use Selected Image',
-				events:   {
-					open:   function() {
-						media.preload( thisOptions.$input.val() );
-					},
-					select: function() {
-						var attachment = media.attachment();
-						var img = $( '<img src="' + attachment.sizes.thumbnail.url + '">' );
-						thisOptions.$preview.empty().append( img );
-						thisOptions.$input.val( attachment.id );
-					}
-				}
-			};
-
-			// Process the options with the defaults
-			thisOptions = setupOptions( $this, options, defaults );
-
-			// Preload with the current images
-			thisOptions.gallery = thisOptions.$input.val();
-
-			//Setup the media selector hook
-			media.insert( thisOptions );
-		});
+		// This just aliases to addFile,
+		// but ensures it's in image-only mode.
+		$( this ).data( 'media', 'image' );
+		return $( this ).QS( 'addFile', options );
 	};
 
 	jQuery.fn.QS.editGallery = function( options ) {
@@ -367,9 +408,9 @@ window.QS = window.QS || {};
 			var thisOptions;
 			var defaults = {
 				media:    'image',
-				$input:   '.qs-value',
-				$preview: '.qs-preview',
-				$trigger: '.qs-button',
+				$input:   '.qs-value', // will convert to jQuery object
+				$preview: '.qs-preview', // will convert to jQuery object
+				$trigger: '.qs-button', // will convert to jQuery object
 				title:    $this.text(),
 				events:   {
 					update: function() {
