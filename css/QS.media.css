@@ -13,6 +13,9 @@
   border-bottom: 1px solid #eee; }
 .qs-addfile.multiple .qs-delete {
   float: right; }
+.qs-addfile.multiple .qs-container {
+  margin: 10px 0 0;
+  border-top: 1px solid #eee; }
 .qs-addfile.media-image .qs-item {
   float: left;
   width: 156px;
