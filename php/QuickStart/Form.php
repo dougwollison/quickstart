@@ -566,25 +566,103 @@ class Form {
 	}
 
 	/**
+	 * Build a single file adder item.
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param int    $id    The ID of the attachment to use.
+	 * @param string $name  The name of the file adder field.
+	 * @param bool   $image Wether or not this is for images or any file.
+	 * @param bool   $multi Wether or not this supports multiple files.
+	 */
+	public static function build_addfile_item( $id, $name, $image, $multi ) {
+		$html = '<div class="qs-item">';
+			if ( is_null( $id ) ) {
+				// No id passed, print a blank
+				$html .= $image ? '<img class="qs-preview" />' : '<span class="qs-preview"></span>';
+			} elseif ( $image ) {
+				// Image mode, print the thumbnail
+				$html .= wp_get_attachment_image( $id, 'thumbnail', false, array(
+					'class' => 'qs-preview',
+				) );
+			} else {
+				// Any kind of file, print the basename
+				$html .= '<span class="qs-preview">' . basename( wp_get_attachment_url( $id ) ) . '</span>';
+			}
+
+			// Add delete button and field name brackets if in mulitple mode
+			if ( $multi ) {
+				$html .= '<button type="button" class="button qs-delete">Delete</button>';
+				$name .= '[]';
+			}
+
+			// Add the input field for this item
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-input">', $name, $id );
+		$html .= '</div>';
+		return $html;
+	}
+
+	/**
 	 * Build a file adder field.
 	 *
-	 * @since 1.4.0 Added semi-intelligent button text guessing.
+	 * @since 1.4.0 Overhauled markup/functionality
 	 * @since 1.3.3
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_addfile( $settings, $value ) {
-		// If the label seems auto generated, modify the label text to Choose [label]
-		if ( $settings['label'] == make_legible( $settings['name'] ) ) {
-			$settings['label'] = 'Choose ' . $settings['label'];
+	public static function build_addfile( $field, $settings, $value ) {
+		// Get the field name
+		$name = $settings['name'];
+
+		// Determine if this is a muti-item adder
+		$multi = isset( $settings['multiple'] ) && $settings['multiple'];
+
+		// Determine the media type
+		$media = isset( $settings['media'] ) ? $settings['media'] : null;
+
+		// Flag for if we're using images only or not
+		$is_image = $media == 'image';
+
+		// If the label seems auto generated, modify the label text to Add/Choose
+		if ( $settings['label'] == make_legible( $name ) ) {
+			$settings['label'] = ( $multi ? 'Add' : 'Choose' ) . ' ' . $settings['label'];
 		}
 
-		$html = '<div class="qs-field qs-media qs-addfile">';
-			$html .= '<div class="qs-preview">';
-				$html .= basename(wp_get_attachment_url($value));
+		// Begin the markup for this component
+		$html = sprintf( '<div class="qs-field qs-media qs-addfile %s media-%s" data-type="%s">', $multi ? 'multiple' : '', $media ? $media : '', $media );
+			// The button to open the media manager
+			$html .= '<button type="button" class="button button-primary qs-button">' . $settings['label'] . '</button>';
+
+			// A button to clear all items currently loaded
+			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
+
+			// Print an empty input, to allow the saving of nothing
+			$html .= sprintf( '<input type="hidden" name="%s" value="">', $name );
+
+			// Start the preview list container
+			$html .= '<div class="qs-container">';
+			// Print the items if present
+			if ( $value ) {
+				// Process into an appropriate array
+				$value = (array) $value;
+
+				// Loop through each image and print an item
+				foreach ( $value as $file ) {
+					// Add an item for the current file
+					$html .= static::build_addfile_item( $file, $name, $is_image, $multi );
+
+					// If we're only to do a single item, break now.
+					if ( ! $multi ) {
+						break;
+					}
+				}
+			}
 			$html .= '</div>';
-			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
+
+			// Print the template so javascript knows how to add new items
+			$html .= '<template class="qs-template">';
+				$html .= static::build_addfile_item( null, $name, $is_image, $multi );
+			$html .= '</template>';
 		$html .= '</div>';
 
 		return $html;
@@ -593,26 +671,16 @@ class Form {
 	/**
 	 * Build an image setter field.
 	 *
-	 * @since 1.4.0 Added semi-intelligent button text guessing.
+	 * @since 1.4.0 Reduced to alias of build_addfile
 	 * @since 1.0.0
 	 *
-	 * @see Form::build_generic()
+	 * @see Form::build_addfile()
 	 */
-	public static function build_setimage( $settings, $value ) {
-		// If the label seems auto generated, modify the label text to Choose [label]
-		if ( $settings['label'] == make_legible( $settings['name'] ) ) {
-			$settings['label'] = 'Choose ' . $settings['label'];
-		}
+	public static function build_setimage( $field, $settings, $value ) {
+		// Force the media type to image
+		$settings['media'] = 'image';
 
-		$html = '<div class="qs-field qs-media qs-setimage">';
-			$html .= '<div class="qs-preview">';
-				$html .= wp_get_attachment_image( $value, 'thumbnail' );
-			$html .= '</div>';
-			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
-		$html .= '</div>';
-
-		return $html;
+		return static::build_addfile( $field, $settings, $value );
 	}
 
 	/**
