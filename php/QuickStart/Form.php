@@ -429,10 +429,10 @@ class Form {
 	/**
 	 * Build a radio field.
 	 *
-	 * This uses build_checkbox wrather than build_generic,
+	 * This uses build_checkbox rather than build_generic,
 	 * since it's not a text-style input.
 	 *
-	 * @since 1.0.0
+	 * @since 1.4.0
 	 *
 	 * @see Form::build_checkbox()
 	 */
@@ -483,6 +483,7 @@ class Form {
 	/**
 	 * Build a checklist or radio list.
 	 *
+	 * @since 1.4.0 Overhauled item building and wrapper handling.
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
