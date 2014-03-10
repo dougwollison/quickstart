@@ -10,7 +10,8 @@
   font-style: italic; }
 .qs-addfile.multiple .qs-item {
   padding: 5px 0;
-  border-bottom: 1px solid #eee; }
+  border-bottom: 1px solid #eee;
+  cursor: move; }
 .qs-addfile.multiple .qs-delete {
   float: right; }
 .qs-addfile.multiple .qs-container {
