@@ -296,7 +296,7 @@ window.QS = window.QS || {};
 			var $this = $( this );
 			var thisOptions;
 
-			// Determin multiple mode and media type
+			// Determine multiple mode and media type
 			var multi = $this.hasClass('multiple');
 			var type  = $this.data('type');
 
