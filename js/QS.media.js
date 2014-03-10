@@ -10,6 +10,20 @@ window.QS = window.QS || {};
 	 */
 
 	/**
+	 * Convert string to Title Case
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param string str The string to convert.
+	 */
+	function ucwords( str ) {
+		return ( str + '' )
+	    .replace( /^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function( $1 ) {
+	    	return $1.toUpperCase();
+	    });
+	}
+
+	/**
 	 * Proccess the options with the defaults,
 	 * also querying the $elements and returning
 	 * a new extended object.
