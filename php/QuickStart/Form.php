@@ -152,15 +152,17 @@ class Form {
 	/**
 	 * Build an HTML tag.
 	 *
+	 * @since 1.4.1 $content now must = false for self closing tags.
 	 * @since 1.0.0
 	 *
-	 * @param string $tag     The tag name.
-	 * @param array  $atts    The tag attributes.
-	 * @param string $content The tag content.
+	 * @param string $tag      The tag name.
+	 * @param array  $atts     The tag attributes.
+	 * @param string $content  The tag content.
+	 * @param string $accepted The attribute whitelist.
 	 *
 	 * @return string The html of the tag.
 	 */
-	public static function build_tag( $tag, $atts, $content = null, $accepted = null ) {
+	public static function build_tag( $tag, $atts, $content = false, $accepted = null ) {
 		if ( is_null( $accepted ) ) {
 			$accepted = static::$accepted_attrs;
 		}
@@ -183,8 +185,10 @@ class Form {
 		}
 
 		if ( is_null( $content ) ) {
+			// Self closing tag
 			$html .= '/>';
 		} else {
+			// Add closing tag
 			$html .= ">$content</$tag>";
 		}
 
@@ -312,6 +316,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.4.1 Updated build_field call to includ $source argument.
 	 * @since 1.4.0 Added 'source' argument.
 	 * @since 1.3.0 Added 'wrap' argument.
 	 * @since 1.0.0
@@ -342,7 +347,7 @@ class Form {
 			// Run through each field; key is the field name, value is the settings
 			foreach ( $fields as $field => $settings ) {
 				make_associative( $field, $settings );
-				$html .= static::build_field( $field, $settings, $data, $wrap );
+				$html .= static::build_field( $field, $settings, $data, $source, $wrap );
 			}
 		}
 
