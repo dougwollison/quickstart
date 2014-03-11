@@ -416,6 +416,11 @@ class Form {
 			$settings['value'] = 1;
 		}
 
+		// Default the wrapper to right sided
+		if ( is_null( $wrapper ) ) {
+			$wrapper = array( 'right' );
+		}
+
 		// If the values match, mark as checked
 		if ( $value == $settings['value'] || ( is_array( $value ) && in_array( $settings['value'], $value ) ) ) {
 			$settings[] = 'checked';
@@ -530,7 +535,7 @@ class Form {
 
 			$build = "build_$type";
 
-			$items .= static::$build( $item_settings, $value, array('right', 'li') );
+			$items .= static::$build( $item_settings, $value, array( 'right', 'li' ) );
 		}
 
 		$settings['class'][] = 'inputlist';
