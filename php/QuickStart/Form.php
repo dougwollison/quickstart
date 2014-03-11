@@ -152,7 +152,6 @@ class Form {
 	/**
 	 * Build an HTML tag.
 	 *
-	 * @since 1.4.1 $content now must = false for self closing tags.
 	 * @since 1.0.0
 	 *
 	 * @param string $tag      The tag name.
@@ -316,7 +315,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
-	 * @since 1.4.1 Updated build_field call to includ $source argument.
+	 * @since 1.4.1 Updated build_field call to include $source argument.
 	 * @since 1.4.0 Added 'source' argument.
 	 * @since 1.3.0 Added 'wrap' argument.
 	 * @since 1.0.0
