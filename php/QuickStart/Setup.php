@@ -1195,6 +1195,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register and build a page
 	 *
+	 * @since 1.4.1 Fixed child page registration.
 	 * @since 1.2.0 Added child page registration from other methods.
 	 * @since 1.0.0
 	 *

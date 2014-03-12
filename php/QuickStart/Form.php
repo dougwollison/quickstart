@@ -406,6 +406,7 @@ class Form {
 	/**
 	 * Build a checkbox field.
 	 *
+	 * @since 1.4.1 Added modified default value for $wrapper
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
