@@ -1214,7 +1214,7 @@ class Setup extends \SmartPlugin {
 
 		// Run through any submenus in this page and set them up
 		if ( isset( $args['children'] ) ) {
-			$this->register_page( $args['children'], $page );
+			$this->register_pages( $args['children'], $page );
 		}
 	}
 
