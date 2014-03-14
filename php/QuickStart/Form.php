@@ -152,6 +152,7 @@ class Form {
 	/**
 	 * Build an HTML tag.
 	 *
+	 * @since 1.4.2 Updated boolean attribute handling
 	 * @since 1.0.0
 	 *
 	 * @param string $tag      The tag name.
@@ -174,6 +175,12 @@ class Form {
 			} else {
 				// Make sure it's a registerd attribute (or data- attribute)
 				if ( ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) continue;
+				
+				// Convert boolean attribute values (except value)
+				if ( $attr != 'value' && is_bool( $value ) ) {
+					// E.g. multiple="multiple"
+					$value = $value ? $attr : '';
+				}
 
 				if ( is_array( $value ) ) {
 					// Implode into a space separated list
