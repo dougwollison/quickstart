@@ -460,6 +460,7 @@ class Form {
 	/**
 	 * Build a select field.
 	 *
+	 * @since 1.4.2 Added [] to field name when multiple is true
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
@@ -467,8 +468,14 @@ class Form {
 	public static function build_select( $settings, $value, $wrapper = null ) {
 		$options = '';
 
+		// Ensure a values setting has been passed
 		if ( ! isset( $settings['values'] ) ) {
 			throw new Exception( 'Select fields MUST have a values parameter.' );
+		}
+		
+		// If multiple, add [] to the field name
+		if ( isset( $settings['multiple'] ) && $settings['multiple'] ) {
+			$settings['name'] .= '[]';
 		}
 
 		csv_array_ref( $settings['values'] );
