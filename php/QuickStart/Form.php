@@ -432,61 +432,6 @@ class Form {
 	}
 
 	/**
-	 * Build a checkbox field.
-	 *
-	 * @since 1.4.2 Added dummy input field for null value.
-	 * @since 1.4.1 Added modified default value for $wrapper.
-	 * @since 1.0.0
-	 *
-	 * @see Form::build_generic()
-	 */
-	public static function build_checkbox( $settings, $value, $wrapper = null ) {
-		// Default the value to 1 if it's a checkbox
-		if ( $settings['type'] == 'checkbox' && ! isset( $settings['value'] ) ) {
-			$settings['value'] = 1;
-		}
-
-		// Default the wrapper to right sided
-		if ( is_null( $wrapper ) ) {
-			$wrapper = array( 'right' );
-		}
-
-		// If the values match, mark as checked
-		if ( $value == $settings['value'] || ( is_array( $value ) && in_array( $settings['value'], $value ) ) ) {
-			$settings[] = 'checked';
-		}
-		
-		// Build the dummy <input>
-		$hidden = static::build_tag( 'input', array(
-			'type' => 'hidden',
-			'name' => preg_replace( '/\[\]$/', '', $settings['name'] ),
-			'value' => null
-		) );
-
-		// Build the actual <input>
-		$input = static::build_tag( 'input', $settings );
-
-		// Wrap the inputs in the html if needed
-		$html = static::maybe_wrap_field( $hidden . $input, $settings, $wrapper );
-
-		return $html;
-	}
-
-	/**
-	 * Build a radio field.
-	 *
-	 * This uses build_checkbox rather than build_generic,
-	 * since it's not a text-style input.
-	 *
-	 * @since 1.4.0
-	 *
-	 * @see Form::build_checkbox()
-	 */
-	public static function build_radio( $settings, $value, $wrapper = null ) {
-		return static::build_checkbox( $settings, $value, $wrapper );
-	}
-
-	/**
 	 * Build a select field.
 	 *
 	 * @since 1.4.2 Added [] to field name when multiple is true
@@ -534,8 +479,69 @@ class Form {
 	}
 
 	/**
+	 * Build a checkbox field.
+	 *
+	 * @since 1.4.2 Added $dummy argument and printing of dummy input for null value.
+	 * @since 1.4.1 Added modified default value for $wrapper.
+	 * @since 1.0.0
+	 *
+	 * @see Form::build_generic()
+	 *
+	 * @param bool $dummy Wether or not to print a hidden null input first.
+	 */
+	public static function build_checkbox( $settings, $value, $wrapper = null, $dummy = true ) {
+		// Default the value to 1 if it's a checkbox
+		if ( $settings['type'] == 'checkbox' && ! isset( $settings['value'] ) ) {
+			$settings['value'] = 1;
+		}
+
+		// Default the wrapper to right sided
+		if ( is_null( $wrapper ) ) {
+			$wrapper = array( 'right' );
+		}
+
+		// If the values match, mark as checked
+		if ( $value == $settings['value'] || ( is_array( $value ) && in_array( $settings['value'], $value ) ) ) {
+			$settings[] = 'checked';
+		}
+		
+		// Build the dummy <input> if enabled
+		$hidden = '';
+		if ( $dummy ) {
+			$hidden = static::build_tag( 'input', array(
+				'type' => 'hidden',
+				'name' => $settings['name'],
+				'value' => null
+			) );
+		}
+
+		// Build the actual <input>
+		$input = static::build_tag( 'input', $settings );
+
+		// Wrap the inputs in the html if needed
+		$html = static::maybe_wrap_field( $hidden . $input, $settings, $wrapper );
+
+		return $html;
+	}
+
+	/**
+	 * Build a radio field.
+	 *
+	 * This uses build_checkbox rather than build_generic,
+	 * since it's not a text-style input.
+	 *
+	 * @since 1.4.0
+	 *
+	 * @see Form::build_checkbox()
+	 */
+	public static function build_radio( $settings, $value, $wrapper = null, $dummy = true ) {
+		return static::build_checkbox( $settings, $value, $wrapper, $dummy );
+	}
+
+	/**
 	 * Build a checklist or radio list.
 	 *
+	 * @since 1.4.2 Added dummy input for null value
 	 * @since 1.4.0 Overhauled item building and wrapper handling.
 	 * @since 1.0.0
 	 *
@@ -579,7 +585,8 @@ class Form {
 
 			$build = "build_$type";
 
-			$items .= static::$build( $item_settings, $value, array( 'right', 'li' ) );
+			// Add the input, wrapped in a list item (and sans the dummy input)
+			$items .= static::$build( $item_settings, $value, array( 'right', 'li' ), false );
 		}
 
 		$settings['class'][] = 'inputlist';
@@ -590,9 +597,16 @@ class Form {
 		if ( is_null( $wrapper ) ) {
 			$wrapper = '<div class="qs-fieldset inputlist %type %wrapper_class %id"><p class="qs-legend">%label</p> %input</div>';
 		}
+		
+		// Build a dummy <input>
+		$hidden = static::build_tag( 'input', array(
+			'type' => 'hidden',
+			'name' => $settings['name'],
+			'value' => null
+		) );
 
 		// Optionally wrap the fieldset
-		$html = static::maybe_wrap_field( $list, $settings, $wrapper );
+		$html = static::maybe_wrap_field( $hidden . $list, $settings, $wrapper );
 
 		return $html;
 	}
