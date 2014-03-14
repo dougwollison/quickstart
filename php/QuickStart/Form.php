@@ -413,7 +413,8 @@ class Form {
 	/**
 	 * Build a checkbox field.
 	 *
-	 * @since 1.4.1 Added modified default value for $wrapper
+	 * @since 1.4.2 Added dummy input field for null value.
+	 * @since 1.4.1 Added modified default value for $wrapper.
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
@@ -433,12 +434,19 @@ class Form {
 		if ( $value == $settings['value'] || ( is_array( $value ) && in_array( $settings['value'], $value ) ) ) {
 			$settings[] = 'checked';
 		}
+		
+		// Build the dummy <input>
+		$hidden = static::build_tag( 'input', array(
+			'type' => 'hidden',
+			'name' => preg_replace( '/\[\]$/', '', $settings['name'] ),
+			'value' => null
+		) );
 
-		// Build the <input>
+		// Build the actual <input>
 		$input = static::build_tag( 'input', $settings );
 
-		// Wrap the input in the html if needed
-		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
+		// Wrap the inputs in the html if needed
+		$html = static::maybe_wrap_field( $hidden . $input, $settings, $wrapper );
 
 		return $html;
 	}
