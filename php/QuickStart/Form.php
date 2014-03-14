@@ -213,7 +213,7 @@ class Form {
 	 *
 	 * @param string $field    The name/id of the field.
 	 * @param array  $settings The settings to use in creating the field.
-	 * @param mixed  $data     The source for the value; use $type argument to specify.
+	 * @param mixed  $data     The source for the value; use $source argument to specify.
 	 * @param string $source   The type of value source; see static::get_value().
 	 * @param bool   $wrap     Default value for wrap_with_label option.
 	 *
@@ -247,9 +247,27 @@ class Form {
 
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
-
-		// Get the value to use, based on $source and data_name
-		$value = static::get_value( $data, $source, $settings['data_name'] );
+		
+		// Check if the "get_value" callback is present.
+		// Run it and use the returned value for building the field.
+		if ( isset( $settings['get_value'] ) && is_callable( $settings['get_value'] ) ) {
+			/**
+			 * Custom callback for getting the value to use for building the field.
+			 *
+			 * @since 1.4.2
+			 *
+			 * @param mixed  $source   The source for the value.
+			 * @param array  $settings The settings for the field.
+			 * @param string $field    The name of the field being built.
+			 * @param string $source   The type of value source.
+			 *
+			 * @return mixed The value to use for building the field.
+			 */
+			$value = call_user_func( $settings['get_value'], $data, $source, $settings, $field );
+		} else {
+			// Otherwise, use the built in get_value method
+			$value = static::get_value( $data, $source, $settings['data_name'] );
+		}
 
 		// Set a default value for the class setting;
 		// otherwise, make sure it's an array
@@ -259,9 +277,9 @@ class Form {
 			$settings['class'] = (array) $settings['class'];
 		}
 
-		// Check if the "get_values" key is present (and a callback),
-		// Apply it and replace "values" key with the returned value.
-		if ( isset ( $settings['get_values'] ) && is_callable( $settings['get_values'] ) ) {
+		// Check if the "get_values" callback is present,
+		// Run it and replace "values" key with the returned value.
+		if ( isset( $settings['get_values'] ) && is_callable( $settings['get_values'] ) ) {
 			/**
 			 * Custom callback for getting the values setting for the field.
 			 *
