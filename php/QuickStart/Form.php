@@ -11,15 +11,6 @@ namespace QuickStart;
 
 class Form {
 	/**
-	 * A list of accepted attributes for tag building.
-	 *
-	 * @since 1.0.0
-	 * @access public
-	 * @var array
-	 */
-	public static $accepted_attrs = array( 'accesskey', 'autocomplete', 'checked', 'class', 'cols', 'disabled', 'id', 'max', 'maxlength', 'min', 'multiple', 'name', 'placeholder', 'readonly', 'required', 'rows', 'size', 'style', 'tabindex', 'title', 'type', 'value' );
-
-	/**
 	 * Convert a field name to a valid ID
 	 *
 	 * @since 1.0.0
@@ -147,58 +138,6 @@ class Form {
 				// No processing required
 				return $data;
 		}
-	}
-
-	/**
-	 * Build an HTML tag.
-	 *
-	 * @since 1.4.2 Updated boolean attribute handling
-	 * @since 1.0.0
-	 *
-	 * @param string $tag      The tag name.
-	 * @param array  $atts     The tag attributes.
-	 * @param string $content  The tag content.
-	 * @param string $accepted The attribute whitelist.
-	 *
-	 * @return string The html of the tag.
-	 */
-	public static function build_tag( $tag, $atts, $content = false, $accepted = null ) {
-		if ( is_null( $accepted ) ) {
-			$accepted = static::$accepted_attrs;
-		}
-
-		$html = "<$tag";
-
-		foreach ( $atts as $attr => $value ) {
-			if ( is_numeric ( $attr ) ) {
-				$html .= " $value";
-			} else {
-				// Make sure it's a registerd attribute (or data- attribute)
-				if ( ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) continue;
-				
-				// Convert boolean attribute values (except value)
-				if ( $attr != 'value' && is_bool( $value ) ) {
-					// E.g. multiple="multiple"
-					$value = $value ? $attr : '';
-				}
-
-				if ( is_array( $value ) ) {
-					// Implode into a space separated list
-					$value = implode( ' ', $value );
-				}
-				$html .= " $attr=\"$value\"";
-			}
-		}
-
-		if ( is_null( $content ) ) {
-			// Self closing tag
-			$html .= '/>';
-		} else {
-			// Add closing tag
-			$html .= ">$content</$tag>";
-		}
-
-		return $html;
 	}
 
 	/**
@@ -403,7 +342,7 @@ class Form {
 		$settings['value'] = $value;
 
 		// Build the <input>
-		$input = static::build_tag( 'input', $settings );
+		$input = Tools::build_tag( 'input', $settings );
 
 		// Add the generic class to the wrapper classes
 		$settings['wrapper_class'] .= ' generic';
@@ -423,7 +362,7 @@ class Form {
 	 */
 	public static function build_textarea( $settings, $value, $wrapper = null ) {
 		// Build the <input>
-		$input = static::build_tag( 'textarea', $settings, $value );
+		$input = Tools::build_tag( 'textarea', $settings, $value );
 
 		// Wrap the input in the html if needed
 		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
@@ -471,7 +410,7 @@ class Form {
 		}
 
 		// Build the <select>
-		$input = static::build_tag( 'select', $settings, $options );
+		$input = Tools::build_tag( 'select', $settings, $options );
 
 		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
 
@@ -508,7 +447,7 @@ class Form {
 		// Build the dummy <input> if enabled
 		$hidden = '';
 		if ( $dummy ) {
-			$hidden = static::build_tag( 'input', array(
+			$hidden = Tools::build_tag( 'input', array(
 				'type' => 'hidden',
 				'name' => $settings['name'],
 				'value' => null
@@ -516,7 +455,7 @@ class Form {
 		}
 
 		// Build the actual <input>
-		$input = static::build_tag( 'input', $settings );
+		$input = Tools::build_tag( 'input', $settings );
 
 		// Wrap the inputs in the html if needed
 		$html = static::maybe_wrap_field( $hidden . $input, $settings, $wrapper );
@@ -592,14 +531,14 @@ class Form {
 		$settings['class'][] = 'inputlist';
 
 		// Build the list
-		$list = static::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
+		$list = Tools::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
 
 		if ( is_null( $wrapper ) ) {
 			$wrapper = '<div class="qs-fieldset inputlist %type %wrapper_class %id"><p class="qs-legend">%label</p> %input</div>';
 		}
 		
 		// Build a dummy <input>
-		$hidden = static::build_tag( 'input', array(
+		$hidden = Tools::build_tag( 'input', array(
 			'type' => 'hidden',
 			'name' => $settings['name'],
 			'value' => null

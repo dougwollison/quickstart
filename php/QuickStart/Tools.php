@@ -11,6 +11,70 @@ namespace QuickStart;
 
 class Tools {
 	/**
+	 * A list of accepted attributes for tag building.
+	 *
+	 * @since 1.5.0 Moved from Form to Tools class
+	 * @since 1.0.0
+	 *
+	 * @access public
+	 * @var array
+	 */
+	public static $accepted_attrs = array( 'accesskey', 'autocomplete', 'checked', 'class', 'cols', 'disabled', 'id', 'max', 'maxlength', 'min', 'multiple', 'name', 'placeholder', 'readonly', 'required', 'rows', 'size', 'style', 'tabindex', 'title', 'type', 'value' );
+
+	/**
+	 * Build an HTML tag.
+	 *
+	 * @since 1.5.0 Moved from Form to Tools class
+	 * @since 1.4.2 Updated boolean attribute handling
+	 * @since 1.0.0
+	 *
+	 * @param string $tag      The tag name.
+	 * @param array  $atts     The tag attributes.
+	 * @param string $content  The tag content.
+	 * @param string $accepted The attribute whitelist.
+	 *
+	 * @return string The html of the tag.
+	 */
+	public static function build_tag( $tag, $atts, $content = false, $accepted = null ) {
+		if ( is_null( $accepted ) ) {
+			$accepted = static::$accepted_attrs;
+		}
+
+		$html = "<$tag";
+
+		foreach ( $atts as $attr => $value ) {
+			if ( is_numeric ( $attr ) ) {
+				$html .= " $value";
+			} else {
+				// Make sure it's a registerd attribute (or data- attribute)
+				if ( ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) continue;
+				
+				// Convert boolean attribute values (except value)
+				if ( $attr != 'value' && is_bool( $value ) ) {
+					// E.g. multiple="multiple"
+					$value = $value ? $attr : '';
+				}
+
+				if ( is_array( $value ) ) {
+					// Implode into a space separated list
+					$value = implode( ' ', $value );
+				}
+				$html .= " $attr=\"$value\"";
+			}
+		}
+
+		if ( is_null( $content ) ) {
+			// Self closing tag
+			$html .= '/>';
+		} else {
+			// Add closing tag
+			$html .= ">$content</$tag>";
+		}
+
+		return $html;
+	}
+
+	/**
 	 * Load the requested helper files.
 	 *
 	 * @param mixed $helpers A name or array of helper files to load (sans extention)
