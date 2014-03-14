@@ -263,7 +263,7 @@ class Form {
 			 * @return mixed The value to use for building the field.
 			 */
 			$value = call_user_func( $settings['get_value'], $data, $source, $settings, $field );
-		} elseif( isset( $settings['post_field'] ) && $source == 'post' ) {
+		} elseif( isset( $settings['post_field'] ) && $settings['post_field'] && $source == 'post' ) {
 			// Alternately, if "post_field" is present (and the source is a post), get the matching field
 			$value = $data->{$settings['post_field']};
 		} else {
