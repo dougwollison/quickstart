@@ -204,7 +204,8 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
-	 * @since 1.4.0 Added 'source' argument.
+	 * @since 1.4.2 Added "get_value" and "post_field" option handling.
+	 * @since 1.4.0 Added $source argument.
 	 * @since 1.3.3 Added use of new make_label() method.
 	 * @since 1.3.0 Added $wrap argument for setting default wrap_with_label value,
 	 *				also merged filters into one, and added 'build' callback.
