@@ -494,6 +494,13 @@ class Setup extends \SmartPlugin {
 					$term = $args;
 					$args = array();
 				}
+				
+				// If $args is not an array, assume slug => name format
+				if ( ! is_array( $args ) ) {
+					$slug = $term;
+					$term = $args;
+					$args = array( 'slug' => $slug );
+				}
 
 				// Check if it exists, skip if so
 				if ( get_term_by( 'name', $term, $taxonomy ) ) {
