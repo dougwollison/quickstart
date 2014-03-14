@@ -666,7 +666,7 @@ class Setup extends \SmartPlugin {
 					}
 					
 					// If "post_field" is present, update the field, not a meta value
-					if ( isset( $setting['post_field'] ) && $settings['post_field'] ) {
+					if ( isset( $settings['post_field'] ) && $settings['post_field'] ) {
 						global $wpdb;
 						
 						// Directly update the entry in the database
