@@ -663,6 +663,21 @@ class Setup extends \SmartPlugin {
 					if ( isset( $settings['data_name'] ) ) {
 						$meta_key = $settings['data_name'];
 					}
+					
+					// If "post_field" is present, update the field, not a meta value
+					if ( isset( $setting['post_field'] ) && $settings['post_field'] ) {
+						global $wpdb;
+						
+						// Directly update the entry in the database
+						$wpdb->update( $wpdb->posts, array(
+							$settings['post_field'] => $_POST[ $post_key ],
+						), array(
+							'ID' => $post_id,
+						) );
+						
+						// We're done, next field
+						continue;
+					}
 				}
 
 				update_post_meta( $post_id, $meta_key, $_POST[ $post_key ] );
