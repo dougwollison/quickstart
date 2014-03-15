@@ -436,6 +436,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested taxonomy.
 	 *
+	 * @since 1.5.0 Added "static" option handling (custom taxonomy metabox)
 	 * @since 1.3.1 Removed Hooks::taxonomy_count call.
 	 * @since 1.0.0
 	 *
@@ -650,6 +651,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Setup the save hook for the meta box
 	 *
+	 * @since 1.5.0 Added taxonomy metabox saving.
 	 * @since 1.4.2 Added "post_field" update handling.
 	 * @since 1.2.0 Moved save check functionality to Tools::save_post_check().
 	 * @since 1.1.1 Fixed typo causing $args['fields'] saving to save the $_POST key, not the value.
