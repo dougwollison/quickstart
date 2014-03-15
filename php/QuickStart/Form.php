@@ -394,6 +394,11 @@ class Form {
 		csv_array_ref( $settings['values'] );
 
 		$is_assoc = is_assoc( $settings['values'] );
+		
+		// Add a null option if requested
+		if ( isset( $settings['null'] ) ) {
+			$options .= sprintf( '<option value="">%s</option>', $settings['null'] );
+		}
 
 		// Run through the values and build the options list
 		foreach ( $settings['values'] as $val => $label ) {
