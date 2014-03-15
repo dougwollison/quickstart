@@ -475,6 +475,25 @@ class Setup extends \SmartPlugin {
 
 		// Parse the arguments with the defaults
 		$args = wp_parse_args($args, $defaults);
+		
+		// Check for the "static" option, set it up
+		$static = false;
+		if ( isset( $args['static'] ) && $args['static'] ) {
+			$static = true;
+			
+			// Disable the default metabox
+			$args['meta_box_cb'] = false;
+			
+			$multiple = false;
+			// Default the "multiple" flag to false
+			if ( isset( $args['multiple'] ) ) {
+				$multiple = $args['multiple'];
+				unset( $args['multiple'] );
+			}
+			
+			// Remove the static argument before saving
+			unset( $args['static'] );
+		}
 
 		// Now, register the post type
 		register_taxonomy( $taxonomy, $args['post_type'], $args );
@@ -510,6 +529,21 @@ class Setup extends \SmartPlugin {
 				// Insert the term
 				wp_insert_term( $term, $taxonomy, $args );
 			}
+		}
+		
+		// Finish setting up the static taxonomy metabox if needed
+		if ( $static ) {
+			$this->register_meta_box( "$taxonomy-terms", array(
+				'title' => $taxonomy_obj->labels->name,
+				'post_type' => $taxonomy_obj->object_type,
+				'context' => 'side',
+				'priority' => 'core',
+				'name' => $taxonomy,
+				'type' => $multiple ? 'checklist' : 'select',
+				'class' => 'widefat static-terms',
+				'null' => '&mdash; None &mdash;',
+				'taxonomy' => $taxonomy,
+			) );
 		}
 
 		// Now that it's registered, fetch the resulting show_ui argument,
