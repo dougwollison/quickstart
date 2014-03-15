@@ -206,6 +206,18 @@ class Form {
 		} elseif( isset( $settings['post_field'] ) && $settings['post_field'] && $source == 'post' ) {
 			// Alternately, if "post_field" is present (and the source is a post), get the matching field
 			$value = $data->{$settings['post_field']};
+		} elseif( isset( $settings['taxonomy'] ) && $settings['taxonomy'] && $source == 'post' ) {
+			// Alternately, if "taxonomy" is present (and the source is a post), get the matching terms
+			
+			// Get the post_terms for $value
+			$post_terms = get_the_terms( $data->ID, $settings['taxonomy'] );
+			$value = array_map( function( $term ) {
+				return $term->term_id;
+			}, $post_terms );
+			
+			// Get the available terms for the values list
+			$tax_terms = get_terms( $settings['taxonomy'], 'hide_empty=0' );
+			$settings['values'] = simplify_object_array( $tax_terms, 'term_id', 'name' );
 		} else {
 			// Otherwise, use the built in get_value method
 			$value = static::get_value( $data, $source, $settings['data_name'] );
