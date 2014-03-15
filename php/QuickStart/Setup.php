@@ -720,6 +720,26 @@ class Setup extends \SmartPlugin {
 						// We're done, next field
 						continue;
 					}
+					
+					// If "taxonomy" is present, update the terms, not a meta value
+					if ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] ) {
+						// Default the terms to null
+						$terms = null;
+						
+						if ( ! empty( $_POST[ $post_key ] ) ) {
+							// Get the terms, ensure it's an array
+							$terms = (array) $_POST[ $post_key ];
+						
+							// Ensure the values are integers
+							$terms = array_map( 'intval', $terms );
+						}
+						
+						// Update the terms
+						wp_set_object_terms( $post_id, $terms, $settings['taxonomy'] );
+						
+						// We're done, next field
+						continue;
+					}
 				}
 
 				update_post_meta( $post_id, $meta_key, $_POST[ $post_key ] );
