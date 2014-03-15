@@ -12,8 +12,8 @@
  *
  * @since 1.0.0
  *
- * @param array $array The array of arguments.
- * @param int   $lenth The length to fill the array to.
+ * @param array $array  The array of arguments.
+ * @param int   $length The length to fill the array to.
  *
  * @return $array The newly filled array.
  */
@@ -24,6 +24,25 @@ function fill_array( &$array, $length ) {
 
 	$array += array_fill( 0, $length, null );
 
+	return $array;
+}
+
+/**
+ * Convert an associative array of objects into an associative array of scalars.
+ *
+ * @since 1.5.0
+ *
+ * @param array  $objects    The array of objects.
+ * @param string $key_prop   The property to use for the key.
+ * @param string $value_prop The property to use for the value.
+ *
+ * @return array The simplified array.
+ */
+function simplify_object_array( $objects, $key_prop, $value_prop ) {
+	$array = array();
+	foreach ( $objects as $object ) {
+		$array[ $object->$key_prop ] = $object->$value_prop;
+	}
 	return $array;
 }
 
