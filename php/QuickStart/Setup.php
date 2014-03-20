@@ -743,6 +743,8 @@ class Setup extends \SmartPlugin {
 						continue;
 					}
 				}
+				
+				$value = isset( $_POST[ $post_key ] ) ? $_POST[ $post_key ] : null;
 
 				update_post_meta( $post_id, $meta_key, $_POST[ $post_key ] );
 			}
