@@ -310,6 +310,11 @@ window.QS = window.QS || {};
 	QS.addFile = function( event ) {
 		var $elm = $( this );
 		
+		// If this is a button, update $elm to the parent qs-field
+		if ( $elm.hasClass('qs-button') ) {
+			$elm = $elm.parents('.qs-addfile');
+		}
+		
 		// Load the stored addFile configurations
 		var plugin = $elm.data('QS.addFile');
 		
@@ -449,6 +454,11 @@ window.QS = window.QS || {};
 	QS.editGallery = function( options ) {
 		var $elm = $( this );
 		
+		// If this is a button, update $elm to the parent qs-field
+		if ( $elm.hasClass('qs-button') ) {
+			$elm = $elm.parents('.qs-editgallery');
+		}
+		
 		// Load the stored editGallery configurations
 		var plugin = $elm.data('QS.editGallery');
 		
@@ -503,7 +513,7 @@ window.QS = window.QS || {};
 			plugin = _.extend( {}, defaults, options, attributes );
 			
 			// Query the trigger, container, and template elements if not present
-			autoQuery( plugin, [ 'trigger', 'preview', 'input' ] );
+			autoQuery( $elm, plugin, [ 'trigger', 'preview', 'input' ] );
 			
 			// Setup the insert hook and get the frame
 			plugin.frame = media.gallery( plugin, true );
@@ -595,8 +605,8 @@ window.QS = window.QS || {};
 
 	// Auto register hooks for addFile, setImage and editGallery
 	$(function() {
-		$( 'body' ).QS( '.qs-addfile', 'addFile' );
-		$( 'body' ).QS( '.qs-editgallery', 'editGallery' );
+		$( 'body' ).QS( '.qs-addfile .qs-button', 'addFile' );
+		$( 'body' ).QS( '.qs-editgallery .qs-button', 'editGallery' );
 	});
 
 })( jQuery );
