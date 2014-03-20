@@ -5,7 +5,7 @@ window.QS = window.QS || {};
 
 	/**
 	 * =========================
-	 * Utilities
+	 * Private Utilities
 	 * =========================
 	 */
 
@@ -22,35 +22,30 @@ window.QS = window.QS || {};
 	    	return $1.toUpperCase();
 	    });
 	}
+	
+	/**
+	 * Runs selected queries and creates new entries for those elements
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param jQuery $elm The base element to use.
+	 * @param object opts The options object to edit.
+	 * @param array  keys The specific keys to edit.
+	 */
+	function autoQuery( $elm, opts, keys ) {
+		_.each( keys, function( e ) {
+			var $e = '$' + e;
+			if ( ! opts[ $e ] ) {
+				opts[ $e ] = $elm.find( opts[ e ] );
+			}
+		});
+	}
 
 	/**
-	 * Proccess the options with the defaults,
-	 * also querying the $elements and returning
-	 * a new extended object.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param jQuery $elm     The jQuery element.
-	 * @param object options  The options to process.
-	 * @param object defaults The defaults to use.
+	 * =========================
+	 * Public Utilities
+	 * =========================
 	 */
-	function setupOptions( $elm, options, defaults ) {
-		var newOptions = _.extend( {}, defaults, options );
-		var k, v;
-
-		for ( k in newOptions ) {
-			v = newOptions[ k ];
-			if ( k.indexOf( '$' ) === 0 ) {
-				// This should be a jQuery element.
-				// if it's a string, query it.
-				if ( typeof v == 'string' ) {
-					newOptions[ k ] = $elm.find( v );
-				}
-			}
-		}
-
-		return newOptions;
-	}
 
 	_.extend( media, {
 		/**
@@ -106,12 +101,14 @@ window.QS = window.QS || {};
 		/**
 		 * Setup a new wp.media frame workflow, attach events, and set the trigger event.
 		 *
+		 * @since 1.5.0 Now can return frame instead of setting up trigger.
 		 * @since 1.0.0
 		 *
 		 * @param object attributes The attributes for the frame workflow.
 		 * @param object options    The options passed to the hook function.
+		 * @param bool   notrigger  Skip the trigger click event setup, return frame.
 		 */
-		init: function( attributes, options ) {
+		init: function( attributes, options, notrigger ) {
 			var frame = wp.media(attributes), $trigger;
 
 			//Run through each event and setup the handlers
@@ -127,6 +124,11 @@ window.QS = window.QS || {};
 			// passing the frame itself as an additional parameter, since it
 			// can't be linked into QS.media yet
 			frame.trigger( 'init', frame );
+			
+			// If not setting up the trigger, just return the initialized frame.
+			if ( notrigger ) {
+				return frame;
+			}
 
 			// Assign $trigger based on which is present in options
 			// If a special jQuery object is present, use that.
@@ -137,19 +139,21 @@ window.QS = window.QS || {};
 				$trigger = $( options.trigger );
 			}
 
-			//Create the click event for the trigger if present
+			// Create the click event for the trigger if present.
 			if ( $trigger.length > 0 ) {
 				$trigger.on( 'click', function( e ) {
 					e.preventDefault();
 
-					//Link the frame into QS.media
+					// Link the frame into QS.media
 					media.frame = frame;
-					//Link the trigger into QS.media
+					// Link the trigger into QS.media
 					media.trigger = $(this);
 
 					frame.open();
 				});
 			}
+			
+			return frame;
 		},
 
 		/**
@@ -198,11 +202,15 @@ window.QS = window.QS || {};
 		/**
 		 * Hook into the media manager frame for selecting and inserting an image.
 		 *
+		 * @since 1.5.0 Added notrigger argument, returns frame.
 		 * @since 1.0.0
 		 *
-		 * @param object options A list of options.
+		 * @param object options    A list of options.
+		 * @param bool   notrigger  Skip the trigger click event setup.
+		 *
+		 * @return Frame The new frame workflow.
 		 */
-		insert: function( options ) {
+		insert: function( options, notrigger ) {
 			var defaults = {
 				title:    'Insert Media',
 				choose:   'Insert Selected Media',
@@ -212,7 +220,7 @@ window.QS = window.QS || {};
 
 			options = _.extend( {}, defaults, options );
 
-			this.init( {
+			return this.init( {
 				title:    options.title,
 				choose:   options.choose,
 				multiple: options.multiple,
@@ -223,17 +231,21 @@ window.QS = window.QS || {};
 					text:  options.choose,
 					close: true
 				}
-			}, options );
+			}, options, notrigger );
 		},
 
 		/**
 		 * Hook into the media manager for editing galleries.
 		 *
+		 * @since 1.5.0 Added notrigger argument, returns frame.
 		 * @since 1.0.0
 		 *
 		 * @param object options A list of options.
+		 * @param bool   notrigger  Skip the trigger click event setup, return frame.
+		 *
+		 * @return Frame The new frame workflow.
 		 */
-		gallery: function( options ) {
+		gallery: function( options, notrigger ) {
 			var defaults = {
 				title:   'Edit Gallery',
 				trigger: '.qs-button'
@@ -244,16 +256,16 @@ window.QS = window.QS || {};
 			var gallery, attachments, selection;
 
 			if ( options.gallery !== undefined ) {
-				//If gallery was not a comma separated string, make it one
+				// If gallery was not a comma separated string, make it one
 				if ( typeof options.gallery != 'string' ) {
 					options.gallery = options.gallery.join( ',' );
 				}
 
-				//Generate and parse shortcode
+				// Generate and parse shortcode
 				gallery = wp.shortcode.next( 'gallery', '[gallery ids="' + options.gallery + '"]' );
 				gallery = gallery.shortcode;
 
-				//Get the attachments from the gallery shortcode
+				// Get the attachments from the gallery shortcode
 				attachments = wp.media.gallery.attachments( gallery );
 				selection = new wp.media.model.Selection( attachments.models, {
 					props:    attachments.props.toJSON(),
@@ -262,7 +274,7 @@ window.QS = window.QS || {};
 
 				selection.gallery = attachments.gallery;
 
-				//Fetch the query's attachments, and then break ties from the query to allow for sorting.
+				// Fetch the query's attachments, and then break ties from the query to allow for sorting.
 				selection.more().done(function() {
 					selection.props.set( { query: false });
 					selection.unmirror();
@@ -270,14 +282,14 @@ window.QS = window.QS || {};
 				});
 			}
 
-			this.init({
+			return this.init({
 				state:     'gallery-edit',
 				frame:     'post',
 				title:     options.title,
 				multiple:  true,
 				editing:   true,
 				selection: selection
-			}, options );
+			}, options, notrigger );
 		}
 	});
 
