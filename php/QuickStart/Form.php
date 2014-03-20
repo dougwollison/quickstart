@@ -664,9 +664,6 @@ class Form {
 			// A button to clear all items currently loaded
 			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
 
-			// Print an empty input, to allow the saving of nothing
-			$html .= sprintf( '<input type="hidden" name="%s" value="">', $name );
-
 			// Start the preview list container
 			$html .= '<div class="qs-container">';
 			// Print the items if present
