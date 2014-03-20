@@ -625,7 +625,7 @@ class Form {
 			}
 
 			// Add the input field for this item
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-input">', $name, $id );
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $name, $id );
 		$html .= '</div>';
 		return $html;
 	}
