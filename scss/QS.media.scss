@@ -10,16 +10,10 @@
 	&.multiple{
 		.qs-item{
 			padding: 5px 0;
-			border-bottom: 1px solid #eee;
-			cursor: move;
 		}
 			.qs-delete{
 				float: right;
 			}
-		.qs-container{
-			margin: 10px 0 0;
-			border-top: 1px solid #eee;
-		}
 	}
 	&.media-image{
 		.qs-item{

@@ -66,12 +66,36 @@
 	}
 }
 
-.qs-item{
-	@extend %clearfix;
-	background: rgba(#fff, .7);
-	position: relative;
+.qs-container{
+	margin: 10px 0 0;
+	border-top: 1px solid #eee;
 }
+	.qs-item{
+		@extend %clearfix;
+		background: rgba(#fff, .7);
+		position: relative;
+		border-bottom: 1px solid #eee;
+		cursor: move;
+	}
 
 .qs-template{
 	display: none;
+}
+
+.qs-repeater{
+	.qs-item{
+		border-bottom: 1px solid #eee;
+		cursor: move;
+	}
+		.qs-field{
+			float: left;
+			margin: 10px 10px 8px 0;
+		}
+			label{
+				display: block;
+			}
+		.qs-delete{
+			float: right;
+			margin: 10px 0 0;
+		}
 }
