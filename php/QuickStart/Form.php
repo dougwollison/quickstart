@@ -39,6 +39,7 @@ class Form {
 	/**
 	 * Generate the format string to use in sprintp
 	 *
+	 * @since 1.5.0 Added %id-field id.
 	 * @since 1.4.0
 	 *
 	 * @param string $side Which side the label should appear on (left/right).
@@ -499,6 +500,7 @@ class Form {
 	/**
 	 * Build a checklist or radio list.
 	 *
+	 * @since 1.5.0 Added %id-fieldset id.
 	 * @since 1.4.2 Added dummy input for null value
 	 * @since 1.4.0 Overhauled item building and wrapper handling.
 	 * @since 1.0.0
@@ -631,7 +633,7 @@ class Form {
 	/**
 	 * Build a file adder field.
 	 *
-	 * @since 1.4.0 Overhauled markup/functionality
+	 * @since 1.4.0 Overhauled markup/functionality.
 	 * @since 1.3.3
 	 *
 	 * @see Form::build_generic()
