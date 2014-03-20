@@ -298,25 +298,37 @@ window.QS = window.QS || {};
 	 * jQuery Plugins
 	 * =========================
 	 */
-
-	jQuery.fn.QS = function( plugin, options ) {
-		return $( this ).QS[ plugin ].call( this, options );
-	};
-
-	jQuery.fn.QS.addFile = function( options ) {
-		return $( this ).each(function() {
-			var $this = $( this );
-			var thisOptions;
-
-			// Determine multiple mode and media type
-			var multi = $this.hasClass('multiple');
-			var type  = $this.data('type');
-
+	
+	/**
+	 * Setup file adder functionality
+	 *
+	 * @since 1.5.0 Overhauled for live-plugin purposes
+	 * @since 1.2.0
+	 *
+	 * @param Event event The click event that triggered this.
+	 */
+	QS.addFile = function( event ) {
+		var $elm = $( this );
+		
+		// Load the stored addFile configurations
+		var plugin = $elm.data('QS.addFile');
+		
+		// Extract the passed options
+		var options = event.data;
+		
+		// Check if plugin data already exists, setup if not
+		if ( ! plugin ) {
+			// Check for multiple mode
+			var multi = $elm.hasClass( 'multiple' );
+			
+			// Get media type
+			var type = $elm.data( 'type' );
+			
 			// Title and choose button text
 			var title = 'Select ' + ucwords( type );
 			var choose = 'Use Selected ' + ucwords( type );
 
-			// Add "file" to text bits for non images
+			// Add " file" to text bits for non images
 			if ( type != 'image' ) {
 				title += ' File';
 				choose += ' File';
@@ -327,17 +339,24 @@ window.QS = window.QS || {};
 				title += 's';
 				choose += 's';
 			}
-
+			
 			var defaults = {
-				multiple:   multi,
-				$trigger:   '.qs-button', // will convert to jQuery object
-				$container: '.qs-container', // will convert to jQuery object
-				$template:  '.qs-template', // will convert to jQuery object
+				// Component selectors
+				trigger:    '.qs-button',
+				container:  '.qs-container',
+				template:   '.qs-template',
 				preview:    '.qs-preview',
-				input:      '.qs-input',
+				input:      '.qs-value',
+				
+				// GUI Text
 				title:      title,
 				choose:     choose,
+				
+				// Functionality Options
+				multiple:   multi,
 				media: 		type,
+				
+				// Events
 				events:     {
 					select: function() {
 						// Get the selected files
@@ -348,7 +367,7 @@ window.QS = window.QS || {};
 
 						// Empty the container if not in multiple mode
 						if ( ! multi ) {
-							thisOptions.$container.empty();
+							plugin.$container.empty();
 						}
 
 						// Loop through all attachments found
@@ -357,11 +376,11 @@ window.QS = window.QS || {};
 							attachment = attachments[ i ];
 
 							// Make a copty of the template item
-							item = thisOptions.$template.clone();
+							item = plugin.$template.clone();
 
 							// Get the preview and input elements
-							preview = item.find( thisOptions.preview );
-							input = item.find( thisOptions.input );
+							preview = item.find( plugin.preview );
+							input = item.find( plugin.input );
 
 							// Update preview accordingly
 							if ( preview.is( 'img' ) && attachment.type == 'image' ) {
@@ -376,7 +395,7 @@ window.QS = window.QS || {};
 							input.val( attachment.id );
 
 							// Add the item to the container
-							thisOptions.$container.append( item );
+							plugin.$container.append( item );
 
 							// No multiple = stop after the first one
 							if ( ! multi ) break;
@@ -384,74 +403,189 @@ window.QS = window.QS || {};
 					}
 				}
 			};
-
-			// Combine the options with the data args
-			$.extend( options, $this.data() );
-
-			// Process the options with the defaults
-			thisOptions = setupOptions( $this, options, defaults );
+			
+			// Get the data- attribute values that are allowed
+			var attributes = _.pick( $elm.data(), 'title', 'choose', 'trigger', 'container', 'template', 'preview', 'input' );
+			
+			// Merge options with the matching data- attribute values
+			plugin = _.extend( {}, defaults, options, attributes );
+			
+			// Query the trigger, container, and template elements if not present
+			autoQuery( $elm, plugin, [ 'trigger', 'container', 'template' ] );
 
 			// Create the template object
-			thisOptions.$template = $( thisOptions.$template.html() );
-
-			// Setup the media selector hook
-			media.insert( thisOptions );
+			plugin.$template = $( plugin.$template.html() );
+			
+			// Setup the insert hook and get the frame
+			plugin.frame = media.insert( plugin, true );
 
 			// Setup sortability if multiple
 			if ( multi ) {
-				thisOptions.$container.sortable( {
+				plugin.$container.sortable( {
 					items: '.qs-item',
 					axis: type == 'image' ? false : 'y', // If images, allow sideways sorting
 				} );
 			}
-		});
+			
+			// Store the plugin options for later use
+			$elm.data( 'QS.addFile', plugin );
+		}
+		
+		// Set this frame as the current frame
+		media.frame = plugin.frame;
+		
+		// Now, open the frame
+		plugin.frame.open();
 	};
-
-	jQuery.fn.QS.setImage = function( options ) {
-		// This just aliases to addFile,
-		// but ensures it's in image-only mode.
-		$( this ).data( 'media', 'image' );
-		return $( this ).QS( 'addFile', options );
-	};
-
-	jQuery.fn.QS.editGallery = function( options ) {
-		return $( this ).each(function() {
-			var $this = $(this);
-			var thisOptions;
+	
+	/**
+	 * Setup gallery editor functionality
+	 *
+	 * @since 1.5.0 Overhauled for live-plugin purposes
+	 * @since 1.0.0
+	 *
+	 * @param Event event The click event that triggered this.
+	 */
+	QS.editGallery = function( options ) {
+		var $elm = $( this );
+		
+		// Load the stored editGallery configurations
+		var plugin = $elm.data('QS.editGallery');
+		
+		// Extract the passed options
+		var options = event.data;
+		
+		// Check if plugin data already exists, setup if not
+		if ( ! plugin || ! plugin.frame ) {
 			var defaults = {
-				media:    'image',
-				$input:   '.qs-value', // will convert to jQuery object
-				$preview: '.qs-preview', // will convert to jQuery object
-				$trigger: '.qs-button', // will convert to jQuery object
-				title:    $this.text(),
-				events:   {
+				// Component selectors
+				trigger:    '.qs-button',
+				preview:    '.qs-preview',
+				input:      '.qs-value',
+				
+				// GUI Text
+				title:      $elm.text(),
+				
+				// Events
+				events:     {
 					update: function() {
+						// Get the attachments
 						var attachments = media.attachments();
-						var items = [];
-						var img;
+						
+						// Loop vars
+						var items = [], img;
 
-						thisOptions.$preview.empty();
+						// Empty the preview box
+						plugin.$preview.empty();
 
+						// Go through each attachment
 						for ( var i in attachments ) {
+							// Add the id to the items list
 							items.push( attachments[ i ].id );
+							
+							// Create a new image with the thumbnail URL
 							img = $( '<img src="' + attachments[ i ].sizes.thumbnail.url + '">' );
-							thisOptions.$preview.append( img );
+							
+							// Add the new image to the preview
+							plugin.$preview.append( img );
 						}
 
-						thisOptions.$input.val( items.join( ',' ) );
+						// Update the input with the id list
+						plugin.$input.val( items.join( ',' ) );
 					}
 				}
 			};
+			
+			// Get the data- attribute values that are allowed
+			var attributes = _.pick( $elm.data(), 'title', 'trigger', 'preview', 'input' );
+			
+			// Merge options with the matching data- attribute values
+			plugin = _.extend( {}, defaults, options, attributes );
+			
+			// Query the trigger, container, and template elements if not present
+			autoQuery( plugin, [ 'trigger', 'preview', 'input' ] );
+			
+			// Setup the insert hook and get the frame
+			plugin.frame = media.gallery( plugin, true );
+			
+			// Store the plugin options for later use
+			$elm.data( 'QS.editGallery', plugin );
+		}
+		
+		// Set this frame as the current frame
+		media.frame = plugin.frame;
+		
+		// Now, open the frame
+		plugin.frame.open();
+	};
+	
+	
+	/**
+	 * Setup image setter functionality
+	 *
+	 * @since 1.5.0 Modified to reflect live-plugin approach
+	 * @since 1.4.0 Converted to addFile alias
+	 * @since 1.0.0
+	 *
+	 * @param Event event The click event that triggered this.
+	 */
+	QS.setImage = function( event ) {
+		var $elm = $( this );
+		
+		// Ensure the type is set to image
+		$elm.data( 'type', 'image' );
+		
+		// Alias to the addFile method
+		return QS.addFile.call( this, event );
+	};
 
-			// Process the options with the defaults
-			thisOptions = setupOptions( $this, options, defaults );
-
-			// Preload with the current images
-			thisOptions.gallery = thisOptions.$input.val();
-
-			//Setup the media selector hook
-			media.gallery( thisOptions );
-		});
+	/**
+	 * Setup a QS plugin for an element
+	 *
+	 * @since 1.5.0 Overhauled for live-plugin purposes
+	 * @since 1.0.0
+	 *
+	 * @param string selector Optional. The selector to delegate the click event to.
+	 * @param string plugin   The name of the plugin to use.
+	 * @param object options  Optional. The custom options to pass to the plugin.
+	 */
+	jQuery.fn.QS = function( /* [selector,] plugin [, options] */ ) {
+		var selector, plugin, options;
+		
+		// Proceed based on number of arguments
+		switch ( arguments.length ) {
+			case 3: // ( selector, plugin, options )
+				selector = arguments[0];
+				plugin   = arguments[1];
+				options  = arguments[2];
+				break;
+			case 2: // ( selector, plugin ) OR ( plugin, options )
+				if ( typeof arguments[1] === 'string' ) {
+					// ( selector, plugin )
+					selector = arguments[0];
+					plugin   = arguments[1];
+				} else {
+					// ( plugin, options )
+					plugin   = arguments[1];
+					options  = arguments[2];
+				}
+				break;
+			case 1:
+				// ( plugin )
+				plugin = arguments[0];
+				break;
+			default:
+				return;
+		}
+		
+		var callback = QS[ plugin ];
+	
+		// Setup the (delegated) click event
+		if ( selector ) {
+			return $( this ).on( 'click', selector, options, callback );
+		} else {
+			return $( this ).on( 'click', options, callback );
+		}
 	};
 
 	// Clean up. Prevents mobile browsers caching
@@ -459,11 +593,10 @@ window.QS = window.QS || {};
 		window.QS = null;
 	});
 
-	// Auto register hooks for setImage and editGallery
+	// Auto register hooks for addFile, setImage and editGallery
 	$(function() {
-		$( '.qs-addfile' ).QS( 'addFile' );
-		$( '.qs-setimage' ).QS( 'setImage' );
-		$( '.qs-editgallery' ).QS( 'editGallery' );
+		$( 'body' ).QS( '.qs-addfile', 'addFile' );
+		$( 'body' ).QS( '.qs-editgallery', 'editGallery' );
 	});
 
 })( jQuery );
