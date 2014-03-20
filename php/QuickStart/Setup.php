@@ -136,7 +136,7 @@ class Setup extends \SmartPlugin {
 		if ( is_admin() && ( ! defined( 'QS_HELPERS_ENQUEUED' ) || ! QS_HELPERS_ENQUEUED ) ) {
 			Hooks::backend_enqueue( array(
 				'css' => array(
-					'qs-helpers-css' => array( plugins_url('/css/QS.helpers.css', QS_FILE ) ),
+					'qs-helpers-css' => array( plugins_url( '/css/QS.helpers.css', QS_FILE ) ),
 				),
 				'js' => array(
 					'qs-helpers-js' => array( plugins_url( '/js/QS.helpers.js', QS_FILE ), array( 'jquery' ) ),
@@ -845,7 +845,7 @@ class Setup extends \SmartPlugin {
 		// Enqueue the necessary scripts
 		Hooks::backend_enqueue( array(
 			'css' => array(
-				'qs-order-css' => array( plugins_url('/css/QS.order.css', QS_FILE ) ),
+				'qs-order-css' => array( plugins_url( '/css/QS.order.css', QS_FILE ) ),
 			),
 			'js' => array(
 				'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_FILE ), array( 'jquery-ui-sortable' ) ),
@@ -1077,7 +1077,7 @@ class Setup extends \SmartPlugin {
 				}
 
 				// Add the button to the appropriate row
-				$method = 'add_mce_buttons' . ( $row > 1 ? "_$row" : '');
+				$method = 'add_mce_buttons' . ( $row > 1 ? "_$row" : '' );
 				$this->$method( $button );
 			}
 
@@ -1329,7 +1329,7 @@ class Setup extends \SmartPlugin {
 	public function _register_page_settings( $page, $args ) {
 		// Run through any bare fields (assume belonging to default, which will be added automatically)
 		if ( isset( $args['fields'] ) ) {
-			add_settings_section('default', null, null, $page);
+			add_settings_section( 'default', null, null, $page );
 			$this->_register_settings( $args['fields'], 'default', $page );
 		}
 
