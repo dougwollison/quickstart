@@ -47,7 +47,7 @@ class Form {
 	 * @return string The generated format string.
 	 */
 	public static function build_field_wrapper( $side = 'left', $tag = 'div' ) {
-		$format = '<' . $tag . ' class="qs-field %type %wrapper_class %id-field">';
+		$format = '<' . $tag . ' class="qs-field %type %wrapper_class" id="%id-field">';
 
 		$label = '<label for="%id" class="qs-label">%label</label>';
 		if ( $side == 'right' ) {
@@ -553,7 +553,7 @@ class Form {
 		$list = Tools::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
 
 		if ( is_null( $wrapper ) ) {
-			$wrapper = '<div class="qs-fieldset inputlist %type %wrapper_class %id"><p class="qs-legend">%label</p> %input</div>';
+			$wrapper = '<div class="qs-fieldset inputlist %type %wrapper_class" id="%id-fieldset"><p class="qs-legend">%label</p> %input</div>';
 		}
 		
 		// Build a dummy <input>
