@@ -1,4 +1,8 @@
 jQuery(function($){
+	function randStr(){
+		return Math.round(Math.random() * 100000000).toString(36);
+	}
+
 	$( 'body' ).on( 'click', '.qs-delete', function() {
 		$( this ).parents( '.qs-item' ).animate({
 			height:  'toggle',
