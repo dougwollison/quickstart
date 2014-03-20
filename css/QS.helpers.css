@@ -41,9 +41,27 @@
   float: left;
   margin: 0 10px 0 0; }
 
+.qs-container {
+  margin: 10px 0 0;
+  border-top: 1px solid #eee; }
+
 .qs-item {
   background: rgba(255, 255, 255, 0.7);
-  position: relative; }
+  position: relative;
+  border-bottom: 1px solid #eee;
+  cursor: move; }
 
 .qs-template {
   display: none; }
+
+.qs-repeater .qs-item {
+  border-bottom: 1px solid #eee;
+  cursor: move; }
+.qs-repeater .qs-field {
+  float: left;
+  margin: 10px 10px 8px 0; }
+.qs-repeater label {
+  display: block; }
+.qs-repeater .qs-delete {
+  float: right;
+  margin: 10px 0 0; }
