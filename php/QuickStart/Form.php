@@ -735,4 +735,100 @@ class Form {
 
 		return $html;
 	}
+	
+	/**
+	 * Build a single repeater item.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	private static function build_repeater_item( $repeater, $item = null, $i = -1 ) {
+		$fields = csv_array( $repeater['template'] );
+
+		$html = '<div class="qs-item">';
+			if ( is_callable( $fields ) ) {
+				/**
+				 * Custom callback for building a repeater item.
+				 *
+				 * @since 1.5.0
+				 *
+				 * @param mixed  $item The data for this item.
+				 * @param int    $i The index of this item.
+				 * @param string $name The name of this repeater's field.
+				 * @param array  $settings The settings for this repeater.
+				 *
+				 * @return string The HTML of the repeater item.
+				 */
+				$html .= call_user_func( $fields, $item, $i );
+			} elseif ( is_array( $fields ) ) {
+				// Loop through each field in the template, and build them
+				foreach ( $fields as $field => $settings ) {
+					make_associative( $field, $settings );
+					
+					// Create the name for the field
+					$settings['name'] = sprintf( '%s[%d][%s]', $repeater['name'], $i, $field );
+					
+					// Create the ID for the field
+					$settings['id'] = static::make_id( $field ) . '-';
+					
+					// Add a unique string to the end of the ID or a % placeholder for the blank
+					$settings['id'] .= $i == -1 ? '%' : substr( md5( $field.$i ), 0, 6 );
+					
+					// Set the value for the field
+					if ( is_null( $item ) || ! isset( $item[ $field ] ) ) {
+						$value = '';
+					} else {
+						$value = $item[ $field ];
+					}
+					
+					// Finally, build the field
+					$html .= static::build_field( $field, $settings, $value );
+				}
+			}
+			$html .= '<button type="button" class="button qs-delete">Delete</button>';
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Build a repeater interface.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_repeater( $settings, $data ) {
+		if ( ! isset( $settings['template'] ) ) {
+			throw new Exception( 'Repeater fields MUST have a template parameter.' );
+		}
+
+		// Get the value to use, based on $source and the data_name
+		$values = static::get_value( $data, $source, $field );
+
+		// Write the repeater container
+		$html = sprintf( '<div class="qs-repeater" id="%s-repeater">', $settings['name'] );
+			// Write the add item button
+			$html .= '<button type="button" class="button qs-add">Add Item</button>';
+
+			// Write the repeater item template
+			$html .= '<template class="qs-template">';
+				$html .= static::build_repeater_item( $settings );
+			$html .= '</template>';
+
+			
+			// Write the existing items if present
+			$html .= '<div class="qs-container">';
+			if ( $values ) {
+				// Loop through each entry in the data, write the items
+				foreach ( $values as $i => $item ) {
+					$html .= static::build_repeater_item( $settings, $item, $i );
+				}
+			}
+			$html .= '</div>';
+		$html .= '</div>';
+
+		return $html;
+	}
 }
