@@ -70,12 +70,23 @@
 	margin: 10px 0 0;
 	border-top: 1px solid #eee;
 }
+.qs-sortable{
+	padding: 10px;
+	background: #fff;
+	margin: 10px 0;
+}
 	.qs-item{
 		@extend %clearfix;
+		display: block;
 		background: rgba(#fff, .7);
 		position: relative;
 		border-bottom: 1px solid #eee;
 		cursor: move;
+		padding: 5px 0;
+
+		.qs-delete{
+			float: right;
+		}
 	}
 
 .qs-template{
@@ -83,19 +94,11 @@
 }
 
 .qs-repeater{
-	.qs-item{
-		border-bottom: 1px solid #eee;
-		cursor: move;
+	.qs-field{
+		float: left;
+		margin: 10px 10px 8px 0;
 	}
-		.qs-field{
-			float: left;
-			margin: 10px 10px 8px 0;
-		}
-			label{
-				display: block;
-			}
-		.qs-delete{
-			float: right;
-			margin: 10px 0 0;
+		label{
+			display: block;
 		}
 }
