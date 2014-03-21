@@ -65,6 +65,8 @@
 
 .qs-repeater .qs-field {
   float: left;
-  margin: 10px 10px 8px 0; }
+  margin: 4px 10px 4px 0; }
 .qs-repeater label {
   display: block; }
+.qs-repeater .qs-delete {
+  margin-top: 5px; }
