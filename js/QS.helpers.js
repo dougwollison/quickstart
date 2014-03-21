@@ -19,6 +19,13 @@ jQuery(function($){
 			$( this ).remove();
 		});
 	});
+
+	$( '.qs-sortable' ).each(function() {
+		$( this ).sortable({
+			items: '.qs-item',
+			containment: 'parent'
+		});
+	});
 	
 	$( '.qs-repeater' ).each(function() {
 		var repeater = $( this );
