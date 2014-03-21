@@ -96,9 +96,12 @@
 .qs-repeater{
 	.qs-field{
 		float: left;
-		margin: 10px 10px 8px 0;
+		margin: 4px 10px 4px 0;
 	}
 		label{
 			display: block;
+		}
+		.qs-delete{
+			margin-top: 5px;
 		}
 }
