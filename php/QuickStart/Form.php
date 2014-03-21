@@ -189,7 +189,7 @@ class Form {
 
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
-		
+
 		// Get the value to use, first by checking if the "get_value" callback is present
 		if ( isset( $settings['get_value'] ) && is_callable( $settings['get_value'] ) ) {
 			/**
@@ -210,13 +210,13 @@ class Form {
 			$value = $data->{$settings['post_field']};
 		} elseif( isset( $settings['taxonomy'] ) && $settings['taxonomy'] && $source == 'post' ) {
 			// Alternately, if "taxonomy" is present (and the source is a post), get the matching terms
-			
+
 			// Get the post_terms for $value
 			$post_terms = get_the_terms( $data->ID, $settings['taxonomy'] );
 			$value = array_map( function( $term ) {
 				return $term->term_id;
 			}, $post_terms );
-			
+
 			// Get the available terms for the values list
 			$tax_terms = get_terms( $settings['taxonomy'], 'hide_empty=0' );
 			$settings['values'] = simplify_object_array( $tax_terms, 'term_id', 'name' );
@@ -400,7 +400,7 @@ class Form {
 		if ( ! isset( $settings['values'] ) ) {
 			throw new Exception( 'Select fields MUST have a values parameter.' );
 		}
-		
+
 		// If multiple, add [] to the field name
 		if ( isset( $settings['multiple'] ) && $settings['multiple'] ) {
 			$settings['name'] .= '[]';
@@ -409,7 +409,7 @@ class Form {
 		csv_array_ref( $settings['values'] );
 
 		$is_assoc = is_assoc( $settings['values'] );
-		
+
 		// Add a null option if requested
 		if ( isset( $settings['null'] ) ) {
 			$options .= sprintf( '<option value="">%s</option>', $settings['null'] );
@@ -463,7 +463,7 @@ class Form {
 		if ( $value == $settings['value'] || ( is_array( $value ) && in_array( $settings['value'], $value ) ) ) {
 			$settings[] = 'checked';
 		}
-		
+
 		// Build the dummy <input> if enabled
 		$hidden = '';
 		if ( $dummy ) {
@@ -557,7 +557,7 @@ class Form {
 		if ( is_null( $wrapper ) ) {
 			$wrapper = '<div class="qs-fieldset inputlist %type %wrapper_class" id="%id-fieldset"><p class="qs-legend">%label</p> %input</div>';
 		}
-		
+
 		// Build a dummy <input>
 		$hidden = Tools::build_tag( 'input', array(
 			'type' => 'hidden',
@@ -734,7 +734,7 @@ class Form {
 
 		return $html;
 	}
-	
+
 	/**
 	 * Build a single repeater item.
 	 *
@@ -764,23 +764,23 @@ class Form {
 				// Loop through each field in the template, and build them
 				foreach ( $fields as $field => $settings ) {
 					make_associative( $field, $settings );
-					
+
 					// Create the name for the field
 					$settings['name'] = sprintf( '%s[%d][%s]', $repeater['name'], $i, $field );
-					
+
 					// Create the ID for the field
 					$settings['id'] = static::make_id( $field ) . '-';
-					
+
 					// Add a unique string to the end of the ID or a % placeholder for the blank
 					$settings['id'] .= $i == -1 ? '%' : substr( md5( $field.$i ), 0, 6 );
-					
+
 					// Set the value for the field
 					if ( is_null( $item ) || ! isset( $item[ $field ] ) ) {
 						$value = '';
 					} else {
 						$value = $item[ $field ];
 					}
-					
+
 					// Finally, build the field
 					$html .= static::build_field( $field, $settings, $value );
 				}
@@ -803,20 +803,31 @@ class Form {
 			throw new Exception( 'Repeater fields MUST have a template parameter.' );
 		}
 
+		// Get the field name
+		$name = $settings['name'];
+
 		// Get the value to use, based on $source and the data_name
 		$values = static::get_value( $data, $source, $field );
 
+		// If the label seems auto generated, modify the label text to Add/Choose
+		if ( $settings['label'] == make_legible( $name ) ) {
+			$settings['label'] = 'Add ' . $settings['label'];
+		}
+
 		// Write the repeater container
-		$html = sprintf( '<div class="qs-repeater" id="%s-repeater">', $settings['name'] );
-			// Write the add item button
-			$html .= '<button type="button" class="button qs-add">Add Item</button>';
+		$html = sprintf( '<div class="qs-repeater" id="%s-repeater">', $name );
+			// The button to open the media manager
+			$html .= '<button type="button" class="button button-primary qs-button">' . $settings['label'] . '</button>';
+
+			// A button to clear all items currently loaded
+			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
 
 			// Write the repeater item template
 			$html .= '<template class="qs-template">';
 				$html .= static::build_repeater_item( $settings );
 			$html .= '</template>';
 
-			
+
 			// Write the existing items if present
 			$html .= '<div class="qs-container">';
 			if ( $values ) {
