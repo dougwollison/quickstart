@@ -8,10 +8,6 @@
   padding: 5px 0;
   margin: 0;
   font-style: italic; }
-.qs-addfile.multiple .qs-item {
-  padding: 5px 0; }
-.qs-addfile.multiple .qs-delete {
-  float: right; }
 .qs-addfile.media-image .qs-item {
   float: left;
   width: 156px;
