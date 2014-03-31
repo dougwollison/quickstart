@@ -476,22 +476,22 @@ class Setup extends \SmartPlugin {
 
 		// Parse the arguments with the defaults
 		$args = wp_parse_args($args, $defaults);
-		
+
 		// Check for the "static" option, set it up
 		$static = false;
 		if ( isset( $args['static'] ) && $args['static'] ) {
 			$static = true;
-			
+
 			// Disable the default metabox
 			$args['meta_box_cb'] = false;
-			
+
 			$multiple = false;
 			// Default the "multiple" flag to false
 			if ( isset( $args['multiple'] ) ) {
 				$multiple = $args['multiple'];
 				unset( $args['multiple'] );
 			}
-			
+
 			// Remove the static argument before saving
 			unset( $args['static'] );
 		}
@@ -514,7 +514,7 @@ class Setup extends \SmartPlugin {
 					$term = $args;
 					$args = array();
 				}
-				
+
 				// If $args is not an array, assume slug => name format
 				if ( ! is_array( $args ) ) {
 					$slug = $term;
@@ -531,7 +531,7 @@ class Setup extends \SmartPlugin {
 				wp_insert_term( $term, $taxonomy, $args );
 			}
 		}
-		
+
 		// Finish setting up the static taxonomy metabox if needed
 		if ( $static ) {
 			$this->register_meta_box( "$taxonomy-terms", array(
@@ -605,8 +605,8 @@ class Setup extends \SmartPlugin {
 		} elseif ( ! isset( $args['fields'] ) && ! isset( $args['callback'] ) ) {
 			// No separate fields list or callback passed
 
-			// Turn off wrapping by default
-			if ( ! isset( $args['wrap_with_label'] ) ) {
+			// Turn off wrapping by default, unless a label is set
+			if ( ! isset( $args['wrap_with_label'] ) && ! isset( $args['label'] ) ) {
 				$args['wrap_with_label'] = false;
 			}
 
@@ -707,43 +707,43 @@ class Setup extends \SmartPlugin {
 					if ( isset( $settings['data_name'] ) ) {
 						$meta_key = $settings['data_name'];
 					}
-					
+
 					// If "post_field" is present, update the field, not a meta value
 					if ( isset( $settings['post_field'] ) && $settings['post_field'] ) {
 						global $wpdb;
-						
+
 						// Directly update the entry in the database
 						$wpdb->update( $wpdb->posts, array(
 							$settings['post_field'] => $_POST[ $post_key ],
 						), array(
 							'ID' => $post_id,
 						) );
-						
+
 						// We're done, next field
 						continue;
 					}
-					
+
 					// If "taxonomy" is present, update the terms, not a meta value
 					if ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] ) {
 						// Default the terms to null
 						$terms = null;
-						
+
 						if ( ! empty( $_POST[ $post_key ] ) ) {
 							// Get the terms, ensure it's an array
 							$terms = (array) $_POST[ $post_key ];
-						
+
 							// Ensure the values are integers
 							$terms = array_map( 'intval', $terms );
 						}
-						
+
 						// Update the terms
 						wp_set_object_terms( $post_id, $terms, $settings['taxonomy'] );
-						
+
 						// We're done, next field
 						continue;
 					}
 				}
-				
+
 				$value = isset( $_POST[ $post_key ] ) ? $_POST[ $post_key ] : null;
 
 				update_post_meta( $post_id, $meta_key, $_POST[ $post_key ] );
