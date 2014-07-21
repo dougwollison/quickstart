@@ -15,6 +15,11 @@
  * @param object $post The post to be chopped up
  */
 function post_chunks( $post ) {
+	// Just in case, make sure $post is even an object
+	if ( ! is_object( $post ) ) {
+		return;
+	}
+	
 	$post->post_content = preg_replace( '/(<!--more-->)((?:\s*<\/\w+>\s*)+)/', '$2$1', $post->post_content );
 
 	$post->chunks = explode( '<!--more-->', $post->post_content );
