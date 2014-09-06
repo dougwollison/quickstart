@@ -24,6 +24,7 @@ class Tools {
 	/**
 	 * Build an HTML tag.
 	 *
+	 * @since 1.6.0 Revised handling of boolean attributes.
 	 * @since 1.5.0 Moved from Form to Tools class
 	 * @since 1.4.2 Updated boolean attribute handling
 	 * @since 1.0.0
@@ -44,16 +45,14 @@ class Tools {
 
 		foreach ( $atts as $attr => $value ) {
 			if ( is_numeric ( $attr ) ) {
+				// Boolean attributes; method 1
 				$html .= " $value";
+			} else if ( in_array( $attr, $accepted ) && $attr != 'value' && is_bool( $value ) ) {
+				// Boolean attributes, method 2
+				$html .= $value ? " $attr" : '';
 			} else {
 				// Make sure it's a registerd attribute (or data- attribute)
 				if ( ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) continue;
-				
-				// Convert boolean attribute values (except value)
-				if ( $attr != 'value' && is_bool( $value ) ) {
-					// E.g. multiple="multiple"
-					$value = $value ? $attr : '';
-				}
 
 				if ( is_array( $value ) ) {
 					// Implode into a space separated list

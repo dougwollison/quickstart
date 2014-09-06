@@ -501,6 +501,7 @@ class Form {
 	/**
 	 * Build a checklist or radio list.
 	 *
+	 * @since 1.6.0 Added checked_first support.
 	 * @since 1.5.0 Added %id-fieldset id.
 	 * @since 1.4.2 Added dummy input for null value
 	 * @since 1.4.0 Overhauled item building and wrapper handling.
@@ -521,8 +522,9 @@ class Form {
 		csv_array_ref( $settings['values'] );
 		$is_assoc = is_assoc( $settings['values'] );
 
-		$items = '';
-		// Run through the values and build the input list
+		$items = array();
+		$i = 0;
+		// Run through the values and prep the input list
 		foreach ( $settings['values'] as $val => $label ) {
 			if ( ! $is_assoc ) {
 				$val = $label;
@@ -530,6 +532,7 @@ class Form {
 
 			// Build the settings for the item
 			$item_settings = array(
+				'qs-order'        => $i,
 				'type'            => $type,
 				'id'              => $settings['id'] . '__' . sanitize_key( $val ),
 				'name'            => $settings['name'],
@@ -544,11 +547,41 @@ class Form {
 				$item_settings['name'] .= '[]';
 			}
 
+			// If the values match, mark as checked
+			$item_settings['checked'] = $value == $item_settings['value'] || ( is_array( $value ) && in_array( $item_settings['value'], $value ) );
+
+			// Add the settings to the item list
+			$items[] = $item_settings;
+
+			$i++;
+		}
+		
+		// Sort the items with the checked ones first if desired
+		if ( isset( $settings['checked_first'] ) && $settings['checked_first'] ) {
+			usort( $items, function($a, $b){
+				$a_checked = $a['checked'] ? 1 : 0;
+				$b_checked = $b['checked'] ? 1 : 0;
+	
+				if ( $a_checked == $b_checked ) {
+					// Maintain original order otherwise
+					return $a['qs-order'] - $b['qs-order'];
+				}
+	
+				return $a_checked > $b_checked ? -1 : 1;
+			});
+		}
+
+		// Now actually build the input list
+		foreach ( $items as &$item ){
+			// Get the type to determine the callback to use
+			$type = $item['type'];
 			$build = "build_$type";
 
 			// Add the input, wrapped in a list item (and sans the dummy input)
-			$items .= static::$build( $item_settings, $value, array( 'right', 'li' ), false );
+			$item = static::$build( $item, null, array( 'right', 'li' ), false );
 		}
+
+		$items = implode('', $items);
 
 		$settings['class'][] = 'inputlist';
 
