@@ -168,6 +168,7 @@ function _process_n_form( $string, $rules ) {
 /**
  * Convert a string to plural form... or at least try to.
  *
+ * @since 1.6.0 Fixed missing e on ch/x/s-es
  * @since 1.0.0
  *
  * @param string $string The string that is to be converted to plural form.
@@ -180,7 +181,7 @@ function pluralize( $string ) {
  		array( '/man$/', 'men' ), // woman => women
 		array( '/(fe?)$/i', '$1ves' ), // half => halves, knife > knives
 		array( '/([^aeiou])y$/', '$1ies' ),  // baby => babies
-		array( '/(ch|x|s)$/', '$1s' ), // batch => batches, box => boxes, bus => buses
+		array( '/(ch|x|s)$/', '$1es' ), // batch => batches, box => boxes, bus => buses
 		array( '/$/', 's' ) // thing => things
 	);
 
