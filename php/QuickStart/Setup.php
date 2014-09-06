@@ -379,6 +379,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested post_type.
 	 *
+	 * @since 1.6.0 Modified handling of save_post callback to Tools::post_type_save().
 	 * @since 1.2.0 Added use of save argument for general save_post callback.
 	 * @since 1.0.0
 	 *
@@ -414,7 +415,7 @@ class Setup extends \SmartPlugin {
 
 		// If a save hook is passed, register it
 		if ( isset( $args['save'] ) ) {
-			add_action( 'save_post', $args['save'] );
+			Hooks::post_type_save( $post_type, $args['save'] );
 		}
 
 		// Now that it's registered, fetch the resulting show_in_menu argument,

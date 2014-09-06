@@ -20,6 +20,7 @@ class Hooks extends \SmartPlugin {
 	protected static $static_method_hooks = array(
 		'fix_shortcodes'    => array( 'the_content', 10, 1 ),
 		'disable_quickedit' => array( 'post_row_actions', 10, 2 ),
+		'post_type_save'    => array( 'save_post', 10, 1 ),
 		'post_type_count'   => array( 'dashboard_glance_items', 10, 1 ),
 		'taxonomy_filter'   => array( 'restrict_manage_posts', 10, 0 ),
 		'frontend_enqueue'  => array( 'wp_enqueue_scripts', 10, 0 ),
@@ -63,6 +64,22 @@ class Hooks extends \SmartPlugin {
 			unset($actions['inline hide-if-no-js']);
 		}
 		return $actions;
+	}
+	
+	/**
+	 * Call the save_post hook for a specific post_type.
+	 *
+	 * Runs passed callback after running Tools::save_post_check()
+	 *
+	 * @since 1.6.0
+	 *
+	 * @param int $post_id The ID of the post being saved (skip when saving).
+	 * @param string $post_type The post_type this callback is intended for.
+	 * @param callback $callback The callback to run after the check.
+	 */
+	protected function _post_type_save( $post_id, $post_type, $callback ) {
+		if ( ! Tools::save_post_check( $post_id, $post_type ) ) return;
+		call_user_func( $callback, $post_id );
 	}
 
 	/**
