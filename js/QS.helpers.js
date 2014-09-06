@@ -12,12 +12,23 @@ jQuery(function($){
 		});
 	}).on( 'click', '.qs-clear', function() {
 		var parent = $( this ).parent();
-		parent.find( '.qs-item' ).animate({
-			height:  'toggle',
-			opacity: 'toggle'
-		}, function() {
-			$( this ).remove();
-		});
+
+		if ( parent.hasClass( 'qs-editgallery' ) ) {
+			parent.find( '.qs-preview' ).animate({
+				height:  'toggle',
+				opacity: 'toggle'
+			}, function() {
+				$( this ).empty().show();
+			});
+			parent.find( '.qs-value' ).val( '' );
+		} else {
+			parent.find( '.qs-item' ).animate({
+				height:  'toggle',
+				opacity: 'toggle'
+			}, function() {
+				$( this ).remove();
+			});
+		}
 	});
 
 	$( '.qs-sortable' ).each(function() {

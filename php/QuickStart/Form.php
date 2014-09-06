@@ -713,6 +713,7 @@ class Form {
 	/**
 	 * Build a gallery editor field.
 	 *
+	 * @since 1.6.0 Added clear button.
 	 * @since 1.4.0 Added semi-intelligent button text guessing.
 	 * @since 1.0.0
 	 *
@@ -726,6 +727,7 @@ class Form {
 
 		$html = '<div class="qs-field qs-media qs-editgallery">';
 			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
+			$html .= '<button type="button" class="button qs-clear">Clear</button>';
 			$html .= '<div class="qs-preview">';
 			foreach ( explode( ',', $value ) as $image ) {
 				$html .= wp_get_attachment_image( $image, 'thumbnail' );
