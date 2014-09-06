@@ -39,9 +39,10 @@ class Hooks extends \SmartPlugin {
 		$tags = implode( '|', $tags );
 
 		// Strip closing p tags and opening p tags from beginning/end of string
-		$content = preg_replace( '#^\s*(?:</p>)\s*([\s\S]+)\s*(?:<p.*?>)\s*$#', '$1', $content );
+		$content = preg_replace( '#^\s*(?:</p>)\s*([\s\S]+)\s*(?:<p[^>]*?>)\s*$#', '$1', $content );
+
 		// Unwrap tags
-		$content = preg_replace( "#(?:<p.*?>)?(\[/?(?:$tags).*\])(?:</p>)?#", '$1', $content );
+		$content = preg_replace( "#(?:<p[^>]*?>)?(\[/?(?:$tags).*?\])(?:</p>)?#", '$1', $content );
 
 		return $content;
 	}
