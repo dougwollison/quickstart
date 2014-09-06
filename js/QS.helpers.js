@@ -27,13 +27,16 @@ window.QS = window.QS || {};
 		 	}
 		 
 			// Get all the first level items
-			var collection = $.makeArray( parent.find( item ) );
+			var collection = parent.children( item );
 			
 			if ( method === 'flip' ) {
-				collection.reverse();
+				// Since jQuery has no reverse method...
+				collection.each(function(){
+					$(this).prependTo( parent );
+				});
 			} else {
 				// Sort based on data attribute
-				collection.sort(function( a, b ){
+				collection.sort(function( a, b ) {
 					var a_ = $(a).data( method );
 					var b_ = $(b).data( method );
 			
@@ -43,10 +46,13 @@ window.QS = window.QS || {};
 			
 					return a_ > b_ ? 1 : -1;
 				});
+				
+				// Reload list with sorted items
+				collection.detach().appendTo( parent );
 			}
 			
-			// Reload list with sorted items and refresh
-			parent.empty().append( collection ).sortable( 'refresh' );
+			// Refresh the sortability
+			parent.sortable( 'refresh' );
 		 }
 	 });
 
@@ -103,7 +109,7 @@ jQuery(function($){
 	});
 
 	// Quick Sort buttons
-	$( '.qs-sort button' ).click(function(){
+	$( '.qs-field' ).on( 'click', '.qs-sort button', function(){
 		var method = $(this).val();
 		var parent = $(this).parents( '.qs-field' );
 

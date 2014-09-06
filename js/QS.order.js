@@ -44,11 +44,11 @@ jQuery(function( $ ) {
 		.nestedSortable( nestedSortableOptions );
 
 	// Quick Sort buttons
-	$( '.qs-sort button' ).click(function(){
+	$( '.qs-order-manager' ).on( 'click', '.qs-sort button', function(){
 		var method = $(this).val();
 
 		if ( method ) {
-			QS.helpers.sortItems( '.qs-order-manager > ol', '> li', method );
+			QS.helpers.sortItems( '.qs-order-manager > ol', 'li', method );
 		}
 	});
 });

@@ -69,15 +69,16 @@ class Features {
 				<?php wp_nonce_field( 'manage_menu_order', '_qsnonce' )?>
 				<div class="qs-order-manager <?php if ( $post_type->hierarchical ) echo 'qs-nested'?>">
 					<?php static::menu_order_list( $posts, $post_type->hierarchical )?>
+					
+					<?php if ( ! $post_type->hierarchical ) :?>
+					<p class="qs-sort">
+						<label>Quick Sort:</label>
+						<button type="button" class="button-secondary" value="name">Alphabetical</button>
+						<button type="button" class="button-secondary" value="date">Date</button>
+						<button type="button" class="button-secondary" value="flip">Reverse</button>
+					</p>
+					<?php endif;?>
 				</div>
-				<?php if ( ! $post_type->hierarchical ) :?>
-				<p class="qs-sort">
-					<label>Quick Sort:</label>
-					<button type="button" class="button-secondary" value="name">Alphabetical</button>
-					<button type="button" class="button-secondary" value="date">Date</button>
-					<button type="button" class="button-secondary" value="flip">Reverse</button>
-				</p>
-				<?php endif;?>
 				<button type="submit" class="button-primary">Save Order</button>
 			</form>
 		</div>
