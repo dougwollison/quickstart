@@ -29,6 +29,7 @@ class Hooks extends \SmartPlugin {
 	/**
 	 * Setup filter to unwrap shortcodes for proper processing.
 	 *
+	 * @since 1.6.0 Slightly refined regular expression.
 	 * @since 1.0.0
 	 *
 	 * @param string $content The post content to process. (skip when saving).

@@ -302,6 +302,7 @@ window.QS = window.QS || {};
 	/**
 	 * Setup file adder functionality
 	 *
+	 * @since 1.6.0 Added check for existence of thumbnail version
 	 * @since 1.5.0 Overhauled for live-plugin purposes
 	 * @since 1.2.0
 	 *
