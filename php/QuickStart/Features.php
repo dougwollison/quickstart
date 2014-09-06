@@ -46,6 +46,7 @@ class Features {
 	 *
 	 * Prints a sortable list of all posts of a specific type, to manage menu_order.
 	 *
+	 * @since 1.6.0 Fixed use of nested/hierarchical aspect.
 	 * @since 1.4.0 Added use of $nested option.
 	 * @since 1.0.0
 	 */
@@ -67,7 +68,7 @@ class Features {
 			<form method="post" action="edit.php">
 				<?php wp_nonce_field( 'manage_menu_order', '_qsnonce' )?>
 				<div class="qs-order-manager <?php if ( $post_type->hierarchical ) echo 'qs-nested'?>">
-					<?php static::menu_order_list($posts)?>
+					<?php static::menu_order_list( $posts, $post_type->hierarchical )?>
 				</div>
 				<button type="submit" class="button-primary">Save Order</button>
 			</form>
