@@ -98,8 +98,35 @@ class Hooks extends \SmartPlugin {
 	}
 
 	/**
+	 * Utility for _taxonomy_filter.
+	 *
+	 * Prints options for categories for a specific parent.
+	 *
+	 * @since 1.6.0
+	 *
+	 * @param string $taxonomy The name of the taxonomy to get terms from.
+	 * @param string $selected The slug of the currently selected term.
+	 * @param int    $parent   The current parent term to get terms from.
+	 * @param int    $depth    The current depth, for indenting purposes.
+	 */
+	protected static function taxonomy_filter_options( $taxonomy, $selected, $parent = 0, $depth = 0 ) {
+		// Get the terms for this level
+		$terms = get_terms( $taxonomy, 'parent=' . $parent );
+
+		$space = str_repeat( '&nbsp;', $depth * 3 );
+
+		foreach ( $terms as $term ) {
+			// Print the option
+			printf( '<option value="%s" %s>%s</option>', $term->slug, $term->slug == $selected ? 'selected' : '', $space . $term->name );
+
+			self::taxonomy_filter_options( $taxonomy, $selected, $term->term_id, $depth + 1 );
+		}
+	}
+
+	/**
 	 * Add a dropdown for filtering by the custom taxonomy.
 	 *
+	 * @since 1.6.0 Now supports hierarchical terms via use of taxonomy_filter_options().
 	 * @since 1.0.0
 	 *
 	 * @param object $taxonomy The taxonomy object to build from.
@@ -109,13 +136,11 @@ class Hooks extends \SmartPlugin {
 		$taxonomy = get_taxonomy( $taxonomy );
 		if ( in_array( $typenow, $taxonomy->object_type ) ) {
 			$var = $taxonomy->query_var;
-			$selected = isset( $_GET[$var] ) ? $_GET[$var] : null;
+			$selected = isset( $_GET[ $var ] ) ? $_GET[ $var ] : null;
 
 			echo "<select name='$var'>";
 				echo '<option value="">Show ' . $taxonomy->labels->all_items . '</option>';
-				foreach ( get_terms( $taxonomy->name ) as $term ) {
-					echo '<option value="' . $term->slug . '" ' . ($term->slug == $selected ? 'selected' : '') . '>' . $term->name . '</option>';
-				}
+				self::taxonomy_filter_options( $taxonomy->name, $selected );
 			echo '</select>';
 		}
 	}
