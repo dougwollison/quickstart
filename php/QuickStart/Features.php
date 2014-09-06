@@ -46,7 +46,7 @@ class Features {
 	 *
 	 * Prints a sortable list of all posts of a specific type, to manage menu_order.
 	 *
-	 * @since 1.6.0 Fixed use of nested/hierarchical aspect.
+	 * @since 1.6.0 Fixed use of nested/hierarchical aspect, added quicksort buttons.
 	 * @since 1.4.0 Added use of $nested option.
 	 * @since 1.0.0
 	 */
@@ -70,6 +70,12 @@ class Features {
 				<div class="qs-order-manager <?php if ( $post_type->hierarchical ) echo 'qs-nested'?>">
 					<?php static::menu_order_list( $posts, $post_type->hierarchical )?>
 				</div>
+				<p class="qs-sort">
+					<label>Quick Sort:</label>
+					<button type="button" class="button-secondary" value="name">Alphabetical</button>
+					<button type="button" class="button-secondary" value="date">Date</button>
+					<button type="button" class="button-secondary" value="flip">Reverse</button>
+				</p>
 				<button type="submit" class="button-primary">Save Order</button>
 			</form>
 		</div>
