@@ -633,6 +633,7 @@ class Form {
 	/**
 	 * Build a file adder field.
 	 *
+	 * @since 1.6.0 Added qs-sortable class and data-axis attribute.
 	 * @since 1.4.0 Overhauled markup/functionality.
 	 * @since 1.3.3
 	 *
