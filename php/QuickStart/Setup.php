@@ -139,7 +139,7 @@ class Setup extends \SmartPlugin {
 					'qs-helpers-css' => array( plugins_url( '/css/QS.helpers.css', QS_FILE ) ),
 				),
 				'js' => array(
-					'qs-helpers-js' => array( plugins_url( '/js/QS.helpers.js', QS_FILE ), array( 'jquery' ) ),
+					'qs-helpers-js' => array( plugins_url( '/js/QS.helpers.js', QS_FILE ), array( 'underscore', 'jquery' ) ),
 				),
 			) );
 			define( 'QS_HELPERS_ENQUEUED', true );

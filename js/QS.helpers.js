@@ -1,8 +1,63 @@
+window.QS = window.QS || {};
+
+(function( $ ) {
+	var helpers = window.QS.helpers = {};
+
+	/**
+	 * =========================
+	 * Public Utilities
+	 * =========================
+	 */
+	 
+	 _.extend( helpers, {
+		/**
+		 * Sort some elements by a specified method.
+		 *
+		 * @since 1.6.0
+		 *
+		 * @param string|jQuery parent The parent element's selector or jQuery object.
+		 * @param string        item   The item element's selector.
+		 * @param string        method The method to sort by ('flip' or a data-attribute).
+		 *
+		 * @return array The sorted collection of elements.
+		 */
+		 sortItems: function( parent, item, method ) {
+		 	if ( typeof parent === 'string' ) {
+			 	parent = $( parent );
+		 	}
+		 
+			// Get all the first level items
+			var collection = $.makeArray( parent.find( item ) );
+			
+			if ( method === 'flip' ) {
+				collection.reverse();
+			} else {
+				// Sort based on data attribute
+				collection.sort(function( a, b ){
+					var a_ = $(a).data( method );
+					var b_ = $(b).data( method );
+			
+					if ( a_ === b_ ){
+						return 0;
+					}
+			
+					return a_ > b_ ? 1 : -1;
+				});
+			}
+			
+			// Reload list with sorted items and refresh
+			parent.empty().append( collection ).sortable( 'refresh' );
+		 }
+	 });
+
+})( jQuery );
+
 jQuery(function($){
 	function randStr(){
 		return Math.round(Math.random() * 100000000).toString(36);
 	}
 
+	// Delete item button setup
 	$( 'body' ).on( 'click', '.qs-delete', function() {
 		$( this ).parents( '.qs-item' ).animate({
 			height:  'toggle',
@@ -10,10 +65,14 @@ jQuery(function($){
 		}, function() {
 			$( this ).remove();
 		});
-	}).on( 'click', '.qs-clear', function() {
+	});
+	
+	// Clear items button setup
+	$( 'body' ).on( 'click', '.qs-clear', function() {
 		var parent = $( this ).parent();
 
 		if ( parent.hasClass( 'qs-editgallery' ) ) {
+			// Empty the gallery preview and input value
 			parent.find( '.qs-preview' ).animate({
 				height:  'toggle',
 				opacity: 'toggle'
@@ -22,6 +81,7 @@ jQuery(function($){
 			});
 			parent.find( '.qs-value' ).val( '' );
 		} else {
+			// Remove all items
 			parent.find( '.qs-item' ).animate({
 				height:  'toggle',
 				opacity: 'toggle'
@@ -31,6 +91,7 @@ jQuery(function($){
 		}
 	});
 
+	// Sortable setup
 	$( '.qs-sortable' ).each(function() {
 		var axis = $( this ).data( 'axis' );
 
@@ -40,7 +101,18 @@ jQuery(function($){
 			axis: axis ? axis : false,
 		});
 	});
+
+	// Quick Sort buttons
+	$( '.qs-sort button' ).click(function(){
+		var method = $(this).val();
+		var parent = $(this).parents( '.qs-field' );
+
+		if ( method ) {
+			QS.helpers.sortItems( parent.find( '.qs-container' ), '.qs-item', method );
+		}
+	});
 	
+	// Repeater setup
 	$( '.qs-repeater' ).each(function() {
 		var repeater = $( this );
 		var container = repeater.find( '.qs-container' );

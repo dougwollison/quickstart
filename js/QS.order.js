@@ -1,3 +1,5 @@
+window.QS = window.QS || {};
+
 jQuery(function( $ ) {
 	// Create the sortable options
 	var sortableOptions = {
@@ -46,30 +48,7 @@ jQuery(function( $ ) {
 		var method = $(this).val();
 
 		if ( method ) {
-			// Get all the first level items
-			var collection = $.makeArray( $( '.qs-order-manager > ol > li' ) );
-	
-			if ( method === 'flip' ) {
-				collection.reverse();
-			} else {
-				// Sort based on data attribute
-				collection.sort(function( a, b ){
-					var a_ = $(a).data( method );
-					var b_ = $(b).data( method );
-	
-					if ( a_ === b_ ){
-						return 0;
-					}
-	
-					return a_ > b_ ? 1 : -1;
-				});
-			}
-	
-			// Reload list with sorted items and refresh
-			$( '.qs-order-manager > ol' )
-				.empty()
-				.append( collection )
-				.sortable( 'refresh' );
+			QS.helpers.sortItems( '.qs-order-manager > ol', '> li', method );
 		}
 	});
 });
