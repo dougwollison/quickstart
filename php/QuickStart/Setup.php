@@ -767,6 +767,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Add the meta box to WordPress
 	 *
+	 * @since 1.6.0 Added qs_metabox_ prefix to metabox id.
 	 * @since 1.0.0
 	 *
 	 * @param string $meta_box The slug of the meta box to register.
@@ -776,9 +777,9 @@ class Setup extends \SmartPlugin {
 		$post_types = csv_array( $args['post_type'] );
 		foreach ( $post_types as $post_type ) {
 			add_meta_box(
-				$meta_box,
+				'qs_metabox_' . $meta_box,
 				$args['title'],
-				array( __NAMESPACE__.'\Tools', 'build_meta_box' ),
+				array( __NAMESPACE__ . '\Tools', 'build_meta_box' ),
 				$post_type,
 				$args['context'],
 				$args['priority'],

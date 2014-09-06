@@ -144,6 +144,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.6.0 Added qs_field_ prefix to field id.
 	 * @since 1.5.0 Added "taxonomy" option handling.
 	 * @since 1.4.2 Added "get_value" and "post_field" option handling.
 	 * @since 1.4.0 Added $source argument.
@@ -179,7 +180,7 @@ class Form {
 
 		$default_settings = array(
 			'type'            => 'text',
-			'id'              => static::make_id( $field ),
+			'id'              => 'qs_field_' . static::make_id( $field ),
 			'name'            => $field,
 			'label'           => static::make_label( $field ),
 			'data_name'       => $field, // The name of the postmeta or option to retrieve
