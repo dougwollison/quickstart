@@ -448,6 +448,7 @@ window.QS = window.QS || {};
 	/**
 	 * Setup gallery editor functionality
 	 *
+	 * @since 1.6.0 Fixed/added preloading of gallery items from input's value
 	 * @since 1.5.0 Overhauled for live-plugin purposes
 	 * @since 1.0.0
 	 *
@@ -516,6 +517,11 @@ window.QS = window.QS || {};
 			
 			// Query the trigger, container, and template elements if not present
 			autoQuery( $elm, plugin, [ 'trigger', 'preview', 'input' ] );
+
+			// If no gallery is defined, use the input's value
+			if ( plugin.gallery === undefined ) {
+				plugin.gallery = plugin.$input.val();
+			}
 			
 			// Setup the insert hook and get the frame
 			plugin.frame = media.gallery( plugin, true );
