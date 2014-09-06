@@ -10,6 +10,7 @@
 /**
  * Creates the teaser from a post of a specified length.
  *
+ * @since 1.6.0 Reworked to properly handle $use_excerpt boolean.
  * @since 1.0.0
  *
  * @param int    $length      Optional The length, in words, that the teaser should be.
@@ -25,38 +26,43 @@ function get_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = 
 	}
 
 	if ( is_string( $post ) ) {
-		// $post is $content string
+		// $post is the $content string.
 		$content = $post;
-	} elseif ( $post->post_excerpt ) {
-		// excerpt exists, make it the $content
-		$excerpt = true;
+	} elseif ( $use_excerpt && $post->post_excerpt ) {
+		// post_excerpt allowed and present, use it.
+		$more = true;
 		$content = $post->post_excerpt;
 	} elseif ( strpos( $post->post_content, '<!--more-->' ) ) {
-		// content contains more tag, extract all text preceding first tag
-		$excerpt = true;
+		// <more> tag(s) present, extract all content preceding the first tag.
+		$more = true;
 		$content = preg_replace( '/^([\s\S]+?)<!--more-->[\s\S]+/', '$1', $post->post_content );
-	} elseif ( ! ( $content = get_the_excerpt() ) ) {
-		// cannot get the excerpt, just use post_content
+	} else {
+		// default to just the post_content.
 		$content = $post->post_content;
 	}
 
-	// Strip out HTML tags
+	// Strip out HTML tags...
 	$content = strip_tags( $content );
+	// ...and excess space.
+	$content = preg_replace( '/(?:\s|&nbsp;)+/', ' ', $content );
 
-	// If we should use an excerpt and one is set, return content immediately and set $more to true
-	if ( $use_excerpt && $excerpt ) {
-		$more = true;
+	if ( $more ) {
+		// Defined excerpt of some kind available; return it.
 		return $content;
 	}
 
-	// Explode content into separate words
+	// Create an excerpt of $length words.
 	$words = explode( ' ', $content );
 	if ( count( $words ) > $length ) {
-		// If content contains more then $length words, trim and set $more to true, then return teaser with desired trailer
+		// More words than needed, trim it, and flag $more as true.
 		$more = true;
 		array_splice( $words, $length );
+
+		// Return generated excerpt, with desired trailer.
 		return implode( ' ', $words ) . $trailer;
 	}
+
+	// By default, return full content
 	return $content;
 }
 
