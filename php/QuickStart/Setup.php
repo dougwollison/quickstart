@@ -268,6 +268,7 @@ class Setup extends \SmartPlugin {
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined
 	 * within a post_type configuration.
 	 *
+	 * @since 1.6.0 Add metaboxes/features numerically to prevent overwriting.
 	 * @since 1.3.3 Removed callback chek on feature args.
 	 * @since 1.2.0 Added check for dumb metabox setup
 	 * @since 1.0.0
@@ -339,7 +340,10 @@ class Setup extends \SmartPlugin {
 					$mb_args['post_type'] = array( $post_type );
 
 					// Add this feauture to features list
-					$configs['meta_boxes'][ $meta_box ] = $mb_args;
+					$configs['meta_boxes'][] = array(
+						'id' => $meta_box,
+						'args' => $mb_args,
+					);
 					//and remove from this post type
 					unset( $pt_args['meta_boxes'][ $meta_box ] );
 				}
@@ -355,7 +359,10 @@ class Setup extends \SmartPlugin {
 					$ft_args['post_type'] = array( $post_type );
 
 					// Add this feauture to features list
-					$configs['features'][ $feature ] = $ft_args;
+					$configs['features'][] = array(
+						'id' => $feature,
+						'args' => $ft_args,
+					);
 					//and remove from this post type
 					unset( $pt_args['features'][ $feature ] );
 				}
@@ -638,13 +645,18 @@ class Setup extends \SmartPlugin {
 	 *
 	 * Simply loops through and calls Setup::register_meta_box()
 	 *
+	 * @since 1.6.0 Handle metaboxes added numerically via run_content_setups().
 	 * @since 1.0.0
 	 *
 	 * @param array $meta_boxes The list of meta boxes to register.
 	 */
 	public function register_meta_boxes( array $meta_boxes ) {
 		foreach ( $meta_boxes as $meta_box => $args ) {
-			make_associative( $meta_box, $args );
+			if ( ! make_associative( $meta_box, $args ) ) {
+				// Metabox was added numerically, assume id, args format.
+				$meta_box = $args['id'];
+				$args = $args['args'];
+			}
 			$this->register_meta_box( $meta_box, $args );
 		}
 	}
@@ -800,13 +812,18 @@ class Setup extends \SmartPlugin {
 	 *
 	 * Simply loops through and calls Setup::_register_feature()
 	 *
+	 * @since 1.6.0 Handle features added numerically via run_content_setups().
 	 * @since 1.0.0
 	 *
 	 * @param array $feature The list of features to register.
 	 */
 	public function _setup_features( $features ) {
 		foreach ( $features as $feature => $args ) {
-			make_associative( $feature, $args );
+			if ( ! make_associative( $feature, $args ) ) {
+				// Feature was added numerically, assume id, args format.
+				$feature = $args['id'];
+				$args = $args['args'];
+			}
 			$this->_setup_feature( $feature, $args );
 		}
 	}
@@ -818,6 +835,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Setup an order manager for certain post types
 	 *
+	 * @since 1.6.0 Added check if enqueues were already handled.
 	 * @since 1.0.0
 	 *
 	 * @param array $args A list of options for the order manager.
@@ -845,16 +863,19 @@ class Setup extends \SmartPlugin {
 
 		add_action( 'admin_init', $callback );
 
-		// Enqueue the necessary scripts
-		Hooks::backend_enqueue( array(
-			'css' => array(
-				'qs-order-css' => array( plugins_url( '/css/QS.order.css', QS_FILE ) ),
-			),
-			'js' => array(
-				'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_FILE ), array( 'jquery-ui-sortable' ) ),
-				'qs-order-js' => array( plugins_url( '/js/QS.order.js', QS_FILE ), array( 'jquery-ui-nested-sortable' ) ),
-			),
-		) );
+		// Enqueue the necessary scripts if not already
+		if ( is_admin() && ( ! defined( 'QS_ORDER_ENQUEUED' ) || ! QS_ORDER_ENQUEUED ) ) {
+			Hooks::backend_enqueue( array(
+				'css' => array(
+					'qs-order-css' => array( plugins_url( '/css/QS.order.css', QS_FILE ) ),
+				),
+				'js' => array(
+					'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_FILE ), array( 'jquery-ui-sortable' ) ),
+					'qs-order-js' => array( plugins_url( '/js/QS.order.js', QS_FILE ), array( 'jquery-ui-nested-sortable' ) ),
+				),
+			) );
+			define( 'QS_ORDER_ENQUEUED', true );
+		}
 
 		// Setup the admin pages for each post type
 		foreach ( $post_types as $post_type ) {
