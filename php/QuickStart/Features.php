@@ -87,6 +87,7 @@ class Features {
 	/**
 	 * Build the tree of posts.
 	 *
+	 * @since 1.6.0 Added post_date to results selecting.
 	 * @since 1.4.0 Added $nested argument.
 	 * @since 1.0.0
 	 *
@@ -105,7 +106,7 @@ class Features {
 
 		// Fetch the posts for the specified parent
 		$posts = $wpdb->get_results( $wpdb->prepare( "
-			SELECT ID, post_title, post_parent
+			SELECT ID, post_title, post_parent, post_date
 			FROM $wpdb->posts
 			WHERE post_type = %s
 			AND post_status != 'auto-draft'
@@ -127,6 +128,7 @@ class Features {
 	/**
 	 * Print out the tree of posts.
 	 *
+	 * @since 1.6.0 Added data attributes for quick sort purposes.
 	 * @since 1.4.0 Added $nested argument.
 	 * @since 1.0.0
 	 *
@@ -137,7 +139,7 @@ class Features {
 		?>
 		<ol>
 		<?php foreach ( $posts as $post ) : ?>
-			<li>
+			<li data-date="<?php echo strtotime($post->post_date)?>" data-name="<?php echo sanitize_title($post->post_title)?>">
 				<div class="inner">
 					<input type="hidden" class="qs-order-id" name="menu_order[]" value="<?php echo $post->ID?>">
 					<?php if ( $nested ) : ?>
