@@ -70,7 +70,7 @@ function is_assoc( $array ) {
  * @param mixed $fill   The new value for $value.
  */
 function make_associative( &$key, &$value, $fill = array() ) {
-	if ( is_int( $key ) ) {
+	if ( is_int( $key ) && is_string( $value ) ) {
 		$key = $value;
 		$value = $fill;
 	}
