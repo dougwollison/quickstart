@@ -1,5 +1,12 @@
 @import 'utilities';
 
+.qs-media{
+	.qs-container{
+		padding: 0;
+		background: transparent;
+	}
+}
+
 .qs-addfile{
 	.qs-preview{
 		float: left;

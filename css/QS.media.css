@@ -3,6 +3,10 @@
   display: table;
   clear: both; }
 
+.qs-media .qs-container {
+  padding: 0;
+  background: transparent; }
+
 .qs-addfile .qs-preview {
   float: left;
   padding: 5px 0;

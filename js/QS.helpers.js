@@ -21,9 +21,12 @@ jQuery(function($){
 	});
 
 	$( '.qs-sortable' ).each(function() {
+		var axis = $( this ).data( 'axis' );
+
 		$( this ).sortable({
 			items: '.qs-item',
-			containment: 'parent'
+			containment: 'parent',
+			axis: axis ? axis : false,
 		});
 	});
 	

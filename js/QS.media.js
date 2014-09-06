@@ -429,14 +429,6 @@ window.QS = window.QS || {};
 			
 			// Setup the insert hook and get the frame
 			plugin.frame = media.insert( plugin, true );
-
-			// Setup sortability if multiple
-			if ( multi ) {
-				plugin.$container.sortable( {
-					items: '.qs-item',
-					axis: type == 'image' ? false : 'y', // If images, allow sideways sorting
-				} );
-			}
 			
 			// Store the plugin options for later use
 			$elm.data( 'QS.addFile', plugin );

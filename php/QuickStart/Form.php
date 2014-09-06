@@ -664,8 +664,8 @@ class Form {
 			// A button to clear all items currently loaded
 			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
 
-			// Start the preview list container
-			$html .= '<div class="qs-container">';
+			// Start the preview list container, adding sortable class and axis if needed
+			$html .= sprintf( '<div class="qs-container %s" %s>', $multi ? 'qs-sortable' : '', $is_image ? '' : 'data-axis="y"' );
 			// Print the items if present
 			if ( $value ) {
 				// Process into an appropriate array
