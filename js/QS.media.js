@@ -390,7 +390,12 @@ window.QS = window.QS || {};
 							// Update preview accordingly
 							if ( preview.is( 'img' ) && attachment.type == 'image' ) {
 								// Preview is an image, update the source
-								preview.attr( 'src', attachment.sizes.thumbnail.url );
+								// Preview is an image, update the source
+								if ( typeof attachment.sizes.thumbnail != 'undefined' ) {
+									preview.attr( 'src', attachment.sizes.thumbnail.url );
+								} else {
+									preview.attr( 'src', attachment.sizes.full.url );
+								}
 							} else {
 								// Preview should be a span, update the content
 								preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
