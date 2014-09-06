@@ -436,6 +436,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested taxonomy.
 	 *
+	 * @since 1.6.0 Updated static replacement metabox title based on $multiple
 	 * @since 1.5.0 Added "static" option handling (custom taxonomy metabox)
 	 * @since 1.3.1 Removed Hooks::taxonomy_count call.
 	 * @since 1.0.0
@@ -535,7 +536,7 @@ class Setup extends \SmartPlugin {
 		// Finish setting up the static taxonomy metabox if needed
 		if ( $static ) {
 			$this->register_meta_box( "$taxonomy-terms", array(
-				'title' => $taxonomy_obj->labels->name,
+				'title' => ($multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name),
 				'post_type' => $taxonomy_obj->object_type,
 				'context' => 'side',
 				'priority' => 'core',
