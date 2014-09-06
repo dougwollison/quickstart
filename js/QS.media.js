@@ -403,6 +403,10 @@ window.QS = window.QS || {};
 								// Preview should be a span, update the content
 								preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
 							}
+							
+							// Add data attributes for quick sort support
+							item.data( 'name', attachment.filename.replace( /[^\w-]+/g, '-' ).toLowerCase() );
+							item.data( 'date', attachment.date.getTime() / 1000 );
 
 							// Store the ID in the input field
 							input.val( attachment.id );

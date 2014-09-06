@@ -642,8 +642,9 @@ class Form {
 	public static function build_addfile_item( $id, $name, $image, $multi, $qsort ) {
 		if ( $qsort ) {
 			// Setup item for quick sort support
-			$attachment = get_post( $id );
-			$html = sprintf( '<div class="qs-item" data-name="%s" data-date="%s">', sanitize_title( $attachment->post_title ), $attachment->post_date );
+			$name = sanitize_title( basename( wp_get_attachment_url( $id ) );
+			$date = get_the_date( 'U' );
+			$html = sprintf( '<div class="qs-item" data-name="%s" data-date="%s">', $name, $date );
 		} else {
 			$html = '<div class="qs-item">';
 		}
