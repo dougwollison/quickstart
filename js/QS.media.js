@@ -1,3 +1,4 @@
+/* global _, wp, QS */
 window.QS = window.QS || {};
 
 (function( $ ) {
@@ -77,20 +78,21 @@ window.QS = window.QS || {};
 		 * @return array An array of attachments.
 		 */
 		attachments: function( frame ) {
-			if ( undefined === frame )
+			if ( undefined === frame ) {
 				frame = this.frame;
+			}
 
 			var attachments = [];
 
 			var collection;
 
-			if ( frame.options.state == 'gallery-edit' ) {
+			if ( frame.options.state === 'gallery-edit' ) {
 				collection = frame.states.get( 'gallery-edit' ).get( 'library' );
 			} else {
 				collection = frame.state().get( 'selection' );
 			}
 
-			collection.map(function( item, i, items ) {
+			collection.map(function( item ) {
 				attachments.push( item.attributes );
 			});
 
@@ -175,7 +177,7 @@ window.QS = window.QS || {};
 
 				selection.reset( [] );
 
-				if ( 'string' == typeof ids ) {
+				if ( typeof ids === 'string' ) {
 					ids = ids.split( ',' );
 				}
 
@@ -257,7 +259,7 @@ window.QS = window.QS || {};
 
 			if ( options.gallery !== undefined ) {
 				// If gallery was not a comma separated string, make it one
-				if ( typeof options.gallery != 'string' ) {
+				if ( typeof options.gallery !== 'string' ) {
 					options.gallery = options.gallery.join( ',' );
 				}
 
@@ -335,7 +337,7 @@ window.QS = window.QS || {};
 			var choose = 'Use Selected ' + ucwords( type );
 
 			// Add " file" to text bits for non images
-			if ( type != 'image' ) {
+			if ( type !== 'image' ) {
 				title += ' File';
 				choose += ' File';
 			}
@@ -389,10 +391,10 @@ window.QS = window.QS || {};
 							input = item.find( plugin.input );
 
 							// Update preview accordingly
-							if ( preview.is( 'img' ) && attachment.type == 'image' ) {
+							if ( preview.is( 'img' ) && attachment.type === 'image' ) {
 								// Preview is an image, update the source
 								// Preview is an image, update the source
-								if ( typeof attachment.sizes.thumbnail != 'undefined' ) {
+								if ( typeof attachment.sizes.thumbnail !== 'undefined' ) {
 									preview.attr( 'src', attachment.sizes.thumbnail.url );
 								} else {
 									preview.attr( 'src', attachment.sizes.full.url );
@@ -409,7 +411,9 @@ window.QS = window.QS || {};
 							plugin.$container.append( item );
 
 							// No multiple = stop after the first one
-							if ( ! multi ) break;
+							if ( ! multi ) {
+								break;
+							}
 						}
 					}
 				}
@@ -449,7 +453,7 @@ window.QS = window.QS || {};
 	 *
 	 * @param Event event The click event that triggered this.
 	 */
-	QS.editGallery = function( options ) {
+	QS.editGallery = function( event ) {
 		var $elm = $( this );
 		
 		// If this is a button, update $elm to the parent qs-field
