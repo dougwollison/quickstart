@@ -1,5 +1,18 @@
 @import 'utilities';
 
+.qs-meta-box{
+	.inputlist{
+		margin-bottom: 0;
+		overflow: auto;
+		max-width: 300px;
+		
+		li{
+			margin: 0;
+			padding: 5px 0;
+		}
+	}
+}
+
 .qs-field,
 .qs-fieldset{
 	margin-top: 10px;
