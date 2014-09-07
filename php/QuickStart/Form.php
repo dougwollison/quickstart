@@ -144,7 +144,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
-	 * @since 1.6.0 Added qs_field_ prefix to field id.
+	 * @since 1.6.0 Added qs_field_ prefix to field id, get_value() use for callback.
 	 * @since 1.5.0 Added "taxonomy" option handling.
 	 * @since 1.4.2 Added "get_value" and "post_field" option handling.
 	 * @since 1.4.0 Added $source argument.
@@ -165,6 +165,9 @@ class Form {
 	public static function build_field( $field, $settings = array(), $data = null, $source = 'raw', $wrap = true ) {
 		// Check if $settings is a callback, call and return it's result if so
 		if ( is_callable( $settings ) ) {
+			// Get the value
+			$value = static::get_value( $data, $source, $field );
+			
 			/**
 			 * Build the HTML of the field
 			 *
@@ -175,7 +178,7 @@ class Form {
 			 *
 			 * @return string The HTML for the field.
 			 */
-			return call_user_func( $settings, $data, $field );
+			return call_user_func( $settings, $value, $field );
 		}
 
 		$default_settings = array(
