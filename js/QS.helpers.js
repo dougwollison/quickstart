@@ -1,3 +1,4 @@
+/* global alert, _, QS */
 window.QS = window.QS || {};
 
 (function( $ ) {
@@ -135,10 +136,8 @@ jQuery(function($){
 		};
 		
 		repeater.on( 'click', '.qs-add', function() {
-			var count = repeater.find( '.qs-item' ).length;
-	
 			var template = repeater.find( '.qs-template' );
-			if ( template.length == 0 ) {
+			if ( template.length === 0 ) {
 				return alert( 'No template to work from for new item.' );
 			}
 			template = template.html();
@@ -149,11 +148,13 @@ jQuery(function($){
 			// Setup all div/input id and label for attributes
 			template.find( 'div, input, select, textarea, label' ).each(function() {
 				// Figure out which attribute to retrieve
-				var attr = this.nodeName.toLowerCase() == 'label' ? 'for' : 'id';
+				var attr = this.nodeName.toLowerCase() === 'label' ? 'for' : 'id';
 			
 				// Get the attribute value, abort if not found
 				var id = $( this ).attr( attr );
-				if ( ! id ) return;
+				if ( ! id ) {
+					return;
+				}
 				
 				// Inser the unique string
 				id = id.replace( '%', unique );

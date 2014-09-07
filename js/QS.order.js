@@ -1,3 +1,4 @@
+/* global QS */
 window.QS = window.QS || {};
 
 jQuery(function( $ ) {
