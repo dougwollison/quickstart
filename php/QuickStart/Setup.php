@@ -415,13 +415,13 @@ class Setup extends \SmartPlugin {
 
 		// If a save hook is passed, register it
 		if ( isset( $args['save'] ) ) {
-			Hooks::post_type_save( $post_type, $args['save'] );
+			SetupHooks::post_type_save( $post_type, $args['save'] );
 		}
 
 		// Now that it's registered, fetch the resulting show_in_menu argument,
 		// and add the post_type_count hook if true
 		if ( get_post_type_object( $post_type )->show_in_menu ){
-			Hooks::post_type_count( $post_type );
+			SetupHooks::post_type_count( $post_type );
 		}
 	}
 
@@ -559,7 +559,7 @@ class Setup extends \SmartPlugin {
 		// Now that it's registered, fetch the resulting show_ui argument,
 		// and add the taxonomy_filter hooks if true
 		if ( $taxonomy_obj->show_ui ){
-			Hooks::taxonomy_filter( $taxonomy );
+			SetupHooks::taxonomy_filter( $taxonomy );
 		}
 	}
 
@@ -803,9 +803,9 @@ class Setup extends \SmartPlugin {
 	public function _setup_feature( $feature, $args ) {
 		// Call the appropriate setup function from the Features kit.
 
-		$method = "setup_{$feature}_feature";
-		if ( method_exists( $this, $method ) ) {
-			$this->$method( $args );
+		$method = "setup_{$feature}";
+		if ( method_exists( __NAMESPACE__ . '\Features', $method ) ) {
+			Feature::$method( $args );
 		}
 	}
 
@@ -827,116 +827,6 @@ class Setup extends \SmartPlugin {
 				$args = $args['args'];
 			}
 			$this->_setup_feature( $feature, $args );
-		}
-	}
-
-	// =========================
-	// !Feature Setups
-	// =========================
-
-	/**
-	 * Setup an order manager for certain post types
-	 *
-	 * @since 1.6.0 Added check if enqueues were already handled.
-	 * @since 1.0.0
-	 *
-	 * @param array $args A list of options for the order manager.
-	 */
-	public function setup_order_manager_feature( $args ) {
-		// Don't bother if on the admin side.
-		if ( ! is_admin() ) {
-			return;
-		}
-
-		// Default post_type option to page
-		if ( ! isset( $args['post_type'] ) ) {
-			$args['post_type'] = 'page';
-		}
-
-		$post_types = csv_array( $args['post_type'] );
-
-		// Use the provided save callback if provided
-		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
-			$callback = $args['save'];
-		} else {
-			// Otherwise, use the built in one
-			$callback = array( __NAMESPACE__ . '\Features', 'save_menu_order' );
-		}
-
-		add_action( 'admin_init', $callback );
-
-		// Enqueue the necessary scripts if not already
-		if ( is_admin() && ( ! defined( 'QS_ORDER_ENQUEUED' ) || ! QS_ORDER_ENQUEUED ) ) {
-			Hooks::backend_enqueue( array(
-				'css' => array(
-					'qs-order-css' => array( plugins_url( '/css/QS.order.css', QS_FILE ) ),
-				),
-				'js' => array(
-					'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_FILE ), array( 'jquery-ui-sortable' ) ),
-					'qs-order-js' => array( plugins_url( '/js/QS.order.js', QS_FILE ), array( 'jquery-ui-nested-sortable' ) ),
-				),
-			) );
-			define( 'QS_ORDER_ENQUEUED', true );
-		}
-
-		// Setup the admin pages for each post type
-		foreach ( $post_types as $post_type ) {
-			$this->register_page( "$post_type-order", array(
-				'title'      => sprintf( __( '%s Order' ), make_legible( $post_type ) ),
-				'capability' => get_post_type_object( $post_type )->cap->edit_posts,
-				'callback'   => array( __NAMESPACE__ . '\Features', 'menu_order_manager' ),
-			), $post_type );
-		}
-	}
-
-	/**
-	 * Setup index page setting/hook for certain post types
-	 *
-	 * @since 1.6.0
-	 *
-	 * @param array $args A list of options for the custom indexes.
-	 */
-	public function setup_index_page_feature( $args ) {
-		// Abort if no post types set
-		if ( ! isset( $args['post_type'] ) ) {
-			return;
-		}
-		
-		$post_types = csv_array( $args['post_type'] );
-		
-		foreach ( $post_types as $post_type ) {
-			// Make sure the post type is registered
-			if ( ! post_type_exists( $post_type ) ) {
-				continue;
-			}
-		
-			if ( is_admin() ) {
-				// Register the setting on the backend
-				$this->register_setting( "page_for_{$post_type}_posts" , array(
-					'title' => sprintf( __( 'Page for %s' ) , get_post_type_object( $post_type )->labels->name ),
-					'field' => function( $value ) use ( $post_type ) {
-						wp_dropdown_pages( array(
-							'name' => "page_for_{$post_type}_posts",
-							'echo' => 1,
-							'show_option_none' => __( '&mdash; Select &mdash;' ),
-							'option_none_value' => '0',
-							'selected' => $value
-						) );
-					}
-				), 'default', 'reading' );
-			} else {
-				// Add the query/title hooks on the frontend
-				Hooks::index_page_query( $post_type );
-				
-				// Call the appropriate title hook
-				if ( version_compare( get_bloginfo( 'version' ), '4.0', '>=' ) ) {
-					// Use new wp_title_parts filter method
-					Hooks::index_page_title_part( $post_type );
-				} else {
-					// Use old wp_title filter method
-					Hooks::index_page_title( $post_type );
-				}
-			}
 		}
 	}
 
