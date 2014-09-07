@@ -11,7 +11,7 @@ namespace QuickStart;
 
 class Hooks extends \SmartPlugin {
 	/**
-	 * A list of internal methods and their hooks configurations are.
+	 * A list of internal methods and their hooks configurations.
 	 *
 	 * @since 1.0.0
 	 * @access protected
