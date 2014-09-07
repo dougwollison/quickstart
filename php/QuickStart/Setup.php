@@ -889,6 +889,57 @@ class Setup extends \SmartPlugin {
 		}
 	}
 
+	/**
+	 * Setup index page setting/hook for certain post types
+	 *
+	 * @since 1.6.0
+	 *
+	 * @param array $args A list of options for the custom indexes.
+	 */
+	public function setup_index_page_feature( $args ) {
+		// Abort if no post types set
+		if ( ! isset( $args['post_type'] ) ) {
+			return;
+		}
+		
+		$post_types = csv_array( $args['post_type'] );
+		
+		foreach ( $post_types as $post_type ) {
+			// Make sure the post type is registered
+			if ( ! post_type_exists( $post_type ) ) {
+				continue;
+			}
+		
+			if ( is_admin() ) {
+				// Register the setting on the backend
+				$this->register_setting( "page_for_{$post_type}_posts" , array(
+					'title' => sprintf( __( 'Page for %s' ) , get_post_type_object( $post_type )->labels->name ),
+					'field' => function( $value ) use ( $post_type ) {
+						wp_dropdown_pages( array(
+							'name' => "page_for_{$post_type}_posts",
+							'echo' => 1,
+							'show_option_none' => __( '&mdash; Select &mdash;' ),
+							'option_none_value' => '0',
+							'selected' => $value
+						) );
+					}
+				), 'default', 'reading' );
+			} else {
+				// Add the query/title hooks on the frontend
+				Hooks::index_page_query( $post_type );
+				
+				// Call the appropriate title hook
+				if ( version_compare( get_bloginfo( 'version' ), '4.0', '>=' ) ) {
+					// Use new wp_title_parts filter method
+					Hooks::index_page_title_part( $post_type );
+				} else {
+					// Use old wp_title filter method
+					Hooks::index_page_title( $post_type );
+				}
+			}
+		}
+	}
+
 	// =========================
 	// !Theme Setups
 	// =========================

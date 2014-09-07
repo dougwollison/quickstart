@@ -18,13 +18,16 @@ class Hooks extends \SmartPlugin {
 	 * @var array
 	 */
 	protected static $static_method_hooks = array(
-		'fix_shortcodes'    => array( 'the_content', 10, 1 ),
-		'disable_quickedit' => array( 'post_row_actions', 10, 2 ),
-		'post_type_save'    => array( 'save_post', 10, 1 ),
-		'post_type_count'   => array( 'dashboard_glance_items', 10, 1 ),
-		'taxonomy_filter'   => array( 'restrict_manage_posts', 10, 0 ),
-		'frontend_enqueue'  => array( 'wp_enqueue_scripts', 10, 0 ),
-		'backend_enqueue'   => array( 'admin_enqueue_scripts', 10, 0 )
+		'fix_shortcodes'     => array( 'the_content', 10, 1 ),
+		'disable_quickedit'  => array( 'post_row_actions', 10, 2 ),
+		'post_type_save'     => array( 'save_post', 10, 1 ),
+		'post_type_count'    => array( 'dashboard_glance_items', 10, 1 ),
+		'index_page_query'      => array( 'parse_query', 10, 1 ),
+		'index_page_title_part' => array( 'wp_title_parts', 10, 1 ),
+		'index_page_title'      => array( 'wp_title', 10, 1 ),
+		'taxonomy_filter'    => array( 'restrict_manage_posts', 10, 0 ),
+		'frontend_enqueue'   => array( 'wp_enqueue_scripts', 10, 0 ),
+		'backend_enqueue'    => array( 'admin_enqueue_scripts', 10, 0 )
 	);
 
 	/**
@@ -112,6 +115,49 @@ class Hooks extends \SmartPlugin {
 		}
 
 		return $elements;
+	}
+	
+	/**
+	 * Change the first part of the title to display the index page's title.
+	 *
+	 * @since 1.6.0
+	 *
+	 * @param string $title_array The parts of the page title (skip when saving).
+	 * @param string $post_type   The post type to check for.
+	 */
+	protected function _index_page_title_part( $title_array, $post_type ) {
+		$index = get_option( "page_for_{$post_type}_posts" );
+		
+		// Check if this is the right post type archive and an index page is set
+		if ( is_post_type_archive() && get_query_var( 'post_type' ) == $post_type && $index ) {
+			$title_array[0] = get_the_title( $index );
+		}
+		
+		return $title_array;
+	}
+	
+	/**
+	 * Modify the title to display the index page's title.
+	 *
+	 * @since 1.6.0
+	 *
+	 * @deprecated 1.6.0 Exists solely for WordPress 3.9.2 and below.
+	 *
+	 * @param string $title       The page title (skip when saving).
+	 * @param string $post_type   The post type to check for.
+	 */
+	protected function _index_page_title( $title, $post_type ) {
+		$index = get_option( "page_for_{$post_type}_posts" );
+		
+		// Check if this is the right post type archive and an index page is set
+		if ( is_post_type_archive() && get_query_var( 'post_type' ) == $post_type && $index ) {
+			// Replace the archive title for the post type with the index page's title.
+			$archive_title = post_type_archive_title( '', false );
+			$page_title = get_the_title( $index );
+			$title = str_replace( $archive_title, $page_title, $title );
+		}
+		
+		return $title;
 	}
 
 	/**
