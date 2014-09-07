@@ -419,13 +419,13 @@ class Setup extends \SmartPlugin {
 
 		// If a save hook is passed, register it
 		if ( isset( $args['save'] ) ) {
-			SetupHooks::post_type_save( $post_type, $args['save'] );
+			Hooks::post_type_save( $post_type, $args['save'] );
 		}
 
 		// Now that it's registered, fetch the resulting show_in_menu argument,
 		// and add the post_type_count hook if true
 		if ( get_post_type_object( $post_type )->show_in_menu ){
-			SetupHooks::post_type_count( $post_type );
+			Hooks::post_type_count( $post_type );
 		}
 	}
 
@@ -567,7 +567,7 @@ class Setup extends \SmartPlugin {
 		// Now that it's registered, fetch the resulting show_ui argument,
 		// and add the taxonomy_filter hooks if true
 		if ( $taxonomy_obj->show_ui ){
-			SetupHooks::taxonomy_filter( $taxonomy );
+			Hooks::taxonomy_filter( $taxonomy );
 		}
 	}
 
