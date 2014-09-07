@@ -2,8 +2,8 @@
 Contributors: dougwollison
 Tags: development, function, utility, utilities, framework, code, coding
 Requires at least: 3.8
-Tested up to: 3.8.1
-Stable tag: 1.5.0
+Tested up to: 4.0.0
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,9 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 == Changelog ==
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
+
+= 1.6.0 =
+Quick sort buttons for sortables, post type index feature, smarter checklists, index helper, lots of stuff.
 
 = 1.5.0 =
 New repeater field capabilities, static option on taxonomies, taxonomy option on meta_box.
