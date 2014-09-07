@@ -376,6 +376,10 @@ class Setup extends \SmartPlugin {
 		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
 	}
 
+	// =========================
+	// !Post Type Setups
+	// =========================
+
 	/**
 	 * Register the requested post_type.
 	 *
@@ -440,6 +444,10 @@ class Setup extends \SmartPlugin {
 			$this->_register_post_type( $post_type, $args );
 		}
 	}
+
+	// =========================
+	// !Taxonomy Setups
+	// =========================
 
 	/**
 	 * Register the requested taxonomy.
@@ -578,6 +586,10 @@ class Setup extends \SmartPlugin {
 			$this->_register_taxonomy( $taxonomy, $args );
 		}
 	}
+
+	// =========================
+	// !Meta Box Setups
+	// =========================
 
 	/**
 	 * Register the requested meta box.
@@ -791,6 +803,10 @@ class Setup extends \SmartPlugin {
 			);
 		}
 	}
+
+	// =========================
+	// !Feature Setups
+	// =========================
 
 	/**
 	 * Setup the requested feature.
