@@ -3,7 +3,7 @@
  * Index helpers; functions for getting the index page for an archive.
  *
  * @package QuickStart
- * @subpackage Teaser
+ * @subpackage Index
  * @since 1.6.0
  */
 
