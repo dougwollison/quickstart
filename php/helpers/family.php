@@ -1,0 +1,178 @@
+<?php
+/**
+ * Family helpers; functions related to accessing and checking child/parent posts.
+ *
+ * @package QuickStart
+ * @subpackage Family
+ * @since 1.6.0
+ */
+
+/**
+ * Check if a page/post is a descendant of another page/post.
+ *
+ * You can also have it check if it's a specific descendant.
+ * E.g. Child = 1, Grandchild = 2, etc.
+ *
+ * @since 1.6.0
+ *
+ * @param int|string $parent The parent to compare against (id or pagename).
+ * @param int|object $post   The post to compare (id, object, or current post).
+ * @param int        $level  What specific level to check (0, -1 or null for none).
+ *
+ * @return bool The result of the comparision.
+ */
+function is_descendant_of( $parent, $post = null, $level = 0 ) {
+	// Get the child object
+	if ( is_null( $post ) ) {
+		global $post;
+	} else if ( ! is_object( $post ) ) {
+		$post = get_post( $post );
+	}
+
+	// If $parent is a pagename, use get_page_by_path
+	if ( is_string( $parent ) ) {
+		$parent = get_page_by_path( $parent )->ID;
+	}
+
+	// Get the ancestors
+	$ancestors = get_post_ancestors( $post );
+
+	// Flip so it goes top down
+	$ancestors = array_flip( $ancestors );
+
+	// Determine if $parent it's in the ancestors list, and what location if so
+	$location = array_search( $parent, $ancestors );
+
+	if ( $location === false ) {
+		return false;
+	}
+
+	// If a specific level is desired, see if it matches
+	if ( ! is_null( $level ) $level > 0 ) {
+		return $location + 1 == $level;
+	} else {
+		return true;
+	}
+}
+
+/**
+ * Check if a page/post is an IMMEDIATE descendant of another page/post.
+ *
+ * @since 1.6.0
+ *
+ * @uses is_descendant_of()
+ *
+ * @param int|string $parent The parent to compare against (id or pagename).
+ * @param int|object $post   The post to compare (id, object, or current post).
+ *
+ * @return bool The result of the comparision.
+ */
+function is_child_of( $parent, $post = null ) {
+	return is_descendant_of( $parent, $post, 1 );
+}
+
+/**
+ * Check if a page/post has ANY parents.
+ *
+ * @since 1.6.0
+ *
+ * @param int|object $post The post to check for parents with (id, object, or current post).
+ *
+ * @return bool Wether or not the post has parents
+ */
+function has_parents( $post = null ) {
+	// Get the post object
+	if ( is_null( $post ) ) {
+		global $post;
+	} else if ( ! is_object( $post ) ) {
+		$post = get_post( $post );
+	}
+
+	return $post->post_parent > 0;
+}
+
+/**
+ *
+
+/**
+ * Check if a page/post is an ancestor of another page/post.
+ *
+ * You can also have it check if it's a specific ancestor.
+ * E.g. Parent = 1, Grandparent = 2, etc.
+ *
+ * @since 1.6.0
+ *
+ * @param int|string $child   The child to compare against (id or pagename).
+ * @param int|object $post_id The ID of the post to compare (id, object, or current post).
+ * @param int        $level   What specific level to check (0, -1 or null for none).
+ *
+ * @return bool The result of the comparision.
+ */
+function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
+	// Get the parent ID
+	if ( is_null( $post ) ) {
+		global $post;
+		$post_id = $post->ID
+	} else if ( is_object( $post ) ) {
+		$post_id = $post->ID;
+	}
+
+	// If $child is a pagename, use get_page_by_path
+	if ( is_string( $child ) ) {
+		$child = get_page_by_path( $child );
+	}
+
+	// Get the child's ancestors
+	$ancestors = get_post_ancestors( $child );
+
+	// Determine if it's in the ancestors list, and what location if so
+	$location = array_search( $post_id, $ancestors );
+
+	if ( $location === false ) {
+		return false;
+	}
+
+	// If a specific level is desired, see if it matches
+	if ( ! is_null( $level ) $level > 0 ) {
+		return $location + 1 == $level;
+	} else {
+		return true;
+	}
+}
+
+/**
+ * Check if a page/post is an IMMEDIATE ancestor of another page/post.
+ *
+ * @since 1.6.0
+ *
+ * @uses is_ancestor_of()
+ *
+ * @param int|string $child The child to compare against (id or pagename).
+ * @param int|object $post  The post to compare (id, object, or current post).
+ *
+ * @return bool The result of the comparision.
+ */
+function is_parent_of( $child, $post = null ) {
+	return is_ancestor_of( $child, $post, 1 );
+}
+
+/**
+ * Check if a page/post has ANY children.
+ *
+ * @since 1.6.0
+ *
+ * @param int|object $post_id The ID of the post to check for children with (id, object, or current post).
+ *
+ * @return bool Wether or not the post has parents
+ */
+function has_children( $post_id = null ) {
+	// Get the post ID
+	if ( is_null( $post ) ) {
+		global $post;
+		$post_id = $post->ID
+	} else if ( is_object( $post ) ) {
+		$post_id = $post->ID;
+	}
+
+	return count( get_pages( 'child_of=' . $post->ID ) ) > 0;
+}
