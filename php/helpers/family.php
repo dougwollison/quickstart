@@ -104,37 +104,6 @@ function has_children( $post_id = null ) {
 // =========================
 
 /**
- * Check if a page/post is a sibling of another.
- *
- * @since 1.6.0
- *
- * @param int|string $sibling The sibling to compare against (id or pagename).
- * @param int|object $post    The post to compare (id, object, or current post).
- *
- * @return bool Wether or not the posts have the same parent.
- */
-function is_sibling_of( $sibling, $post = null ) {
-	// Get the post object
-	if ( is_null( $post ) ) {
-		global $post;
-	} else if ( ! is_object( $post ) ) {
-		$post = get_post( $post );
-	}
-
-	// Get the sibling object
-	if ( ! is_object( $sibling ) ) {
-		// If $sibling is a pagename, use get_page_by_path
-		if ( is_string( $sibling ) ) {
-			$sibling = get_page_by_path( $sibling );
-		} else {
-			$sibling = get_post( $sibling );
-		}
-	}
-
-	return $sibling->post_parent == $post->post_parent;
-}
-
-/**
  * Check if a page/post is a descendant of another page/post.
  *
  * You can also have it check if it's a specific descendant.
@@ -221,4 +190,39 @@ function has_parent( $post = null ) {
 	}
 
 	return $post->post_parent > 0;
+}
+
+// =========================
+// !Miscellaneous
+// =========================
+
+/**
+ * Check if a page/post is a sibling of another.
+ *
+ * @since 1.6.0
+ *
+ * @param int|string $sibling The sibling to compare against (id or pagename).
+ * @param int|object $post    The post to compare (id, object, or current post).
+ *
+ * @return bool Wether or not the posts have the same parent.
+ */
+function is_sibling_of( $sibling, $post = null ) {
+	// Get the post object
+	if ( is_null( $post ) ) {
+		global $post;
+	} else if ( ! is_object( $post ) ) {
+		$post = get_post( $post );
+	}
+
+	// Get the sibling object
+	if ( ! is_object( $sibling ) ) {
+		// If $sibling is a pagename, use get_page_by_path
+		if ( is_string( $sibling ) ) {
+			$sibling = get_page_by_path( $sibling );
+		} else {
+			$sibling = get_post( $sibling );
+		}
+	}
+
+	return $sibling->post_parent == $post->post_parent;
 }
