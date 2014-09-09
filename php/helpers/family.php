@@ -8,6 +8,37 @@
  */
 
 /**
+ * Check if a page/post is a sibling of another.
+ *
+ * @since 1.6.0
+ *
+ * @param int|string $sibling The sibling to compare against (id or pagename).
+ * @param int|object $post    The post to compare (id, object, or current post).
+ *
+ * @return bool Wether or not the posts have the same parent.
+ */
+function is_sibling_of( $sibling, $post = null ) {
+	// Get the post object
+	if ( is_null( $post ) ) {
+		global $post;
+	} else if ( ! is_object( $post ) ) {
+		$post = get_post( $post );
+	}
+
+	// Get the sibling object
+	if ( ! is_object( $sibling ) ) {
+		// If $sibling is a pagename, use get_page_by_path
+		if ( is_string( $sibling ) ) {
+			$sibling = get_page_by_path( $sibling );
+		} else {
+			$sibling = get_post( $sibling );
+		}
+	}
+
+	return $sibling->post_parent == $post->post_parent;
+}
+
+/**
  * Check if a page/post is a descendant of another page/post.
  *
  * You can also have it check if it's a specific descendant.
@@ -22,7 +53,7 @@
  * @return bool The result of the comparision.
  */
 function is_descendant_of( $parent, $post = null, $level = 0 ) {
-	// Get the child object
+	// Get the post object
 	if ( is_null( $post ) ) {
 		global $post;
 	} else if ( ! is_object( $post ) ) {
@@ -109,7 +140,7 @@ function has_parents( $post = null ) {
  * @return bool The result of the comparision.
  */
 function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
-	// Get the parent ID
+	// Get the post ID
 	if ( is_null( $post ) ) {
 		global $post;
 		$post_id = $post->ID
@@ -163,7 +194,7 @@ function is_parent_of( $child, $post = null ) {
  *
  * @param int|object $post_id The ID of the post to check for children with (id, object, or current post).
  *
- * @return bool Wether or not the post has parents
+ * @return bool Wether or not the post has children.
  */
 function has_children( $post_id = null ) {
 	// Get the post ID
