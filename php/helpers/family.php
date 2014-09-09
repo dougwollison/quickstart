@@ -42,6 +42,11 @@ function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
 	// Get the child's ancestors
 	$ancestors = get_post_ancestors( $child );
 
+	// Immediately return false if child has no ancestors
+	if ( ! $ancestors ) {
+		return false;
+	}
+
 	// Determine if it's in the ancestors list, and what location if so
 	$location = array_search( $post_id, $ancestors );
 
@@ -158,6 +163,11 @@ function is_descendant_of( $parent, $post = null, $level = 0 ) {
 
 	// Get the ancestors
 	$ancestors = get_post_ancestors( $post );
+
+	// Immediately return false if child has no ancestors
+	if ( ! $ancestors ) {
+		return false;
+	}
 
 	// Flip so it goes top down
 	$ancestors = array_flip( $ancestors );
