@@ -111,7 +111,7 @@ function is_child_of( $parent, $post = null ) {
  *
  * @return bool Wether or not the post has parents
  */
-function has_parents( $post = null ) {
+function has_parent( $post = null ) {
 	// Get the post object
 	if ( is_null( $post ) ) {
 		global $post;
@@ -121,9 +121,6 @@ function has_parents( $post = null ) {
 
 	return $post->post_parent > 0;
 }
-
-/**
- *
 
 /**
  * Check if a page/post is an ancestor of another page/post.
