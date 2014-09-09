@@ -20,17 +20,17 @@
  * @since 1.6.0
  *
  * @param int|string $child   The child to compare against (id or pagename).
- * @param int|object $post_id The ID of the post to compare (id, object, or current post).
+ * @param int|object $post_id The ID or object of the post to compare (or current post).
  * @param int        $level   What specific level to check (0, -1 or null for none).
  *
  * @return bool The result of the comparision.
  */
 function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
 	// Get the post ID
-	if ( is_null( $post ) ) {
+	if ( is_null( $post_id ) ) {
 		global $post;
 		$post_id = $post->ID;
-	} elseif ( is_object( $post ) ) {
+	} elseif ( is_object( $post_id ) ) {
 		$post_id = $post->ID;
 	}
 
@@ -69,13 +69,13 @@ function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
  *
  * @uses is_ancestor_of()
  *
- * @param int|string $child The child to compare against (id or pagename).
- * @param int|object $post  The post to compare (id, object, or current post).
+ * @param int|string $child   The child to compare against (id or pagename).
+ * @param int|object $post_id The ID or object of the post to compare (or current post).
  *
  * @return bool The result of the comparision.
  */
-function is_parent_of( $child, $post = null ) {
-	return is_ancestor_of( $child, $post, 1 );
+function is_parent_of( $child, $post_id = null ) {
+	return is_ancestor_of( $child, $post_id, 1 );
 }
 
 /**
@@ -83,7 +83,7 @@ function is_parent_of( $child, $post = null ) {
  *
  * @since 1.6.0
  *
- * @param int|object $post_id The ID of the post to check for children with (id, object, or current post).
+ * @param int|object $post_id The ID or object of the post to compare (or current post).
  *
  * @return bool Wether or not the post has children.
  */
@@ -111,18 +111,19 @@ function has_children( $post_id = null ) {
  *
  * @since 1.6.0
  *
- * @param int|string $parent The parent to compare against (id or pagename).
- * @param int|object $post   The post to compare (id, object, or current post).
- * @param int        $level  What specific level to check (0, -1 or null for none).
+ * @param int|string $parent  The parent to compare against (id or pagename).
+ * @param int|object $post_id The ID or object of the post to compare (or current post).
+ * @param int        $level   What specific level to check (0, -1 or null for none).
  *
  * @return bool The result of the comparision.
  */
-function is_descendant_of( $parent, $post = null, $level = 0 ) {
-	// Get the post object
-	if ( is_null( $post ) ) {
+function is_descendant_of( $parent, $post_id = null, $level = 0 ) {
+	// Get the post ID
+	if ( is_null( $post_id ) ) {
 		global $post;
-	} else if ( ! is_object( $post ) ) {
-		$post = get_post( $post );
+		$post_id = $post->ID;
+	} elseif ( is_object( $post_id ) ) {
+		$post_id = $post->ID;
 	}
 
 	// If $parent is a pagename, use get_page_by_path
@@ -131,15 +132,15 @@ function is_descendant_of( $parent, $post = null, $level = 0 ) {
 	}
 
 	// Get the ancestors
-	$ancestors = get_post_ancestors( $post );
+	$ancestors = get_post_ancestors( $post_id );
 
 	// Immediately return false if child has no ancestors
 	if ( ! $ancestors ) {
 		return false;
 	}
 
-	// Flip so it goes top down
-	$ancestors = array_flip( $ancestors );
+	// Reverse so it goes top down
+	$ancestors = array_reverse( $ancestors );
 
 	// Determine if $parent it's in the ancestors list, and what location if so
 	$location = array_search( $parent, $ancestors );
@@ -163,13 +164,13 @@ function is_descendant_of( $parent, $post = null, $level = 0 ) {
  *
  * @uses is_descendant_of()
  *
- * @param int|string $parent The parent to compare against (id or pagename).
- * @param int|object $post   The post to compare (id, object, or current post).
+ * @param int|string $parent  The parent to compare against (id or pagename).
+ * @param int|object $post_id The ID or object of the post to compare (or current post).
  *
  * @return bool The result of the comparision.
  */
-function is_child_of( $parent, $post = null ) {
-	return is_descendant_of( $parent, $post, 1 );
+function is_child_of( $parent, $post_id = null ) {
+	return is_descendant_of( $parent, $post_id, 1 );
 }
 
 /**
@@ -177,7 +178,7 @@ function is_child_of( $parent, $post = null ) {
  *
  * @since 1.6.0
  *
- * @param int|object $post The post to check for parents with (id, object, or current post).
+ * @param int|object $post The ID or object of the post to compare (or current post).
  *
  * @return bool Wether or not the post has parents
  */
@@ -202,7 +203,7 @@ function has_parent( $post = null ) {
  * @since 1.6.0
  *
  * @param int|string $sibling The sibling to compare against (id or pagename).
- * @param int|object $post    The post to compare (id, object, or current post).
+ * @param int|object $post_id The ID or object of the post to compare (or current post).
  *
  * @return bool Wether or not the posts have the same parent.
  */
