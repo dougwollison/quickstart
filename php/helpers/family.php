@@ -29,8 +29,8 @@ function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
 	// Get the post ID
 	if ( is_null( $post ) ) {
 		global $post;
-		$post_id = $post->ID
-	} else if ( is_object( $post ) ) {
+		$post_id = $post->ID;
+	} elseif ( is_object( $post ) ) {
 		$post_id = $post->ID;
 	}
 
@@ -55,7 +55,7 @@ function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
 	}
 
 	// If a specific level is desired, see if it matches
-	if ( ! is_null( $level ) $level > 0 ) {
+	if ( ! is_null( $level ) && $level > 0 ) {
 		return $location + 1 == $level;
 	} else {
 		return true;
@@ -91,7 +91,7 @@ function has_children( $post_id = null ) {
 	// Get the post ID
 	if ( is_null( $post ) ) {
 		global $post;
-		$post_id = $post->ID
+		$post_id = $post->ID;
 	} else if ( is_object( $post ) ) {
 		$post_id = $post->ID;
 	}
@@ -180,7 +180,7 @@ function is_descendant_of( $parent, $post = null, $level = 0 ) {
 	}
 
 	// If a specific level is desired, see if it matches
-	if ( ! is_null( $level ) $level > 0 ) {
+	if ( ! is_null( $level ) && $level > 0 ) {
 		return $location + 1 == $level;
 	} else {
 		return true;
