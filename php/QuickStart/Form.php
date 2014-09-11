@@ -167,7 +167,7 @@ class Form {
 		if ( is_callable( $settings ) ) {
 			// Get the value
 			$value = static::get_value( $data, $source, $field );
-			
+
 			/**
 			 * Build the HTML of the field
 			 *
@@ -558,18 +558,18 @@ class Form {
 
 			$i++;
 		}
-		
+
 		// Sort the items with the checked ones first if desired
 		if ( isset( $settings['checked_first'] ) && $settings['checked_first'] ) {
 			usort( $items, function($a, $b){
 				$a_checked = $a['checked'] ? 1 : 0;
 				$b_checked = $b['checked'] ? 1 : 0;
-	
+
 				if ( $a_checked == $b_checked ) {
 					// Maintain original order otherwise
 					return $a['qs-order'] - $b['qs-order'];
 				}
-	
+
 				return $a_checked > $b_checked ? -1 : 1;
 			});
 		}
@@ -641,8 +641,11 @@ class Form {
 	 * @param bool   $image Wether or not this is for images or any file.
 	 * @param bool   $multi Wether or not this supports multiple files.
 	 * @param bool   $qsort Wether or not quick sort is desired.
+	 * @param string $show  What to display of the non-image file (title|filename)
+	 *
+	 * @return string The markup fo the item.
 	 */
-	public static function build_addfile_item( $id, $name, $image, $multi, $qsort ) {
+	public static function build_addfile_item( $id, $name, $image, $multi, $qsort, $show ) {
 		if ( $qsort ) {
 			// Setup item for quick sort support
 			$name = sanitize_title( basename( wp_get_attachment_url( $id ) ) );
@@ -660,8 +663,12 @@ class Form {
 					'class' => 'qs-preview',
 				) );
 			} else {
-				// Any kind of file, print the basename
-				$html .= '<span class="qs-preview">' . basename( wp_get_attachment_url( $id ) ) . '</span>';
+				// Any kind of file, print the attachment title or filename
+				$preview = basename( wp_get_attachment_url( $id ) );
+				if ( $show == 'title' ) {
+					$preview = get_the_title( $id );
+				}
+				$html .= '<span class="qs-preview">' . $preview . '</span>';
 			}
 
 			// Add delete button and field name brackets if in mulitple mode
@@ -679,7 +686,7 @@ class Form {
 	/**
 	 * Build a file adder field.
 	 *
-	 * @since 1.6.0 Added qs-sortable class with data-axis attribute, quick sort support.
+	 * @since 1.6.0 Added qs-sortable class with data-axis attribute, quick sort support, "show" option.
 	 * @since 1.4.0 Overhauled markup/functionality.
 	 * @since 1.3.3
 	 *
@@ -691,12 +698,15 @@ class Form {
 
 		// Determine if this is a muti-item adder
 		$multi = isset( $settings['multiple'] ) && $settings['multiple'];
-		
+
 		// Determine if quick sort option is desired
 		$qsort = $multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
 
 		// Determine the media type
 		$media = isset( $settings['media'] ) ? $settings['media'] : null;
+
+		// Determine what to display for plain files (default to filename)
+		$show = isset( $settings['show'] ) ? $settings['show'] : 'filename';
 
 		// Flag for if we're using images only or not
 		$is_image = $media == 'image';
@@ -706,8 +716,17 @@ class Form {
 			$settings['label'] = ( $multi ? 'Add' : 'Choose' ) . ' ' . $settings['label'];
 		}
 
+		// Setup the classes for the container
+		$classes = array( 'qs-field', 'qs-media', 'qs-addfile' );
+		if ( $multi ) {
+			$classes[] = 'multiple';
+		}
+		if ( $media ) {
+			$classes[] = 'media-' . $media;
+		}
+
 		// Begin the markup for this component
-		$html = sprintf( '<div class="qs-field qs-media qs-addfile %s media-%s" data-type="%s">', $multi ? 'multiple' : '', $media ? $media : '', $media );
+		$html = sprintf( '<div class="%s" data-type="%s" data-show="%s">', implode( ' ', $classes ), $media, $show );
 			// The button to open the media manager
 			$html .= '<button type="button" class="button button-primary qs-button">' . $settings['label'] . '</button>';
 
@@ -724,7 +743,7 @@ class Form {
 				// Loop through each image and print an item
 				foreach ( $value as $file ) {
 					// Add an item for the current file
-					$html .= static::build_addfile_item( $file, $name, $is_image, $multi, $qsort );
+					$html .= static::build_addfile_item( $file, $name, $is_image, $multi, $qsort, $show );
 
 					// If we're only to do a single item, break now.
 					if ( ! $multi ) {
@@ -733,7 +752,7 @@ class Form {
 				}
 			}
 			$html .= '</div>';
-			
+
 			// Add quick sort buttons if enabled
 			if ( $qsort ) {
 				$html .= '<div class="qs-sort">

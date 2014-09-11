@@ -23,7 +23,7 @@ window.QS = window.QS || {};
 	    	return $1.toUpperCase();
 	    });
 	}
-	
+
 	/**
 	 * Runs selected queries and creates new entries for those elements
 	 *
@@ -126,7 +126,7 @@ window.QS = window.QS || {};
 			// passing the frame itself as an additional parameter, since it
 			// can't be linked into QS.media yet
 			frame.trigger( 'init', frame );
-			
+
 			// If not setting up the trigger, just return the initialized frame.
 			if ( notrigger ) {
 				return frame;
@@ -154,7 +154,7 @@ window.QS = window.QS || {};
 					frame.open();
 				});
 			}
-			
+
 			return frame;
 		},
 
@@ -300,11 +300,11 @@ window.QS = window.QS || {};
 	 * jQuery Plugins
 	 * =========================
 	 */
-	
+
 	/**
 	 * Setup file adder functionality
 	 *
-	 * @since 1.6.0 Added thumbnail check, moved sortable handling to .qs-sortable handler
+	 * @since 1.6.0 Added thumbnail check, "show" option, moved sortable handling to .qs-sortable handler
 	 * @since 1.5.0 Overhauled for live-plugin purposes
 	 * @since 1.2.0
 	 *
@@ -312,26 +312,29 @@ window.QS = window.QS || {};
 	 */
 	QS.addFile = function( event ) {
 		var $elm = $( this );
-		
+
 		// If this is a button, update $elm to the parent qs-field
 		if ( $elm.hasClass('qs-button') ) {
 			$elm = $elm.parents('.qs-addfile');
 		}
-		
+
 		// Load the stored addFile configurations
 		var plugin = $elm.data('QS.addFile');
-		
+
 		// Extract the passed options
 		var options = event.data;
-		
+
 		// Check if plugin data already exists, setup if not
 		if ( ! plugin ) {
 			// Check for multiple mode
 			var multi = $elm.hasClass( 'multiple' );
-			
+
 			// Get media type
 			var type = $elm.data( 'type' );
-			
+
+			// Get what display for the file
+			var show = $elm.data( 'show' );
+
 			// Title and choose button text
 			var title = 'Select ' + ucwords( type );
 			var choose = 'Use Selected ' + ucwords( type );
@@ -347,7 +350,7 @@ window.QS = window.QS || {};
 				title += 's';
 				choose += 's';
 			}
-			
+
 			var defaults = {
 				// Component selectors
 				trigger:    '.qs-button',
@@ -355,15 +358,15 @@ window.QS = window.QS || {};
 				template:   '.qs-template',
 				preview:    '.qs-preview',
 				input:      '.qs-value',
-				
+
 				// GUI Text
 				title:      title,
 				choose:     choose,
-				
+
 				// Functionality Options
 				multiple:   multi,
 				media: 		type,
-				
+
 				// Events
 				events:     {
 					select: function() {
@@ -400,10 +403,14 @@ window.QS = window.QS || {};
 									preview.attr( 'src', attachment.sizes.full.url );
 								}
 							} else {
-								// Preview should be a span, update the content
-								preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
+								// Preview should be plain text of the title or filename, update the content
+								if ( show == 'title' ) {
+									preview.html( attachment.title );
+								} else {
+									preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
+								}
 							}
-							
+
 							// Add data attributes for quick sort support
 							item.data( 'name', attachment.filename.replace( /[^\w-]+/g, '-' ).toLowerCase() );
 							item.data( 'date', attachment.date.getTime() / 1000 );
@@ -422,33 +429,33 @@ window.QS = window.QS || {};
 					}
 				}
 			};
-			
+
 			// Get the data- attribute values that are allowed
 			var attributes = _.pick( $elm.data(), 'title', 'choose', 'trigger', 'container', 'template', 'preview', 'input' );
-			
+
 			// Merge options with the matching data- attribute values
 			plugin = _.extend( {}, defaults, options, attributes );
-			
+
 			// Query the trigger, container, and template elements if not present
 			autoQuery( $elm, plugin, [ 'trigger', 'container', 'template' ] );
 
 			// Create the template object
 			plugin.$template = $( plugin.$template.html() );
-			
+
 			// Setup the insert hook and get the frame
 			plugin.frame = media.insert( plugin, true );
-			
+
 			// Store the plugin options for later use
 			$elm.data( 'QS.addFile', plugin );
 		}
-		
+
 		// Set this frame as the current frame
 		media.frame = plugin.frame;
-		
+
 		// Now, open the frame
 		plugin.frame.open();
 	};
-	
+
 	/**
 	 * Setup gallery editor functionality
 	 *
@@ -460,18 +467,18 @@ window.QS = window.QS || {};
 	 */
 	QS.editGallery = function( event ) {
 		var $elm = $( this );
-		
+
 		// If this is a button, update $elm to the parent qs-field
 		if ( $elm.hasClass('qs-button') ) {
 			$elm = $elm.parents('.qs-editgallery');
 		}
-		
+
 		// Load the stored editGallery configurations
 		var plugin = $elm.data('QS.editGallery');
-		
+
 		// Extract the passed options
 		var options = event.data;
-		
+
 		// Check if plugin data already exists, setup if not
 		if ( ! plugin || ! plugin.frame ) {
 			var defaults = {
@@ -479,16 +486,16 @@ window.QS = window.QS || {};
 				trigger:    '.qs-button',
 				preview:    '.qs-preview',
 				input:      '.qs-value',
-				
+
 				// GUI Text
 				title:      $elm.text(),
-				
+
 				// Events
 				events:     {
 					update: function() {
 						// Get the attachments
 						var attachments = media.attachments();
-						
+
 						// Loop vars
 						var items = [], img;
 
@@ -499,10 +506,10 @@ window.QS = window.QS || {};
 						for ( var i in attachments ) {
 							// Add the id to the items list
 							items.push( attachments[ i ].id );
-							
+
 							// Create a new image with the thumbnail URL
 							img = $( '<img src="' + attachments[ i ].sizes.thumbnail.url + '">' );
-							
+
 							// Add the new image to the preview
 							plugin.$preview.append( img );
 						}
@@ -512,13 +519,13 @@ window.QS = window.QS || {};
 					}
 				}
 			};
-			
+
 			// Get the data- attribute values that are allowed
 			var attributes = _.pick( $elm.data(), 'title', 'trigger', 'preview', 'input' );
-			
+
 			// Merge options with the matching data- attribute values
 			plugin = _.extend( {}, defaults, options, attributes );
-			
+
 			// Query the trigger, container, and template elements if not present
 			autoQuery( $elm, plugin, [ 'trigger', 'preview', 'input' ] );
 
@@ -526,22 +533,22 @@ window.QS = window.QS || {};
 			if ( plugin.gallery === undefined ) {
 				plugin.gallery = plugin.$input.val();
 			}
-			
+
 			// Setup the insert hook and get the frame
 			plugin.frame = media.gallery( plugin, true );
-			
+
 			// Store the plugin options for later use
 			$elm.data( 'QS.editGallery', plugin );
 		}
-		
+
 		// Set this frame as the current frame
 		media.frame = plugin.frame;
-		
+
 		// Now, open the frame
 		plugin.frame.open();
 	};
-	
-	
+
+
 	/**
 	 * Setup image setter functionality
 	 *
@@ -553,10 +560,10 @@ window.QS = window.QS || {};
 	 */
 	QS.setImage = function( event ) {
 		var $elm = $( this );
-		
+
 		// Ensure the type is set to image
 		$elm.data( 'type', 'image' );
-		
+
 		// Alias to the addFile method
 		return QS.addFile.call( this, event );
 	};
@@ -573,7 +580,7 @@ window.QS = window.QS || {};
 	 */
 	jQuery.fn.QS = function( /* [selector,] plugin [, options] */ ) {
 		var selector, plugin, options;
-		
+
 		// Proceed based on number of arguments
 		switch ( arguments.length ) {
 			case 3: // ( selector, plugin, options )
@@ -599,9 +606,9 @@ window.QS = window.QS || {};
 			default:
 				return;
 		}
-		
+
 		var callback = QS[ plugin ];
-	
+
 		// Setup the (delegated) click event
 		if ( selector ) {
 			return $( this ).on( 'click', selector, options, callback );
