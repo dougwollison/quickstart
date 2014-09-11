@@ -821,7 +821,7 @@ class Setup extends \SmartPlugin {
 
 		$method = "setup_{$feature}";
 		if ( method_exists( __NAMESPACE__ . '\Features', $method ) ) {
-			Feature::$method( $args );
+			Features::$method( $args );
 		}
 	}
 
