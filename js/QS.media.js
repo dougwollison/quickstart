@@ -86,7 +86,7 @@ window.QS = window.QS || {};
 
 			var collection;
 
-			if ( frame.options.state === 'gallery-edit' ) {
+			if ( 'gallery-edit' === frame.options.state ) {
 				collection = frame.states.get( 'gallery-edit' ).get( 'library' );
 			} else {
 				collection = frame.state().get( 'selection' );
@@ -115,11 +115,11 @@ window.QS = window.QS || {};
 
 			//Run through each event and setup the handlers
 			if ( options.events !== undefined ) {
-				for ( var e in options.events ) {
+				_.each( options.events, function( event, e ) {
 					//Bind the callback to the event, passing QS.media as the context
 					//from that they'll be able to access the frame and trigger element
-					frame.on( e, options.events[ e ], media );
-				}
+					frame.on( e, event, media );
+				});
 			}
 
 			// In case they need to hook into it, trigger "init" on the frame,
@@ -149,7 +149,7 @@ window.QS = window.QS || {};
 					// Link the frame into QS.media
 					media.frame = frame;
 					// Link the trigger into QS.media
-					media.trigger = $(this);
+					media.trigger = $( this );
 
 					frame.open();
 				});
@@ -172,7 +172,7 @@ window.QS = window.QS || {};
 			}
 
 			if ( ids !== undefined ) {
-				var selection = frame.state().get('selection');
+				var selection = frame.state().get( 'selection' );
 				var attachment;
 
 				selection.reset( [] );
@@ -182,14 +182,12 @@ window.QS = window.QS || {};
 				}
 
 				var id;
-				for ( var i in ids ) {
-					id = ids[ i ];
-
+				_.each( ids, function( id ) {
 					attachment = wp.media.attachment( id );
 					attachment.fetch();
 
 					selection.add( attachment ? [ attachment ] : [] );
-				}
+				} );
 			}
 		},
 	});
@@ -278,7 +276,7 @@ window.QS = window.QS || {};
 
 				// Fetch the query's attachments, and then break ties from the query to allow for sorting.
 				selection.more().done(function() {
-					selection.props.set( { query: false });
+					selection.props.set({ query: false });
 					selection.unmirror();
 					selection.props.unset( 'orderby' );
 				});
@@ -328,7 +326,7 @@ window.QS = window.QS || {};
 		// Check if plugin data already exists, setup if not
 		if ( ! plugin ) {
 			// Check for multiple mode
-			var multi = $elm.hasClass( 'multiple' );
+			var is_multi = $elm.hasClass( 'multiple' );
 
 			// Get media type
 			var type = $elm.data( 'type' );
@@ -347,7 +345,7 @@ window.QS = window.QS || {};
 			}
 
 			// Pluralize text bits if needed
-			if ( multi ) {
+			if ( is_multi ) {
 				title += 's';
 				choose += 's';
 			}
@@ -378,34 +376,38 @@ window.QS = window.QS || {};
 						var attachment, item, preview, input;
 
 						// Empty the container if not in multiple mode
-						if ( ! multi ) {
+						if ( ! is_multi ) {
 							plugin.$container.empty();
 						}
 
 						// Loop through all attachments found
-						for ( var i in attachments ) {
-							// Get the current attachment
-							attachment = attachments[ i ];
+						_.each( attachments, function( attachment, i ) {
+							// If not multiple and this isn't the first item, skip
+							if ( ! is_multi && 0 === i ) {
+								return;
+							}
 
 							// Make a copty of the template item
 							item = plugin.$template.clone();
+
+							console.log(i);
 
 							// Get the preview and input elements
 							preview = item.find( plugin.preview );
 							input = item.find( plugin.input );
 
 							// Update preview accordingly
-							if ( preview.is( 'img' ) && attachment.type === 'image' ) {
+							if ( preview.is( 'img' ) && 'image' === attachment.type ) {
 								// Preview is an image, update the source
 								// Preview is an image, update the source
-								if ( typeof attachment.sizes.thumbnail !== 'undefined' ) {
+								if ( null == attachment.sizes.thumbnail ) {
 									preview.attr( 'src', attachment.sizes.thumbnail.url );
 								} else {
 									preview.attr( 'src', attachment.sizes.full.url );
 								}
 							} else {
 								// Preview should be plain text of the title or filename, update the content
-								if ( show == 'title' ) {
+								if ( 'title' === show ) {
 									preview.html( attachment.title );
 								} else {
 									preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
@@ -413,7 +415,7 @@ window.QS = window.QS || {};
 							}
 
 							// Add data attributes for quick sort support
-							item.data( 'name', attachment.filename.replace( /[^\w-]+/g, '-' ).toLowerCase() );
+							item.data( 'name', attachment.filename.replace( /[^\w\-]+/g, '-' ).toLowerCase() );
 							item.data( 'date', attachment.date.getTime() / 1000 );
 
 							// Store the ID in the input field
@@ -421,12 +423,7 @@ window.QS = window.QS || {};
 
 							// Add the item to the container
 							plugin.$container.append( item );
-
-							// No multiple = stop after the first one
-							if ( ! multi ) {
-								break;
-							}
-						}
+						});
 					}
 				}
 			};
@@ -453,7 +450,8 @@ window.QS = window.QS || {};
 		// Set this frame as the current frame
 		media.frame = plugin.frame;
 
-		if ( mode == 'initonly' ) {
+		// End now if initializing only
+		if ( 'initonly' === mode ) {
 			return;
 		}
 
@@ -509,16 +507,16 @@ window.QS = window.QS || {};
 						plugin.$preview.empty();
 
 						// Go through each attachment
-						for ( var i in attachments ) {
+						_.each( attachments, function( attachment ) {
 							// Add the id to the items list
-							items.push( attachments[ i ].id );
+							items.push( attachment.id );
 
 							// Create a new image with the thumbnail URL
-							img = $( '<img src="' + attachments[ i ].sizes.thumbnail.url + '">' );
+							img = $( '<img src="' + attachment.sizes.thumbnail.url + '">' );
 
 							// Add the new image to the preview
 							plugin.$preview.append( img );
-						}
+						});
 
 						// Update the input with the id list
 						plugin.$input.val( items.join( ',' ) );
@@ -547,23 +545,24 @@ window.QS = window.QS || {};
 			$elm.data( 'QS.editGallery', plugin );
 
 			// Also, setup sortabilty of the preview
-			plugin.$preview.sortable( {
+			plugin.$preview.sortable({
 				items: 'img',
 				containment: 'parent',
 				update: function() {
 					var items = [];
 					plugin.$preview.find( 'img' ).each(function(){
-						items.push( $(this).data('id') );
+						items.push( $( this ).data( 'id' ) );
 					});
 					plugin.$input.val( items );
 				}
-			} );
+			});
 		}
 
 		// Set this frame as the current frame
 		media.frame = plugin.frame;
 
-		if ( mode == 'initonly' ) {
+		// End now if initializing only
+		if ( 'initonly' === mode ) {
 			return;
 		}
 
