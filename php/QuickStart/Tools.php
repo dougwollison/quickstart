@@ -126,12 +126,32 @@ class Tools {
 			$callback = $args['fields'];
 		} elseif ( isset( $args['fields'] ) ) {
 			$fields = $args['fields'];
+		} elseif ( isset( $args['get_fields'] ) && is_callable( $args['get_fields'] ) ) {
+			/**
+			 * Dynamically generate the fields array.
+			 *
+			 * @since 1.6.0
+			 *
+			 * @param WP_Post $post The post object.
+			 * @param array   $args The original arguments for the metabox.
+			 * @param string  $id   The ID of the metabox.
+			 */
+			$fields = call_user_func( $args['get_fields'], $post, $args, $id );
 		}
 
 		// Wrap in container for any specific targeting needed
 		echo '<div class="qs-meta-box">';
 			if ( $callback ) {
-				// Pass the post, metabox args, and id if it's needed
+				/**
+				 * Build the HTML of the metabox.
+				 *
+				 * @since 1.3.0 Use $callback from 'fields' or 'callback' arg.
+				 * @since 1.0.0
+				 *
+				 * @param WP_Post $post The post object.
+				 * @param array   $args The original arguments for the metabox
+				 * @param string  $id   The ID of the metabox.
+				 */
 				call_user_func( $callback, $post, $args, $id );
 			} elseif ( isset( $args['fields'] ) ) {
 				// Build the fields
