@@ -50,7 +50,7 @@ function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
 	// Determine if it's in the ancestors list, and what location if so
 	$location = array_search( $post_id, $ancestors );
 
-	if ( $location === false ) {
+	if ( false === $location ) {
 		return false;
 	}
 
@@ -145,7 +145,7 @@ function is_descendant_of( $parent, $post_id = null, $level = 0 ) {
 	// Determine if $parent it's in the ancestors list, and what location if so
 	$location = array_search( $parent, $ancestors );
 
-	if ( $location === false ) {
+	if ( false === $location ) {
 		return false;
 	}
 

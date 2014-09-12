@@ -1012,7 +1012,7 @@ class Setup extends \SmartPlugin {
 		// Go through each button and remove them if they are already present;
 		// We'll be re-adding them in the new desired position.
 		foreach ( $buttons_to_add as $button ) {
-			if ( ( $i = array_search( $button, $buttons ) ) && $i !== false ) {
+			if ( ( $i = array_search( $button, $buttons ) ) && false !== $i ) {
 				unset( $buttons[ $i ] );
 			}
 		}
@@ -1083,7 +1083,7 @@ class Setup extends \SmartPlugin {
 		if ( get_user_option( 'rich_editing' ) == 'true' ) {
 			if ( $button ) {
 				// If $button is literal true, make it the same as the plugin slug
-				if ( $button === true ) {
+				if ( true == $button ) {
 					$button = $plugin;
 				}
 
