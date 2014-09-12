@@ -304,13 +304,14 @@ window.QS = window.QS || {};
 	/**
 	 * Setup file adder functionality
 	 *
-	 * @since 1.6.0 Added thumbnail check, "show" option, moved sortable handling to .qs-sortable handler
+	 * @since 1.6.0 Moved sortable handling, added thubmnail check, show option, and initonly mode
 	 * @since 1.5.0 Overhauled for live-plugin purposes
 	 * @since 1.2.0
 	 *
 	 * @param Event event The click event that triggered this.
+	 * @param string mode  Pass 'initonly' to setup but not open the frame.
 	 */
-	QS.addFile = function( event ) {
+	QS.addFile = function( event, mode ) {
 		var $elm = $( this );
 
 		// If this is a button, update $elm to the parent qs-field
@@ -452,6 +453,10 @@ window.QS = window.QS || {};
 		// Set this frame as the current frame
 		media.frame = plugin.frame;
 
+		if ( mode == 'initonly' ) {
+			return;
+		}
+
 		// Now, open the frame
 		plugin.frame.open();
 	};
@@ -459,13 +464,14 @@ window.QS = window.QS || {};
 	/**
 	 * Setup gallery editor functionality
 	 *
-	 * @since 1.6.0 Fixed/added preloading of gallery items from input's value
+	 * @since 1.6.0 Preloading of gallery items, initonly mode, inline storable
 	 * @since 1.5.0 Overhauled for live-plugin purposes
 	 * @since 1.0.0
 	 *
 	 * @param Event event The click event that triggered this.
+	 * @param string mode  Pass 'initonly' to setup but not open the frame.
 	 */
-	QS.editGallery = function( event ) {
+	QS.editGallery = function( event, mode ) {
 		var $elm = $( this );
 
 		// If this is a button, update $elm to the parent qs-field
@@ -539,10 +545,27 @@ window.QS = window.QS || {};
 
 			// Store the plugin options for later use
 			$elm.data( 'QS.editGallery', plugin );
+
+			// Also, setup sortabilty of the preview
+			plugin.$preview.sortable( {
+				items: 'img',
+				containment: 'parent',
+				update: function() {
+					var items = [];
+					plugin.$preview.find( 'img' ).each(function(){
+						items.push( $(this).data('id') );
+					});
+					plugin.$input.val( items );
+				}
+			} );
 		}
 
 		// Set this frame as the current frame
 		media.frame = plugin.frame;
+
+		if ( mode == 'initonly' ) {
+			return;
+		}
 
 		// Now, open the frame
 		plugin.frame.open();
@@ -611,10 +634,15 @@ window.QS = window.QS || {};
 
 		// Setup the (delegated) click event
 		if ( selector ) {
-			return $( this ).on( 'click', selector, options, callback );
+			$elm.on( 'click', selector, options, callback );
 		} else {
-			return $( this ).on( 'click', options, callback );
+			$elm.on( 'click', options, callback );
 		}
+
+		// Immediately initialize existing elements
+		$elm.find( selector ).trigger( 'click', [ 'initonly' ] );
+
+		return $elm;
 	};
 
 	// Clean up. Prevents mobile browsers caching
