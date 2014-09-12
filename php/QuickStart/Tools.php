@@ -22,9 +22,19 @@ class Tools {
 	public static $accepted_attrs = array( 'accesskey', 'autocomplete', 'checked', 'class', 'cols', 'disabled', 'id', 'max', 'maxlength', 'min', 'multiple', 'name', 'placeholder', 'readonly', 'required', 'rows', 'size', 'style', 'tabindex', 'title', 'type', 'value' );
 
 	/**
+	 * A list of tags that should have no content.
+	 *
+	 * @since 1.6.0
+	 *
+	 * @access public
+	 * @var array
+	 */
+	public static $void_elements = array( 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr' );
+
+	/**
 	 * Build an HTML tag.
 	 *
-	 * @since 1.6.0 Revised handling of boolean attributes.
+	 * @since 1.6.0 Revised handling of boolean attributes, added $void_elements.
 	 * @since 1.5.0 Moved from Form to Tools class
 	 * @since 1.4.2 Updated boolean attribute handling
 	 * @since 1.0.0
@@ -62,11 +72,12 @@ class Tools {
 			}
 		}
 
-		if ( is_null( $content ) ) {
+		// Handle closing of the tag
+		if ( in_array( $tag, static::$void_elements ) ) {
 			// Self closing tag
 			$html .= '/>';
 		} else {
-			// Add closing tag
+			// Add content and closing tag
 			$html .= ">$content</$tag>";
 		}
 
@@ -106,7 +117,7 @@ class Tools {
 
 		// Print nonce field
 		wp_nonce_field( $id, "_qsnonce-$id" );
-		
+
 		// Determine the callback or fields argument
 		$callback = $fields = null;
 		if ( isset( $args['callback'] ) ) {
@@ -276,7 +287,7 @@ class Tools {
 
 		return $attachment_id;
 	}
-	
+
 	/**
 	 * Run the appropriate checks to make sure that
 	 * this save_post callback should proceed.
@@ -293,21 +304,21 @@ class Tools {
 	public static function save_post_check( $post_id, $post_type = null, $nonce_name = null, $nonce_value = null ) {
 		// Load the posted post type
 		$post_type_obj = get_post_type_object( $_POST['post_type'] );
-		
+
 		// Default post_type and nonce checks to true
 		$post_type_check = $nonce_check = true;
-		
+
 		// If post type is provided, check it
 		if ( ! is_null( $post_type ) ) {
 			csv_array_ref( $post_type );
 			$post_type_check = in_array( $post_type_obj->name, $post_type );
 		}
-		
+
 		// If nonce name & value are passed, check it
 		if ( ! is_null( $nonce_name ) ) {
 			$nonce_check = isset( $_POST[ $nonce_name ] ) && wp_verify_nonce( $_POST[ $nonce_name ], $nonce_value );
 		}
-		
+
 		// Check for autosave and post revisions
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ||
 			wp_is_post_revision( $post_id ) ||
@@ -317,7 +328,7 @@ class Tools {
 			! current_user_can( $post_type_obj->cap->edit_post ) ) {
 			return false;
 		}
-		
+
 		return true;
 	}
 
