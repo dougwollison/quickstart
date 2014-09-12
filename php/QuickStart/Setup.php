@@ -603,14 +603,14 @@ class Setup extends \SmartPlugin {
 	 * @param array  $args     The arguments for registration.
 	 */
 	public function register_meta_box( $meta_box, $args ) {
-		if ( is_callable( $args ) ) {
+		if ( empty( $args ) ) {
+			// Empty array; make dumb meta box
+			$args = self::make_dumb_metabox( $args, $meta_box );
+		} elseif ( is_callable( $args ) ) {
 			// A callback, recreate into proper array
 			$args = array(
 				'callback' => $args,
 			);
-		} elseif ( empty( $args ) ) {
-			// Empty array; make dumb meta box
-			$args = self::make_dumb_metabox( $args, $meta_box );
 		} elseif ( isset( $args['field'] ) ) {
 			// Single field passed, recreate into proper array
 			$field = $args['field'];
