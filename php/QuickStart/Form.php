@@ -71,7 +71,7 @@ class Form {
 	 *
 	 * @param string $input    The html of the input to wrap.
 	 * @param array  $settings The settings array for the field.
-	 * @param string $format   The format to use.
+	 * @param string $format   Optional The format to use.
 	 *
 	 * @return string The processed HTML.
 	 */
@@ -176,10 +176,10 @@ class Form {
 	 * @since 1.0.0
 	 *
 	 * @param string $field    The name/id of the field.
-	 * @param array  $settings The settings to use in creating the field.
-	 * @param mixed  $data     The source for the value; use $source argument to specify.
-	 * @param string $source   The type of value source; see static::get_value().
-	 * @param bool   $wrap     Default value for wrap_with_label option.
+	 * @param array  $settings Optional The settings to use in creating the field.
+	 * @param mixed  $data     Optional The source for the value; use $source argument to specify.
+	 * @param string $source   Optional The type of value source; see static::get_value().
+	 * @param bool   $wrap     Optional Default value for wrap_with_label option.
 	 *
 	 * @return string The HTML for the field.
 	 */
@@ -327,10 +327,10 @@ class Form {
 	 * @since 1.0.0
 	 *
 	 * @param string $fields The name/id of the field.
-	 * @param array  $data   The source for the values; see static::build_field() for details.
-	 * @param string $source Identifies the type of values source; see static::build_field() for details.
-	 * @param mixed  $echo   Wether or not to echo the output.
-	 * @param bool   $wrap   Default value for wrap_with_label option.
+	 * @param array  $data   Optional The source for the values; see static::build_field() for details.
+	 * @param string $source Optional Identifies the type of values source; see static::build_field() for details.
+	 * @param mixed  $echo   Optional Wether or not to echo the output.
+	 * @param bool   $wrap   Optional Default value for wrap_with_label option.
 	 *
 	 * @return string The HTML for the fields.
 	 */
@@ -380,7 +380,7 @@ class Form {
 	 *
 	 * @param array  $settings The settings to use in creating the field.
 	 * @param mixed  $value    The value to fill the field with.
-	 * @param string $wrapper  The format string to use when wrapping the field.
+	 * @param string $wrapper  Optional The format string to use when wrapping the field.
 	 *
 	 * @return string The HTML for the field.
 	 */
@@ -852,7 +852,9 @@ class Form {
 	 *
 	 * @since 1.5.0
 	 *
-	 * @see Form::build_generic()
+	 * @param array $repeater The settings of the repeater.
+	 * @param array $item     Optional The item data.
+	 * @param int   $i        Optional The item's number (-1 for template).
 	 */
 	private static function build_repeater_item( $repeater, $item = null, $i = -1 ) {
 		$fields = csv_array( $repeater['template'] );

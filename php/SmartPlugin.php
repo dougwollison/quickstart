@@ -44,8 +44,8 @@ abstract class SmartPlugin{
 	 *
 	 * @since 1.0
 	 *
-	 * @param string $name The name of the method being called
-	 * @param array $args The arguments passed to said method
+	 * @param string $name The name of the method being called.
+	 * @param array  $args The arguments passed to said method.
 	 */
 	public function __call( $method, $args ) {
 		/**
@@ -64,7 +64,7 @@ abstract class SmartPlugin{
 
 	/**
 	 * Save a callback for the requested method
-	 *
+	 *.
 	 * @since 1.0
 	 *
 	 * @param string $method The name of the method to setup the hook for.
@@ -150,13 +150,13 @@ abstract class SmartPlugin{
 	protected static $static_method_hooks = array();
 
 	/**
-	 * Static version of the method overloader
+	 * Static version of the method overloader.
 	 *
 	 * @since 1.0
 	 * @see SmartPlugin::__call()
 	 *
-	 * @param string $name The name of the method being called
-	 * @param array $args The arguments passed to said method
+	 * @param string $name The name of the method being called.
+	 * @param array  $args The arguments passed to said method.
 	 */
 	public static function __callStatic( $method, $args ) {
 		/**
@@ -174,7 +174,7 @@ abstract class SmartPlugin{
 	}
 
 	/**
-	 * Save a callback for the requested method
+	 * Save a callback for the requested method.
 	 *
 	 * @since 1.0
 	 * @see SmartPlugin::save_callback()

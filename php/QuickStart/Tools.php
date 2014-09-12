@@ -41,8 +41,8 @@ class Tools {
 	 *
 	 * @param string $tag      The tag name.
 	 * @param array  $atts     The tag attributes.
-	 * @param string $content  The tag content.
-	 * @param string $accepted The attribute whitelist.
+	 * @param string $content  Optional The tag content.
+	 * @param string $accepted Optional The attribute whitelist.
 	 *
 	 * @return string The html of the tag.
 	 */
@@ -166,7 +166,7 @@ class Tools {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed $label A string of the new label (singular) or an array of singular, plural for ms.
+	 * @param mixed $label Optional A string of the new label (singular) or an array of singular, plural for ms.
 	 */
 	public static function relabel_posts( $label = null ) {
 		if ( is_array( $label ) ) {
@@ -219,7 +219,7 @@ class Tools {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css).
+	 * @param array $enqueues Optional An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
 	public static function enqueue( $enqueues = null ) {
 		if ( isset( $enqueues['css'] ) ) {
@@ -316,7 +316,7 @@ class Tools {
 	 * @since 1.2.0
 	 *
 	 * @param int          $post_id     The ID of the post being saved.
-	 * @param string|array $post_type   The expected post type(s).
+	 * @param string|array $post_type   Optional The expected post type(s).
 	 * @param string       $nonce_name  Optional the name of the nonce field to check.
 	 * @param string       $nonce_value Optional the value of the nonce field to check.
 	 *

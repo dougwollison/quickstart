@@ -161,8 +161,8 @@ class Features extends \SmartPlugin {
 	 * @since 1.0.0
 	 *
 	 * @param array $posts  The list of posts to go through.
-	 * @param bool  $nested Wether or not to create a nested array.
-	 * @param int   $parent The parent ID to filter by (if nesting).
+	 * @param bool  $nested Optional Wether or not to create a nested array.
+	 * @param int   $parent Optional The parent ID to filter by (if nesting).
 	 */
 	protected static function menu_order_array( $type, $nested = false, $parent = 0 ) {
 		global $wpdb;
@@ -202,7 +202,7 @@ class Features extends \SmartPlugin {
 	 * @since 1.0.0
 	 *
 	 * @param array $posts  The list of posts to go through.
-	 * @param bool  $nested Wether or not to list the nested posts and include a parent field.
+	 * @param bool  $nested Optional Wether or not to list the nested posts and include a parent field.
 	 */
 	protected static function menu_order_list( $posts, $nested = false ) {
 		?>

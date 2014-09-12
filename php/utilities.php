@@ -94,7 +94,8 @@ function make_legible( $string ) {
 /**
  * Restructure an array into a more logical layout.
  *
- * Best exable is the $_FILES array when you have multiple file fields with an array name
+ * Best exable is the $_FILES array when you have multiple file fields with an array name.
+ *
  * <input type="file" name="import[something]">
  * This would restructure $_FILES so instead of $_FILES['import']['name']['something'],
  * we get $_FILES['import']['something']['name']
@@ -174,6 +175,7 @@ function _process_n_form( $string, $rules ) {
  * @since 1.0.0
  *
  * @param string $string The string that is to be converted to plural form.
+ *
  * @return string The input string ( hopefully ) converted to plural form.
  */
 function pluralize( $string ) {
@@ -196,6 +198,7 @@ function pluralize( $string ) {
  * @since 1.0.0
  *
  * @param string $string The string that is to be converted to singular form.
+ *
  * @return string The input string ( hopefully ) converted to singular form.
  */
 function singularize( $string ) {
@@ -216,7 +219,7 @@ function singularize( $string ) {
 /**
  * Given an array, extract the disired value defined like so: myvar[mykey][0].
  *
- * @since 1.6.0 Overhauled and simplified
+ * @since 1.6.0 Overhauled and simplified.
  * @since 1.0.0
  *
  * @param array        $array The array to extract from.

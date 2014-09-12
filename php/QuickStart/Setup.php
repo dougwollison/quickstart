@@ -63,8 +63,8 @@ class Setup extends \SmartPlugin {
 	 * @since 1.1.0 Added tinymce key; mce is deprecated.
 	 * @since 1.0.0
 	 *
-	 * @param array $configs The theme configuration options.
-	 * @param array $defaults The default values. Optional.
+	 * @param array $configs  The theme configuration options.
+	 * @param array $defaults Optional The default values.
 	 */
 	public function __construct( array $configs, $defaults = array() ) {
 		// Store the configuration array
@@ -273,7 +273,7 @@ class Setup extends \SmartPlugin {
 	 * @since 1.2.0 Added check for dumb metabox setup
 	 * @since 1.0.0
 	 *
-	 * @param array &$configs Optional. The post types, taxonomies and meta boxes to setup.
+	 * @param array &$configs Optional The post types, taxonomies and meta boxes to setup.
 	 */
 	public function run_content_setups( $configs = null ) {
 		// If no $configs is passed, load the locally stored ones.
@@ -388,7 +388,7 @@ class Setup extends \SmartPlugin {
 	 * @since 1.0.0
 	 *
 	 * @param string $post_type The slug of the post type to register.
-	 * @param array  $args      The arguments for registration.
+	 * @param array  $args      Optional The arguments for registration.
 	 */
 	public function _register_post_type( $post_type, array $args = array() ) {
 		// Make sure the post type doesn't already exist
@@ -863,7 +863,7 @@ class Setup extends \SmartPlugin {
 	 *
 	 * @param array $feature The list of features to register.
 	 */
-	public function _setup_features( $features ) {
+	public function _setup_features( array $features ) {
 		foreach ( $features as $feature => $args ) {
 			if ( ! make_associative( $feature, $args ) ) {
 				// Feature was added numerically, assume id, args format.
@@ -884,7 +884,7 @@ class Setup extends \SmartPlugin {
 	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
 	 * @since 1.0.0
 	 *
-	 * @param array &$configs Optional. The features and supports for the theme.
+	 * @param array &$configs Optional The features and supports for the theme.
 	 */
 	public function run_theme_setups( $configs = null ) {
 		// If no $configs is passed, load the locally stored ones.
@@ -1177,9 +1177,9 @@ class Setup extends \SmartPlugin {
 	 * @since 1.0.0
 	 *
 	 * @param string       $setting The id of the setting to register.
-	 * @param array|string $args    The setting configuration (string accepted for name or html).
-	 * @param string       $group   The id of the group this setting belongs to.
-	 * @param string       $page    The id of the page this setting belongs to.
+	 * @param array|string $args    Optional The setting configuration (string accepted for name or html).
+	 * @param string       $group   Optional The id of the group this setting belongs to.
+	 * @param string       $page    Optional The id of the page this setting belongs to.
 	 */
 	public function _register_setting( $setting, $args = null, $section = null, $page = null ) {
 		make_associative( $setting, $args );
@@ -1256,8 +1256,8 @@ class Setup extends \SmartPlugin {
 	 * @uses Setup::register_setting()
 	 *
 	 * @param array  $settings An array of settings to register.
-	 * @param string $group    The id of the group this setting belongs to.
-	 * @param string $page     The id of the page this setting belongs to.
+	 * @param string $group    Optional The id of the group this setting belongs to.
+	 * @param string $page     Optional The id of the page this setting belongs to.
 	 */
 	public function _register_settings( $settings, $section = null, $page = null ) {
 		// If page is provided, rebuild $settings to be in $page => $settings format
@@ -1366,6 +1366,7 @@ class Setup extends \SmartPlugin {
 	 *
 	 * @param string $setting The id of the page to register.
 	 * @param array  $args    The page configuration.
+	 * @param string $parent  Optional The parent the page belongs to.
 	 */
 	public function _add_page_to_menu( $page, $args, $parent = null ) {
 		$default_args = array(
