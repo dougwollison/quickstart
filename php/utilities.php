@@ -216,45 +216,37 @@ function singularize( $string ) {
 /**
  * Given an array, extract the disired value defined like so: myvar[mykey][0].
  *
+ * @since 1.6.0 Overhauled and simplified
  * @since 1.0.0
  *
- * @param array  $array The array to extract from.
- * @param string $map   The array map representation to work from.
+ * @param array        $array The array to extract from.
+ * @param array|string $map   The map to follow, in myvar[mykey] or [myvar, mykey] form.
  *
  * @return mixed The extracted value.
  */
 function extract_value( $array, $map ) {
+	// Abort if not an array
 	if ( ! is_array( $array ) ) return $array;
 
-	// Break $map into the starting key and the subsequent map
-	preg_match( '/^(.+?)(\[.+\])?$/', $map, $matches );
-	$key = $matches[1];
-	$map = $matches[2];
-	$array = $array[ $key ];
+	// If $map is a string, turn it into an array
+	if ( ! is_array( $map ) ) {
+		$map = trim( $map, ']' ); // Get rid of last ] so we don't have an empty value at the end
+		$map = preg_split( '/[\[\]]+/', $map );
+	}
 
-	if ( ! is_array( $array ) ) {
-		// Resulting $array not an array, return as the value
-		return $array;
-	} elseif ( preg_match_all( '/\[(.+?)\]/', $map, $matches ) ) {
-		// Keys can be extracted from the map, loop through them
-		$value = $array;
-		foreach ( $matches[1] as $key ) {
-			// Check if  the current $value has that key
-			if ( is_array( $value ) && isset( $value[ $key ] ) ) {
-				// Reassign that value to $value
-				$value = $value[ $key ];
-			} else {
-				// No dice, return null
-				return null;
-			}
+	// Extract the first key to look for
+	$key = array_shift( $map );
+
+	// See if it exists
+	if ( isset( $array[ $key ] ) ) {
+		// See if we need to go deeper
+		if ( $map ) {
+			return extract_value( $array[ $key ], $map );
+		} else {
+			return $array[ $key ];
 		}
-		// Done!  return the extracted value
-		return $value;
-	} elseif ( isset( $array[ $map ] ) ) {
-		// Map isn't an actual map, but actual key of the array, return the value
-		return $array[ $map ];
 	} else {
-		// Otherwise, return null
+		// Nothing found.
 		return null;
 	}
 }
