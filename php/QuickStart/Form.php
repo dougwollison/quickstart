@@ -13,6 +13,7 @@ class Form {
 	/**
 	 * Convert a field name to a valid ID
 	 *
+	 * @since 1.6.0 Fixed to catch all brackets.
 	 * @since 1.0.0
 	 *
 	 * @param string $name The name of the field
@@ -20,7 +21,7 @@ class Form {
 	 * @return string The valid ID
 	 */
 	public static function make_id( $name ) {
-		return preg_replace( '/\[(.+)\]/', '_$1', $name );
+		return preg_replace( '/\[(.+?)\]/', '_$1', $name );
 	}
 
 	/**
@@ -112,15 +113,23 @@ class Form {
 	/**
 	 * Get the value to use for the field.
 	 *
+	 * @since 1.6.0 Added use of extract_value().
 	 * @since 1.4.0
 	 *
 	 * @param mixed  $data The raw data source.
-	 * @param string $type The type of source to expect. e.g. "post", "option", "array", or "raw".
+	 * @param string $type The type of source to expect (e.g. "post", "option", "array", or "raw").
 	 * @param string $key  The field to extract from the source.
 	 *
 	 * @return mixed The extracted value.
 	 */
 	public static function get_value( $data, $type, $key ) {
+		if ( preg_match( '/([\w-]+)\[([\w-]+)\](.*)/', $key, $matches ) ) {
+			// Field is an array map, get the actual key...
+			$key = $matches[1];
+			// ... and the map to use.
+			$map = $matches[2] . $matches[3];
+		}
+
 		// Proceed based on what $type is
 		switch ( $type ) {
 			case 'post':
@@ -128,17 +137,27 @@ class Form {
 				if ( is_object( $data ) ) {
 					$data = $data->ID;
 				}
-				return get_post_meta( $data, $key, true );
+				$value = get_post_meta( $data, $key, true );
+				break;
 			case 'option':
 				// Get the matching option value
-				return get_option( $key );
+				$value = get_option( $key );
+				break;
 			case 'array':
 				// Get the matching entry if present
-				return isset( $data[ $key ] ) ? $data[ $key ] : null;
+				$value = isset( $data[ $key ] ) ? $data[ $key ] : null;
+				break;
 			default:
 				// No processing required
-				return $data;
+				$value = $data;
+				break;
 		}
+
+		if ( $map ) {
+			$value = extract_value( $value, $map );
+		}
+
+		return $value;
 	}
 
 	/**
@@ -662,31 +681,33 @@ class Form {
 		} else {
 			$html = '<div class="qs-item">';
 		}
-			if ( is_null( $id ) ) {
-				// No id passed, print a blank
-				$html .= $image ? '<img class="qs-preview" />' : '<span class="qs-preview"></span>';
-			} elseif ( $image ) {
-				// Image mode, print the thumbnail
-				$html .= wp_get_attachment_image( $id, 'thumbnail', false, array(
-					'class' => 'qs-preview',
-				) );
-			} else {
-				// Any kind of file, print the attachment title or filename
-				$preview = basename( wp_get_attachment_url( $id ) );
-				if ( $show == 'title' ) {
-					$preview = get_the_title( $id );
-				}
-				$html .= '<span class="qs-preview">' . $preview . '</span>';
-			}
 
-			// Add delete button and field name brackets if in mulitple mode
-			if ( $multi ) {
-				$html .= '<button type="button" class="button qs-delete">Delete</button>';
-				$name .= '[]';
+		if ( is_null( $id ) ) {
+			// No id passed, print a blank
+			$html .= $image ? '<img class="qs-preview" />' : '<span class="qs-preview"></span>';
+		} elseif ( $image ) {
+			// Image mode, print the thumbnail
+			$html .= wp_get_attachment_image( $id, 'thumbnail', false, array(
+				'class' => 'qs-preview',
+			) );
+		} else {
+			// Any kind of file, print the attachment title or filename
+			$preview = basename( wp_get_attachment_url( $id ) );
+			if ( $show == 'title' ) {
+				$preview = get_the_title( $id );
 			}
+			$html .= '<span class="qs-preview">' . $preview . '</span>';
+		}
 
-			// Add the input field for this item
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $name, $id );
+		// Add delete button and field name brackets if in mulitple mode
+		if ( $multi ) {
+			$html .= '<button type="button" class="button qs-delete">Delete</button>';
+			$name .= '[]';
+		}
+
+		// Add the input field for this item
+		$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $name, $id );
+
 		$html .= '</div>';
 		return $html;
 	}
@@ -798,7 +819,7 @@ class Form {
 	/**
 	 * Build a gallery editor field.
 	 *
-	 * @since 1.6.0 Added clear button.
+	 * @since 1.6.0 Added clear button, data-id to image for inline sortability.
 	 * @since 1.4.0 Added semi-intelligent button text guessing.
 	 * @since 1.0.0
 	 *
@@ -815,7 +836,7 @@ class Form {
 			$html .= '<button type="button" class="button qs-clear">Clear</button>';
 			$html .= '<div class="qs-preview">';
 			foreach ( explode( ',', $value ) as $image ) {
-				$html .= wp_get_attachment_image( $image, 'thumbnail' );
+				$html .= wp_get_attachment_image( $image, 'thumbnail', false, array( 'data-id' => $image ) );
 			}
 			$html .= '</div>';
 			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
