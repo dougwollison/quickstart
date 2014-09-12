@@ -665,17 +665,17 @@ class Form {
 	 * @since 1.6.0 Added quick sort support.
 	 * @since 1.4.0
 	 *
-	 * @param int    $id    The ID of the attachment to use.
-	 * @param string $name  The name of the file adder field.
-	 * @param bool   $image Wether or not this is for images or any file.
-	 * @param bool   $multi Wether or not this supports multiple files.
-	 * @param bool   $qsort Wether or not quick sort is desired.
-	 * @param string $show  What to display of the non-image file (title|filename).
+	 * @param int    $id       The ID of the attachment to use.
+	 * @param string $name     The name of the file adder field.
+	 * @param bool   $is_image Wether or not this is for images or any file.
+	 * @param bool   $is_multi Wether or not this supports multiple files.
+	 * @param bool   $use_sort Wether or not quick sort is desired.
+	 * @param string $show     What to display of the non-image file (title|filename).
 	 *
 	 * @return string The markup fo the item.
 	 */
-	public static function build_addfile_item( $id, $name, $image, $multi, $qsort, $show ) {
-		if ( $qsort ) {
+	public static function build_addfile_item( $id, $name, $is_image, $is_multi, $use_sort, $show ) {
+		if ( $use_sort ) {
 			// Setup item for quick sort support
 			$name = sanitize_title( basename( wp_get_attachment_url( $id ) ) );
 			$date = get_the_date( 'U' );
@@ -686,8 +686,8 @@ class Form {
 
 		if ( is_null( $id ) ) {
 			// No id passed, print a blank
-			$html .= $image ? '<img class="qs-preview" />' : '<span class="qs-preview"></span>';
-		} elseif ( $image ) {
+			$html .= $is_image ? '<img class="qs-preview" />' : '<span class="qs-preview"></span>';
+		} elseif ( $is_image ) {
 			// Image mode, print the thumbnail
 			$html .= wp_get_attachment_image( $id, 'thumbnail', false, array(
 				'class' => 'qs-preview',
@@ -702,7 +702,7 @@ class Form {
 		}
 
 		// Add delete button and field name brackets if in mulitple mode
-		if ( $multi ) {
+		if ( $is_multi ) {
 			$html .= '<button type="button" class="button qs-delete">Delete</button>';
 			$name .= '[]';
 		}
@@ -728,10 +728,10 @@ class Form {
 		$name = $settings['name'];
 
 		// Determine if this is a muti-item adder
-		$multi = isset( $settings['multiple'] ) && $settings['multiple'];
+		$is_multi = isset( $settings['multiple'] ) && $settings['multiple'];
 
-		// Determine if quick sort option is desired
-		$qsort = $multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
+		// Determine if use of quick sort buttons is desired
+		$use_sort = $multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
 
 		// Determine the media type
 		$media = isset( $settings['media'] ) ? $settings['media'] : null;
@@ -744,12 +744,12 @@ class Form {
 
 		// If the label seems auto generated, modify the label text to Add/Choose
 		if ( $settings['label'] == make_legible( $name ) ) {
-			$settings['label'] = ( $multi ? 'Add' : 'Choose' ) . ' ' . $settings['label'];
+			$settings['label'] = ( $is_multi ? 'Add' : 'Choose' ) . ' ' . $settings['label'];
 		}
 
 		// Setup the classes for the container
 		$classes = array( 'qs-field', 'qs-media', 'qs-addfile' );
-		if ( $multi ) {
+		if ( $is_multi ) {
 			$classes[] = 'multiple';
 		}
 		if ( $media ) {
@@ -765,7 +765,7 @@ class Form {
 			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
 
 			// Start the preview list container, adding sortable class and axis if needed
-			$html .= sprintf( '<div class="qs-container %s" %s>', $multi ? 'qs-sortable' : '', $is_image ? '' : 'data-axis="y"' );
+			$html .= sprintf( '<div class="qs-container %s" %s>', $is_multi ? 'qs-sortable' : '', $is_image ? '' : 'data-axis="y"' );
 			// Print the items if present
 			if ( $value ) {
 				// Process into an appropriate array
@@ -774,7 +774,7 @@ class Form {
 				// Loop through each image and print an item
 				foreach ( $value as $file ) {
 					// Add an item for the current file
-					$html .= static::build_addfile_item( $file, $name, $is_image, $multi, $qsort, $show );
+					$html .= static::build_addfile_item( $file, $name, $is_image, $is_multi, $use_sort, $show );
 
 					// If we're only to do a single item, break now.
 					if ( ! $multi ) {
@@ -785,7 +785,7 @@ class Form {
 			$html .= '</div>';
 
 			// Add quick sort buttons if enabled
-			if ( $qsort ) {
+			if ( $quicksort ) {
 				$html .= '<div class="qs-sort">
 					<label>Quick Sort:</label>
 					<button type="button" class="button-secondary" value="name">Alphabetical</button>
@@ -796,7 +796,7 @@ class Form {
 
 			// Print the template so javascript knows how to add new items
 			$html .= '<template class="qs-template">';
-				$html .= static::build_addfile_item( null, $name, $is_image, $multi, $qsort );
+				$html .= static::build_addfile_item( null, $name, $is_image, $is_multi, $use_sort );
 			$html .= '</template>';
 		$html .= '</div>';
 
