@@ -731,7 +731,7 @@ class Form {
 		$is_multi = isset( $settings['multiple'] ) && $settings['multiple'];
 
 		// Determine if use of quick sort buttons is desired
-		$use_sort = $multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
+		$use_sort = $is_multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
 
 		// Determine the media type
 		$media = isset( $settings['media'] ) ? $settings['media'] : null;
