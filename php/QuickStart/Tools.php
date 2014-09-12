@@ -102,6 +102,7 @@ class Tools {
 	/**
 	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.
 	 *
+	 * @since 1.6.0 Added use of get_fields option.
 	 * @since 1.4.0 Added use of $source parameter in Form::build_fields().
 	 * @since 1.3.0 Added option of callback key instead of fields for a callback.
 	 * @since 1.0.0
