@@ -705,7 +705,7 @@ class Setup extends \SmartPlugin {
 			 * @param array  $args     The settings of the metabox.
 			 * @param string $meta_box The ID of the metabox.
 			 */
-			call_user_func( $args['save'], $post_id );
+			call_user_func( $args['save'], $post_id, $args, $meta_box );
 		} elseif ( isset( $args['save_fields'] ) ) {
 			// Method 2: explicit list of fields to save
 			csv_array_ref( $args['save_fields'] );
