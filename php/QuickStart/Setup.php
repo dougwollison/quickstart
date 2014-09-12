@@ -105,16 +105,16 @@ class Setup extends \SmartPlugin {
 				case 'tinymce':
 				case 'mce':
 					// Enable buttons if set
-					if(isset($value['buttons'])){
-						$this->add_mce_buttons($value['buttons']);
+					if ( isset( $value['buttons'] ) ) {
+						$this->add_mce_buttons( $value['buttons'] );
 					}
 					// Register plugins if set
-					if(isset($value['plugins'])){
-						$this->register_mce_plugins($value['plugins']);
+					if ( isset( $value['plugins'])){
+						$this->register_mce_plugins( $value['plugins'] );
 					}
 					// Register custom styles if set
-					if(isset($value['styles'])){
-						$this->register_mce_styles($value['styles']);
+					if ( isset( $value['styles'] ) ) {
+						$this->register_mce_styles( $value['styles'] );
 					}
 				break;
 				case 'settings':
@@ -412,7 +412,7 @@ class Setup extends \SmartPlugin {
 		$this->prep_defaults( 'post_type', $defaults );
 
 		// Parse the arguments with the defaults
-		$args = wp_parse_args($args, $defaults);
+		$args = wp_parse_args( $args, $defaults );
 
 		// Now, register the post type
 		register_post_type( $post_type, $args );
@@ -492,7 +492,7 @@ class Setup extends \SmartPlugin {
 		$this->prep_defaults( 'taxonomy', $defaults );
 
 		// Parse the arguments with the defaults
-		$args = wp_parse_args($args, $defaults);
+		$args = wp_parse_args( $args, $defaults );
 
 		// Check for the "static" option, set it up
 		$static = false;
@@ -552,7 +552,7 @@ class Setup extends \SmartPlugin {
 		// Finish setting up the static taxonomy metabox if needed
 		if ( $static ) {
 			$this->register_meta_box( "$taxonomy-terms", array(
-				'title' => ($multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name),
+				'title' => ( $multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name ),
 				'post_type' => $taxonomy_obj->object_type,
 				'context' => 'side',
 				'priority' => 'core',
@@ -943,7 +943,7 @@ class Setup extends \SmartPlugin {
 			}
 
 			foreach ( $configs['sidebars'] as $id => $args ) {
-				make_associative($id, $args);
+				make_associative( $id, $args );
 
 				// If just a string is passed for $args,
 				// assume it's to be the name of the sidebar
@@ -1081,7 +1081,7 @@ class Setup extends \SmartPlugin {
 
 		// Only bother if rich editing is true
 		if ( get_user_option( 'rich_editing' ) == 'true' ) {
-			if( $button ) {
+			if ( $button ) {
 				// If $button is literal true, make it the same as the plugin slug
 				if ( $button === true ) {
 					$button = $plugin;
@@ -1105,7 +1105,7 @@ class Setup extends \SmartPlugin {
 	 * @param array $plugins The list of MCE plugins to be registered.
 	 */
 	public function register_mce_plugins( $plugins ) {
-		if( is_array( $plugins ) ) {
+		if ( is_array( $plugins ) ) {
 			foreach( $plugins as $plugin => $args ) {
 				$src = $button = $row = null;
 

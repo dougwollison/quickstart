@@ -62,10 +62,7 @@ function get_postfield( $field, $id ) {
  *
  * @since 1.0.0
  *
- * @uses get_postfield()
- *
- * @param string     $key The name of the meta key to fetch
- * @param int|object $id  Optional The ID of the post to fetch
+ * @see get_postfield()
  */
 function the_postfield( $key, $id = null ) {
 	echo get_postfield( $key, $id );

@@ -37,10 +37,7 @@ function get_postmeta( $key, $id = null ) {
  *
  * @since 1.0.0
  *
- * @uses get_postmeta()
- *
- * @param string     $key The name of the meta key to fetch.
- * @param int|object $id  Optional The ID of the post to fetch.
+ * @see get_postmeta()
  */
 function the_postmeta( $key, $id = null ) {
 	echo get_postmeta( $key, $id );

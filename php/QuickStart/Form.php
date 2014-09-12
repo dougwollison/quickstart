@@ -230,10 +230,10 @@ class Form {
 			 * @return mixed The value to use for building the field.
 			 */
 			$value = call_user_func( $settings['get_value'], $data, $source, $settings, $field );
-		} elseif( isset( $settings['post_field'] ) && $settings['post_field'] && $source == 'post' ) {
+		} elseif ( isset( $settings['post_field'] ) && $settings['post_field'] && $source == 'post' ) {
 			// Alternately, if "post_field" is present (and the source is a post), get the matching field
 			$value = $data->{$settings['post_field']};
-		} elseif( isset( $settings['taxonomy'] ) && $settings['taxonomy'] && $source == 'post' ) {
+		} elseif ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] && $source == 'post' ) {
 			// Alternately, if "taxonomy" is present (and the source is a post), get the matching terms
 
 			// Get the post_terms for $value
@@ -254,7 +254,7 @@ class Form {
 		// otherwise, make sure it's an array
 		if ( ! isset( $settings['class'] ) ) {
 			$settings['class'] = array();
-		} elseif ( ! is_array($settings['class'] ) ) {
+		} elseif ( ! is_array( $settings['class'] ) ) {
 			$settings['class'] = (array) $settings['class'];
 		}
 
@@ -590,7 +590,7 @@ class Form {
 
 		// Sort the items with the checked ones first if desired
 		if ( isset( $settings['checked_first'] ) && $settings['checked_first'] ) {
-			usort( $items, function($a, $b){
+			usort( $items, function( $a, $b ) {
 				$a_checked = $a['checked'] ? 1 : 0;
 				$b_checked = $b['checked'] ? 1 : 0;
 
@@ -613,7 +613,7 @@ class Form {
 			$item = static::$build( $item, null, array( 'right', 'li' ), false );
 		}
 
-		$items = implode('', $items);
+		$items = implode( '', $items );
 
 		$settings['class'][] = 'inputlist';
 

@@ -208,7 +208,7 @@ class Features extends \SmartPlugin {
 		?>
 		<ol>
 		<?php foreach ( $posts as $post ) : ?>
-			<li data-date="<?php echo strtotime($post->post_date)?>" data-name="<?php echo sanitize_title($post->post_title)?>">
+			<li data-date="<?php echo strtotime( $post->post_date )?>" data-name="<?php echo sanitize_title( $post->post_title )?>">
 				<div class="inner">
 					<input type="hidden" class="qs-order-id" name="menu_order[]" value="<?php echo $post->ID?>">
 					<?php if ( $nested ) : ?>

@@ -12,8 +12,8 @@
  *
  * @since 1.6.0
  *
- * @param string $post_type The post type to get the index page for.
- * @param string $return    What to return ('id' or 'object').
+ * @param string $post_type Optional The post type to get the index page for.
+ * @param string $return    Optional What to return ('id' or 'object').
  */
 function get_index( $post_type = null, $return = 'id' ) {
 	// If no post type specified, determine it.
@@ -61,6 +61,8 @@ function get_index( $post_type = null, $return = 'id' ) {
  * Setup the postdata for the page for the current index
  *
  * @since 1.6.0
+ *
+ * @see get_index()
  */
 function the_index() {
 	global $post;

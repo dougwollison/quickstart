@@ -71,13 +71,7 @@ function get_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = 
  *
  * @since 1.0.0
  *
- * @uses get_teaser()
- *
- * @param int    $length      Optional The length, in words, that the teaser should be.
- * @param mixed  $post        Optional The post object or content (will default and use current post if available.
- * @param bool   $use_excerpt Optional Wether or not to use the excerpt if available.
- * @param bool   &$more       Optional A flag passed back by reference to indicate if there is more.
- * @param string $trailer     Optional a string to trail the teaser with, such as an elipsis of some fashion.
+ * @see get_teaser()
  */
 function the_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = false, $trailer = '...' ) {
 	echo get_teaser( $length, $post, $use_excerpt, $more );

@@ -60,8 +60,8 @@ class Hooks extends \SmartPlugin {
 	 */
 	public static function _disable_quickedit( $actions, $post, $post_types ) {
 		csv_array_ref( $post_types );
-		if(in_array($post->post_type, $post_types)){
-			unset($actions['inline hide-if-no-js']);
+		if ( in_array( $post->post_type, $post_types ) ) {
+			unset( $actions['inline hide-if-no-js'] );
 		}
 		return $actions;
 	}

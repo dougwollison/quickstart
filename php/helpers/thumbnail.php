@@ -13,7 +13,7 @@
  * @since 1.6.0
  *
  * @param int    $attachment_id The ID of the image to get.
- * @param string $size          The size of the image to get.
+ * @param string $size          Optional The size of the image to get.
  *
  * @return string The URL of the image in that size.
  */
@@ -37,7 +37,7 @@ function the_attachment_image_url( $attachment_id, $size = 'full' ) {
  * @since 1.6.0
  *
  * @param int    $post_id The ID of the post for the thumbnail.
- * @param string $size    The size of the image to get.
+ * @param string $size    Optional The size of the image to get.
  *
  * @return string The URL of the image in that size.
  */

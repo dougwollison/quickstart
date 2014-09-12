@@ -20,8 +20,8 @@
  * @since 1.6.0
  *
  * @param int|string $child   The child to compare against (id or pagename).
- * @param int|object $post_id The ID or object of the post to compare (or current post).
- * @param int        $level   What specific level to check (0, -1 or null for none).
+ * @param int|object $post_id Optional The ID or object of the post to compare (or current post).
+ * @param int        $level   Optional What specific level to check (0, -1 or null for none).
  *
  * @return bool The result of the comparision.
  */
@@ -70,7 +70,7 @@ function is_ancestor_of( $child, $post_id = null, $level = 0 ) {
  * @uses is_ancestor_of()
  *
  * @param int|string $child   The child to compare against (id or pagename).
- * @param int|object $post_id The ID or object of the post to compare (or current post).
+ * @param int|object $post_id Optional The ID or object of the post to compare (or current post).
  *
  * @return bool The result of the comparision.
  */
@@ -83,7 +83,7 @@ function is_parent_of( $child, $post_id = null ) {
  *
  * @since 1.6.0
  *
- * @param int|object $post_id The ID or object of the post to compare (or current post).
+ * @param int|object $post_id Optional The ID or object of the post to compare (or current post).
  *
  * @return bool Wether or not the post has children.
  */
@@ -112,8 +112,8 @@ function has_children( $post_id = null ) {
  * @since 1.6.0
  *
  * @param int|string $parent  The parent to compare against (id or pagename).
- * @param int|object $post_id The ID or object of the post to compare (or current post).
- * @param int        $level   What specific level to check (0, -1 or null for none).
+ * @param int|object $post_id Optional The ID or object of the post to compare (or current post).
+ * @param int        $level   Optional What specific level to check (0, -1 or null for none).
  *
  * @return bool The result of the comparision.
  */
@@ -165,7 +165,7 @@ function is_descendant_of( $parent, $post_id = null, $level = 0 ) {
  * @uses is_descendant_of()
  *
  * @param int|string $parent  The parent to compare against (id or pagename).
- * @param int|object $post_id The ID or object of the post to compare (or current post).
+ * @param int|object $post_id Optional The ID or object of the post to compare (or current post).
  *
  * @return bool The result of the comparision.
  */
@@ -178,9 +178,9 @@ function is_child_of( $parent, $post_id = null ) {
  *
  * @since 1.6.0
  *
- * @param int|object $post The ID or object of the post to compare (or current post).
+ * @param int|object $post Optional The ID or object of the post to compare (or current post).
  *
- * @return bool Wether or not the post has parents
+ * @return bool Wether or not the post has parents.
  */
 function has_parent( $post = null ) {
 	// Get the post object
@@ -203,7 +203,7 @@ function has_parent( $post = null ) {
  * @since 1.6.0
  *
  * @param int|string $sibling The sibling to compare against (id or pagename).
- * @param int|object $post_id The ID or object of the post to compare (or current post).
+ * @param int|object $post_id Optional The ID or object of the post to compare (or current post).
  *
  * @return bool Wether or not the posts have the same parent.
  */
