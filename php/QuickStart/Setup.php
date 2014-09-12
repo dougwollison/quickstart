@@ -1328,6 +1328,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the settings for this page.
 	 *
+	 * @since 1.6.0 Allow registering just settings, no fields, in name => sanitize format.
 	 * @since 1.3.0 Reordered so bare fields go before sections.
 	 * @since 1.2.0 Moved child page registration to Setup::register_page().
 	 * @since 1.0.0
@@ -1338,6 +1339,16 @@ class Setup extends \SmartPlugin {
 	 * @param array  $args    The page configuration.
 	 */
 	public function _register_page_settings( $page, $args ) {
+		// Register any settings (not fields).
+		if ( isset( $args['settings'] ) ) {
+			foreach ( $args['settings'] as $setting => $sanitize ) {
+				make_associative( $setting, $sanitize, null );
+
+				// Register the setting with the sanitize callback
+				register_setting( $page, $setting, $sanitize );
+			}
+		}
+
 		// Run through any bare fields (assume belonging to default, which will be added automatically)
 		if ( isset( $args['fields'] ) ) {
 			add_settings_section( 'default', null, null, $page );
