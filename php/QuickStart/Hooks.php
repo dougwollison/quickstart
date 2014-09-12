@@ -79,7 +79,7 @@ class Hooks extends \SmartPlugin {
 	}
 
 	/**
-	 * Alias to Tools::enqueue() for the backend
+	 * Alias to Tools::enqueue() for the backend.
 	 *
 	 * @since 1.0.0
 	 * @uses Tools::enqueue()
@@ -89,11 +89,11 @@ class Hooks extends \SmartPlugin {
 	public function _backend_enqueue( $enqueues ) {
 		Tools::enqueue( $enqueues );
 	}
-	
+
 	/**
 	 * Call the save_post hook for a specific post_type.
 	 *
-	 * Runs passed callback after running Tools::save_post_check()
+	 * Runs passed callback after running Tools::save_post_check().
 	 *
 	 * @since 1.6.0
 	 *

@@ -11,34 +11,34 @@ namespace QuickStart;
 
 class Form {
 	/**
-	 * Convert a field name to a valid ID
+	 * Convert a field name to a valid ID.
 	 *
 	 * @since 1.6.0 Fixed to catch all brackets.
 	 * @since 1.0.0
 	 *
-	 * @param string $name The name of the field
+	 * @param string $name The name of the field.
 	 *
-	 * @return string The valid ID
+	 * @return string The valid ID.
 	 */
 	public static function make_id( $name ) {
 		return preg_replace( '/\[(.+?)\]/', '_$1', $name );
 	}
 
 	/**
-	 * Convert a field name to a legible Label
+	 * Convert a field name to a legible label.
 	 *
 	 * @since 1.3.3
 	 *
-	 * @param string $name The name of the field
+	 * @param string $name The name of the field.
 	 *
-	 * @return string The legible label
+	 * @return string The legible label.
 	 */
 	public static function make_label( $name ) {
 		return make_legible( static::make_id( $name ) );
 	}
 
 	/**
-	 * Generate the format string to use in sprintp
+	 * Generate the format string to use in sprintp.
 	 *
 	 * @since 1.5.0 Added %id-field id.
 	 * @since 1.4.0
@@ -66,7 +66,7 @@ class Form {
 	/**
 	 * Wrap the field in a label, if wrap_with_label is true.
 	 *
-	 * @since 1.4.0 Renamed $html to $input, revised $format handling
+	 * @since 1.4.0 Renamed $html to $input, revised $format handling.
 	 * @since 1.0.0
 	 *
 	 * @param string $input    The html of the input to wrap.
@@ -115,6 +115,8 @@ class Form {
 	 *
 	 * @since 1.6.0 Added use of extract_value().
 	 * @since 1.4.0
+	 *
+	 * @uses extract_value()
 	 *
 	 * @param mixed  $data The raw data source.
 	 * @param string $type The type of source to expect (e.g. "post", "option", "array", or "raw").
@@ -188,7 +190,7 @@ class Form {
 			$value = static::get_value( $data, $source, $field );
 
 			/**
-			 * Build the HTML of the field
+			 * Build the HTML of the field.
 			 *
 			 * @since 1.1.0
 			 *
@@ -419,7 +421,7 @@ class Form {
 	 * Build a select field.
 	 *
 	 * @since 1.5.0 Add "null" option handling.
-	 * @since 1.4.2 Added [] to field name when multiple is true
+	 * @since 1.4.2 Added [] to field name when multiple is true.
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
@@ -533,7 +535,7 @@ class Form {
 	 *
 	 * @since 1.6.0 Added checked_first support.
 	 * @since 1.5.0 Added %id-fieldset id.
-	 * @since 1.4.2 Added dummy input for null value
+	 * @since 1.4.2 Added dummy input for null value.
 	 * @since 1.4.0 Overhauled item building and wrapper handling.
 	 * @since 1.0.0
 	 *
@@ -668,7 +670,7 @@ class Form {
 	 * @param bool   $image Wether or not this is for images or any file.
 	 * @param bool   $multi Wether or not this supports multiple files.
 	 * @param bool   $qsort Wether or not quick sort is desired.
-	 * @param string $show  What to display of the non-image file (title|filename)
+	 * @param string $show  What to display of the non-image file (title|filename).
 	 *
 	 * @return string The markup fo the item.
 	 */

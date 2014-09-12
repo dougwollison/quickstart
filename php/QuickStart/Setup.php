@@ -265,7 +265,7 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined
+	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined.
 	 * within a post_type configuration.
 	 *
 	 * @since 1.6.0 Add metaboxes/features numerically to prevent overwriting.
@@ -432,7 +432,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested post types.
 	 *
-	 * Simply loops through and calls Setup::_register_post_type()
+	 * Simply loops through and calls Setup::_register_post_type().
 	 *
 	 * @since 1.0.0
 	 *
@@ -452,8 +452,8 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested taxonomy.
 	 *
-	 * @since 1.6.0 Updated static replacement metabox title based on $multiple
-	 * @since 1.5.0 Added "static" option handling (custom taxonomy metabox)
+	 * @since 1.6.0 Updated static replacement metabox title based on $multiple.
+	 * @since 1.5.0 Added "static" option handling (custom taxonomy metabox).
 	 * @since 1.3.1 Removed Hooks::taxonomy_count call.
 	 * @since 1.0.0
 	 *
@@ -572,9 +572,9 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Register the requested taxonomies
+	 * Register the requested taxonomies.
 	 *
-	 * Simply loops through and calls Setup::_register_taxonomy()
+	 * Simply loops through and calls Setup::_register_taxonomy().
 	 *
 	 * @since 1.0.0
 	 *
@@ -594,9 +594,9 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested meta box.
 	 *
-	 * @since 1.3.5 Added use-args-as-field-args handling
-	 * @since 1.3.3 Fixed bug with single field expansion
-	 * @since 1.2.0 Moved dumb metabox logic to self::make_dumb_metabox()
+	 * @since 1.3.5 Added use-args-as-field-args handling.
+	 * @since 1.3.3 Fixed bug with single field expansion.
+	 * @since 1.2.0 Moved dumb metabox logic to self::make_dumb_metabox().
 	 * @since 1.0.0
 	 *
 	 * @param string $meta_box The slug of the meta box to register.
@@ -656,7 +656,7 @@ class Setup extends \SmartPlugin {
 	/**
 	 * Register the requested meta boxes.
 	 *
-	 * Simply loops through and calls Setup::register_meta_box()
+	 * Simply loops through and calls Setup::register_meta_box().
 	 *
 	 * @since 1.6.0 Handle metaboxes added numerically via run_content_setups().
 	 * @since 1.0.0
@@ -675,7 +675,7 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Setup the save hook for the meta box
+	 * Setup the save hook for the meta box.
 	 *
 	 * @since 1.6.0 Restructured for better handling.
 	 * @since 1.5.0 Added taxonomy metabox saving.
@@ -684,7 +684,7 @@ class Setup extends \SmartPlugin {
 	 * @since 1.1.1 Fixed typo causing $args['fields'] saving to save the $_POST key, not the value.
 	 * @since 1.0.0
 	 *
-	 * @param int    $post_id  The ID of the post being saved. (skip when saving the hook)
+	 * @param int    $post_id  The ID of the post being saved. (skip when saving)
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments from registration.
 	 */
@@ -806,7 +806,7 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Add the meta box to WordPress
+	 * Add the meta box to WordPress.
 	 *
 	 * @since 1.6.0 Added qs_metabox_ prefix to metabox id.
 	 * @since 1.0.0
@@ -854,9 +854,9 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Sets up the requested features
+	 * Sets up the requested features.
 	 *
-	 * Simply loops through and calls Setup::_register_feature()
+	 * Simply loops through and calls Setup::_register_feature().
 	 *
 	 * @since 1.6.0 Handle features added numerically via run_content_setups().
 	 * @since 1.0.0
@@ -1002,7 +1002,7 @@ class Setup extends \SmartPlugin {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array        $buttons        The currently enabled buttons. (skip when saving)
+	 * @param array        $buttons        The currently enabled buttons. (skip when saving).
 	 * @param array|string $buttons_to_add A list of buttons to enable.
 	 * @param int          $position       Optional An exact position to inser the button.
 	 */
@@ -1029,7 +1029,7 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Add buttons for MCE (specifically the second row)
+	 * Add buttons for MCE (specifically the second row).
 	 *
 	 * @see Setup::_enable_mce_buttons()
 	 */
@@ -1038,7 +1038,7 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Add buttons for MCE (specifically the third row)
+	 * Add buttons for MCE (specifically the third row).
 	 *
 	 * @see Setup::_enable_mce_buttons()
 	 */
@@ -1068,10 +1068,10 @@ class Setup extends \SmartPlugin {
 	 * @since 1.2.0 Removed separator before each button.
 	 * @since 1.0.0
 	 *
-	 * @param string $plugin The slug of the MCE plugin to be registered
-	 * @param string $src    The URL of the plugin
-	 * @param string $button Optional the ID of the button to be added to the toolbar
-	 * @param int    $row    Optional the row number of the toolbar (1, 2, or 3) to add the button to
+	 * @param string $plugin The slug of the MCE plugin to be registered.
+	 * @param string $src    The URL of the plugin.
+	 * @param string $button Optional the ID of the button to be added to the toolbar.
+	 * @param int    $row    Optional the row number of the toolbar (1, 2, or 3) to add the button to.
 	 */
 	public function register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
 		// Skip if the current use can't edit posts/pages
@@ -1097,12 +1097,12 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Register multiple MCE Plugins/Buttons
+	 * Register multiple MCE Plugins/Buttons.
 	 *
 	 * @since 1.2.0 Revised $args logic and flexibility.
 	 * @since 1.0.0
 	 *
-	 * @param array $plugins The list of MCE plugins to be registered
+	 * @param array $plugins The list of MCE plugins to be registered.
 	 */
 	public function register_mce_plugins( $plugins ) {
 		if( is_array( $plugins ) ) {
@@ -1169,17 +1169,17 @@ class Setup extends \SmartPlugin {
 	// =========================
 
 	/**
-	 * Register and build a setting
+	 * Register and build a setting.
 	 *
 	 * @since 1.4.0 Added 'source' to build_fields $args.
 	 * @since 1.3.0 Added 'wrap' to build_fields $args.
 	 * @since 1.1.0 Dropped stupid $args['fields'] processing.
 	 * @since 1.0.0
 	 *
-	 * @param string       $setting The id of the setting to register
-	 * @param array|string $args    The setting configuration (string accepted for name or html)
-	 * @param string       $group   The id of the group this setting belongs to
-	 * @param string       $page    The id of the page this setting belongs to
+	 * @param string       $setting The id of the setting to register.
+	 * @param array|string $args    The setting configuration (string accepted for name or html).
+	 * @param string       $group   The id of the group this setting belongs to.
+	 * @param string       $page    The id of the page this setting belongs to.
 	 */
 	public function _register_setting( $setting, $args = null, $section = null, $page = null ) {
 		make_associative( $setting, $args );
@@ -1250,14 +1250,14 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Register multiple settings
+	 * Register multiple settings.
 	 *
 	 * @since 1.0.0
 	 * @uses Setup::register_setting()
 	 *
-	 * @param array  $settings An array of settings to register
-	 * @param string $group    The id of the group this setting belongs to
-	 * @param string $page     The id of the page this setting belongs to
+	 * @param array  $settings An array of settings to register.
+	 * @param string $group    The id of the group this setting belongs to.
+	 * @param string $page     The id of the page this setting belongs to.
 	 */
 	public function _register_settings( $settings, $section = null, $page = null ) {
 		// If page is provided, rebuild $settings to be in $page => $settings format
@@ -1283,7 +1283,7 @@ class Setup extends \SmartPlugin {
 	// =========================
 
 	/**
-	 * Register and build a page
+	 * Register and build a page.
 	 *
 	 * @since 1.4.1 Fixed child page registration.
 	 * @since 1.2.0 Added child page registration from other methods.
@@ -1310,7 +1310,7 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Register multiple pages
+	 * Register multiple pages.
 	 *
 	 * @since 1.0.0
 	 *
@@ -1326,16 +1326,16 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Register the settings for this page
+	 * Register the settings for this page.
 	 *
 	 * @since 1.3.0 Reordered so bare fields go before sections.
-	 * @since 1.2.0 Moved child page registration to Setup::register_page()
+	 * @since 1.2.0 Moved child page registration to Setup::register_page().
 	 * @since 1.0.0
 	 *
 	 * @uses Setup::register_settings()
 	 *
-	 * @param string $setting The id of the page to register
-	 * @param array  $args    The page configuration
+	 * @param string $setting The id of the page to register.
+	 * @param array  $args    The page configuration.
 	 */
 	public function _register_page_settings( $page, $args ) {
 		// Run through any bare fields (assume belonging to default, which will be added automatically)
@@ -1356,16 +1356,16 @@ class Setup extends \SmartPlugin {
 	}
 
 	/**
-	 * Register the settings for this page
+	 * Register the settings for this page.
 	 *
 	 * @since 1.3.3 Fixed submenu registration for custom post types.
-	 * @since 1.3.0 Reworked processing, now supports passing a file and no callback/function
-	 * @since 1.2.0 Moved child page registration to Setup::register_page()
-	 * @since 1.1.0 'submenus' is now 'children'
+	 * @since 1.3.0 Reworked processing, now supports passing a file and no callback/function.
+	 * @since 1.2.0 Moved child page registration to Setup::register_page().
+	 * @since 1.1.0 'submenus' is now 'children'.
 	 * @since 1.0.0
 	 *
-	 * @param string $setting The id of the page to register
-	 * @param array  $args    The page configuration
+	 * @param string $setting The id of the page to register.
+	 * @param array  $args    The page configuration.
 	 */
 	public function _add_page_to_menu( $page, $args, $parent = null ) {
 		$default_args = array(

@@ -22,7 +22,7 @@ class Features extends \SmartPlugin {
 		'index_page_title_part' => array( 'wp_title_parts', 10, 1 ),
 		'index_page_title'      => array( 'wp_title', 10, 1 ),
 	);
-	
+
 	// =========================
 	// !Order Manager
 	// =========================
@@ -137,7 +137,7 @@ class Features extends \SmartPlugin {
 				<?php wp_nonce_field( 'manage_menu_order', '_qsnonce' )?>
 				<div class="qs-order-manager <?php if ( $post_type->hierarchical ) echo 'qs-nested'?>">
 					<?php static::menu_order_list( $posts, $post_type->hierarchical )?>
-					
+
 					<?php if ( ! $post_type->hierarchical ) :?>
 					<p class="qs-sort">
 						<label>Quick Sort:</label>
@@ -226,13 +226,13 @@ class Features extends \SmartPlugin {
 		</ol>
 		<?php
 	}
-	
+
 	// =========================
 	// !Custom Index Pages
 	// =========================
 
 	/**
-	 * Setup index page setting/hook for certain post types
+	 * Setup index page setting/hook for certain post types.
 	 *
 	 * @since 1.6.0
 	 *
@@ -243,15 +243,15 @@ class Features extends \SmartPlugin {
 		if ( ! isset( $args['post_type'] ) ) {
 			return;
 		}
-		
+
 		$post_types = csv_array( $args['post_type'] );
-		
+
 		foreach ( $post_types as $post_type ) {
 			// Make sure the post type is registered
 			if ( ! post_type_exists( $post_type ) ) {
 				continue;
 			}
-		
+
 			if ( is_admin() ) {
 				// Register the setting on the backend
 				$this->register_setting( "page_for_{$post_type}_posts" , array(
@@ -269,7 +269,7 @@ class Features extends \SmartPlugin {
 			} else {
 				// Add the query/title hooks on the frontend
 				self::index_page_query( $post_type );
-				
+
 				// Call the appropriate title hook
 				if ( version_compare( get_bloginfo( 'version' ), '4.0', '>=' ) ) {
 					// Use new wp_title_parts filter method
@@ -281,7 +281,7 @@ class Features extends \SmartPlugin {
 			}
 		}
 	}
-	
+
 	/**
 	 * Check if the page is a custom post type's index page.
 	 *
@@ -292,7 +292,7 @@ class Features extends \SmartPlugin {
 	 */
 	protected function _index_page_query( $query, $post_type ) {
 		$qv =& $query->query_vars;
-		
+
 		if ( '' != $qv['pagename'] ) {
 			$index = get_option( "page_for_{$post_type}_posts" );
 			if ( $query->queried_object_id == $index ) {
@@ -309,7 +309,7 @@ class Features extends \SmartPlugin {
 			}
 		}
 	}
-	
+
 	/**
 	 * Change the first part of the title to display the index page's title.
 	 *
@@ -320,15 +320,15 @@ class Features extends \SmartPlugin {
 	 */
 	protected function _index_page_title_part( $title_array, $post_type ) {
 		$index = get_option( "page_for_{$post_type}_posts" );
-		
+
 		// Check if this is the right post type archive and an index page is set
 		if ( is_post_type_archive() && get_query_var( 'post_type' ) == $post_type && $index ) {
 			$title_array[0] = get_the_title( $index );
 		}
-		
+
 		return $title_array;
 	}
-	
+
 	/**
 	 * Modify the title to display the index page's title.
 	 *
@@ -341,7 +341,7 @@ class Features extends \SmartPlugin {
 	 */
 	protected function _index_page_title( $title, $post_type ) {
 		$index = get_option( "page_for_{$post_type}_posts" );
-		
+
 		// Check if this is the right post type archive and an index page is set
 		if ( is_post_type_archive() && get_query_var( 'post_type' ) == $post_type && $index ) {
 			// Replace the archive title for the post type with the index page's title.
@@ -349,7 +349,7 @@ class Features extends \SmartPlugin {
 			$page_title = get_the_title( $index );
 			$title = str_replace( $archive_title, $page_title, $title );
 		}
-		
+
 		return $title;
 	}
 }

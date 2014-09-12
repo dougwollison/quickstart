@@ -11,7 +11,8 @@ namespace QuickStart;
 
 class Callbacks {
 	/**
-	 * Default admin page callback
+	 * Default admin page callback.
+	 *
 	 * This will server for most admin pages; uses the WordPress Settings API
 	 * to print out any fields registered.
 	 *

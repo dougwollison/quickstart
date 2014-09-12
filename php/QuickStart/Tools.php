@@ -13,7 +13,7 @@ class Tools {
 	/**
 	 * A list of accepted attributes for tag building.
 	 *
-	 * @since 1.5.0 Moved from Form to Tools class
+	 * @since 1.5.0 Moved from Form to Tools class.
 	 * @since 1.0.0
 	 *
 	 * @access public
@@ -35,8 +35,8 @@ class Tools {
 	 * Build an HTML tag.
 	 *
 	 * @since 1.6.0 Revised handling of boolean attributes, added $void_elements.
-	 * @since 1.5.0 Moved from Form to Tools class
-	 * @since 1.4.2 Updated boolean attribute handling
+	 * @since 1.5.0 Moved from Form to Tools class.
+	 * @since 1.4.2 Updated boolean attribute handling.
 	 * @since 1.0.0
 	 *
 	 * @param string $tag      The tag name.
@@ -87,7 +87,7 @@ class Tools {
 	/**
 	 * Load the requested helper files.
 	 *
-	 * @param mixed $helpers A name or array of helper files to load (sans extention)
+	 * @param mixed $helpers A name or array of helper files to load (sans extention).
 	 */
 	public static function load_helpers( $helpers ) {
 		csv_array_ref( $helpers );
@@ -108,8 +108,8 @@ class Tools {
 	 * @since 1.0.0
 	 * @uses Form::build_fields()
 	 *
-	 * @param object $post The post object to be sent when called via add_meta_box
-	 * @param array $args The callback args to be sent when called via add_meta_box
+	 * @param object $post The post object to be sent when called via add_meta_box.
+	 * @param array $args The callback args to be sent when called via add_meta_box.
 	 */
 	public static function build_meta_box( $post, $args ) {
 		// Extract $args
@@ -162,7 +162,7 @@ class Tools {
 	}
 
 	/**
-	 * Relabel the "post" post type
+	 * Relabel the "post" post type.
 	 *
 	 * @since 1.0.0
 	 *
@@ -219,7 +219,7 @@ class Tools {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type ( js/css )
+	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
 	public static function enqueue( $enqueues = null ) {
 		if ( isset( $enqueues['css'] ) ) {
@@ -272,12 +272,12 @@ class Tools {
 	}
 
 	/**
-	 * Take care of uploading and inserting an attachment
+	 * Take care of uploading and inserting an attachment.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $file The desired entry in $_FILES
-	 * @param array $attachment Optional An array of data for the attachment to be written to wp_posts
+	 * @param array $file The desired entry in $_FILES.
+	 * @param array $attachment Optional An array of data for the attachment to be written to wp_posts.
 	 */
 	public static function upload( $file, $attachment = array() ) {
 		$file = wp_handle_upload( $file, array( 'test_for m' => false ) );
@@ -310,7 +310,7 @@ class Tools {
 	}
 
 	/**
-	 * Run the appropriate checks to make sure that
+	 * Run the appropriate checks to make sure that.
 	 * this save_post callback should proceed.
 	 *
 	 * @since 1.2.0
@@ -358,11 +358,11 @@ class Tools {
 	// =========================
 
 	/**
-	 * Add various callbacks to specified hooks
+	 * Add various callbacks to specified hooks.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $hooks An array of callbacks, keyed by hook name
+	 * @param array $hooks An array of callbacks, keyed by hook name.
 	 */
 	public static function add_hooks( $hooks ) {
 		foreach ( $hooks as $hook => $callbacks ) {
@@ -380,11 +380,11 @@ class Tools {
 	}
 
 	/**
-	 * Add specified callbacks to various hooks ( good for adding a callback to multiple hooks... it could happen. )
+	 * Add specified callbacks to various hooks (good for adding a callback to multiple hooks... it could happen.).
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $callbacks An array of hooks, keyed by callback name
+	 * @param array $callbacks An array of hooks, keyed by callback name.
 	 */
 	public static function add_callbacks( $callbacks ) {
 		foreach ( $callbacks as $function => $hooks ) {
@@ -403,14 +403,14 @@ class Tools {
 	// =========================
 
 	/**
-	 * Simple div shortcode with name as class and attributes taken verbatim
+	 * Simple div shortcode with name as class and attributes taken verbatim.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $atts The array of attributes for the shortcode
-	 * @param string $content The content of the shortcode if applicable
-	 * @param string $tag The name of the shortcode being parsed
-	 * @return string $html The html of the processed shortcode
+	 * @param array $atts The array of attributes for the shortcode.
+	 * @param string $content The content of the shortcode if applicable.
+	 * @param string $tag The name of the shortcode being parsed.
+	 * @return string $html The html of the processed shortcode.
 	 */
 	public static function simple_shortcode( $atts, $content, $tag ) {
 		$html = '<div ';
@@ -432,12 +432,12 @@ class Tools {
 	}
 
 	/**
-	 * Setup a series of shortcodes, in tag => callback format
-	 * ( specify comma separated list of tags to have them all use the same callback )
+	 * Setup a series of shortcodes, in tag => callback format.
+	 * (specify comma separated list of tags to have them all use the same callback)
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $shortcodes The list of tags and their callbacks
+	 * @param array $shortcodes The list of tags and their callbacks.
 	 */
 	public static function register_shortcodes( $shortcodes ) {
 		csv_array_ref( $shortcodes );
@@ -459,11 +459,11 @@ class Tools {
 	// =========================
 
 	/**
-	 * Call the appropriate hide_[object] method(s)
+	 * Call the appropriate hide_[object] method(s).
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed $objects An object name, comma separated string, or array of objects to disable
+	 * @param mixed $objects An object name, comma separated string, or array of objects to disable.
 	 */
 	public static function hide( $objects ) {
 		csv_array_ref( $objects );
@@ -476,7 +476,7 @@ class Tools {
 	}
 
 	/**
-	 * Remove Posts from menus and dashboard
+	 * Remove Posts from menus and dashboard.
 	 *
 	 * @since 1.0.0
 	 */
@@ -505,7 +505,7 @@ class Tools {
 	}
 
 	/**
-	 * Remove Pages from menus and dashboard
+	 * Remove Pages from menus and dashboard.
 	 *
 	 * @since 1.0.0
 	 */
@@ -537,8 +537,6 @@ class Tools {
 	 * Remove Comments from menus, dashboard, editor, etc.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return bool true
 	 */
 	public static function hide_comments() {
 		// Remove Comment support from all post_types with it
@@ -615,7 +613,7 @@ class Tools {
 	}
 
 	/**
-	 * Remove Links from menus and dashboard
+	 * Remove Links from menus and dashboard.
 	 *
 	 * @since 1.0.0
 	 */
@@ -644,7 +642,7 @@ class Tools {
 	}
 
 	/**
-	 * Remove the wp_head garbage
+	 * Remove the wp_head garbage.
 	 *
 	 * @since 1.0.0
 	 */
