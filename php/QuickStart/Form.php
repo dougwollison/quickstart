@@ -314,8 +314,6 @@ class Form {
 	 * @return string The HTML for the fields.
 	 */
 	public static function build_fields( $fields, $data = null, $source = 'raw', $echo = false, $wrap = true ) {
-		$html = '';
-
 		// If $fields is actually meant to be an array of all arguments for this
 		// method, it should include the __extract value, extract if so.
 		if ( in_array( '__extract', $fields ) ) {
@@ -324,8 +322,18 @@ class Form {
 
 		// Check if $fields is a callback, run it if so.
 		if ( is_callable( $fields ) ) {
-			$html .= call_user_func( $fields, $data );
+			/**
+			 * Build the HTML of the fields.
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param mixed $data The data source.
+			 *
+			 * @return string The HTML of the fields.
+			 */
+			$html = call_user_func( $fields, $data );
 		} else {
+			$html = '';
 			csv_array_ref( $fields );
 
 			// Run through each field; key is the field name, value is the settings
