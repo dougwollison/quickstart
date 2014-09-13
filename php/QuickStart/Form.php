@@ -588,8 +588,8 @@ class Form {
 			$i++;
 		}
 
-		// Sort the items with the checked ones first if desired
-		if ( isset( $settings['checked_first'] ) && $settings['checked_first'] ) {
+		// Sort the items with the checked ones first unless not wanted
+		if ( ! isset( $settings['checked_first'] ) || $settings['checked_first'] ) {
 			usort( $items, function( $a, $b ) {
 				$a_checked = $a['checked'] ? 1 : 0;
 				$b_checked = $b['checked'] ? 1 : 0;
@@ -834,8 +834,8 @@ class Form {
 		}
 
 		$html = '<div class="qs-field qs-media qs-editgallery">';
-			$html .= '<button type="button" class="button qs-button">' . $settings['label'] . '</button>';
-			$html .= '<button type="button" class="button qs-clear">Clear</button>';
+			$html .= '<button type="button" class="button-primary qs-button">' . $settings['label'] . '</button>';
+			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
 			$html .= '<div class="qs-preview">';
 			foreach ( explode( ',', $value ) as $image ) {
 				$html .= wp_get_attachment_image( $image, 'thumbnail', false, array( 'data-id' => $image ) );
