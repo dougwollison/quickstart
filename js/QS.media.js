@@ -363,7 +363,7 @@ window.QS = window.QS || {};
 				choose:     choose,
 
 				// Functionality Options
-				multiple:   multi,
+				multiple:   is_multi,
 				media: 		type,
 
 				// Events
@@ -473,12 +473,12 @@ window.QS = window.QS || {};
 		var $elm = $( this );
 
 		// If this is a button, update $elm to the parent qs-field
-		if ( $elm.hasClass('qs-button') ) {
-			$elm = $elm.parents('.qs-editgallery');
+		if ( $elm.hasClass( 'qs-button' ) ) {
+			$elm = $elm.parents('.qs-editgallery' );
 		}
 
 		// Load the stored editGallery configurations
-		var plugin = $elm.data('QS.editGallery');
+		var plugin = $elm.data( 'QS.editGallery' );
 
 		// Extract the passed options
 		var options = event.data;
@@ -549,11 +549,22 @@ window.QS = window.QS || {};
 				items: 'img',
 				containment: 'parent',
 				update: function() {
+					// Rebuild the items list
 					var items = [];
 					plugin.$preview.find( 'img' ).each(function(){
 						items.push( $( this ).data( 'id' ) );
 					});
-					plugin.$input.val( items );
+					
+					// Update the input
+					plugin.$input.val( items.join(',') )
+					
+					// Update the frame's selection order
+					plugin.frame.options.selection.models.sort(function(a, b){
+						var _a = _.indexOf(items, a.id),
+							_b = _.indexOf(items, b.id);
+						
+						return _a > _b ? 1 : -1;
+					});
 				}
 			});
 		}
@@ -601,7 +612,8 @@ window.QS = window.QS || {};
 	 * @param object options  Optional. The custom options to pass to the plugin.
 	 */
 	jQuery.fn.QS = function( /* [selector,] plugin [, options] */ ) {
-		var selector, plugin, options;
+		var $elm = $(this),
+			selector, plugin, options;
 
 		// Proceed based on number of arguments
 		switch ( arguments.length ) {
