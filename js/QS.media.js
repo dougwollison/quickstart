@@ -543,30 +543,6 @@ window.QS = window.QS || {};
 
 			// Store the plugin options for later use
 			$elm.data( 'QS.editGallery', plugin );
-
-			// Also, setup sortabilty of the preview
-			plugin.$preview.sortable({
-				items: 'img',
-				containment: 'parent',
-				update: function() {
-					// Rebuild the items list
-					var items = [];
-					plugin.$preview.find( 'img' ).each(function(){
-						items.push( $( this ).data( 'id' ) );
-					});
-					
-					// Update the input
-					plugin.$input.val( items.join(',') )
-					
-					// Update the frame's selection order
-					plugin.frame.options.selection.models.sort(function(a, b){
-						var _a = _.indexOf(items, a.id),
-							_b = _.indexOf(items, b.id);
-						
-						return _a > _b ? 1 : -1;
-					});
-				}
-			});
 		}
 
 		// Set this frame as the current frame
