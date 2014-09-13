@@ -11,7 +11,7 @@ window.QS = window.QS || {};
 	 */
 
 	/**
-	 * Convert string to Title Case
+	 * Convert string to Title Case.
 	 *
 	 * @since 1.4.0
 	 *
@@ -25,7 +25,7 @@ window.QS = window.QS || {};
 	}
 
 	/**
-	 * Runs selected queries and creates new entries for those elements
+	 * Runs selected queries and creates new entries for those elements.
 	 *
 	 * @since 1.4.0
 	 *
@@ -300,10 +300,10 @@ window.QS = window.QS || {};
 	 */
 
 	/**
-	 * Setup file adder functionality
+	 * Setup file adder functionality.
 	 *
-	 * @since 1.6.0 Moved sortable handling, added thubmnail check, show option, and initonly mode
-	 * @since 1.5.0 Overhauled for live-plugin purposes
+	 * @since 1.6.0 Moved sortable handling, added thubmnail check, show option, and initonly mode.
+	 * @since 1.5.0 Overhauled for live-plugin purposes.
 	 * @since 1.2.0
 	 *
 	 * @param Event event The click event that triggered this.
@@ -460,10 +460,10 @@ window.QS = window.QS || {};
 	};
 
 	/**
-	 * Setup gallery editor functionality
+	 * Setup gallery editor functionality.
 	 *
-	 * @since 1.6.0 Preloading of gallery items, initonly mode, inline storable
-	 * @since 1.5.0 Overhauled for live-plugin purposes
+	 * @since 1.6.0 Preloading of gallery items, initonly mode.
+	 * @since 1.5.0 Overhauled for live-plugin purposes.
 	 * @since 1.0.0
 	 *
 	 * @param Event event The click event that triggered this.
@@ -559,10 +559,10 @@ window.QS = window.QS || {};
 
 
 	/**
-	 * Setup image setter functionality
+	 * Setup image setter functionality.
 	 *
-	 * @since 1.5.0 Modified to reflect live-plugin approach
-	 * @since 1.4.0 Converted to addFile alias
+	 * @since 1.5.0 Modified to reflect live-plugin approach.
+	 * @since 1.4.0 Converted to addFile alias.
 	 * @since 1.0.0
 	 *
 	 * @param Event event The click event that triggered this.
@@ -578,9 +578,9 @@ window.QS = window.QS || {};
 	};
 
 	/**
-	 * Setup a QS plugin for an element
+	 * Setup a QS plugin for an element.
 	 *
-	 * @since 1.5.0 Overhauled for live-plugin purposes
+	 * @since 1.5.0 Overhauled for live-plugin purposes.
 	 * @since 1.0.0
 	 *
 	 * @param string selector Optional. The selector to delegate the click event to.
