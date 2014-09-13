@@ -675,11 +675,11 @@ class Form {
 	 * @return string The markup fo the item.
 	 */
 	public static function build_addfile_item( $id, $name, $is_image, $is_multi, $use_sort, $show ) {
-		if ( $use_sort ) {
+		if ( $use_sort && ! is_null( $id ) ) {
 			// Setup item for quick sort support
-			$name = sanitize_title( basename( wp_get_attachment_url( $id ) ) );
-			$date = get_the_date( 'U' );
-			$html = sprintf( '<div class="qs-item" data-name="%s" data-date="%s">', $name, $date );
+			$item_name = sanitize_title( basename( wp_get_attachment_url( $id ) ) );
+			$item_date = get_the_date( 'U' );
+			$html = sprintf( '<div class="qs-item" data-name="%s" data-date="%s">', $item_name, $item_date );
 		} else {
 			$html = '<div class="qs-item">';
 		}
@@ -777,7 +777,7 @@ class Form {
 					$html .= static::build_addfile_item( $file, $name, $is_image, $is_multi, $use_sort, $show );
 
 					// If we're only to do a single item, break now.
-					if ( ! $multi ) {
+					if ( ! $is_multi ) {
 						break;
 					}
 				}
@@ -785,7 +785,7 @@ class Form {
 			$html .= '</div>';
 
 			// Add quick sort buttons if enabled
-			if ( $quicksort ) {
+			if ( $use_sort ) {
 				$html .= '<div class="qs-sort">
 					<label>Quick Sort:</label>
 					<button type="button" class="button-secondary" value="name">Alphabetical</button>
