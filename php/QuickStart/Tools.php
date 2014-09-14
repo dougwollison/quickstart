@@ -296,7 +296,7 @@ class Tools {
 			'post_content'   => '',
 			'post_mime_type' => $type,
 			'post_status'	 => 'publish',
-			'guid'           => $url
+			'guid'           => $url,
 		);
 
 		$attachment = wp_parse_args( $attachment, $defaults );
@@ -567,12 +567,12 @@ class Tools {
 
 		// Remove Comments/Trackback meta boxes from post editor
 		add_action( 'admin_init', function() {
-			remove_meta_box( 'trackbacksdiv','post','normal' );
-			remove_meta_box( 'commentstatusdiv','post','normal' );
-			remove_meta_box( 'commentsdiv','post','normal' );
-			remove_meta_box( 'trackbacksdiv','page','normal' );
-			remove_meta_box( 'commentstatusdiv','page','normal' );
-			remove_meta_box( 'commentsdiv','page','normal' );
+			remove_meta_box( 'trackbacksdiv',    'post', 'normal' );
+			remove_meta_box( 'commentstatusdiv', 'post', 'normal' );
+			remove_meta_box( 'commentsdiv',      'post', 'normal' );
+			remove_meta_box( 'trackbacksdiv',    'page', 'normal' );
+			remove_meta_box( 'commentstatusdiv', 'page', 'normal' );
+			remove_meta_box( 'commentsdiv',      'page', 'normal' );
 		} );
 
 		// Remove Comments column from Posts/Pages editor

@@ -552,15 +552,15 @@ class Setup extends \SmartPlugin {
 		// Finish setting up the static taxonomy metabox if needed
 		if ( $static ) {
 			$this->register_meta_box( "$taxonomy-terms", array(
-				'title' => ( $multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name ),
+				'title'     => ( $multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name ),
 				'post_type' => $taxonomy_obj->object_type,
-				'context' => 'side',
-				'priority' => 'core',
-				'name' => $taxonomy,
-				'type' => $multiple ? 'checklist' : 'select',
-				'class' => 'widefat static-terms',
-				'null' => '&mdash; None &mdash;',
-				'taxonomy' => $taxonomy,
+				'context'   => 'side',
+				'priority'  => 'core',
+				'name'      => $taxonomy,
+				'type'      => $multiple ? 'checklist' : 'select',
+				'class'     => 'widefat static-terms',
+				'null'      => '&mdash; None &mdash;',
+				'taxonomy'  => $taxonomy,
 			) );
 		}
 
@@ -1187,7 +1187,7 @@ class Setup extends \SmartPlugin {
 		// Default arguments
 		$default_args = array(
 			'title'    => make_legible( $setting ),
-			'sanitize' => null
+			'sanitize' => null,
 		);
 
 		// Default $section to 'default'
