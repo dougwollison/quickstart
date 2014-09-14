@@ -588,7 +588,7 @@ window.QS = window.QS || {};
 	 * @param object options  Optional. The custom options to pass to the plugin.
 	 */
 	jQuery.fn.QS = function( /* [selector,] plugin [, options] */ ) {
-		var $elm = $(this),
+		var $elm = $( this ),
 			selector, plugin, options;
 
 		// Proceed based on number of arguments
