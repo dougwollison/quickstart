@@ -32,7 +32,7 @@ window.QS = window.QS || {};
 
 			if ( method === 'flip' ) {
 				// Since jQuery has no reverse method...
-				collection.each(function(){
+				collection.each(function() {
 					$( this ).prependTo( parent );
 				});
 			} else {
@@ -60,7 +60,7 @@ window.QS = window.QS || {};
 })( jQuery );
 
 jQuery(function($){
-	function randStr(){
+	function randStr() {
 		return Math.round(Math.random() * 100000000).toString(36);
 	}
 
@@ -110,7 +110,7 @@ jQuery(function($){
 	});
 
 	// Quick Sort buttons
-	$( '.qs-field' ).on( 'click', '.qs-sort button', function(){
+	$( '.qs-field' ).on( 'click', '.qs-sort button', function() {
 		var method = $( this ).val();
 		var parent = $( this ).parents( '.qs-field' );
 

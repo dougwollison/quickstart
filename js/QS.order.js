@@ -45,7 +45,7 @@ jQuery(function( $ ) {
 		.nestedSortable( nestedSortableOptions );
 
 	// Quick Sort buttons
-	$( '.qs-order-manager' ).on( 'click', '.qs-sort button', function(){
+	$( '.qs-order-manager' ).on( 'click', '.qs-sort button', function() {
 		var method = $( this ).val();
 
 		if ( method ) {
