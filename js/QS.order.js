@@ -13,7 +13,7 @@ jQuery(function( $ ) {
 		placeholder:      'qs-placeholder',
 		revert:           true,
 		tolerance:        'pointer',
-		toleranceElement: '> div',
+		toleranceElement: '> div'
 	};
 
 	// Create the nestedSortable options

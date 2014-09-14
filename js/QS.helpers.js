@@ -22,14 +22,14 @@ window.QS = window.QS || {};
 		 *
 		 * @return array The sorted collection of elements.
 		 */
-		 sortItems: function( parent, item, method ) {
-		 	if ( typeof parent === 'string' ) {
-			 	parent = $( parent );
-		 	}
-
+		sortItems: function( parent, item, method ) {
+			if ( typeof parent === 'string' ) {
+				parent = $( parent );
+			}
+			
 			// Get all the first level items
 			var collection = parent.children( item );
-
+			
 			if ( method === 'flip' ) {
 				// Since jQuery has no reverse method...
 				collection.each(function() {
@@ -40,23 +40,22 @@ window.QS = window.QS || {};
 				collection.sort(function( a, b ) {
 					var a_ = $( a ).data( method );
 					var b_ = $( b ).data( method );
-
+					
 					if ( a_ === b_ ){
 						return 0;
 					}
-
+					
 					return a_ > b_ ? 1 : -1;
 				});
-
+				
 				// Reload list with sorted items
 				collection.detach().appendTo( parent );
 			}
-
+			
 			// Refresh the sortability
 			parent.sortable( 'refresh' );
-		 }
-	 });
-
+		}
+	});
 })( jQuery );
 
 jQuery(function($){

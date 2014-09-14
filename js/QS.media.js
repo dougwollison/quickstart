@@ -189,7 +189,7 @@ window.QS = window.QS || {};
 					selection.add( attachment ? [ attachment ] : [] );
 				} );
 			}
-		},
+		}
 	});
 
 	/**
@@ -364,7 +364,7 @@ window.QS = window.QS || {};
 
 				// Functionality Options
 				multiple:   is_multi,
-				media: 		type,
+				media:		type,
 
 				// Events
 				events:     {
@@ -400,7 +400,7 @@ window.QS = window.QS || {};
 							if ( preview.is( 'img' ) && 'image' === attachment.type ) {
 								// Preview is an image, update the source
 								// Preview is an image, update the source
-								if ( null == attachment.sizes.thumbnail ) {
+								if ( null === attachment.sizes.thumbnail ) {
 									preview.attr( 'src', attachment.sizes.thumbnail.url );
 								} else {
 									preview.attr( 'src', attachment.sizes.full.url );
