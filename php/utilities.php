@@ -184,9 +184,9 @@ function pluralize( $string ) {
  		array( '/erson$/', 'eople' ), // person => people
  		array( '/man$/', 'men' ), // woman => women
 		array( '/(fe?)$/i', '$1ves' ), // half => halves, knife > knives
-		array( '/([^aeiou])y$/', '$1ies' ),  // baby => babies
+		array( '/([^aeiou])y$/', '$1ies' ), // baby => babies
 		array( '/(ch|x|s)$/', '$1es' ), // batch => batches, box => boxes, bus => buses
-		array( '/$/', 's' ) // thing => things
+		array( '/$/', 's' ), // thing => things
 	);
 
 	return _process_n_form( $string, $plurals );
@@ -210,7 +210,7 @@ function singularize( $string ) {
 		array( '/ves$/i', 'f' ), // halves => half
 		array( '/([^aeiou])ies$/', '$1y' ), // babies => baby
 		array( '/(ch|x|s)es$/', '$1' ), // batches => batch, boxes => box, buses => bus
- 		array( '/s$/i', '' ) // things => thing
+ 		array( '/s$/i', '' ), // things => thing
 	);
 
 	return _process_n_form( $string, $singulars );

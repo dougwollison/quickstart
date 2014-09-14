@@ -258,11 +258,11 @@ class Features extends \SmartPlugin {
 					'title' => sprintf( __( 'Page for %s' ) , get_post_type_object( $post_type )->labels->name ),
 					'field' => function( $value ) use ( $post_type ) {
 						wp_dropdown_pages( array(
-							'name' => "page_for_{$post_type}_posts",
-							'echo' => 1,
-							'show_option_none' => __( '&mdash; Select &mdash;' ),
+							'name'              => "page_for_{$post_type}_posts",
+							'echo'              => 1,
+							'show_option_none'  => __( '&mdash; Select &mdash;' ),
 							'option_none_value' => '0',
-							'selected' => $value
+							'selected'          => $value,
 						) );
 					}
 				), 'default', 'reading' );
@@ -298,12 +298,12 @@ class Features extends \SmartPlugin {
 			if ( $query->queried_object_id == $index ) {
 				$post_type_obj = get_post_type_object( $post_type );
 				if ( ! empty( $post_type_obj->has_archive ) ) {
-					$qv['post_type'] = $post_type;
-					$qv['name'] = '';
-					$qv['pagename'] = '';
-					$query->is_page = false;
-					$query->is_singular = false;
-					$query->is_archive = true;
+					$qv['post_type']             = $post_type;
+					$qv['name']                  = '';
+					$qv['pagename']              = '';
+					$query->is_page              = false;
+					$query->is_singular          = false;
+					$query->is_archive           = true;
 					$query->is_post_type_archive = true;
 				}
 			}

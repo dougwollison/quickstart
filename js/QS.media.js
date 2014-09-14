@@ -609,8 +609,7 @@ window.QS = window.QS || {};
 					options  = arguments[2];
 				}
 				break;
-			case 1:
-				// ( plugin )
+			case 1: // ( plugin )
 				plugin = arguments[0];
 				break;
 			default:

@@ -37,7 +37,7 @@ function get_postfield( $field, $id ) {
 		'content_filtered',
 		'parent',
 		'type',
-		'mime_type'
+		'mime_type',
 	);
 
 	$where = 'ID';

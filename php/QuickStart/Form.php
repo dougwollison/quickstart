@@ -503,7 +503,7 @@ class Form {
 			$hidden = Tools::build_tag( 'input', array(
 				'type' => 'hidden',
 				'name' => $settings['name'],
-				'value' => null
+				'value' => null,
 			) );
 		}
 
@@ -628,7 +628,7 @@ class Form {
 		$hidden = Tools::build_tag( 'input', array(
 			'type' => 'hidden',
 			'name' => $settings['name'],
-			'value' => null
+			'value' => null,
 		) );
 
 		// Optionally wrap the fieldset

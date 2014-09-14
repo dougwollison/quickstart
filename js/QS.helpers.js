@@ -103,9 +103,9 @@ jQuery(function($){
 		var axis = $( this ).data( 'axis' );
 
 		$( this ).sortable({
-			items: '.qs-item',
+			items:       '.qs-item',
 			containment: 'parent',
-			axis: axis ? axis : false
+			axis:        axis ? axis : false
 		});
 	});
 
@@ -167,8 +167,8 @@ jQuery(function($){
 		}).on( 'click', '.qs-delete', updateItems);
 
 		container.sortable({
-			items: '.qs-item',
-			axis: 'y',
+			items:  '.qs-item',
+			axis:   'y',
 			update: updateItems
 		});
 	});
