@@ -20,6 +20,7 @@ These feautres are accessible through the following classes:
 - `Form`, the field building kit for creating inputs and other form elements.
 - `Template`, various (currently just 1) methods for quickly handling repetative elements of page template files.
 - `Callbacks`, assorted (again, just 1 at the moment) callback methods for special uses.
+- `Features`, setup and utility methods for special features offered by QuickStart.
 
 ## Setup Class
 
