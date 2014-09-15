@@ -19,10 +19,10 @@ function quickstart_enqueue_media_manager(){
 
 	QuickStart\Tools::enqueue( array(
 		'css' => array(
-			'qs-media-css' => array( plugins_url( '/css/QS.media.css', QS_FILE ), array( 'media-views' ) )
+			'qs-media-css' => array( plugins_url( '/css/qs-media.css', QS_FILE ), array( 'media-views' ) )
 		),
 		'js' => array(
-			'qs-media-js' => array( plugins_url( '/js/QS.media.js', QS_FILE ), array( 'underscore', 'media-editor' ) )
+			'qs-media-js' => array( plugins_url( '/js/qs-media.js', QS_FILE ), array( 'underscore', 'media-editor' ) )
 		)
 	) );
 }
