@@ -198,7 +198,7 @@ QuickStart( array(
 				 * @type string|array A source url, or an array (numeric|associative)
 				 *		of the $src, $deps, $ver, $in_footer arguments.
 				 */
-				'google-maps' => 'https://maps.googleapis.com/maps/api/js?sensor=true'
+				'google-maps' => 'https://maps.googleapis.com/maps/api/js?sensor=true',
 				'mytheme' => array(
 					'src' => THEME_URL . '/js/admin.js',
 					'deps' => array( 'google-maps' ),
