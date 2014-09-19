@@ -383,7 +383,7 @@ window.QS = window.QS || {};
 						// Loop through all attachments found
 						_.each( attachments, function( attachment, i ) {
 							// If not multiple and this isn't the first item, skip
-							if ( ! is_multi && 0 === i ) {
+							if ( ! is_multi && i > 0 ) {
 								return;
 							}
 
