@@ -24,7 +24,7 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
 = 1.6.1 =
-Fixed bug with addFile not loading selected attachment in single mode.
+Fixed bug with addFile not loading selected attachment in single mode, restructured files and added auto loading.
 
 = 1.6.0 =
 Quick sort buttons for sortables, post type index feature, smarter checklists, index helper, lots of stuff.

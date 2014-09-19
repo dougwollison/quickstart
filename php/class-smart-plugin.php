@@ -4,6 +4,8 @@
  *
  * @package QuickStart
  * @subpackage Smart_Plugin
+ *
+ * @since 1.6.1 Changed name for WordPress standards
  * @since 1.0.0
  */
 
