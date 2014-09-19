@@ -302,6 +302,7 @@ window.QS = window.QS || {};
 	/**
 	 * Setup file adder functionality.
 	 *
+	 * @since 1.6.1 Fixed typo with single attachment check
 	 * @since 1.6.0 Moved sortable handling, added thubmnail check, show option, and initonly mode.
 	 * @since 1.5.0 Overhauled for live-plugin purposes.
 	 * @since 1.2.0
