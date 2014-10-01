@@ -302,6 +302,7 @@ window.QS = window.QS || {};
 	/**
 	 * Setup file adder functionality.
 	 *
+	 * @since 1.6.2 Fixed attachment date for just-uploaded files
 	 * @since 1.6.1 Fixed typo with single attachment check
 	 * @since 1.6.0 Moved sortable handling, added thubmnail check, show option, and initonly mode.
 	 * @since 1.5.0 Overhauled for live-plugin purposes.
@@ -413,6 +414,11 @@ window.QS = window.QS || {};
 								} else {
 									preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
 								}
+							}
+
+							// Convert the date if only a timestamp
+							if ( typeof attachment.date === 'number' ) {
+								attachment.date = new Date( attachment.date );
 							}
 
 							// Add data attributes for quick sort support
