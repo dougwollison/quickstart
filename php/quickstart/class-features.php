@@ -178,7 +178,7 @@ class Features extends \Smart_Plugin {
 			SELECT ID, post_title, post_parent, post_date
 			FROM $wpdb->posts
 			WHERE post_type = %s
-			AND post_status != 'auto-draft'
+			AND post_status NOT IN ('auto-draft', 'trash')
 			$post_parent
 			ORDER BY menu_order ASC
 		", $type, $parent ) );
