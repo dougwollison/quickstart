@@ -246,6 +246,9 @@ class Features extends \Smart_Plugin {
 
 		$post_types = csv_array( $args['post_type'] );
 
+		// Make sure the index helper is loaded
+		Tools::load_helpers( 'index' );
+
 		foreach ( $post_types as $post_type ) {
 			// Make sure the post type is registered
 			if ( ! post_type_exists( $post_type ) ) {
