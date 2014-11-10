@@ -81,6 +81,7 @@ function is_parent_of( $child, $post_id = null ) {
 /**
  * Check if a page/post has ANY children.
  *
+ * @since 1.6.2 Fixed for non-pages.
  * @since 1.6.0
  *
  * @param int|object $post_id Optional The ID or object of the post to compare (or current post).
@@ -88,15 +89,23 @@ function is_parent_of( $child, $post_id = null ) {
  * @return bool Wether or not the post has children.
  */
 function has_children( $post_id = null ) {
+	global $wpdb;
+
 	// Get the post ID
 	if ( is_null( $post ) ) {
 		global $post;
 		$post_id = $post->ID;
+		$post_type = $post->post_type;
 	} else if ( is_object( $post ) ) {
 		$post_id = $post->ID;
+		$post_type = $post->post_type;
+	} else {
+		$post_type = get_post_type( $post_id );
 	}
 
-	return count( get_pages( 'child_of=' . $post->ID ) ) > 0;
+	$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status = 'publish' AND post_parent = %d AND post_type = %s", $post_id, $post_type ) );
+
+	return $count > 0;
 }
 
 // =========================
