@@ -107,7 +107,7 @@ class Tools {
 	public static function load_helpers( $helpers ) {
 		csv_array_ref( $helpers );
 		foreach ( $helpers as $helper ) {
-			$constant = "QS_LOADED_{$helper}";
+			$constant = 'QS_LOADED_' . strtoupper( $helper );
 			if ( defined( $constant ) ) {
 				continue;
 			}
