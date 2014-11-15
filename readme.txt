@@ -23,6 +23,9 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
+= 1.6.2 =
+Added Google Analytics code helper to QuickStart\Template, minor bug fixes to addFile field.
+
 = 1.6.1 =
 Fixed bug with addFile not loading selected attachment in single mode, restructured files and added auto loading.
 
