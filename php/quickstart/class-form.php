@@ -66,6 +66,7 @@ class Form {
 	/**
 	 * Wrap the field in a label, if wrap_with_label is true.
 	 *
+	 * @since 1.6.3 Added handling of description option, mild restructuring.
 	 * @since 1.4.0 Renamed $html to $input, revised $format handling.
 	 * @since 1.0.0
 	 *
@@ -76,23 +77,29 @@ class Form {
 	 * @return string The processed HTML.
 	 */
 	public static function maybe_wrap_field( $input, $settings, $format = null ) {
-		// If format setting exists, overwrite $format with it
-		if ( isset( $settings['format'] ) ) {
-			$format = $settings['format'];
-		}
-
-		// If no format provided, make it an empty array
-		if ( is_null( $format ) ) {
-			$format = array();
-		}
-
-		// If $format is an array, run through build_field_wrapper()
-		if ( is_array( $format ) ) {
-			$format = call_user_func_array( 'static::build_field_wrapper', $format );
+		// If a description is set, prep it
+		if ( isset( $settings['description'] ) && ! empty( $settings['description'] ) ) {
+			$settings['description'] = sprintf( '<p class="description">%s</p>', $settings['description'] );
+		} else {
+			// Make sure it's set but blank if not
+			$settings['description'] = '';
 		}
 
 		if ( isset( $settings['wrap_with_label'] ) && $settings['wrap_with_label'] ) {
-			$settings['input'] = $input;
+			// If format setting exists, overwrite $format with it
+			if ( isset( $settings['format'] ) ) {
+				$format = $settings['format'];
+			}
+	
+			// If no format is provided, make it an empty array
+			if ( is_null( $format ) ) {
+				$format = array();
+			}
+	
+			// If $format is an array, run through build_field_wrapper()
+			if ( is_array( $format ) ) {
+				$format = call_user_func_array( 'static::build_field_wrapper', $format );
+			}
 
 			/**
 			 * Filter the format string to be used.
@@ -103,9 +110,14 @@ class Form {
 			 * @param array  $settings The settings array used by the field.
 			 */
 			$format = apply_filters( 'qs_form_field_wrap_format', $format, $settings );
+			
+			// Store the input HTML in the 'input' setting for sprintp()
+			$settings['input'] = $input;
 
 			return sprintp( $format, $settings );
 		} else {
+			// Manually append the description
+			$input .= $settings['description'];
 			return $input;
 		}
 	}
@@ -455,7 +467,7 @@ class Form {
 			}
 
 			$options .= sprintf(
-				'<option value="%s" %s> %s</option>',
+				'<option value="%s" %s>%s</option>',
 				$val,
 				in_array( $val, (array) $value ) ? 'selected' : '',
 				$label
