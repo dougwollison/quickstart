@@ -40,6 +40,7 @@ class Form {
 	/**
 	 * Generate the format string to use in sprintp.
 	 *
+	 * @since 1.6.3 Added %description placeholder and qs-field-[side] class.
 	 * @since 1.5.0 Added %id-field id.
 	 * @since 1.4.0
 	 *
@@ -51,12 +52,14 @@ class Form {
 	public static function build_field_wrapper( $side = 'left', $tag = 'div' ) {
 		$format = '<' . $tag . ' class="qs-field %type %wrapper_class" id="%id-field">';
 
-		$label = '<label for="%id" class="qs-label">%label</label>';
+		$label = '<label for="%id" class="qs-label qs-label-' . $side . '">%label</label>';
 		if ( $side == 'right' ) {
 			$format .= "%input $label";
 		} else {
 			$format .= "$label %input";
 		}
+		
+		$format .= '%description';
 
 		$format .= '</' . $tag . '>';
 
