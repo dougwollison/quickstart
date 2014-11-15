@@ -34,6 +34,7 @@ class Tools {
 	/**
 	 * Build an HTML tag.
 	 *
+	 * @since 1.6.3 Further refined attribute filtering and escaping.
 	 * @since 1.6.2 Added attribute escaping.
 	 * @since 1.6.0 Revised handling of boolean attributes, added $void_elements.
 	 * @since 1.5.0 Moved from Form to Tools class.
@@ -55,27 +56,29 @@ class Tools {
 		$html = "<$tag";
 
 		foreach ( $atts as $attr => $value ) {
-			// Escape the value for attribute use
-			if ( is_string( $value ) ) {
-				$value = esc_attr( $value );
-			} elseif ( is_array( $value ) ) {
-				array_walk( $value, 'esc_attr' );
+			// Convert numerically added boolean attributes
+			if ( is_numeric( $attr ) ) {
+				$attr = $value;
+				$value = true;
 			}
 			
-			if ( is_numeric ( $attr ) ) {
-				// Boolean attributes; method 1
-				$html .= " $value";
-			} else if ( in_array( $attr, $accepted ) && $attr != 'value' && is_bool( $value ) ) {
-				// Boolean attributes, method 2
+			// Make sure it's a registerd attribute (or data- attribute)
+			if ( ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) {
+				continue;
+			}
+			
+			if ( 'value' != $attr && is_bool( $value ) ) {
+				// Boolean attributes (e.g. checked, selected)
 				$html .= $value ? " $attr" : '';
 			} else {
-				// Make sure it's a registerd attribute (or data- attribute)
-				if ( ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) continue;
-
+				// Normal attribute
 				if ( is_array( $value ) ) {
 					// Implode into a space separated list
 					$value = implode( ' ', $value );
 				}
+				
+				// Escape the value for attribute use
+				$value = esc_attr( $value );
 
 				$html .= " $attr=\"$value\"";
 			}
