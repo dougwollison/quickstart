@@ -40,7 +40,7 @@ class Form {
 	/**
 	 * Generate the format string to use in sprintp.
 	 *
-	 * @since 1.6.3 Added %description placeholder and qs-field-[side] class.
+	 * @since 1.7.0 Added %description placeholder and qs-field-[side] class.
 	 * @since 1.5.0 Added %id-field id.
 	 * @since 1.4.0
 	 *
@@ -69,7 +69,7 @@ class Form {
 	/**
 	 * Wrap the field in a label, if wrap_with_label is true.
 	 *
-	 * @since 1.6.3 Added handling of description option, mild restructuring.
+	 * @since 1.7.0 Added handling of description option, mild restructuring.
 	 * @since 1.4.0 Renamed $html to $input, revised $format handling.
 	 * @since 1.0.0
 	 *

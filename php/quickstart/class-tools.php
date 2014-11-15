@@ -34,7 +34,7 @@ class Tools {
 	/**
 	 * Build an HTML tag.
 	 *
-	 * @since 1.6.3 Further refined attribute filtering and escaping.
+	 * @since 1.7.0 Further refined attribute filtering and escaping.
 	 * @since 1.6.2 Added attribute escaping.
 	 * @since 1.6.0 Revised handling of boolean attributes, added $void_elements.
 	 * @since 1.5.0 Moved from Form to Tools class.
