@@ -648,6 +648,16 @@ class Setup extends \Smart_Plugin {
 		$this->prep_defaults( 'meta_box', $defaults );
 
 		$args = wp_parse_args( $args, $defaults );
+		
+		// Run through all fields and see if media_manager needs to be loaded
+		foreach ( $args['fields'] as $field ) {
+			$dependants = array( 'addfile', 'editgallery', 'setimage' );
+			if ( isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
+				// Make sure the media_manager helper is loaded
+				Tools::load_helpers( 'media_manager' );
+				break;
+			}
+		}
 
 		$this->save_meta_box( $meta_box, $args );
 		$this->add_meta_box( $meta_box, $args );
