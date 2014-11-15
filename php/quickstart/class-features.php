@@ -156,6 +156,7 @@ class Features extends \Smart_Plugin {
 	/**
 	 * Build the tree of posts.
 	 *
+	 * @since 1.6.2 Updated query to also exclude trashed posts.
 	 * @since 1.6.0 Added post_date to results selecting.
 	 * @since 1.4.0 Added $nested argument.
 	 * @since 1.0.0
