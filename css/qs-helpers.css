@@ -1,4 +1,4 @@
-.qs-field:after, .qs-fieldset .inputlist:after, .qs-item:after {
+.qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-item:after {
   content: '';
   display: table;
   clear: both; }
