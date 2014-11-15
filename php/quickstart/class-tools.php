@@ -99,13 +99,21 @@ class Tools {
 	/**
 	 * Load the requested helper files.
 	 *
+	 * @since 1.7.1 Added use of constants to flag which helpers have been loaded.
+	 * @since 1.0.0
+	 *
 	 * @param mixed $helpers A name or array of helper files to load (sans extention).
 	 */
 	public static function load_helpers( $helpers ) {
 		csv_array_ref( $helpers );
 		foreach ( $helpers as $helper ) {
+			$constant = "QS_LOADED_{$helper}";
+			if ( defined( $constant ) ) {
+				continue;
+			}
 			$file = QS_DIR . "/php/helpers/$helper.php";
 			if ( file_exists( $file ) ){
+				define( $constant, true );
 				require_once( $file );
 			}
 		}
