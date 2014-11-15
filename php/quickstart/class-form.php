@@ -717,6 +717,7 @@ class Form {
 	/**
 	 * Build a file adder field.
 	 *
+	 * @since 1.6.2 Fixed template output to include $show option.
 	 * @since 1.6.0 Added qs-sortable class with data-axis attribute, quick sort support, "show" option.
 	 * @since 1.4.0 Overhauled markup/functionality.
 	 * @since 1.3.3
