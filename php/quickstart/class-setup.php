@@ -147,7 +147,7 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Custom Content Setups
+	// !Internal Utilities
 	// =========================
 
 	/**
@@ -239,6 +239,26 @@ class Setup extends \Smart_Plugin {
 			$args['labels'] = $labels;
 		}
 	}
+	
+	/**
+	 * Check a list of fields for types that would require the media_manager helper.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param array $fields The list of fields to check through.
+	 */
+	protected static function maybe_load_media_manager( $fields ) {
+		if ( ! defined( 'QS_LOADED_MEDIA_MANAGER' ) || ! QS_LOADED_MEDIA_MANAGER ) {
+			foreach ( $fields as $field ) {
+				$dependants = array( 'addfile', 'editgallery', 'setimage' );
+				if ( isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
+					// Make sure the media_manager helper is loaded
+					Tools::load_helpers( 'media_manager' );
+					break;
+				}
+			}
+		}
+	}
 
 	/**
 	 * Process the metabox args to define a dumb metabox.
@@ -263,6 +283,10 @@ class Setup extends \Smart_Plugin {
 
 		return $args;
 	}
+
+	// =========================
+	// !Custom Content Setups
+	// =========================
 
 	/**
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined.
@@ -594,6 +618,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @since 1.7.1 Added use of maybe_load_media_manager()
 	 * @since 1.3.5 Added use-args-as-field-args handling.
 	 * @since 1.3.3 Fixed bug with single field expansion.
 	 * @since 1.2.0 Moved dumb metabox logic to self::make_dumb_metabox().
@@ -649,15 +674,8 @@ class Setup extends \Smart_Plugin {
 
 		$args = wp_parse_args( $args, $defaults );
 		
-		// Run through all fields and see if media_manager needs to be loaded
-		foreach ( $args['fields'] as $field ) {
-			$dependants = array( 'addfile', 'editgallery', 'setimage' );
-			if ( isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
-				// Make sure the media_manager helper is loaded
-				Tools::load_helpers( 'media_manager' );
-				break;
-			}
-		}
+		// Check if media_manager helper needs to be loaded
+		self::maybe_load_media_manager( $args['fields'] );
 
 		$this->save_meta_box( $meta_box, $args );
 		$this->add_meta_box( $meta_box, $args );
@@ -1181,6 +1199,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register and build a setting.
 	 *
+	 * @since 1.7.1 Added use of maybe_load_media_manager()
 	 * @since 1.4.0 Added 'source' to build_fields $args.
 	 * @since 1.3.0 Added 'wrap' to build_fields $args.
 	 * @since 1.1.0 Dropped stupid $args['fields'] processing.
@@ -1234,6 +1253,9 @@ class Setup extends \Smart_Plugin {
 				$setting => $args,
 			);
 		}
+		
+		// Check if media_manager helper needs to be loaded
+		self::maybe_load_media_manager( $args['fields'] );
 
 		// Set the current arguments
 		$_args = array(
