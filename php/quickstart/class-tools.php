@@ -34,6 +34,7 @@ class Tools {
 	/**
 	 * Build an HTML tag.
 	 *
+	 * @since 1.6.2 Added attribute escaping.
 	 * @since 1.6.0 Revised handling of boolean attributes, added $void_elements.
 	 * @since 1.5.0 Moved from Form to Tools class.
 	 * @since 1.4.2 Updated boolean attribute handling.
@@ -54,6 +55,13 @@ class Tools {
 		$html = "<$tag";
 
 		foreach ( $atts as $attr => $value ) {
+			// Escape the value for attribute use
+			if ( is_string( $value ) ) {
+				$value = esc_attr( $value );
+			} elseif ( is_array( $value ) ) {
+				array_walk( $value, 'esc_attr' );
+			}
+			
 			if ( is_numeric ( $attr ) ) {
 				// Boolean attributes; method 1
 				$html .= " $value";
@@ -68,6 +76,7 @@ class Tools {
 					// Implode into a space separated list
 					$value = implode( ' ', $value );
 				}
+
 				$html .= " $attr=\"$value\"";
 			}
 		}
