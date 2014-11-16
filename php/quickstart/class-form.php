@@ -128,18 +128,20 @@ class Form {
 	/**
 	 * Get the value to use for the field.
 	 *
+	 * @since 1.8.0 Added $single param.
 	 * @since 1.6.0 Added use of extract_value().
 	 * @since 1.4.0
 	 *
 	 * @uses extract_value()
 	 *
-	 * @param mixed  $data The raw data source.
-	 * @param string $type The type of source to expect (e.g. "post", "option", "array", or "raw").
-	 * @param string $key  The field to extract from the source.
+	 * @param mixed  $data   The raw data source.
+	 * @param string $type   The type of source to expect (e.g. "post", "option", "array", or "raw").
+	 * @param string $key    The field to extract from the source.
+	 * @param bool   $single Wether the data is stored in a single or multiple entries (postmeta only).
 	 *
 	 * @return mixed The extracted value.
 	 */
-	public static function get_value( $data, $type, $key ) {
+	public static function get_value( $data, $type, $key, $single = true ) {
 		if ( preg_match( '/([\w-]+)\[([\w-]+)\](.*)/', $key, $matches ) ) {
 			// Field is an array map, get the actual key...
 			$key = $matches[1];
@@ -154,7 +156,7 @@ class Form {
 				if ( is_object( $data ) ) {
 					$data = $data->ID;
 				}
-				$value = get_post_meta( $data, $key, true );
+				$value = get_post_meta( $data, $key, $single );
 				break;
 			case 'option':
 				// Get the matching option value
@@ -180,6 +182,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.8.0 Added use of save_single option.
 	 * @since 1.6.0 Added qs_field_ prefix to field id, get_value() use for callback.
 	 * @since 1.5.0 Added "taxonomy" option handling.
 	 * @since 1.4.2 Added "get_value" and "post_field" option handling.
@@ -225,6 +228,7 @@ class Form {
 			'data_name'       => $field, // The name of the postmeta or option to retrieve
 			'wrap_with_label' => $wrap, // Wether or not to wrap the field in a label
 			'wrapper_class'   => '', // The class to apply to the wrapper
+			'save_single'     => true, // Wether or not to save multiple values in a single entry
 		);
 
 		// Parse the passed settings with the defaults
@@ -262,7 +266,7 @@ class Form {
 			$settings['values'] = simplify_object_array( $tax_terms, 'term_id', 'name' );
 		} else {
 			// Otherwise, use the built in get_value method
-			$value = static::get_value( $data, $source, $settings['data_name'] );
+			$value = static::get_value( $data, $source, $settings['data_name'], $settings['save_single'] );
 		}
 
 		// Set a default value for the class setting;

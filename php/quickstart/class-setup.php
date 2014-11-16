@@ -814,6 +814,9 @@ class Setup extends \Smart_Plugin {
 
 				// By default, post and meta keys are the same as the field name
 				$post_key = $meta_key = $field;
+				
+				// By default, array values are stored in a single entry
+				$save_single = true;
 
 				if ( is_array( $settings ) ) {
 					// If "post_field" is present, update the field, not a meta value
@@ -848,24 +851,46 @@ class Setup extends \Smart_Plugin {
 
 						// We're done, next field
 						continue;
+					} // Otherwise...
+					
+					// Override $save_single if present
+					if ( isset( $settings['save_single'] ) ) {
+						$save_single = $settings['save_single'];
 					}
-					// Otherwise, we should be dealing with regular post meta
-					else{
-						// Overide $post_key with name setting if present
-						if ( isset( $settings['name'] ) ) {
-							$post_key = $settings['name'];
-						}
-	
-						// Overide $meta_key with data_name setting if present
-						if ( isset( $settings['data_name'] ) ) {
-							$meta_key = $settings['data_name'];
-						}
+					
+					// Overide $post_key with name setting if present
+					if ( isset( $settings['name'] ) ) {
+						$post_key = $settings['name'];
+					}
+
+					// Overide $meta_key with data_name setting if present
+					if ( isset( $settings['data_name'] ) ) {
+						$meta_key = $settings['data_name'];
 					}
 				}
 
 				$value = isset( $_POST[ $post_key ] ) ? $_POST[ $post_key ] : null;
 
-				update_post_meta( $post_id, $meta_key, $value );
+				// Save the post meta
+				if ( $save_single ) {
+					// All in one entry
+					update_post_meta( $post_id, $meta_key, $value );
+				} else {
+					// Save individually...
+					
+					// First, delete all existing values
+					delete_post_meta( $post_id, $meta_key );
+					
+					// Next, make sure the value is an array if set
+					if ( ! is_null( $value ) ) {
+						$value = (array) $value;
+						
+						// Finally, loop through the values and save
+						foreach ( $value as $val ) {
+							add_post_meta( $post_id, $meta_key, $val );
+						}
+					}
+				}
 			}
 		}
 	}
