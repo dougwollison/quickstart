@@ -862,10 +862,54 @@ class Form {
 
 		return $html;
 	}
+	
+	/**
+	 * Build a single field for a single repeater item.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $field    The name of the field this item is for.
+	 * @param array  $settings The settings for the field.
+	 * @param mixed  $item     Optional The item data.
+	 * @param int    $i        Optional The item's number (-1 for template).
+	 * @param string $subfield Optional The name of this specific field.
+	 */
+	private static function build_repeater_item_field( $field, $settings, $item = null, $i = -1, $subfield = null) {
+		// Create the name for the field
+		if ( ! is_null( $subfield ) ) {
+			$settings['name'] = sprintf( '%s[%d][%s]', $field, $i, $subfield );
+		} else {
+			$settings['name'] = sprintf( '%s[]', $field );
+		}
+		
+		$id = ! is_null( $subfield ) ? $subfield : $field;
+
+		// Create the ID for the field
+		$settings['id'] = static::make_id( $id ) . '-';
+
+		// Add a unique string to the end of the ID or a % placeholder for the blank
+		$settings['id'] .= $i == -1 ? '%' : substr( md5( $id . $i ), 0, 6 );
+
+		// Set the value for the field
+		$value = null;
+		if ( ! is_null( $subfield ) ) {
+			// Must get a specific value from the item data
+			if ( is_array( $item ) && isset( $item[ $id ] ) ) {
+				$value = $item[ $id ];
+			}
+		} else {
+			// The item data is the value itself
+			$value = $item;
+		}
+
+		// Finally, build the field
+		return static::build_field( $id, $settings, $value );
+	}
 
 	/**
 	 * Build a single repeater item.
 	 *
+	 * @since 1.8.0 Revised handling of template settings; now uses build_repeater_item_field().
 	 * @since 1.5.0
 	 *
 	 * @param array $repeater The settings of the repeater.
@@ -873,10 +917,11 @@ class Form {
 	 * @param int   $i        Optional The item's number (-1 for template).
 	 */
 	private static function build_repeater_item( $repeater, $item = null, $i = -1 ) {
-		$fields = csv_array( $repeater['template'] );
+		$name = $repeater['name'];
+		$template = $repeater['template'];
 
 		$html = '<div class="qs-item">';
-			if ( is_callable( $fields ) ) {
+			if ( is_callable( $template ) ) {
 				/**
 				 * Custom callback for building a repeater item.
 				 *
@@ -889,33 +934,28 @@ class Form {
 				 *
 				 * @return string The HTML of the repeater item.
 				 */
-				$html .= call_user_func( $fields, $item, $i );
-			} elseif ( is_array( $fields ) ) {
-				// Loop through each field in the template, and build them
-				foreach ( $fields as $field => $settings ) {
-					make_associative( $field, $settings );
-
-					// Create the name for the field
-					$settings['name'] = sprintf( '%s[%d][%s]', $repeater['name'], $i, $field );
-
-					// Create the ID for the field
-					$settings['id'] = static::make_id( $field ) . '-';
-
-					// Add a unique string to the end of the ID or a % placeholder for the blank
-					$settings['id'] .= $i == -1 ? '%' : substr( md5( $field.$i ), 0, 6 );
-
-					// Set the value for the field
-					if ( is_null( $item ) || ! isset( $item[ $field ] ) ) {
-						$value = '';
-					} else {
-						$value = $item[ $field ];
+				$html .= call_user_func( $template, $item, $i );
+			} elseif ( is_array( $template ) ) {
+				// Add the delete button
+				$html .= '<button type="button" class="button qs-delete">Delete</button>';
+				
+				$html .= '<div class="qs-item-fields">';
+				if ( isset( $template['fields'] ) ) {
+					// Loop through each field for the template, and build them
+					foreach ( $template['fields'] as $field => $settings ) {
+						make_associative( $field, $settings );
+	
+						$html .= static::build_repeater_item_field( $name, $settings, $item, $i, $field );
 					}
-
-					// Finally, build the field
-					$html .= static::build_field( $field, $settings, $value );
+				} else {
+					// Default wrap_with_label to false
+					if ( ! isset( $template['wrap_with_label'] ) ) {
+						$template['wrap_with_label'] = false;
+					}
+					$html .= static::build_repeater_item_field( $name, $template, $item, $i );
 				}
+				$html .= '</div>';
 			}
-			$html .= '<button type="button" class="button qs-delete">Delete</button>';
 		$html .= '</div>';
 
 		return $html;
@@ -924,13 +964,17 @@ class Form {
 	/**
 	 * Build a repeater interface.
 	 *
+	 * @since 1.8.0 Modified handling of template option for simpler templates.
 	 * @since 1.5.0
 	 *
 	 * @see Form::build_generic()
 	 */
 	public static function build_repeater( $settings, $data ) {
 		if ( ! isset( $settings['template'] ) ) {
-			throw new Exception( 'Repeater fields MUST have a template parameter.' );
+			// Default to single generic text field
+			$settings['template'] = array(
+				'class' => 'widefat',
+			);
 		}
 
 		// Get the field name
