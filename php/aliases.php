@@ -69,7 +69,7 @@ function qs_upload( $file, $attachment = array() ) {
  *
  * @see QuickStart\Tools::save_post_check()
  */
-function qs_save_post_check( $post_id, $post_type = null, $nonce_name = null, $nonce_value = null) ) {
+function qs_save_post_check( $post_id, $post_type = null, $nonce_name = null, $nonce_value = null ) {
 	QuickStart\Tools::save_post_check( $post_id, $post_type, $nonce_name, $nonce_value );
 }
 
@@ -78,8 +78,8 @@ function qs_save_post_check( $post_id, $post_type = null, $nonce_name = null, $n
  *
  * @see QuickStart\Tools::simple_shortcode()
  */
-function qs_simple_shortcode( $atts, $content, $tag  ) {
-	QuickStart\Tools::simple_shortcode( $atts, $content, $tag  );
+function qs_simple_shortcode( $atts, $content, $tag ) {
+	QuickStart\Tools::simple_shortcode( $atts, $content, $tag );
 }
 
 // =========================
