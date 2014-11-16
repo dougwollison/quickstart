@@ -947,7 +947,7 @@ class Form {
 		// Write the repeater container
 		$html = sprintf( '<div class="qs-repeater" id="%s-repeater">', $name );
 			// The button to open the media manager
-			$html .= '<button type="button" class="button button-primary qs-button">' . $settings['label'] . '</button>';
+			$html .= '<button type="button" class="button button-primary qs-add">' . $settings['label'] . '</button>';
 
 			// A button to clear all items currently loaded
 			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
