@@ -26,6 +26,7 @@ class Hooks extends \Smart_Plugin {
 		'quick_backend_enqueue'  => array( 'admin_enqueue_scripts', 10, 0 ),
 		'post_type_save'         => array( 'save_post', 10, 1 ),
 		'post_type_count'        => array( 'dashboard_glance_items', 10, 1 ),
+		'edit_meta_box'          => array( 'do_meta_boxes', 10, 2 ),
 		'taxonomy_filter'        => array( 'restrict_manage_posts', 10, 0 ),
 	);
 
@@ -164,6 +165,61 @@ class Hooks extends \Smart_Plugin {
 		}
 
 		return $elements;
+	}
+	
+	/**
+	 * Edit an existing registered metabox.
+	 *
+	 * This hook will fire what should be the first round of do_meta_boxes
+	 * (for the "normal" context).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string       $post_type  The post type of the post (skip when saving).
+	 * @param string       $context    The meta box context (skip when saving).
+	 * @param string       $meta_box   The slug of the metabox to be edited.
+	 * @param array        $changes    The properties to overwrite.
+	 * @param string|array $post_types Optional The specific post type(s) under which to edit.
+	 */
+	public static function _edit_meta_box( $post_type, $context, $meta_box, $changes, $post_types = null ) {
+		global $wp_meta_boxes;
+		
+		// We only want to run this once; we'll only do it on the "normal" context
+		if ( 'normal' != $context ) {
+			return;
+		}
+		
+		// Ensure $post_types is in array form
+		csv_array_ref( $post_types );
+	
+		foreach ( $wp_meta_boxes as $post_type => $contexts ) {
+			// Reset $args each round
+			$args = null;
+			
+			// Skip if this isn't post type isn't desired
+			if ( $post_types && ! in_array( $post_type, $post_types ) ) {
+				continue;
+			}
+			
+			// Drill down through contexts and priorities to find the metabox
+			foreach ( $contexts as $context => $priorities ) {
+				foreach ( $priorities as $priority => $meta_boxes ) {
+					// Check for a match, get arguments if so
+					if ( isset( $meta_boxes[ $meta_box ] ) ) {
+						$args = $meta_boxes[ $meta_box ];
+						break 2;
+					}
+				}
+			}
+			
+			// Now that we found it, modify it's arguments
+			if ( $meta_box ) {
+				$args = array_merge( $args, $changes );
+		
+				// Update the arguments with the modified ones
+				$wp_meta_boxes[ $post_type ][ $context ][ $priority ][ $meta_box ] = $args;
+			}
+		}
 	}
 
 	/**
