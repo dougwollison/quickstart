@@ -816,16 +816,6 @@ class Setup extends \Smart_Plugin {
 				$post_key = $meta_key = $field;
 
 				if ( is_array( $settings ) ) {
-					// Overide $post_key with name setting if present
-					if ( isset( $settings['name'] ) ) {
-						$post_key = $settings['name'];
-					}
-
-					// Overide $meta_key with data_name setting if present
-					if ( isset( $settings['data_name'] ) ) {
-						$meta_key = $settings['data_name'];
-					}
-
 					// If "post_field" is present, update the field, not a meta value
 					if ( isset( $settings['post_field'] ) && $settings['post_field'] ) {
 						global $wpdb;
@@ -840,9 +830,8 @@ class Setup extends \Smart_Plugin {
 						// We're done, next field
 						continue;
 					}
-
 					// If "taxonomy" is present, update the terms, not a meta value
-					if ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] ) {
+					elseif ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] ) {
 						// Default the terms to null
 						$terms = null;
 
@@ -859,6 +848,18 @@ class Setup extends \Smart_Plugin {
 
 						// We're done, next field
 						continue;
+					}
+					// Otherwise, we should be dealing with regular post meta
+					else{
+						// Overide $post_key with name setting if present
+						if ( isset( $settings['name'] ) ) {
+							$post_key = $settings['name'];
+						}
+	
+						// Overide $meta_key with data_name setting if present
+						if ( isset( $settings['data_name'] ) ) {
+							$meta_key = $settings['data_name'];
+						}
 					}
 				}
 
