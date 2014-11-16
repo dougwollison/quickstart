@@ -687,7 +687,30 @@ class Setup extends \Smart_Plugin {
 		
 		// Check if media_manager helper needs to be loaded
 		self::maybe_load_media_manager( $args['fields'] );
+		
+		// Register all meta keys found
+		foreach ( $args['fields'] as $field => $_args ) {
+			// By default, the field name is the meta key
+			$meta_key = $field;
+			
+			// Attempt to override with name or data_name if set
+			if ( isset( $_args['data_name'] ) ) {
+				$meta_key = $_args['data_name'];
+			} elseif ( isset( $_args['name'] ) ) {
+				$meta_key = $_args['name'];
+			}
+			
+			// Get sanitize callback if set
+			$sanitize_callback = null;
+			if ( isset( $_args['sanitize'] ) ) {
+				$sanitize_callback = $_args['sanitize'];
+			}
+			
+			// Register the meta (it will automatically be protected)
+			register_meta( 'post', $meta_key, $sanitize_callback, '__return_false' );
+		}
 
+		// Setup the save hook and register the actual meta_box
 		$this->save_meta_box( $meta_box, $args );
 		$this->add_meta_box( $meta_box, $args );
 	}
