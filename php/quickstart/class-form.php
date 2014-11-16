@@ -675,61 +675,6 @@ class Form {
 	}
 
 	/**
-	 * Build a single file adder item.
-	 *
-	 * @since 1.6.0 Added quick sort support.
-	 * @since 1.4.0
-	 *
-	 * @param int    $id       The ID of the attachment to use.
-	 * @param string $name     The name of the file adder field.
-	 * @param bool   $is_image Wether or not this is for images or any file.
-	 * @param bool   $is_multi Wether or not this supports multiple files.
-	 * @param bool   $use_sort Wether or not quick sort is desired.
-	 * @param string $show     What to display of the non-image file (title|filename).
-	 *
-	 * @return string The markup fo the item.
-	 */
-	public static function build_addfile_item( $id, $name, $is_image, $is_multi, $use_sort, $show ) {
-		if ( $use_sort && ! is_null( $id ) ) {
-			// Setup item for quick sort support
-			$item_name = sanitize_title( basename( wp_get_attachment_url( $id ) ) );
-			$item_date = get_the_date( 'U' );
-			$html = sprintf( '<div class="qs-item" data-name="%s" data-date="%s">', $item_name, $item_date );
-		} else {
-			$html = '<div class="qs-item">';
-		}
-
-		if ( is_null( $id ) ) {
-			// No id passed, print a blank
-			$html .= $is_image ? '<img class="qs-preview" />' : '<span class="qs-preview"></span>';
-		} elseif ( $is_image ) {
-			// Image mode, print the thumbnail
-			$html .= wp_get_attachment_image( $id, 'thumbnail', false, array(
-				'class' => 'qs-preview',
-			) );
-		} else {
-			// Any kind of file, print the attachment title or filename
-			$preview = basename( wp_get_attachment_url( $id ) );
-			if ( $show == 'title' ) {
-				$preview = get_the_title( $id );
-			}
-			$html .= '<span class="qs-preview">' . $preview . '</span>';
-		}
-
-		// Add delete button and field name brackets if in mulitple mode
-		if ( $is_multi ) {
-			$html .= '<button type="button" class="button qs-delete">Delete</button>';
-			$name .= '[]';
-		}
-
-		// Add the input field for this item
-		$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $name, $id );
-
-		$html .= '</div>';
-		return $html;
-	}
-
-	/**
 	 * Build a file adder field.
 	 *
 	 * @since 1.6.2 Fixed template output to include $show option.
@@ -820,6 +765,61 @@ class Form {
 	}
 
 	/**
+	 * Build a single file adder item.
+	 *
+	 * @since 1.6.0 Added quick sort support.
+	 * @since 1.4.0
+	 *
+	 * @param int    $id       The ID of the attachment to use.
+	 * @param string $name     The name of the file adder field.
+	 * @param bool   $is_image Wether or not this is for images or any file.
+	 * @param bool   $is_multi Wether or not this supports multiple files.
+	 * @param bool   $use_sort Wether or not quick sort is desired.
+	 * @param string $show     What to display of the non-image file (title|filename).
+	 *
+	 * @return string The markup fo the item.
+	 */
+	public static function build_addfile_item( $id, $name, $is_image, $is_multi, $use_sort, $show ) {
+		if ( $use_sort && ! is_null( $id ) ) {
+			// Setup item for quick sort support
+			$item_name = sanitize_title( basename( wp_get_attachment_url( $id ) ) );
+			$item_date = get_the_date( 'U' );
+			$html = sprintf( '<div class="qs-item" data-name="%s" data-date="%s">', $item_name, $item_date );
+		} else {
+			$html = '<div class="qs-item">';
+		}
+
+		if ( is_null( $id ) ) {
+			// No id passed, print a blank
+			$html .= $is_image ? '<img class="qs-preview" />' : '<span class="qs-preview"></span>';
+		} elseif ( $is_image ) {
+			// Image mode, print the thumbnail
+			$html .= wp_get_attachment_image( $id, 'thumbnail', false, array(
+				'class' => 'qs-preview',
+			) );
+		} else {
+			// Any kind of file, print the attachment title or filename
+			$preview = basename( wp_get_attachment_url( $id ) );
+			if ( $show == 'title' ) {
+				$preview = get_the_title( $id );
+			}
+			$html .= '<span class="qs-preview">' . $preview . '</span>';
+		}
+
+		// Add delete button and field name brackets if in mulitple mode
+		if ( $is_multi ) {
+			$html .= '<button type="button" class="button qs-delete">Delete</button>';
+			$name .= '[]';
+		}
+
+		// Add the input field for this item
+		$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $name, $id );
+
+		$html .= '</div>';
+		return $html;
+	}
+
+	/**
 	 * Build an image setter field.
 	 *
 	 * @since 1.4.0 Reduced to alias of build_addfile
@@ -858,104 +858,6 @@ class Form {
 			}
 			$html .= '</div>';
 			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
-		$html .= '</div>';
-
-		return $html;
-	}
-	
-	/**
-	 * Build a single field for a single repeater item.
-	 *
-	 * @since 1.8.0
-	 *
-	 * @param string $field    The name of the field this item is for.
-	 * @param array  $settings The settings for the field.
-	 * @param mixed  $item     Optional The item data.
-	 * @param int    $i        Optional The item's number (-1 for template).
-	 * @param string $subfield Optional The name of this specific field.
-	 */
-	private static function build_repeater_item_field( $field, $settings, $item = null, $i = -1, $subfield = null) {
-		// Create the name for the field
-		if ( ! is_null( $subfield ) ) {
-			$settings['name'] = sprintf( '%s[%d][%s]', $field, $i, $subfield );
-		} else {
-			$settings['name'] = sprintf( '%s[]', $field );
-		}
-		
-		$id = ! is_null( $subfield ) ? $subfield : $field;
-
-		// Create the ID for the field
-		$settings['id'] = static::make_id( $id ) . '-';
-
-		// Add a unique string to the end of the ID or a % placeholder for the blank
-		$settings['id'] .= $i == -1 ? '%' : substr( md5( $id . $i ), 0, 6 );
-
-		// Set the value for the field
-		$value = null;
-		if ( ! is_null( $subfield ) ) {
-			// Must get a specific value from the item data
-			if ( is_array( $item ) && isset( $item[ $id ] ) ) {
-				$value = $item[ $id ];
-			}
-		} else {
-			// The item data is the value itself
-			$value = $item;
-		}
-
-		// Finally, build the field
-		return static::build_field( $id, $settings, $value );
-	}
-
-	/**
-	 * Build a single repeater item.
-	 *
-	 * @since 1.8.0 Revised handling of template settings; now uses build_repeater_item_field().
-	 * @since 1.5.0
-	 *
-	 * @param array $repeater The settings of the repeater.
-	 * @param array $item     Optional The item data.
-	 * @param int   $i        Optional The item's number (-1 for template).
-	 */
-	private static function build_repeater_item( $repeater, $item = null, $i = -1 ) {
-		$name = $repeater['name'];
-		$template = $repeater['template'];
-
-		$html = '<div class="qs-item">';
-			if ( is_callable( $template ) ) {
-				/**
-				 * Custom callback for building a repeater item.
-				 *
-				 * @since 1.5.0
-				 *
-				 * @param mixed  $item The data for this item.
-				 * @param int    $i The index of this item.
-				 * @param string $name The name of this repeater's field.
-				 * @param array  $settings The settings for this repeater.
-				 *
-				 * @return string The HTML of the repeater item.
-				 */
-				$html .= call_user_func( $template, $item, $i );
-			} elseif ( is_array( $template ) ) {
-				// Add the delete button
-				$html .= '<button type="button" class="button qs-delete">Delete</button>';
-				
-				$html .= '<div class="qs-item-fields">';
-				if ( isset( $template['fields'] ) ) {
-					// Loop through each field for the template, and build them
-					foreach ( $template['fields'] as $field => $settings ) {
-						make_associative( $field, $settings );
-	
-						$html .= static::build_repeater_item_field( $name, $settings, $item, $i, $field );
-					}
-				} else {
-					// Default wrap_with_label to false
-					if ( ! isset( $template['wrap_with_label'] ) ) {
-						$template['wrap_with_label'] = false;
-					}
-					$html .= static::build_repeater_item_field( $name, $template, $item, $i );
-				}
-				$html .= '</div>';
-			}
 		$html .= '</div>';
 
 		return $html;
@@ -1014,5 +916,103 @@ class Form {
 		$html .= '</div>';
 
 		return $html;
+	}
+
+	/**
+	 * Build a single repeater item.
+	 *
+	 * @since 1.8.0 Revised handling of template settings; now uses build_repeater_item_field().
+	 * @since 1.5.0
+	 *
+	 * @param array $repeater The settings of the repeater.
+	 * @param array $item     Optional The item data.
+	 * @param int   $i        Optional The item's number (-1 for template).
+	 */
+	private static function build_repeater_item( $repeater, $item = null, $i = -1 ) {
+		$name = $repeater['name'];
+		$template = $repeater['template'];
+
+		$html = '<div class="qs-item">';
+			if ( is_callable( $template ) ) {
+				/**
+				 * Custom callback for building a repeater item.
+				 *
+				 * @since 1.5.0
+				 *
+				 * @param mixed  $item The data for this item.
+				 * @param int    $i The index of this item.
+				 * @param string $name The name of this repeater's field.
+				 * @param array  $settings The settings for this repeater.
+				 *
+				 * @return string The HTML of the repeater item.
+				 */
+				$html .= call_user_func( $template, $item, $i );
+			} elseif ( is_array( $template ) ) {
+				// Add the delete button
+				$html .= '<button type="button" class="button qs-delete">Delete</button>';
+				
+				$html .= '<div class="qs-item-fields">';
+				if ( isset( $template['fields'] ) ) {
+					// Loop through each field for the template, and build them
+					foreach ( $template['fields'] as $field => $settings ) {
+						make_associative( $field, $settings );
+	
+						$html .= static::build_repeater_item_field( $name, $settings, $item, $i, $field );
+					}
+				} else {
+					// Default wrap_with_label to false
+					if ( ! isset( $template['wrap_with_label'] ) ) {
+						$template['wrap_with_label'] = false;
+					}
+					$html .= static::build_repeater_item_field( $name, $template, $item, $i );
+				}
+				$html .= '</div>';
+			}
+		$html .= '</div>';
+
+		return $html;
+	}
+	
+	/**
+	 * Build a single field for a single repeater item.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $field    The name of the field this item is for.
+	 * @param array  $settings The settings for the field.
+	 * @param mixed  $item     Optional The item data.
+	 * @param int    $i        Optional The item's number (-1 for template).
+	 * @param string $subfield Optional The name of this specific field.
+	 */
+	private static function build_repeater_item_field( $field, $settings, $item = null, $i = -1, $subfield = null) {
+		// Create the name for the field
+		if ( ! is_null( $subfield ) ) {
+			$settings['name'] = sprintf( '%s[%d][%s]', $field, $i, $subfield );
+		} else {
+			$settings['name'] = sprintf( '%s[]', $field );
+		}
+		
+		$id = ! is_null( $subfield ) ? $subfield : $field;
+
+		// Create the ID for the field
+		$settings['id'] = static::make_id( $id ) . '-';
+
+		// Add a unique string to the end of the ID or a % placeholder for the blank
+		$settings['id'] .= $i == -1 ? '%' : substr( md5( $id . $i ), 0, 6 );
+
+		// Set the value for the field
+		$value = null;
+		if ( ! is_null( $subfield ) ) {
+			// Must get a specific value from the item data
+			if ( is_array( $item ) && isset( $item[ $id ] ) ) {
+				$value = $item[ $id ];
+			}
+		} else {
+			// The item data is the value itself
+			$value = $item;
+		}
+
+		// Finally, build the field
+		return static::build_field( $id, $settings, $value );
 	}
 }
