@@ -59,6 +59,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
 	 *
+	 * @since 1.8.0 Added quick-enqueue handling.
 	 * @since 1.4.0 Added helpers css/js backend enqueue.
 	 * @since 1.1.0 Added tinymce key; mce is deprecated.
 	 * @since 1.0.0
@@ -629,6 +630,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @since 1.8.0 Added use of register_meta() for sanitizing and protection.
 	 * @since 1.7.1 Added use of maybe_load_media_manager()
 	 * @since 1.3.5 Added use-args-as-field-args handling.
 	 * @since 1.3.3 Fixed bug with single field expansion.
