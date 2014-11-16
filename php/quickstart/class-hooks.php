@@ -18,13 +18,15 @@ class Hooks extends \Smart_Plugin {
 	 * @var array
 	 */
 	protected static $static_method_hooks = array(
-		'fix_shortcodes'     => array( 'the_content', 10, 1 ),
-		'disable_quickedit'  => array( 'post_row_actions', 10, 2 ),
-		'frontend_enqueue'   => array( 'wp_enqueue_scripts', 10, 0 ),
-		'backend_enqueue'    => array( 'admin_enqueue_scripts', 10, 0 ),
-		'post_type_save'     => array( 'save_post', 10, 1 ),
-		'post_type_count'    => array( 'dashboard_glance_items', 10, 1 ),
-		'taxonomy_filter'    => array( 'restrict_manage_posts', 10, 0 ),
+		'fix_shortcodes'         => array( 'the_content', 10, 1 ),
+		'disable_quickedit'      => array( 'post_row_actions', 10, 2 ),
+		'frontend_enqueue'       => array( 'wp_enqueue_scripts', 10, 0 ),
+		'backend_enqueue'        => array( 'admin_enqueue_scripts', 10, 0 ),
+		'quick_frontend_enqueue' => array( 'wp_enqueue_scripts', 10, 0 ),
+		'quick_backend_enqueue'  => array( 'admin_enqueue_scripts', 10, 0 ),
+		'post_type_save'         => array( 'save_post', 10, 1 ),
+		'post_type_count'        => array( 'dashboard_glance_items', 10, 1 ),
+		'taxonomy_filter'        => array( 'restrict_manage_posts', 10, 0 ),
 	);
 
 	/**
@@ -88,6 +90,32 @@ class Hooks extends \Smart_Plugin {
 	 */
 	public function _backend_enqueue( $enqueues ) {
 		Tools::enqueue( $enqueues );
+	}
+
+	/**
+	 * Alias to Tools::quick_enqueue(), for the frontend.
+	 *
+	 * @since 1.8.0
+	 * @uses Tools::quick_enqueue()
+	 *
+	 * @param string       $type  "css" or "js" for what styles/scripts respectively.
+	 * @param string|array $files A path, handle, or array of paths/handles to enqueue.
+	 */
+	public function _quick_frontend_enqueue( $type, $files ) {
+		Tools::quick_enqueue( $type, $files );
+	}
+
+	/**
+	 * Alias to Tools::quick_enqueue() for the backend.
+	 *
+	 * @since 1.8.0
+	 * @uses Tools::quick_enqueue()
+	 *
+	 * @param string       $type  "css" or "js" for what styles/scripts respectively.
+	 * @param string|array $files A path, handle, or array of paths/handles to enqueue.
+	 */
+	public function _quick_backend_enqueue( $type, $files ) {
+		Tools::quick_enqueue( $type, $files );
 	}
 
 	/**

@@ -290,6 +290,41 @@ class Tools {
 			}
 		}
 	}
+	
+	/**
+	 * A shortcut for registering/enqueueing styles and scripts.
+	 *
+	 * This method is simpler but allows for no dependency listing,
+	 * footer placement or other options. You can of course supply
+	 * dependencies by listing their handles before your own files.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string       $type  "css" or "js" for what styles/scripts respectively.
+	 * @param string|array $files A path, handle, or array of paths/handles to enqueue.
+	 */
+	public static function quick_enqueue( $type, $files ) {
+		$files = (array) $files;
+		
+		// Determin which function to use based on $type
+		$func = 'css' == $type ? 'wp_enqueue_style' : 'wp_enqueue_script';
+		
+		// The regex to look for is-file detection
+		$match = 'css' == $type ? '/\.css$/' : '/\.js$/';
+		
+		foreach ( $files as $file ) {
+			// If it looks like a file, enqueue with generated $handle and $src
+			if ( preg_match( $match, $file ) ) {
+				$handle = sanitize_title( basename( $file ) );
+				$args = array( $handle, $file );
+			} else {
+				// Assume pre-registered style/script
+				$args = array( $file );
+			}
+			
+			call_user_func_array( $func, $args );
+		}
+	}
 
 	/**
 	 * Take care of uploading and inserting an attachment.

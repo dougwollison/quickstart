@@ -102,6 +102,17 @@ class Setup extends \Smart_Plugin {
 						Hooks::backend_enqueue( $value['backend'] );
 					}
 				break;
+				case 'css':
+				case 'js':
+					// Process quick enqueue scripts/styles for the frontend
+					Hooks::quick_frontend_enqueue( $key, $value );
+				break;
+				case 'admin_css':
+				case 'admin_js':
+					// Process quick enqueue scripts/styles for the backend
+					$key = str_replace( 'admin_', '', $key );
+					Hooks::quick_backend_enqueue( $key, $value );
+				break;
 				case 'tinymce':
 				case 'mce':
 					// Enable buttons if set
