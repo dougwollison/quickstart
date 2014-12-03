@@ -255,7 +255,7 @@ window.QS = window.QS || {};
 
 			var gallery, attachments, selection;
 
-			if ( options.gallery !== undefined ) {
+			if ( options.gallery ) {
 				// If gallery was not a comma separated string, make it one
 				if ( typeof options.gallery !== 'string' ) {
 					options.gallery = options.gallery.join( ',' );
