@@ -237,6 +237,7 @@ window.QS = window.QS || {};
 		/**
 		 * Hook into the media manager for editing galleries.
 		 *
+		 * @since 1.7.1 Fixed overly strict check for existing gallery value.
 		 * @since 1.5.0 Added notrigger argument, returns frame.
 		 * @since 1.0.0
 		 *
