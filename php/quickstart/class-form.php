@@ -1059,4 +1059,54 @@ class Form {
 		// Finally, build the field
 		return static::build_field( $id, $settings, $value );
 	}
+
+	/**
+	 * Build a rich text editor.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_editor( $settings, $data ) {
+		// Get the field name
+		$name = $settings['name'];
+
+		// Create the editor_id from the name if not present or valid
+		if ( ! isset( $settings['id'] ) || preg_match( '/\W+/', $settings['id'] ) ) {
+			$settings['id'] = preg_replace( '/\W+/', '', strtolower( $name ) ) . '_qseditor';
+		}
+
+		// Make the textarea_name setting that of the name setting
+		$settings['textarea_name'] = $name;
+
+		// Make the textarea_class setting that of the class setting if present
+		if ( isset( $settings['class'] ) ) {
+			$settings['textarea_class'] = $settings['class'];
+		}
+
+		// Make the textarea_rows setting that of the rows setting if present
+		if ( isset( $settings['rows'] ) ) {
+			$settings['textarea_rows'] = $settings['rows'];
+		}
+
+		// Handle any QuickTags settings if present
+		if ( isset( $settings['quicktags'] ) ) {
+			Hooks::do_quicktags( $settings['quicktags'], $settings['id'] );
+
+			// Also format into proper from
+			$settings['quicktags'] = array(
+				'buttons' => $settings['quicktags'],
+			);
+		}
+
+		// Write the editor container
+		$html = sprintf( '<div class="qs-editor" id="%s-editor">', $name );
+			ob_start();
+			// Print out the editor
+			wp_editor( $data, $settings['id'], $settings );
+			$html .= ob_get_clean();
+		$html .= '</div>';
+
+		return $html;
+	}
 }

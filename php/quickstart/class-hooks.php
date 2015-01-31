@@ -53,6 +53,58 @@ class Hooks extends \Smart_Plugin {
 	}
 
 	/**
+	 * Handle QuickTags buttons, including settings up custom ones.
+	 *
+	 * Also returns the simplified csv list of buttons to register.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @uses Tools::$void_elements
+	 *
+	 * @param array|string $buttons   The array/list of buttons.
+	 * @param string       $editor_id Optional The ID of the wp_editor.
+	 *
+	 * @return string The csv list of buttons.
+	 */
+	public static function _do_quicktags( $settings, $editor_id = null ) {
+		echo '<script type="text/javascript">';
+
+		// Ensure it's in array form
+		$buttons = csv_array( $settings );
+
+		// These are the default buttons that we can ignore
+		$builtin = array('strong','em','link','block','del','ins','img','ul','ol','li','code','more','close');
+
+		// Go through the buttons and auto-create them\
+		foreach ( $buttons as $button ) {
+			if ( ! in_array( $button, $builtin ) ) {
+				// Handle void element buttons appropriately
+				if ( in_array( $button, Tools::$void_elements ) ) {
+					$open = "<$button />";
+					$close = null;
+				} else {
+					$open = "<$button>";
+					$close = "</$button>";
+				}
+
+				// Print out the QTags.addButton call with the arguments
+				vprintf( 'QTags.addButton( "%s", "%s", "%s", "%s", "%s", "%s", %d, "%s" );', array(
+					$button . '_tag', 	// id
+					$button, 			// display
+					$open, 				// arg1 (opening tag)
+					$close, 			// arg2 (closing tag)
+					null, 				// access_key
+					$button . ' tag', 	// title
+					1, 					// priority,
+					$editor_id, 		// instance
+				) );
+			}
+		}
+
+		echo '</script>';
+	}
+
+	/**
 	 * Remove inline quickediting from a post type.
 	 *
 	 * @since 1.3.0
