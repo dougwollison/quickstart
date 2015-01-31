@@ -34,6 +34,7 @@ function the_attachment_image_url( $attachment_id, $size = 'full' ) {
 /**
  * Return just the URL of the post thumbnail.
  *
+ * @since 1.8.0 Fixed get_post_thumbnail_id call to use $post_id.
  * @since 1.6.0
  *
  * @param int    $post_id The ID of the post for the thumbnail.
@@ -47,7 +48,7 @@ function get_post_thumbnail_url( $post_id = null, $size = 'full' ) {
 		$post_id = $post->ID;
 	}
 
-	$attachment_id = get_post_thumbnail_id();
+	$attachment_id = get_post_thumbnail_id( $post_id );
 	return get_attachment_image_url( $attachment_id, $size );
 }
 
