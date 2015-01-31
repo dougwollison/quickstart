@@ -122,6 +122,7 @@ class Tools {
 	/**
 	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.
 	 *
+	 * @since 1.8.0 Fixed callback checking to check callback, fields AND field values.
 	 * @since 1.6.0 Added use of get_fields option.
 	 * @since 1.4.0 Added use of $source parameter in Form::build_fields().
 	 * @since 1.3.0 Added option of callback key instead of fields for a callback.
@@ -141,11 +142,15 @@ class Tools {
 
 		// Determine the callback or fields argument
 		$callback = $fields = null;
-		if ( isset( $args['callback'] ) ) {
+		if ( isset( $args['callback'] ) && is_callable( $args['callback'] ) ) {
 			$callback = $args['callback'];
-		} elseif ( is_callable( $args['fields'] ) ) {
+		} elseif ( is_callable( $args['fields'] ) && is_callable( $args['fields'] ) ) {
 			$callback = $args['fields'];
+		} elseif ( is_callable( $args['field'] ) && is_callable( $args['field'] ) ) {
+			$callback = $args['field'];
 		} elseif ( isset( $args['fields'] ) ) {
+			$fields = $args['fields'];
+		} elseif ( isset( $args['field'] ) ) {
 			$fields = $args['fields'];
 		} elseif ( isset( $args['get_fields'] ) && is_callable( $args['get_fields'] ) ) {
 			/**
@@ -174,7 +179,7 @@ class Tools {
 				 * @param string  $id   The ID of the metabox.
 				 */
 				call_user_func( $callback, $post, $args, $id );
-			} elseif ( isset( $args['fields'] ) ) {
+			} elseif ( $fields ) {
 				// Build the fields
 				Form::build_fields( $fields, $post, 'post', true );
 			}
