@@ -159,8 +159,8 @@ class Tools {
 			 * @since 1.6.0
 			 *
 			 * @param WP_Post $post The post object.
-			 * @param array   $args The original arguments for the metabox.
-			 * @param string  $id   The ID of the metabox.
+			 * @param array   $args The original arguments for the meta box.
+			 * @param string  $id   The ID of the meta box.
 			 */
 			$fields = call_user_func( $args['get_fields'], $post, $args, $id );
 		}
@@ -169,14 +169,14 @@ class Tools {
 		echo '<div class="qs-meta-box">';
 			if ( $callback ) {
 				/**
-				 * Build the HTML of the metabox.
+				 * Build the HTML of the meta box.
 				 *
 				 * @since 1.3.0 Use $callback from 'fields' or 'callback' arg.
 				 * @since 1.0.0
 				 *
 				 * @param WP_Post $post The post object.
-				 * @param array   $args The original arguments for the metabox
-				 * @param string  $id   The ID of the metabox.
+				 * @param array   $args The original arguments for the meta box
+				 * @param string  $id   The ID of the meta box.
 				 */
 				call_user_func( $callback, $post, $args, $id );
 			} elseif ( $fields ) {

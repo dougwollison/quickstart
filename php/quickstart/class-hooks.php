@@ -168,7 +168,7 @@ class Hooks extends \Smart_Plugin {
 	}
 	
 	/**
-	 * Edit an existing registered metabox.
+	 * Edit an existing registered meta box.
 	 *
 	 * This hook will fire what should be the first round of do_meta_boxes
 	 * (for the "normal" context).
@@ -177,7 +177,7 @@ class Hooks extends \Smart_Plugin {
 	 *
 	 * @param string       $post_type  The post type of the post (skip when saving).
 	 * @param string       $context    The meta box context (skip when saving).
-	 * @param string       $meta_box   The slug of the metabox to be edited.
+	 * @param string       $meta_box   The slug of the meta box to be edited.
 	 * @param array        $changes    The properties to overwrite.
 	 * @param string|array $post_types Optional The specific post type(s) under which to edit.
 	 */
@@ -201,7 +201,7 @@ class Hooks extends \Smart_Plugin {
 				continue;
 			}
 			
-			// Drill down through contexts and priorities to find the metabox
+			// Drill down through contexts and priorities to find the meta box
 			foreach ( $contexts as $context => $priorities ) {
 				foreach ( $priorities as $priority => $meta_boxes ) {
 					// Check for a match, get arguments if so

@@ -273,17 +273,17 @@ class Setup extends \Smart_Plugin {
 	}
 
 	/**
-	 * Process the metabox args to define a dumb metabox.
+	 * Process the meta box args to define a dumb meta box.
 	 * (simple text field with no label)
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param array  $args The metabox arguments.
-	 * @param string $name The name of the metabox the args belong to.
+	 * @param array  $args The meta box arguments.
+	 * @param string $name The name of the meta box the args belong to.
 	 *
 	 * @return array The processed $args.
 	 */
-	protected static function make_dumb_metabox( $args, $name ) {
+	protected static function make_dumb_meta_box( $args, $name ) {
 		$args = (array) $args;
 
 		$args['fields'] = array(
@@ -304,9 +304,9 @@ class Setup extends \Smart_Plugin {
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined.
 	 * within a post_type configuration.
 	 *
-	 * @since 1.6.0 Add metaboxes/features numerically to prevent overwriting.
+	 * @since 1.6.0 Add meta boxes/features numerically to prevent overwriting.
 	 * @since 1.3.3 Removed callback chek on feature args.
-	 * @since 1.2.0 Added check for dumb metabox setup
+	 * @since 1.2.0 Added check for dumb meta box setup
 	 * @since 1.0.0
 	 *
 	 * @param array &$configs Optional The post types, taxonomies and meta boxes to setup.
@@ -359,7 +359,7 @@ class Setup extends \Smart_Plugin {
 
 			if ( isset( $pt_args['meta_boxes'] ) ) {
 				foreach ( $pt_args['meta_boxes'] as $meta_box => $mb_args ) {
-					// Fix if dumb metabox was passed (numerically, not associatively)
+					// Fix if dumb meta box was passed (numerically, not associatively)
 					make_associative( $meta_box, $mb_args );
 
 					// Check if the arguments are a callable, restructure to proper form
@@ -368,8 +368,8 @@ class Setup extends \Smart_Plugin {
 							'fields' => $mb_args,
 						);
 					} elseif ( empty( $mb_args ) ) {
-						// Or, if no args passed, make a "dumb" metabox
-						$mb_args = self::make_dumb_metabox( $mb_args, $meta_box );
+						// Or, if no args passed, make a "dumb" meta box
+						$mb_args = self::make_dumb_meta_box( $mb_args, $meta_box );
 					}
 
 					// Add this post type to the post_types argument to this meta box
@@ -489,8 +489,8 @@ class Setup extends \Smart_Plugin {
 	 * Register the requested taxonomy.
 	 *
 	 * @sicne 1.8.0 Added enforcement of array for for post_type value.
-	 * @since 1.6.0 Updated static replacement metabox title based on $multiple.
-	 * @since 1.5.0 Added "static" option handling (custom taxonomy metabox).
+	 * @since 1.6.0 Updated static replacement meta box title based on $multiple.
+	 * @since 1.5.0 Added "static" option handling (custom taxonomy meta box).
 	 * @since 1.3.1 Removed Hooks::taxonomy_count call.
 	 * @since 1.0.0
 	 *
@@ -541,7 +541,7 @@ class Setup extends \Smart_Plugin {
 		if ( isset( $args['static'] ) && $args['static'] ) {
 			$static = true;
 
-			// Disable the default metabox
+			// Disable the default meta box
 			$args['meta_box_cb'] = false;
 
 			$multiple = false;
@@ -591,7 +591,7 @@ class Setup extends \Smart_Plugin {
 			}
 		}
 
-		// Finish setting up the static taxonomy metabox if needed
+		// Finish setting up the static taxonomy meta box if needed
 		if ( $static ) {
 			$this->register_meta_box( "$taxonomy-terms", array(
 				'title'     => ( $multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name ),
@@ -641,7 +641,7 @@ class Setup extends \Smart_Plugin {
 	 * @since 1.7.1 Added use of maybe_load_media_manager()
 	 * @since 1.3.5 Added use-args-as-field-args handling.
 	 * @since 1.3.3 Fixed bug with single field expansion.
-	 * @since 1.2.0 Moved dumb metabox logic to self::make_dumb_metabox().
+	 * @since 1.2.0 Moved dumb meta box logic to self::make_dumb_meta_box().
 	 * @since 1.0.0
 	 *
 	 * @param string $meta_box The slug of the meta box to register.
@@ -650,7 +650,7 @@ class Setup extends \Smart_Plugin {
 	public function register_meta_box( $meta_box, $args ) {
 		if ( empty( $args ) ) {
 			// Empty array; make dumb meta box
-			$args = self::make_dumb_metabox( $args, $meta_box );
+			$args = self::make_dumb_meta_box( $args, $meta_box );
 		} elseif ( is_callable( $args ) ) {
 			// A callback, recreate into proper array
 			$args = array(
@@ -704,7 +704,7 @@ class Setup extends \Smart_Plugin {
 			}
 
 			/**
-			 * Test if the metabox should be registered for this post.
+			 * Test if the meta box should be registered for this post.
 			 *
 			 * @since 1.8.0
 			 *
@@ -755,7 +755,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Simply loops through and calls Setup::register_meta_box().
 	 *
-	 * @since 1.6.0 Handle metaboxes added numerically via run_content_setups().
+	 * @since 1.6.0 Handle meta boxes added numerically via run_content_setups().
 	 * @since 1.0.0
 	 *
 	 * @param array $meta_boxes The list of meta boxes to register.
@@ -776,7 +776,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @since 1.8.0 Added use of "save_single" option and support for foo[bar] style fields.
 	 * @since 1.6.0 Restructured for better handling.
-	 * @since 1.5.0 Added taxonomy metabox saving.
+	 * @since 1.5.0 Added taxonomy meta box saving.
 	 * @since 1.4.2 Added "post_field" update handling.
 	 * @since 1.2.0 Moved save check functionality to Tools::save_post_check().
 	 * @since 1.1.1 Fixed typo causing $args['fields'] saving to save the $_POST key, not the value.
@@ -789,19 +789,19 @@ class Setup extends \Smart_Plugin {
 	public function _save_meta_box( $post_id, $meta_box, $args ) {
 		if ( ! Tools::save_post_check( $post_id, $args['post_type'], "_qsnonce-$meta_box", $meta_box ) ) return;
 		
-		// Determine method to save metabox data
+		// Determine method to save meta box data
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
 			// Method 1: explicit save callback
 
 			/**
-			 * Desired processing to be done when saving this metabox
+			 * Desired processing to be done when saving this meta box
 			 *
-			 * @since 1.6.0 Callback is now passed metabox details
+			 * @since 1.6.0 Callback is now passed meta box details
 			 * @since 1.0.0
 			 *
 			 * @param int    $post_id  The ID of the post being saved.
-			 * @param array  $args     The settings of the metabox.
-			 * @param string $meta_box The ID of the metabox.
+			 * @param array  $args     The settings of the meta box.
+			 * @param string $meta_box The ID of the meta box.
 			 */
 			call_user_func( $args['save'], $post_id, $args, $meta_box );
 		} elseif ( isset( $args['save_fields'] ) ) {
@@ -833,8 +833,8 @@ class Setup extends \Smart_Plugin {
 				 * @since 1.6.0
 				 *
 				 * @param WP_Post $post The post object.
-				 * @param array   $args The original arguments for the metabox.
-				 * @param string  $id   The ID of the metabox.
+				 * @param array   $args The original arguments for the meta box.
+				 * @param string  $id   The ID of the meta box.
 				 */
 				$fields = call_user_func( $args['get_fields'], $post, $args, $id );
 			} else {
@@ -958,7 +958,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Add the meta box to WordPress.
 	 *
-	 * @since 1.6.0 Added qs_metabox_ prefix to metabox id.
+	 * @since 1.6.0 Added qs_metabox_ prefix to meta box id.
 	 * @since 1.0.0
 	 *
 	 * @param string $meta_box The slug of the meta box to register.
