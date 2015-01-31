@@ -272,15 +272,15 @@ class Features extends \Smart_Plugin {
 				), 'default', 'reading' );
 			} else {
 				// Add the query/title hooks on the frontend
-				self::index_page_query( $post_type );
+				static::index_page_query( $post_type );
 
 				// Call the appropriate title hook
 				if ( version_compare( get_bloginfo( 'version' ), '4.0', '>=' ) ) {
 					// Use new wp_title_parts filter method
-					self::index_page_title_part( $post_type );
+					static::index_page_title_part( $post_type );
 				} else {
 					// Use old wp_title filter method
-					self::index_page_title( $post_type );
+					static::index_page_title( $post_type );
 				}
 			}
 		}
