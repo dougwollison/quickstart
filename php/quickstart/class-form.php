@@ -910,6 +910,7 @@ class Form {
 	 * Build a repeater interface.
 	 *
 	 * @since 1.8.0 Modified handling of template option for simpler templates.
+	 *              Also update default labeling to use singular form.
 	 * @since 1.5.0
 	 *
 	 * @see Form::build_generic()
@@ -928,9 +929,9 @@ class Form {
 		// Get the value to use, based on $source and the data_name
 		$values = static::get_value( $data, $source, $field );
 
-		// If the label seems auto generated, modify the label text to Add/Choose
+		// If the label seems auto generated, modify the label text to Add
 		if ( $settings['label'] == make_legible( $name ) ) {
-			$settings['label'] = 'Add ' . $settings['label'];
+			$settings['label'] = 'Add ' . singularize( $settings['label'] );
 		}
 
 		// Write the repeater container
@@ -991,9 +992,6 @@ class Form {
 				 */
 				$html .= call_user_func( $template, $item, $i );
 			} elseif ( is_array( $template ) ) {
-				// Add the delete button
-				$html .= '<button type="button" class="button qs-delete">Delete</button>';
-				
 				$html .= '<div class="qs-item-fields">';
 				if ( isset( $template['fields'] ) ) {
 					// Loop through each field for the template, and build them
@@ -1010,6 +1008,9 @@ class Form {
 					$html .= static::build_repeater_item_field( $name, $template, $item, $i );
 				}
 				$html .= '</div>';
+				
+				// Add the delete button
+				$html .= '<button type="button" class="button qs-delete">Delete</button>';
 			}
 		$html .= '</div>';
 
