@@ -1370,7 +1370,12 @@ class Setup extends \Smart_Plugin {
 			);
 		} elseif ( ! isset( $args['fields'] ) ) {
 			// Assume $args is the literal arguments for the field,
-			// create a fields entry
+			// create a fields entry, default wrap_with_label to false
+
+			if ( ! isset( $args['wrap_with_label'] ) ) {
+				$args['wrap_with_label'] = false;
+			}
+
 			$args['fields'] = array(
 				$setting => $args,
 			);
@@ -1381,11 +1386,8 @@ class Setup extends \Smart_Plugin {
 
 		// Set the current arguments
 		$_args = array(
+			'setting' => $setting,
 			'fields' => $args['fields'],
-			'data'   => null,
-			'source' => 'option',
-			'echo'   => true,
-			'wrap'   => false,
 			'__extract',
 		);
 
@@ -1396,7 +1398,7 @@ class Setup extends \Smart_Plugin {
 		add_settings_field(
 			$setting,
 			'<label for="' . $setting . '">' . $args['title'] . '</label>',
-			array( __NAMESPACE__ . '\Form', 'build_fields' ),
+			array( __NAMESPACE__ . '\Tools', 'build_settings_field' ),
 			$page,
 			$section,
 			$_args

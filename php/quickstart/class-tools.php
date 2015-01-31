@@ -187,6 +187,40 @@ class Tools {
 	}
 
 	/**
+	 * Build a settings fieldset, either calling the callback of running the build_fields Form method.
+	 *
+	 * @since 1.8.0
+	 * @uses Form::build_fields()
+	 *
+	 * @param array $args An arguments list containting the setting name and fields array/callback.
+	 */
+	public static function build_settings_field( $args ) {
+		// Extract $args
+		$setting = $args['setting'];
+		$fields = $args['fields'];
+
+		// Wrap in container for any specific targeting needed
+		echo '<div class="qs-settings-field" id="' . $setting . '-settings-field">';
+			if ( is_callable( $fields ) ) {
+				/**
+				 * Build the HTML of the metabox.
+				 *
+				 * @since 1.3.0 Use $callback from 'fields' or 'callback' arg.
+				 * @since 1.0.0
+				 *
+				 * @param WP_Post $post The post object.
+				 * @param array   $args The original arguments for the metabox
+				 * @param string  $id   The ID of the metabox.
+				 */
+				call_user_func( $fields );
+			} else {
+				// Build the fields
+				Form::build_fields( $fields, null, 'option', true );
+			}
+		echo '</div>';
+	}
+
+	/**
 	 * Relabel the "post" post type.
 	 *
 	 * @since 1.0.0
