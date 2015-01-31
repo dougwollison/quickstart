@@ -188,6 +188,29 @@ class Hooks extends \Smart_Plugin {
 	}
 
 	/**
+	 * Save a specific meta field for a specific post_type.
+	 *
+	 * Saves desired field after running Tools::save_post_check().
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int    $post_id    The ID of the post being saved (skip when saving).
+	 * @param string $post_type  The post_type to limit this call to.
+	 * @param string $meta_key   The meta_key to save the value to.
+	 * @param string $field_name Optional The name of the $_POST field to use (defaults to $meta_key).
+	 */
+	protected function _post_type_save_meta( $post_id, $post_type, $meta_key, $field_name = null ) {
+		if ( ! Tools::save_post_check( $post_id, $post_type ) ) return;
+
+		if ( is_null( $field_name ) ) {
+			$field_name = $meta_key;
+		}
+
+		$value = $_POST[ $field_name ];
+		update_post_meta( $post_id, $meta_key, $value );
+	}
+
+	/**
 	 * Add counts for a post type to the Right Now widget on the dashboard.
 	 *
 	 * @since 1.3.1 Revised logic to work with the new dashboard_right_now markup.
@@ -331,5 +354,50 @@ class Hooks extends \Smart_Plugin {
 				self::taxonomy_filter_options( $taxonomy->name, $selected );
 			echo '</select>';
 		}
+	}
+
+	/**
+	 * Setup an extra wp_editor for the edit post form.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $name     The name of the field (by default also the meta_key).
+	 * @param array  $settings Optional Any special settings such as post_type and title.
+	 */
+	public static function add_extra_editor( $name, $settings = array() ) {
+		$settings = wp_parse_args( $settings, array(
+			'name' => $name,
+			'meta_key' => $name,
+			'post_type' => 'page',
+			'title' => make_legible( $name ),
+		) );
+
+		self::post_type_save_meta( $settings['post_type'], $settings['meta_key'], $settings['name'] );
+		self::print_extra_editor( $settings );
+	}
+
+	/**
+	 * Print an extra wp_editor to the edit post form.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @see self::add_extra_editor()
+	 *
+	 * @param object $post     The post object being edited (skip when saving).
+	 * @param array  $settings Optional Any special settings such as post_type and title.
+	 */
+	public static function _print_extra_editor( $post, $settings = array() ) {
+		$post_types = csv_array( $settings['post_type'] );
+		if ( ! in_array( $post->post_type, $post_types ) ) {
+			return;
+		}
+
+		// Get the value
+		$value = get_post_meta( $post->ID, $settings['meta_key'], true );
+
+		printf( '<div class="qs-editor" id="%s-editor">', $name );
+			echo '<h3>' . $settings['title'] . '</h3>';
+			echo Form::build_editor( $settings, $value );
+		echo '</div>';
 	}
 }
