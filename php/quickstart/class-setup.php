@@ -774,7 +774,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the save hook for the meta box.
 	 *
-	 * @since 1.8.0 Added use of "save_single" option.
+	 * @since 1.8.0 Added use of "save_single" option and support for foo[bar] style fields.
 	 * @since 1.6.0 Restructured for better handling.
 	 * @since 1.5.0 Added taxonomy metabox saving.
 	 * @since 1.4.2 Added "post_field" update handling.
@@ -841,6 +841,9 @@ class Setup extends \Smart_Plugin {
 				$fields = $args['fields'];
 			}
 
+			// Keep track of completed fields
+			$saved_fields = array();
+
 			foreach ( $fields as $field => $settings ) {
 				if ( is_int( $field ) ) {
 					$field = $settings;
@@ -852,6 +855,43 @@ class Setup extends \Smart_Plugin {
 				// By default, array values are stored in a single entry
 				$save_single = true;
 
+				// If there are settings to work with, check for specific $post_key and $meta_key names,
+				// as well as an override for $save_single
+				if ( is_array( $settings ) ) {
+					// Overide $post_key with name setting if present
+					if ( isset( $settings['name'] ) ) {
+						$post_key = $settings['name'];
+					}
+
+					// Overide $meta_key with data_name setting if present
+					if ( isset( $settings['data_name'] ) ) {
+						$meta_key = $settings['data_name'];
+					}
+					
+					// Override $save_single if present
+					if ( isset( $settings['save_single'] ) ) {
+						$save_single = $settings['save_single'];
+					}
+				}
+
+				// If the post key is an array, get the root key specifically
+				if ( preg_match( '/^([\w-]+)\[([\w-]+)\](.*)$/', $post_key, $matches ) ) {
+					$post_key = $matches[1];
+					
+					// Update $meta_key to match if it wasn't overwritten
+					if ( ! isset( $settings['data_name'] ) ) {
+						$meta_key = $post_key;
+					}
+				}
+
+				// If this post key has already been handled, skip it
+				if ( in_array( $post_key, $saved_fields ) ) {
+					continue;
+				}
+
+				$value = isset( $_POST[ $post_key ] ) ? $_POST[ $post_key ] : null;
+
+				// If there are settings to work with, check for saving as a post_field or taxonomy term
 				if ( is_array( $settings ) ) {
 					// If "post_field" is present, update the field, not a meta value
 					if ( isset( $settings['post_field'] ) && $settings['post_field'] ) {
@@ -859,7 +899,7 @@ class Setup extends \Smart_Plugin {
 
 						// Directly update the entry in the database
 						$wpdb->update( $wpdb->posts, array(
-							$settings['post_field'] => $_POST[ $post_key ],
+							$settings['post_field'] => $value,
 						), array(
 							'ID' => $post_id,
 						) );
@@ -867,14 +907,15 @@ class Setup extends \Smart_Plugin {
 						// We're done, next field
 						continue;
 					}
+
 					// If "taxonomy" is present, update the terms, not a meta value
-					elseif ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] ) {
+					if ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] ) {
 						// Default the terms to null
 						$terms = null;
 
-						if ( ! empty( $_POST[ $post_key ] ) ) {
+						if ( ! empty( $value ) ) {
 							// Get the terms, ensure it's an array
-							$terms = (array) $_POST[ $post_key ];
+							$terms = (array) $value;
 
 							// Ensure the values are integers
 							$terms = array_map( 'intval', $terms );
@@ -885,25 +926,8 @@ class Setup extends \Smart_Plugin {
 
 						// We're done, next field
 						continue;
-					} // Otherwise...
-					
-					// Override $save_single if present
-					if ( isset( $settings['save_single'] ) ) {
-						$save_single = $settings['save_single'];
-					}
-					
-					// Overide $post_key with name setting if present
-					if ( isset( $settings['name'] ) ) {
-						$post_key = $settings['name'];
-					}
-
-					// Overide $meta_key with data_name setting if present
-					if ( isset( $settings['data_name'] ) ) {
-						$meta_key = $settings['data_name'];
 					}
 				}
-
-				$value = isset( $_POST[ $post_key ] ) ? $_POST[ $post_key ] : null;
 
 				// Save the post meta
 				if ( $save_single ) {
@@ -925,6 +949,8 @@ class Setup extends \Smart_Plugin {
 						}
 					}
 				}
+
+				$saved_fields[] = $post_key;
 			}
 		}
 	}
