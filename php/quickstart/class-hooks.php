@@ -319,7 +319,7 @@ class Hooks extends \Smart_Plugin {
 			// Print the option
 			printf( '<option value="%s" %s>%s</option>', $term->slug, $term->slug == $selected ? 'selected' : '', $space . $term->name );
 
-			self::taxonomy_filter_options( $taxonomy, $selected, $term->term_id, $depth + 1 );
+			static::taxonomy_filter_options( $taxonomy, $selected, $term->term_id, $depth + 1 );
 		}
 	}
 
@@ -351,7 +351,7 @@ class Hooks extends \Smart_Plugin {
 
 			echo "<select name='$var'>";
 				echo '<option value="">Show ' . $taxonomy->labels->all_items . '</option>';
-				self::taxonomy_filter_options( $taxonomy->name, $selected );
+				static::taxonomy_filter_options( $taxonomy->name, $selected );
 			echo '</select>';
 		}
 	}
@@ -372,8 +372,8 @@ class Hooks extends \Smart_Plugin {
 			'title' => make_legible( $name ),
 		) );
 
-		self::post_type_save_meta( $settings['post_type'], $settings['meta_key'], $settings['name'] );
-		self::print_extra_editor( $settings );
+		static::post_type_save_meta( $settings['post_type'], $settings['meta_key'], $settings['name'] );
+		static::print_extra_editor( $settings );
 	}
 
 	/**
@@ -381,7 +381,7 @@ class Hooks extends \Smart_Plugin {
 	 *
 	 * @since 1.8.0
 	 *
-	 * @see self::add_extra_editor()
+	 * @see Hooks::add_extra_editor()
 	 *
 	 * @param object $post     The post object being edited (skip when saving).
 	 * @param array  $settings Optional Any special settings such as post_type and title.

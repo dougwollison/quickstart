@@ -101,7 +101,7 @@ class Form {
 	
 			// If $format is an array, run through build_field_wrapper()
 			if ( is_array( $format ) ) {
-				$format = call_user_func_array( 'static::build_field_wrapper', $format );
+				$format = call_user_func_array( array( get_called_class(), 'build_field_wrapper' ), $format );
 			}
 
 			/**
@@ -196,7 +196,7 @@ class Form {
 	 * @param string $field    The name/id of the field.
 	 * @param array  $settings Optional The settings to use in creating the field.
 	 * @param mixed  $data     Optional The source for the value; use $source argument to specify.
-	 * @param string $source   Optional The type of value source; see static::get_value().
+	 * @param string $source   Optional The type of value source; see Form::get_value().
 	 * @param bool   $wrap     Optional Default value for wrap_with_label option.
 	 *
 	 * @return string The HTML for the field.
@@ -348,7 +348,7 @@ class Form {
 		 * @param mixed  $settings The settings for this field.
 		 * @param mixed  $value    The processed value for this field.
 		 * @param mixed  $data     The source of the value for this field.
-		 * @param string $source   The type of value source; see static::get_value().
+		 * @param string $source   The type of value source; see Form::get_value().
 		 *
 		 * @return string The HTML of the field.
 		 */
@@ -366,8 +366,8 @@ class Form {
 	 * @since 1.0.0
 	 *
 	 * @param string $fields The name/id of the field.
-	 * @param array  $data   Optional The source for the values; see static::build_field() for details.
-	 * @param string $source Optional Identifies the type of values source; see static::build_field() for details.
+	 * @param array  $data   Optional The source for the values; see Form::build_field() for details.
+	 * @param string $source Optional Identifies the type of values source; see Form::build_field() for details.
 	 * @param mixed  $echo   Optional Wether or not to echo the output.
 	 * @param bool   $wrap   Optional Default value for wrap_with_label option.
 	 *

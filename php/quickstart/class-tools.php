@@ -287,7 +287,7 @@ class Tools {
 	}
 
 	/**
-	 * Helper function for self::enqueue()
+	 * Helper function for Tools::enqueue()
 	 *
 	 * @since 1.8.0
 	 *
@@ -350,11 +350,11 @@ class Tools {
 	 */
 	public static function enqueue( $enqueues = null ) {
 		if ( isset( $enqueues['css'] ) ) {
-			self::do_enqueues( $enqueues['css'], 'wp_enqueue_style' );
+			static::do_enqueues( $enqueues['css'], 'wp_enqueue_style' );
 		}
 
 		if ( isset( $enqueues['js'] ) ) {
-			self::do_enqueues( $enqueues['js'], 'wp_enqueue_script' );
+			static::do_enqueues( $enqueues['js'], 'wp_enqueue_script' );
 		}
 	}
 	
@@ -592,7 +592,7 @@ class Tools {
 		foreach ( $objects as $object ) {
 			$method = "hide_$object";
 			if ( method_exists( __CLASS__, $method ) ) {
-				self::$method();
+				static::$method();
 			}
 		}
 	}
