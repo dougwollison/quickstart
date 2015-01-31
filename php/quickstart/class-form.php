@@ -234,6 +234,26 @@ class Form {
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
 
+		// Check if condition callback exists; test it before proceeding
+		if ( isset( $settings['condition'] ) && is_callable( $settings['condition'] ) ) {
+			/**
+			 * Test if the field should be printed.
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param mixed  $data     The source for the value.
+			 * @param string $source   The type of value source.
+			 * @param string $field    The name/id of the field.
+			 * @param array  $settings The settings to use in creating the field.
+			 *
+			 * @return bool The result of the test.
+			 */
+			$result = call_user_func( $settings['condition'], $data, $source, $field, $settings );
+
+			// If test fails, don't print the field
+			if ( ! $result ) return;
+		}
+
 		// Get the value to use, first by checking if the "get_value" callback is present
 		if ( isset( $settings['get_value'] ) && is_callable( $settings['get_value'] ) ) {
 			/**

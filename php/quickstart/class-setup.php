@@ -637,7 +637,7 @@ class Setup extends \Smart_Plugin {
 	 * Register the requested meta box.
 	 *
 	 * @since 1.8.0 Added use of register_meta() for sanitizing and protection,
-	 *              also added use of maybe_do_this() for testing conditionals.
+	 *              also added handling of condition setting.
 	 * @since 1.7.1 Added use of maybe_load_media_manager()
 	 * @since 1.3.5 Added use-args-as-field-args handling.
 	 * @since 1.3.3 Fixed bug with single field expansion.
@@ -693,9 +693,31 @@ class Setup extends \Smart_Plugin {
 		$this->prep_defaults( 'meta_box', $defaults );
 		$args = wp_parse_args( $args, $defaults );
 
-		// Check if we should do the meta box at all
-		if ( ! Tools::maybe_do_this( $meta_box, $args ) ) {
-			return;
+		// Check if condition callback exists; test it before proceeding
+		if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
+			// Get the ID of the current post
+			$post_id = null;
+			if ( isset( $_POST['post_ID'] ) ) {
+				$post_id = $_POST['post_ID'];
+			} else if ( isset( $_GET['post'] ) ) {
+				$post_id = $_GET['post'];
+			}
+
+			/**
+			 * Test if the metabox should be registered for this post.
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param int    $post_id  The ID of the current post (null if new).
+			 * @param string $meta_box The slug of the meta box to register.
+			 * @param array  $args     The arguments for registration.
+			 *
+			 * @return bool The result of the test.
+			 */
+			$result = call_user_func( $args['condition'], $post_id, $meta_box, $args );
+
+			// If test fails, don't setup the meta box
+			if ( ! $result ) return;
 		}
 		
 		// Check if media_manager helper needs to be loaded
