@@ -118,6 +118,85 @@ class Tools {
 			}
 		}
 	}
+	
+	/**
+	 * Check if a thing (metabox/field/etc.) has a condition setting,
+	 * and evaluate it if so, based on the current post.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $thing   The id of the thing being tested.
+	 * @param array  $args    The arguments for the thing.
+	 * @param int    $post_id Optional The ID of the post (defaults to $_REQUEST['post']);
+	 */
+	protected static function maybe_do_this( $thing, $args, $post_id = null ) {
+		if ( ! $post_id ) {
+			// Get the ID of the post being edited
+			if ( isset( $_POST['post_ID'] ) ) {
+				$post_id = $_POST['post_ID'];
+			} else if ( isset( $_GET['post'] ) ) {
+				$post_id = $_GET['post'];
+			}
+		}
+		
+		// Check if a condition option exists
+		if ( isset( $args['condition'] ) ) {
+			// Get the test option
+			$test = $args['condition'];
+			
+			// See if it's a callback...
+			if ( is_callable( $test ) ) {
+				/**
+				 * Test if current post meets custom criteria.
+				 *
+				 * @since 1.8.0
+				 *
+				 * @param int    The ID of post being requested.
+				 * @param string The ID/slug of the thing being tested.
+				 * @param array  The arguments for the thing.
+				 */
+				$result = call_user_func( $test, $post_id, $thing, $args );
+				return $result;
+			}
+			// Or an array with a thing to check and a value to compare.
+			elseif ( is_array( $test ) && isset( $test['value'] ) ) {
+				// First, see if it's a test for a post field (field/value)
+				if ( isset( $test['field'] ) ) {
+					$result = get_post_field( $post_id, $test['field'] );
+					return $result == $test['value'];
+				}
+				// Or, see if it's a test for a meta key (key/value)
+				elseif ( isset( $test['key'] ) ) {
+					$result = get_post_meta( $post_id, $test['key'], true );
+					return $result == $test['value'];
+				}
+				// Or, see if it's a test for a taxonomy term (taxonomy/value)
+				elseif ( isset( $test['taxonomy'] ) ) {
+					return has_term( $test['value'], $test['taxonomy'], $post_id );
+				}
+				// Or, see if it's a result specific test (callback, value)
+				elseif ( isset( $test['function'] ) && isset( $test['value'] ) && is_callable( $test['function'] ) ) {
+					/**
+					 * Test if current post meets custom criteria.
+					 *
+					 * @since 1.8.0
+					 *
+					 * @param int    The ID of post being requested.
+					 * @param string The ID/slug of the thing being tested.
+					 * @param array  The arguments for the thing.
+					 */
+					$result = call_user_func( $test['function'], $post_id, $thing, $args );
+					return $result == $test['value'];
+				}
+				
+				// No idea what to do, default to true
+				return true;
+			}
+		}
+			
+		// No idea what to do, default to true
+		return true;
+	}
 
 	/**
 	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.

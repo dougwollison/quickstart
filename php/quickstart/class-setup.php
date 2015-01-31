@@ -271,81 +271,6 @@ class Setup extends \Smart_Plugin {
 			}
 		}
 	}
-	
-	/**
-	 * Check if a show_if option is set for the metabox and evaluate it.
-	 *
-	 * @since 1.8.0
-	 *
-	 * @param string $meta_box The id of the meta box being tested.
-	 * @param array  $args     The arguments for the meta box.
-	 */
-	protected static function maybe_do_meta_box( $meta_box, $args ) {
-		// Check if a show_if option exists
-		if ( isset( $args['show_if'] ) ) {
-			// Get the ID of the post being edited
-			$post_id = $_REQUEST['post'];
-			
-			// Load the post in question
-			$post = get_post( $post_id );
-			
-			// Get the test option
-			$test = $args['show_if'];
-			
-			// See if it's a callback...
-			if ( is_callable( $test ) ) {
-				/**
-				 * Test if current post meets custom criteria.
-				 *
-				 * @since 1.8.0
-				 *
-				 * @param int The ID of post being requested.
-				 */
-				$result = call_user_func( $test, $_REQUEST['post'] );
-				return $result;
-			}
-			// Or a simple this == that array
-			elseif ( is_array( $test ) ) {
-				// Abort and default to true if it's a new post (unable to test)
-				if ( is_null( $post ) ) {
-					return true;
-				}
-				
-				// First, see if it's a test for a post field (field/value)
-				if ( isset( $test['field'] ) ) {
-					$result = $post->{ $test['field'] };
-					return $result == $test['value'];
-				}
-				// Or, see if it's a test for a meta key (key/value)
-				elseif ( isset( $test['key'] ) ) {
-					$result = get_post_meta( $post_id, $test['key'], true );
-					return $result == $test['value'];
-				}
-				// Or, see if it's a test for a taxonomy term (taxonomy/value)
-				elseif ( isset( $test['taxonomy'] ) ) {
-					return has_term( $test['value'], $test['taxonomy'], $post_id );
-				}
-				// Or, see if it's a result specific test (callback, value)
-				elseif ( isset( $test[0] ) && isset( $test[1] ) && is_callable( $test[0] ) ) {
-					/**
-					 * Test if current post meets custom criteria.
-					 *
-					 * @since 1.8.0
-					 *
-					 * @param int The ID of post being requested.
-					 */
-					$result = call_user_func( $test[0], $_REQUEST['post'] );
-					return $result == $test[1];
-				}
-				
-				// No idea what to do, default to true
-				return true;
-			}
-		}
-			
-		// No idea what to do, default to true
-		return true;
-	}
 
 	/**
 	 * Process the metabox args to define a dumb metabox.
@@ -711,7 +636,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
-	 * @since 1.8.0 Added use of register_meta() for sanitizing and protection.
+	 * @since 1.8.0 Added use of register_meta() for sanitizing and protection,
+	 *              also added use of maybe_do_this() for testing conditionals.
 	 * @since 1.7.1 Added use of maybe_load_media_manager()
 	 * @since 1.3.5 Added use-args-as-field-args handling.
 	 * @since 1.3.3 Fixed bug with single field expansion.
@@ -763,10 +689,14 @@ class Setup extends \Smart_Plugin {
 			'post_type' => 'post',
 		);
 
-		// Prep $defaults
+		// Prep and parse the $defaults
 		$this->prep_defaults( 'meta_box', $defaults );
-
 		$args = wp_parse_args( $args, $defaults );
+
+		// Check if we should do the meta box at all
+		if ( ! Tools::maybe_do_this( $meta_box, $args ) ) {
+			return;
+		}
 		
 		// Check if media_manager helper needs to be loaded
 		self::maybe_load_media_manager( $args['fields'] );
@@ -822,7 +752,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the save hook for the meta box.
 	 *
-	 * @since 1.8.0 Added use of "save_single" option and maybe_do_meta_box().
+	 * @since 1.8.0 Added use of "save_single" option.
 	 * @since 1.6.0 Restructured for better handling.
 	 * @since 1.5.0 Added taxonomy metabox saving.
 	 * @since 1.4.2 Added "post_field" update handling.
@@ -836,11 +766,6 @@ class Setup extends \Smart_Plugin {
 	 */
 	public function _save_meta_box( $post_id, $meta_box, $args ) {
 		if ( ! Tools::save_post_check( $post_id, $args['post_type'], "_qsnonce-$meta_box", $meta_box ) ) return;
-
-		// Check if we should do the meta box at all
-		if ( ! self::maybe_do_meta_box( $meta_box, $args ) ) {
-			return;
-		}
 		
 		// Determine method to save metabox data
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
@@ -985,7 +910,6 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Add the meta box to WordPress.
 	 *
-	 * @since 1.8.0 Added use of maybe_do_meta_box().
 	 * @since 1.6.0 Added qs_metabox_ prefix to metabox id.
 	 * @since 1.0.0
 	 *
@@ -993,11 +917,6 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $args     The arguments from registration.
 	 */
 	public function _add_meta_box( $meta_box, $args ) {
-		// Check if we should do the meta box at all
-		if ( ! self::maybe_do_meta_box( $meta_box, $args ) ) {
-			return;
-		}
-		
 		$post_types = csv_array( $args['post_type'] );
 		foreach ( $post_types as $post_type ) {
 			add_meta_box(
