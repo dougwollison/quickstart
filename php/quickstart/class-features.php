@@ -20,7 +20,6 @@ class Features extends \Smart_Plugin {
 	protected static $static_method_hooks = array(
 		'index_page_query'      => array( 'parse_query', 10, 1 ),
 		'index_page_title_part' => array( 'wp_title_parts', 10, 1 ),
-		'index_page_title'      => array( 'wp_title', 10, 1 ),
 	);
 
 	// =========================
@@ -270,36 +269,40 @@ class Features extends \Smart_Plugin {
 						) );
 					}
 				), 'default', 'reading' );
-			} else {
-				// Add the query/title hooks on the frontend
-				static::index_page_query( $post_type );
-
-				// Call the appropriate title hook
-				if ( version_compare( get_bloginfo( 'version' ), '4.0', '>=' ) ) {
-					// Use new wp_title_parts filter method
-					static::index_page_title_part( $post_type );
-				} else {
-					// Use old wp_title filter method
-					static::index_page_title( $post_type );
-				}
 			}
+		}
+		
+		// Setup the frontend hooks if needed
+		if ( ! is_admin() ) {
+			// Build the array of available index pages to use
+			$index_pages = array();
+			foreach ( $post_types as $post_type ) {
+				$index_pages[ $post_type ] = get_option( "page_for_{$post_type}_posts", 0 );
+			}
+			
+			// Add the query/title hooks on the frontend
+			static::index_page_query( $index_pages );
+			static::index_page_title_part( $index_pages );
 		}
 	}
 
 	/**
 	 * Check if the page is a custom post type's index page.
 	 *
+	 * @since 1.8.0 Restructured to handle all post_types at once.
 	 * @since 1.6.0
 	 *
-	 * @param WP_Query $query     The query object (skip when saving).
-	 * @param string   $post_type The post type to check for.
+	 * @param WP_Query $query       The query object (skip when saving).
+	 * @param string   $index_pages The post type to check for.
 	 */
-	protected function _index_page_query( $query, $post_type ) {
+	protected function _index_page_query( $query, $index_pages ) {
 		$qv =& $query->query_vars;
 
+		// Make sure this is a page
 		if ( '' != $qv['pagename'] ) {
-			$index = get_option( "page_for_{$post_type}_posts" );
-			if ( $query->queried_object_id == $index ) {
+			// Check if this page is a post type index page
+			$post_type = array_search( $query->queried_object_id, $index_pages );
+			if ( $post_type !== false ) {
 				$post_type_obj = get_post_type_object( $post_type );
 				if ( ! empty( $post_type_obj->has_archive ) ) {
 					$qv['post_type']             = $post_type;
@@ -315,44 +318,35 @@ class Features extends \Smart_Plugin {
 	}
 
 	/**
-	 * Change the first part of the title to display the index page's title.
-	 *
-	 * @since 1.6.0
-	 *
-	 * @param string $title_array The parts of the page title (skip when saving).
-	 * @param string $post_type   The post type to check for.
-	 */
-	protected function _index_page_title_part( $title_array, $post_type ) {
-		$index = get_option( "page_for_{$post_type}_posts" );
-
-		// Check if this is the right post type archive and an index page is set
-		if ( is_post_type_archive() && get_query_var( 'post_type' ) == $post_type && $index ) {
-			$title_array[0] = get_the_title( $index );
-		}
-
-		return $title_array;
-	}
-
-	/**
 	 * Modify the title to display the index page's title.
 	 *
+	 * @since 1.8.0 Restructured to handle all post_types at once.
 	 * @since 1.6.0
 	 *
-	 * @deprecated 1.6.0 Exists solely for WordPress 3.9 and below.
+	 * @param string|array $title       The page title or parts (skip when saving).
+	 * @param string       $index_pages An associative array of post type index pages.
 	 *
-	 * @param string $title       The page title (skip when saving).
-	 * @param string $post_type   The post type to check for.
+	 * @return string|array The modified title.
 	 */
-	protected function _index_page_title( $title, $post_type ) {
-		$index = get_option( "page_for_{$post_type}_posts" );
-
-		// Check if this is the right post type archive and an index page is set
-		if ( is_post_type_archive() && get_query_var( 'post_type' ) == $post_type && $index ) {
-			// Replace the archive title for the post type with the index page's title.
-			$archive_title = post_type_archive_title( '', false );
-			$page_title = get_the_title( $index );
-			$title = str_replace( $archive_title, $page_title, $title );
+	protected function _index_page_title_part( $title, $index_pages ) {
+		// Skip if not an archive
+		if ( ! is_post_type_archive() ) {
+			return $title;
 		}
+		
+		// Get the queried post type
+		$post_type = get_query_var( 'post_type' );
+		
+		// Abort if not a post type with an index
+		if ( ! isset( $index_pages[ $post_type ] ) ) {
+			return $title;
+		}
+		
+		// Get the index page for this post type
+		$index_page = $index_pages[ $post_type ];
+		
+		// Replace the first part of the title with the index page's title
+		$title[0] = get_the_title( $index_page );	
 
 		return $title;
 	}
