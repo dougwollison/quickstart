@@ -439,6 +439,7 @@ class Form {
 	/**
 	 * Build a select field.
 	 *
+	 * @since 1.8.0 Added support for option groups.
 	 * @since 1.5.0 Add "null" option handling.
 	 * @since 1.4.2 Added [] to field name when multiple is true.
 	 * @since 1.0.0
@@ -473,12 +474,30 @@ class Form {
 				$val = $label;
 			}
 
-			$options .= sprintf(
-				'<option value="%s" %s>%s</option>',
-				$val,
-				in_array( $val, (array) $value ) ? 'selected' : '',
-				$label
-			);
+			// If $label is an array, handle as an optgroup
+			if ( is_array( $label ) ) {
+				$suboptions = '';
+				$is_sub_assoc = is_assoc( $label );
+				foreach ( $label as $subval => $sublabel ) {
+					if ( ! $is_sub_assoc ) {
+						$subval = $sublabel;
+					}
+					$suboptions .= sprintf(
+						'<option value="%s" %s>%s</option>',
+						$subval,
+						in_array( $subval, (array) $value ) ? 'selected' : '',
+						$sublabel
+					);
+				}
+				$options .= sprintf( '<optgroup label="%s">%s</optgroup>', $val, $suboptions );
+			} else {
+				$options .= sprintf(
+					'<option value="%s" %s>%s</option>',
+					$val,
+					in_array( $val, (array) $value ) ? 'selected' : '',
+					$label
+				);
+			}
 		}
 
 		// Build the <select>
