@@ -563,6 +563,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested taxonomy.
 	 *
+	 * @sicne 1.8.0 Added enforcement of array for for post_type value.
 	 * @since 1.6.0 Updated static replacement metabox title based on $multiple.
 	 * @since 1.5.0 Added "static" option handling (custom taxonomy metabox).
 	 * @since 1.3.1 Removed Hooks::taxonomy_count call.
@@ -572,6 +573,11 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $args     The arguments for registration.
 	 */
 	public function _register_taxonomy( $taxonomy, $args ) {
+		// Ensure post_type is in array form if set.
+		if ( isset( $args['post_type'] ) ) {
+			csv_array_ref( $args['post_type'] );
+		}
+		
 		// Check if the taxonomy exists, if so, see if a post_type
 		// is set in the $args and then tie them together.
 		if ( taxonomy_exists( $taxonomy ) ) {
