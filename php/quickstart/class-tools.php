@@ -240,59 +240,74 @@ class Tools {
 	}
 
 	/**
-	 * Add specified callbacks to various hooks ( good for adding a callback to multiple hooks... it could happen.
+	 * Helper function for self::enqueue()
 	 *
+	 * @since 1.8.0
+	 *
+	 * @param mixed  $enqueues  The enqueues to handle.
+	 * @param string $function  The function to call.
+	 */
+	protected static function do_enqueues( $enqueues, $function ) {
+		//  Check if its a callback, run it and get the value from that
+		if ( is_callable( $enqueues ) ) {
+			$enqueues = call_user_func( $enqueues );
+		}
+
+		// Run through the enqueues and hand them
+		foreach ( (array) $enqueues as $handle => $args ) {
+			if ( is_numeric( $handle ) ) {
+				// Just enqueue it
+				call_user_func( $function, $args );
+			} else {
+				// Must be registered first
+				$args = (array) $args;
+				$src = $deps = $ver = $option = null;
+				if ( is_assoc( $args ) ) {
+					// If a condition callback was passed, test it and skip if it fails
+					if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
+						/**
+						 * Test if the current style should be enqueued.
+						 *
+						 * @since 1.8.0
+						 *
+						 * @param array $style The style settings.
+						 *
+						 * @return bool Wether or not to continue enqueuing.
+						 */
+						$result = call_user_func( $args['condition'], $args );
+						if ( ! $result ) continue;
+					}
+
+					extract( $args );
+				} else {
+					list( $src, $deps, $ver, $option ) = fill_array( $args, 4 );
+				}
+
+				// Ensure $deps is an array
+				$deps = (array) $deps;
+
+				// Enqueue it
+				call_user_func( $function, $handle, $src, $deps, $ver, $option );
+			}
+		}
+	}
+
+	/**
+	 * Enqueue styles and scripts.
+	 *
+	 * @since 1.8.0 Moved shared logic to do_enqueues internal method.
+	 *              This also adds conditional style/script support.
 	 * @since 1.0.0
 	 *
 	 * @param array $enqueues Optional An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
 	public static function enqueue( $enqueues = null ) {
 		if ( isset( $enqueues['css'] ) ) {
-			//  Check if its a callback, run it and get the value from that
-			if ( is_callable( $enqueues['css'] ) ) {
-				$enqueues['css'] = call_user_func( $enqueues['css'] );
-			}
-			foreach ( (array) $enqueues['css'] as $handle => $style ) {
-				if ( is_numeric( $handle ) ) {
-					// Just enqueue it
-					wp_enqueue_style( $style );
-				} else {
-					// Must be registered first
-					$style = (array) $style;
-					$src = $deps = $ver = $media = null;
-					if ( is_assoc( $style ) ) {
-						extract( $style );
-					} else {
-						list( $src, $deps, $ver, $media ) = fill_array( $style, 4 );
-					}
-					$deps = (array) $deps;
-					wp_enqueue_style( $handle, $src, $deps, $ver, $media );
-				}
-			}
+			self::do_enqueues( $enqueues['css'], 'wp_enqueue_style' );
 		}
 
 		if ( isset( $enqueues['js'] ) ) {
-			//  Check if its a callback, run it and get the value from that
-			if ( is_callable( $enqueues['js'] ) ) {
-				$enqueues['js'] = call_user_func( $enqueues['js'] );
-			}
-			foreach ( (array) $enqueues['js'] as $handle => $script ) {
-				if ( is_numeric( $handle ) ) {
-					// Just enqueue it
-					wp_enqueue_script( $script );
-				} else {
-					// Must be registered first
-					$script = (array) $script;
-					$src = $deps = $ver = $in_footer = null;
-					if ( is_assoc( $script ) ) {
-						extract( $script );
-					} else {
-						list( $src, $deps, $ver, $in_footer ) = fill_array( $script, 4 );
-					}
-					$deps = (array) $deps;
-					wp_enqueue_script( $handle, $src, $deps, $ver, $in_footer );
-				}
-			}
+			self::do_enqueues( $enqueues['js'], 'wp_enqueue_script' );
 		}
 	}
 	
