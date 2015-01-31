@@ -180,7 +180,19 @@ class Tools {
 				 */
 				call_user_func( $callback, $post, $args, $id );
 			} elseif ( $fields ) {
-				// Build the fields
+				// First, handle any special meta box only processing of the fields
+				foreach ( $fields as $field => &$settings ) {
+					if ( isset( $settings['type'] ) ) {
+						switch ( $settings['type'] ) {
+							case 'editor':
+								// Meta boxes can't have tinyce-enabled editors; they're buggy
+								$settings['tinymce'] = false;
+								break;
+						}
+					}
+				}
+
+				// Now, Build the fields
 				Form::build_fields( $fields, $post, 'post', true );
 			}
 		echo '</div>';
