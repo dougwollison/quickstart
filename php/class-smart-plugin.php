@@ -6,7 +6,7 @@
  * @subpackage Smart_Plugin
  *
  * @since 1.6.1 Changed name for WordPress standards
- * @since 1.0.0
+ * @since 1.0.0.0
  */
 
 abstract class Smart_Plugin{
@@ -17,7 +17,7 @@ abstract class Smart_Plugin{
 	/**
 	 * The stored callbacks.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -26,7 +26,7 @@ abstract class Smart_Plugin{
 	/**
 	 * A count of all the callbacks made.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -35,7 +35,7 @@ abstract class Smart_Plugin{
 	/**
 	 * A list of internal methods and their hooks names.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -44,7 +44,7 @@ abstract class Smart_Plugin{
 	/**
 	 * Method overloader; handle hook setup/callback for the true method.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 *
 	 * @param string $name The name of the method being called.
 	 * @param array  $args The arguments passed to said method.
@@ -66,20 +66,28 @@ abstract class Smart_Plugin{
 
 	/**
 	 * Save a callback for the requested method
-	 *.
-	 * @since 1.0
 	 *
-	 * @param string $method The name of the method to setup the hook for.
-	 * @param array  $args   The arguments for the method.
+	 * @since 1.8.0 Now supports passing a custom hook to attach the callback to,
+	 *              also supports multiple hooks for the same callback setup.
+	 * @since 1.0.0
+	 *
+	 * @param string       $method The name of the method to setup the hook for.
+	 * @param array        $args   The arguments for the method.
+	 * @param string|array $hook   Optional The hook to attach this to (defaults
+	 *                             to init or any hook registered for the method).
 	 */
-	protected function save_callback( $method, $args ) {
+	protected function save_callback( $method, $args, $hook = null ) {
 		if ( ! method_exists( $this, "_$method" ) ) {
 			return;
 		}
 
-		$hook = 'init';
-		if ( isset( $this->method_hooks[ $method ] ) ) {
-			$hook = $this->method_hooks[ $method ];
+		if ( is_null( $hook ) ) {
+			// Default to the 'init' hook
+			if ( isset( $this->method_hooks[ $method ] ) ) {
+				$hook = $this->method_hooks[ $method ];
+			} else {
+				$hook = 'init';
+			}
 		}
 
 		++$this->callback_counts;
@@ -89,9 +97,14 @@ abstract class Smart_Plugin{
 
 		// Get the name, priority and number of args for the hook,
 		// based on the hook plus default arguments if needed.
-		list( $tag, $priority, $accepted_args ) = (array) $hook + array( 'init', 10, 0 );
+		list( $tags, $priority, $accepted_args ) = (array) $hook + array( 'init', 10, 0 );
 
-		add_filter( $tag, array( $this, "cb$id" ), $priority, $accepted_args );
+		// Multiple tag names may be used, treat as array and loop
+		$tags = (array) $tags;
+		foreach ( $tags as $tag ) {
+			// Register the hook for this tag
+			add_filter( $tag, array( $this, "cb$id" ), $priority, $accepted_args );
+		}
 
 		return $id;
 	}
@@ -99,7 +112,7 @@ abstract class Smart_Plugin{
 	/**
 	 * Load the requested callback and apply it.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 *
 	 * @param string $id    The ID of the callback to load.
 	 * @param array  $_args The additional arguments for the method.
@@ -127,7 +140,7 @@ abstract class Smart_Plugin{
 	/**
 	 * The stored static callbacks.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -136,7 +149,7 @@ abstract class Smart_Plugin{
 	/**
 	 * A count of all the static callbacks made.
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -145,7 +158,7 @@ abstract class Smart_Plugin{
 	/**
 	 * A list of internal methods and their hooks names (static version).
 	 *
-	 * @since 1.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -154,11 +167,9 @@ abstract class Smart_Plugin{
 	/**
 	 * Static version of the method overloader.
 	 *
-	 * @since 1.0
-	 * @see SmartPlugin::__call()
+	 * @since 1.0.0
 	 *
-	 * @param string $name The name of the method being called.
-	 * @param array  $args The arguments passed to said method.
+	 * @see SmartPlugin::__call()
 	 */
 	public static function __callStatic( $method, $args ) {
 		/**
@@ -178,20 +189,23 @@ abstract class Smart_Plugin{
 	/**
 	 * Save a callback for the requested method.
 	 *
-	 * @since 1.0
-	 * @see SmartPlugin::save_callback()
+	 * @since 1.8.0 SmartPlugin::save_callback() changes.
+	 * @since 1.0.0
 	 *
-	 * @param string $method The name of the method to setup the hook for.
-	 * @param array  $args   The arguments for the method.
+	 * @see SmartPlugin::save_callback()
 	 */
-	protected function save_static_callback( $method, $args ) {
+	protected static function save_static_callback( $method, $args, $hook = null ) {
 		if ( ! method_exists( get_called_class(), "_$method" ) ) {
 			return;
 		}
 
-		$hook = 'init';
-		if ( isset( static::$static_method_hooks[ $method ] ) ) {
-			$hook = static::$static_method_hooks[ $method ];
+		if ( is_null( $hook ) ) {
+			// Default to the 'init' hook
+			if ( isset( static::$static_method_hooks[ $method ] ) ) {
+				$hook = static::$static_method_hooks[ $method ];
+			} else {
+				$hook = 'init';
+			}
 		}
 
 		++static::$static_callback_counts;
@@ -201,9 +215,14 @@ abstract class Smart_Plugin{
 
 		// Get the name, priority and number of args for the hook,
 		// based on the hook plus default arguments if needed.
-		list( $tag, $priority, $accepted_args ) = (array) $hook + array( 'init', 10, 0 );
+		list( $tags, $priority, $accepted_args ) = (array) $hook + array( 'init', 10, 0 );
 
-		add_filter( $tag, array( get_called_class(), "cb$id" ), $priority, $accepted_args );
+		// Multiple tag names may be used, treat as array and loop
+		$tags = (array) $tags;
+		foreach ( $tags as $tag ) {
+			// Register the hook for this tag
+			add_filter( $tag, array( get_called_class(), "cb$id" ), $priority, $accepted_args );
+		}
 
 		return $id;
 	}
@@ -211,13 +230,11 @@ abstract class Smart_Plugin{
 	/**
 	 * Load the requested callback and apply it.
 	 *
-	 * @since 1.0
-	 * @see SmartPlugin::load_callback()
+	 * @since 1.0.0
 	 *
-	 * @param string $id    The ID of the callback to load.
-	 * @param array  $_args The additional arguments for the method.
+	 * @see SmartPlugin::load_callback()
 	 */
-	protected function load_static_callback( $id, $_args ) {
+	protected static function load_static_callback( $id, $_args ) {
 		// First, make sure the callback exists, abort if not
 		if ( ! isset( static::$static_callbacks[ $id ] ) ) {
 			return;
