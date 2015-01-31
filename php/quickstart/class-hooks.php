@@ -251,15 +251,26 @@ class Hooks extends \Smart_Plugin {
 	/**
 	 * Add a dropdown for filtering by the custom taxonomy.
 	 *
+	 * @since 1.8.0 New method for checking for appropriate post type; now works for attachments too.
 	 * @since 1.6.0 Now supports hierarchical terms via use of taxonomy_filter_options().
 	 * @since 1.0.0
 	 *
 	 * @param object $taxonomy The taxonomy object to build from.
 	 */
 	public static function _taxonomy_filter( $taxonomy ) {
-		global $typenow;
 		$taxonomy = get_taxonomy( $taxonomy );
-		if ( in_array( $typenow, $taxonomy->object_type ) ) {
+		$screen = get_current_screen()->id;
+
+		// Translate the screen id
+		if ( $screen == 'upload' ) {
+			// Upload is for attachments
+			$screen = 'attachment';
+		} else {
+			// Remove edit- for post_types in case it's a post type
+			$screen = preg_replace( '/^edit-/', '', $screen );
+		}
+		
+		if ( in_array( $screen, $taxonomy->object_type ) ) {
 			$var = $taxonomy->query_var;
 			$selected = isset( $_GET[ $var ] ) ? $_GET[ $var ] : null;
 
