@@ -245,7 +245,7 @@ class Hooks extends \Smart_Plugin {
 	/**
 	 * Edit an existing registered meta box.
 	 *
-	 * This hook will fire what should be the first round of do_meta_boxes
+	 * This hook will fire on what should be the first round of do_meta_boxes
 	 * (for the "normal" context).
 	 *
 	 * @since 1.8.0
