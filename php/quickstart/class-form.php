@@ -949,7 +949,7 @@ class Form {
 
 
 			// Write the existing items if present
-			$html .= '<div class="qs-container">';
+			$html .= '<div class="qs-container qs-sortable" data-axis="y">';
 			if ( $values ) {
 				// Loop through each entry in the data, write the items
 				foreach ( $values as $i => $item ) {

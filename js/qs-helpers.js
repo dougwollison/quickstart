@@ -1,4 +1,4 @@
-/* global alert, _, QS */
+/* global alert, _, QS, google */
 window.QS = window.QS || {};
 
 (function( $ ) {
@@ -65,12 +65,17 @@ jQuery(function($){
 
 	// Delete item button setup
 	$( 'body' ).on( 'click', '.qs-delete', function() {
-		$( this ).parents( '.qs-item' ).animate({
+		var item = $( this ).parents( '.qs-item' );
+		
+		item.animate({
 			height:  'toggle',
 			opacity: 'toggle'
 		}, function() {
 			$( this ).remove();
 		});
+		
+		// Fire an item-removed
+		item.trigger( 'qs:item-deleted' );
 	});
 
 	// Clear items button setup
@@ -87,13 +92,8 @@ jQuery(function($){
 			});
 			parent.find( '.qs-value' ).val( '' );
 		} else {
-			// Remove all items
-			parent.find( '.qs-item' ).animate({
-				height:  'toggle',
-				opacity: 'toggle'
-			}, function() {
-				$( this ).remove();
-			});
+			// Remove all items by triggering their delete buttons
+			parent.find( '.qs-item .qs-delete' ).click();
 		}
 	});
 
@@ -121,7 +121,15 @@ jQuery(function($){
 	// Repeater setup
 	$( '.qs-repeater' ).each(function() {
 		var repeater = $( this );
-		var container = repeater.find( '.qs-container' );
+		var container = $( '.qs-container', this );
+		var template = $( '.qs-template', this );
+		
+		if ( template.length === 0 ) {
+			return;
+		}
+		
+		// Create the template object
+		template = $( template.html() );
 
 		// Update the index of all item fields
 		var updateItems = function() {
@@ -135,17 +143,13 @@ jQuery(function($){
 		};
 
 		repeater.on( 'click', '.qs-add', function() {
-			var template = repeater.find( '.qs-template' );
-			if ( template.length === 0 ) {
-				return alert( 'No template to work from for new item.' );
-			}
-			template = template.html();
-			template = $( template );
+			// Clone the template as a new item
+			var item = $( template ).clone();
 
 			var unique = randStr();
 
 			// Setup all div/input id and label for attributes
-			template.find( 'div, input, select, textarea, label' ).each(function() {
+			item.find( 'div, input, select, textarea, label' ).each(function() {
 				// Figure out which attribute to retrieve
 				var attr = this.nodeName.toLowerCase() === 'label' ? 'for' : 'id';
 
@@ -161,15 +165,17 @@ jQuery(function($){
 			});
 
 			// Insert the new item, update the set
-			container.append(template);
+			container.append(item);
 			updateItems();
-		}).on( 'click', '.qs-delete', updateItems);
+			
+			// Fire an item-added event
+			item.trigger( 'qs:item-added' );
+		})
+		// Have updateItems triggered when one is deleted
+		.on( 'click', '.qs-delete', updateItems );
 
-		container.sortable({
-			items:  '.qs-item',
-			axis:   'y',
-			update: updateItems
-		});
+		// Add an update callback to the sortable
+		container.sortable( 'option', 'update', updateItems );
 	});
 
 	// Setup map fields, provided google maps is loaded
@@ -243,10 +249,13 @@ jQuery(function($){
 
 				marker.setPosition( new google.maps.LatLng( lat, lng ) );
 				marker.setMap( map );
+				
+				// Fire a marker-placed event, passing the marker object
+				$canvas.trigger( 'qs:marker-placed', [ marker ] );
 			});
 
 			// Setup the update-zoom-on-zoom callback
-			google.maps.event.addListener( map, 'zoom_changed', function( data ) {
+			google.maps.event.addListener( map, 'zoom_changed', function() {
 				$zoom.val( map.getZoom() );
 			});
 
@@ -296,6 +305,9 @@ jQuery(function($){
 							// Center/zoom the map
 							map.setCenter( newCoords );
 							map.setZoom( 10 );
+				
+							// Fire a marker-placed event, passing the marker object
+							$canvas.trigger( 'qs:marker-placed', [ marker ] );
 						}
 					});
 				});
