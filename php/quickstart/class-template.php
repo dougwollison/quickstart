@@ -258,9 +258,12 @@ class Template {
 			$method = $settings;
 			$settings = null;
 		}
-
-		call_user_func( "static::$method", $settings );
-		echo "\n";
+		
+		// Make sure the method exists
+		if ( method_exists( get_called_class(), $method ) ) {
+			call_user_func( array( get_called_class(), $method ), $settings );
+			echo "\n";
+		}
 	}
 	?>
 </head>
