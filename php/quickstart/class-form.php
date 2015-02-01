@@ -1109,4 +1109,57 @@ class Form {
 
 		return $html;
 	}
+
+	/**
+	 * Build a google map field for setting coordinates.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_map( $settings, $data ) {
+		// Get the field name
+		$name = $settings['name'];
+
+		// Setup data attributes (default values and api key)
+		$data_atts = array();
+		$usable_atts = array( 'lat', 'lng', 'zoom', 'key' );
+		foreach ( $usable_atts as $attr ) {
+			if ( isset( $settings[ $attr ] ) ) {
+				$data_atts[] = 'data-' . $attr . '="' . $settings[ $attr ] . '"';
+			}
+		}
+		
+		// Default values for the data
+		$data = wp_parse_args( $data, array(
+			'lat' => null,
+			'lng' => null,
+			'zoom' => null,
+		) );
+
+		// Write the map container
+		$html = sprintf( '<div class="qs-map" id="%s-map" %s>', $name, implode( ' ', $data_atts ) );
+			// Print the hidden fields (lat, lng, zoom)
+			$field = '<input type="hidden" name="%2$s[%1$s]" class="qs-value-%1$s" value="%3$s" />';
+			$html .= sprintf( $field, 'lat', $name, $data['lat'] );
+			$html .= sprintf( $field, 'lng', $name, $data['lng'] );
+			$html .= sprintf( $field, 'zoom', $name, $data['zoom'] );
+
+			// Add the address search option if available
+			if ( isset( $settings['search'] ) && $settings['search'] ) {
+				$html .= '<div class="qs-map-field">';
+					$html .= '<label>Search for Address: <input type="text" class="qs-map-search regular-text" /></label>';
+					$html .= '<button type="button" class="button qs-search">Find</button>';
+				$html .= '</div>';
+			}
+
+			// Add the canvas
+			$html .= '<div class="qs-map-canvas"></div>';
+
+			// A button to clear all the map/coordinates
+			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
+		$html .= '</div>';
+
+		return $html;
+	}
 }

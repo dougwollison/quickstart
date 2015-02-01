@@ -27,6 +27,7 @@
 	}
 
 	&.generic,
+	&.textarea,
 	&.select{
 		.qs-label{
 			float: left;
@@ -84,6 +85,7 @@
 	margin: 10px 0 0;
 	border-top: 1px solid #eee;
 }
+
 .qs-sortable{
 	padding: 10px;
 	background: #fff;
@@ -131,3 +133,16 @@
 		margin-bottom: 10px;
 	}
 }
+
+.qs-map{
+	@extend %clearfix;
+
+	.qs-clear{
+		float: right;
+	}
+}
+	.qs-map-canvas{
+		width: 100%;
+		height: 500px;
+		margin: 10px 0;
+	}
