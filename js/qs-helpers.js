@@ -16,24 +16,24 @@ window.QS = window.QS || {};
 		 *
 		 * @since 1.6.0
 		 *
-		 * @param string|jQuery parent The parent element's selector or jQuery object.
-		 * @param string        item   The item element's selector.
-		 * @param string        method The method to sort by ('flip' or a data-attribute).
+		 * @param string|jQuery $parent The parent element's selector or jQuery object.
+		 * @param string        item    The item element's selector.
+		 * @param string        method  The method to sort by ('flip' or a data-attribute).
 		 *
 		 * @return array The sorted collection of elements.
 		 */
-		sortItems: function( parent, item, method ) {
-			if ( typeof parent === 'string' ) {
-				parent = $( parent );
+		sortItems: function( $parent, item, method ) {
+			if ( typeof $parent === 'string' ) {
+				$parent = $( $parent );
 			}
 			
 			// Get all the first level items
-			var collection = parent.children( item );
+			var collection = $parent.children( item );
 			
 			if ( method === 'flip' ) {
 				// Since jQuery has no reverse method...
 				collection.each(function() {
-					$( this ).prependTo( parent );
+					$( this ).prependTo( $parent );
 				});
 			} else {
 				// Sort based on data attribute
@@ -49,11 +49,11 @@ window.QS = window.QS || {};
 				});
 				
 				// Reload list with sorted items
-				collection.detach().appendTo( parent );
+				collection.detach().appendTo( $parent );
 			}
 			
 			// Refresh the sortability
-			parent.sortable( 'refresh' );
+			$parent.sortable( 'refresh' );
 		}
 	});
 })( jQuery );
@@ -65,9 +65,9 @@ jQuery(function($){
 
 	// Delete item button setup
 	$( 'body' ).on( 'click', '.qs-delete', function() {
-		var item = $( this ).parents( '.qs-item' );
+		var $item = $( this ).parents( '.qs-item' );
 		
-		item.animate({
+		$item.animate({
 			height:  'toggle',
 			opacity: 'toggle'
 		}, function() {
@@ -75,25 +75,25 @@ jQuery(function($){
 		});
 		
 		// Fire an item-removed
-		item.trigger( 'qs:item-deleted' );
+		$item.trigger( 'qs:item-deleted' );
 	});
 
 	// Clear items button setup
 	$( 'body' ).on( 'click', '.qs-clear', function() {
-		var parent = $( this ).parent();
+		var $parent = $( this ).parent();
 
-		if ( parent.hasClass( 'qs-editgallery' ) ) {
+		if ( $parent.hasClass( 'qs-editgallery' ) ) {
 			// Empty the gallery preview and input value
-			parent.find( '.qs-preview' ).animate({
+			$parent.find( '.qs-preview' ).animate({
 				height:  'toggle',
 				opacity: 'toggle'
 			}, function() {
 				$( this ).empty().show();
 			});
-			parent.find( '.qs-value' ).val( '' );
+			$parent.find( '.qs-value' ).val( '' );
 		} else {
 			// Remove all items by triggering their delete buttons
-			parent.find( '.qs-item .qs-delete' ).click();
+			$parent.find( '.qs-item .qs-delete' ).click();
 		}
 	});
 
@@ -111,29 +111,29 @@ jQuery(function($){
 	// Quick Sort buttons
 	$( '.qs-field' ).on( 'click', '.qs-sort button', function() {
 		var method = $( this ).val();
-		var parent = $( this ).parents( '.qs-field' );
+		var $parent = $( this ).parents( '.qs-field' );
 
 		if ( method ) {
-			QS.helpers.sortItems( parent.find( '.qs-container' ), '.qs-item', method );
+			QS.helpers.sortItems( $parent.find( '.qs-container' ), '.qs-item', method );
 		}
 	});
 
 	// Repeater setup
 	$( '.qs-repeater' ).each(function() {
-		var repeater = $( this );
-		var container = $( '.qs-container', this );
-		var template = $( '.qs-template', this );
+		var $repeater = $( this );
+		var $container = $repeater.find( '.qs-container' );
+		var $template = $repeater.find( '.qs-template' );
 		
-		if ( template.length === 0 ) {
+		if ( $template.length === 0 ) {
 			return;
 		}
 		
 		// Create the template object
-		template = $( template.html() );
+		$template = $( $template.html() );
 
 		// Update the index of all item fields
 		var updateItems = function() {
-			repeater.find( '.qs-item' ).each(function( i ) {
+			$repeater.find( '.qs-item' ).each(function( i ) {
 				$( this ).find( 'input, select, textarea' ).each(function() {
 					var name = $( this ).attr( 'name' );
 					name = name.replace( /\[-?\d+\]/, '[' + i + ']' );
@@ -142,14 +142,14 @@ jQuery(function($){
 			});
 		};
 
-		repeater.on( 'click', '.qs-add', function() {
+		$repeater.on( 'click', '.qs-add', function() {
 			// Clone the template as a new item
-			var item = $( template ).clone();
+			var $item = $( template ).clone();
 
 			var unique = randStr();
 
 			// Setup all div/input id and label for attributes
-			item.find( 'div, input, select, textarea, label' ).each(function() {
+			$item.find( 'div, input, select, textarea, label' ).each(function() {
 				// Figure out which attribute to retrieve
 				var attr = this.nodeName.toLowerCase() === 'label' ? 'for' : 'id';
 
@@ -165,39 +165,39 @@ jQuery(function($){
 			});
 
 			// Insert the new item, update the set
-			container.append(item);
+			$container.append( $item );
 			updateItems();
 			
 			// Fire an item-added event
-			item.trigger( 'qs:item-added' );
+			$item.trigger( 'qs:item-added' );
 		})
 		// Have updateItems triggered when one is deleted
 		.on( 'click', '.qs-delete', updateItems );
 
 		// Add an update callback to the sortable
-		container.sortable( 'option', 'update', updateItems );
+		$container.sortable( 'option', 'update', updateItems );
 	});
 
 	// Setup map fields, provided google maps is loaded
 	if ( google && google.maps ) {
 		$( '.qs-map' ).each(function() {
-			var $elm = $( this );
+			var $ui = $( this );
 
-			var type = $elm.data( 'type' ) || 'ROADMAP';
+			var type = $ui.data( 'type' ) || 'ROADMAP';
 				type = type.toUpperCase();
 
-			var defaultLat = $elm.data( 'lat' ) || 0;
-			var defaultLng = $elm.data( 'lng' ) || 0;
-			var defaultZoom = $elm.data( 'zoom' ) || 5;
+			var defaultLat = $ui.data( 'lat' ) || 0;
+			var defaultLng = $ui.data( 'lng' ) || 0;
+			var defaultZoom = $ui.data( 'zoom' ) || 5;
 
-			var $lat = $( '.qs-value-lat', $elm );
-			var $lng = $( '.qs-value-lng', $elm );
-			var $zoom = $( '.qs-value-zoom', $elm );
-			var $canvas = $( '.qs-map-canvas', $elm );
-			var $search = $( '.qs-map-search', $elm );
+			var $lat    = $ui.find( '.qs-value-lat' );
+			var $lng    = $ui.find( '.qs-value-lng' );
+			var $zoom   = $ui.find( '.qs-value-zoom' );
+			var $canvas = $ui.find( '.qs-map-canvas' );
+			var $search = $ui.find( '.qs-map-search' );
 
-			var lat = $lat.val();
-			var lng = $lng.val();
+			var lat  = $lat.val();
+			var lng  = $lng.val();
 			var zoom = $zoom.val();
 
 			var showMarker = false;
@@ -209,8 +209,8 @@ jQuery(function($){
 					zoom = defaultZoom;
 				}
 			} else {
-				lat = defaultLat;
-				lng = defaultLng;
+				lat  = defaultLat;
+				lng  = defaultLng;
 				zoom = defaultZoom;
 			}
 
@@ -222,13 +222,13 @@ jQuery(function($){
 			// Create the map
 			var map = new google.maps.Map( $canvas[0], {
 				mapTypeId: google.maps.MapTypeId[ type ],
-				center: new google.maps.LatLng( lat, lng ),
-				zoom: zoom
+				center:    new google.maps.LatLng( lat, lng ),
+				zoom:      zoom
 			});
 
 			// Create a blank marker
 			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng( lat, lng ),
+				position:  new google.maps.LatLng( lat, lng ),
 				clickable: false
 			});
 
@@ -239,8 +239,8 @@ jQuery(function($){
 
 			// Setup the click-to-place-marker callback
 			google.maps.event.addListener( map, 'click', function( data ) {
-				var lat = data.latLng.lat();
-				var lng = data.latLng.lng();
+				var lat  = data.latLng.lat();
+				var lng  = data.latLng.lng();
 				var zoom = map.getZoom();
 
 				$lat.val( lat );
@@ -259,23 +259,23 @@ jQuery(function($){
 				$zoom.val( map.getZoom() );
 			});
 
-			$( '.qs-clear', $elm ).click(function() {
+			$ui.find( '.qs-clear' ).click(function() {
 				marker.setMap( null );
 			});
 
 			// Search feature if present
 			if ( $search.length > 0 ){
 				// We need an API key to use
-				var key = $elm.data( 'key' );
+				var key = $ui.data( 'key' );
 
 				// Setup the search functionality
-				$( '.qs-search', $elm ).click(function() {
+				$ui.find( '.qs-search' ).click(function() {
 					var query = $search.val();
 
 					$.ajax({
 						url: 'https://maps.googleapis.com/maps/api/geocode/json',
 						data: {
-							key: key,
+							key:     key,
 							address: query,
 						},
 						type: 'GET',
@@ -289,9 +289,9 @@ jQuery(function($){
 							$search.val('');
 
 							// Get the coordiates
-							var lat = data.results[0].geometry.location.lat;
-							var lng = data.results[0].geometry.location.lng;
-							var newCoords = new google.maps.LatLng( lat, lng );
+							var lat    = data.results[0].geometry.location.lat;
+							var lng    = data.results[0].geometry.location.lng;
+							var coords = new google.maps.LatLng( lat, lng );
 
 							// Update the fields
 							$lat.val( lat );
@@ -299,11 +299,11 @@ jQuery(function($){
 							$zoom.val( 10 );
 
 							// Update the marker
-							marker.setPosition( newCoords );
+							marker.setPosition( coords );
 							marker.setMap( map );
 
 							// Center/zoom the map
-							map.setCenter( newCoords );
+							map.setCenter( coords );
 							map.setZoom( 10 );
 				
 							// Fire a marker-placed event, passing the marker object
