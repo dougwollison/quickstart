@@ -364,7 +364,7 @@ class Hooks extends \Smart_Plugin {
 	 * @param string $name     The name of the field (by default also the meta_key).
 	 * @param array  $settings Optional Any special settings such as post_type and title.
 	 */
-	public static function add_extra_editor( $name, $settings = array() ) {
+	public static function extra_editor( $name, $settings = array() ) {
 		$settings = wp_parse_args( $settings, array(
 			'name' => $name,
 			'meta_key' => $name,
