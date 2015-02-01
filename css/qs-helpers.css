@@ -1,4 +1,4 @@
-.qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-item:after {
+.qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-item:after, .qs-map:after {
   content: '';
   display: table;
   clear: both; }
@@ -19,7 +19,7 @@
   line-height: 1.5; }
   .qs-fieldset .qs-field {
     padding-top: 0; }
-  .qs-field.generic .qs-label, .qs-field.select .qs-label {
+  .qs-field.generic .qs-label, .qs-field.textarea .qs-label, .qs-field.select .qs-label {
     float: left;
     padding: 5px 0;
     margin: 0 10px 0 0; }
@@ -85,3 +85,11 @@
   padding-right: 10px; }
 .qs-field .qs-sort {
   margin-bottom: 10px; }
+
+.qs-map .qs-clear {
+  float: right; }
+
+.qs-map-canvas {
+  width: 100%;
+  height: 500px;
+  margin: 10px 0; }
