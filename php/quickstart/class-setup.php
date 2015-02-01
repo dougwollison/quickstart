@@ -1481,7 +1481,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register and build a setting.
 	 *
-	 * @since 1.7.1 Added use of maybe_load_media_manager()
+	 * @since 1.8.0 Added use of Tools::build_settings_field().
+	 * @since 1.7.1 Added use of Setup::maybe_load_media_manager().
 	 * @since 1.4.0 Added 'source' to build_fields $args.
 	 * @since 1.3.0 Added 'wrap' to build_fields $args.
 	 * @since 1.1.0 Dropped stupid $args['fields'] processing.
