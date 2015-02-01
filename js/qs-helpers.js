@@ -144,7 +144,7 @@ jQuery(function($){
 
 		$repeater.on( 'click', '.qs-add', function() {
 			// Clone the template as a new item
-			var $item = $( template ).clone();
+			var $item = $template.clone();
 
 			var unique = randStr();
 
