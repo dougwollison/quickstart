@@ -376,7 +376,7 @@ window.QS = window.QS || {};
 						var attachments = media.attachments();
 
 						// Loop vars
-						var attachment, item, preview, input;
+						var attachment, $item, $preview, $input;
 
 						// Empty the container if not in multiple mode
 						if ( ! is_multi ) {
@@ -391,29 +391,29 @@ window.QS = window.QS || {};
 							}
 
 							// Make a copty of the template item
-							item = plugin.$template.clone();
+							$item = plugin.$template.clone();
 
 							console.log(i);
 
 							// Get the preview and input elements
-							preview = item.find( plugin.preview );
-							input = item.find( plugin.input );
+							$preview = $item.find( plugin.preview );
+							$input = $item.find( plugin.input );
 
 							// Update preview accordingly
-							if ( preview.is( 'img' ) && 'image' === attachment.type ) {
+							if ( $preview.is( 'img' ) && 'image' === attachment.type ) {
 								// Preview is an image, update the source
 								// Use thumbnail or full size if unavailable
 								if ( null != attachment.sizes.thumbnail ) {
-									preview.attr( 'src', attachment.sizes.thumbnail.url );
+									$preview.attr( 'src', attachment.sizes.thumbnail.url );
 								} else {
-									preview.attr( 'src', attachment.sizes.full.url );
+									$preview.attr( 'src', attachment.sizes.full.url );
 								}
 							} else {
 								// Preview should be plain text of the title or filename, update the content
 								if ( 'title' === show ) {
-									preview.html( attachment.title );
+									$preview.html( attachment.title );
 								} else {
-									preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
+									$preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
 								}
 							}
 
@@ -423,14 +423,14 @@ window.QS = window.QS || {};
 							}
 
 							// Add data attributes for quick sort support
-							item.data( 'name', attachment.filename.replace( /[^\w\-]+/g, '-' ).toLowerCase() );
-							item.data( 'date', attachment.date.getTime() / 1000 );
+							$item.data( 'name', attachment.filename.replace( /[^\w\-]+/g, '-' ).toLowerCase() );
+							$item.data( 'date', attachment.date.getTime() / 1000 );
 
 							// Store the ID in the input field
-							input.val( attachment.id );
+							$input.val( attachment.id );
 
 							// Add the item to the container
-							plugin.$container.append( item );
+							$plugin.$container.append( $item );
 						});
 					}
 				}
@@ -509,7 +509,7 @@ window.QS = window.QS || {};
 						var attachments = media.attachments();
 
 						// Loop vars
-						var items = [], img;
+						var items = [], $img;
 
 						// Empty the preview box
 						plugin.$preview.empty();
@@ -528,10 +528,10 @@ window.QS = window.QS || {};
 							}
 
 							// Create a new image with the thumbnail URL
-							img = $( '<img src="' + src + '">' );
+							$img = $( '<img src="' + src + '">' );
 
 							// Add the new image to the preview
-							plugin.$preview.append( img );
+							plugin.$preview.append( $img );
 						});
 
 						// Update the input with the id list

@@ -19,14 +19,12 @@ jQuery(function( $ ) {
 	// Create the nestedSortable options
 	// a copy of the sortable options + an update event for the parent value
 	var nestedSortableOptions = $.extend( {}, sortableOptions, {
-		update: function( event, ui ) {
-			var parent = ui.item.parent();
+		update: function( event, $ui ) {
+			var $parent = $ui.item.parent(), parent_id = 0;
 			if ( parent.prev( '.inner' ).length > 0 ) {
-				parent = parent.prev( '.inner' ).find( '.qs-order-id' ).val();
-			} else {
-				parent = 0;
+				parent_id = $parent.prev( '.inner' ).find( '.qs-order-id' ).val();
 			}
-			ui.item.find( '> .inner .qs-order-parent' ).val( parent );
+			$ui.item.find( '> .inner .qs-order-parent' ).val( parent_id );
 		}
 	} );
 
