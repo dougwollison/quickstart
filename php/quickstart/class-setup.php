@@ -322,6 +322,7 @@ class Setup extends \Smart_Plugin {
 			'taxonomies' => array(),
 			'meta_boxes' => array(),
 			'features'   => array(), // Custom QuickStart features
+			'columns'    => array(), // Custom manager columns
 		), $configs );
 
 		// Loop through each post_type, check for supports, taxonomies or meta_boxes
@@ -338,6 +339,7 @@ class Setup extends \Smart_Plugin {
 				$configs['supports'][] = 'post-thumbnails';
 			}
 
+			// Check for taxonomies to register for the post type
 			if ( isset( $pt_args['taxonomies'] ) ) {
 				// Loop through each taxonomy, move it to $taxonomies if not registered yet
 				foreach ( $pt_args['taxonomies'] as $taxonomy => $tx_args ) {
@@ -357,6 +359,7 @@ class Setup extends \Smart_Plugin {
 				}
 			}
 
+			// Check for meta boxes to register for the post type
 			if ( isset( $pt_args['meta_boxes'] ) ) {
 				foreach ( $pt_args['meta_boxes'] as $meta_box => $mb_args ) {
 					// Fix if dumb meta box was passed (numerically, not associatively)
@@ -385,6 +388,7 @@ class Setup extends \Smart_Plugin {
 				}
 			}
 
+			// Check for features to register for the post type
 			if ( isset( $pt_args['features'] ) ) {
 				csv_array_ref( $pt_args['features'] );
 				foreach ( $pt_args['features'] as $feature => $ft_args ) {
@@ -403,6 +407,12 @@ class Setup extends \Smart_Plugin {
 					unset( $pt_args['features'][ $feature ] );
 				}
 			}
+
+			// Check for columns to register for the post type
+			if ( isset( $pt_args['columns'] ) ) {
+				// Add this column for this post type to the columns section of $config
+				$configs['columns'][ $post_type ] = $pt_args['columns'];
+			}
 		}
 
 		// Run the content setups
@@ -410,6 +420,7 @@ class Setup extends \Smart_Plugin {
 		$this->register_taxonomies( $configs['taxonomies'] ); // Will run during "init"
 		$this->register_meta_boxes( $configs['meta_boxes'] ); // Will run now and setup various hooks
 		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
+		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
 	}
 
 	// =========================
@@ -1022,6 +1033,155 @@ class Setup extends \Smart_Plugin {
 			}
 			$this->_setup_feature( $feature, $args );
 		}
+	}
+
+	// =========================
+	// !Column Setups
+	// =========================
+
+	/**
+	 * Setup the requested columns for the post type.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $post_type The slug of the post type to setup for.
+	 * @param array  $columnset The list of columns to use/register.
+	 */
+	public function _setup_columnset( $post_type, $columnset ) {
+		switch ( $post_type ) {
+			case 'page':
+				$filter_hook = 'manage_pages_columns';
+				$action_hook = 'manage_pages_custom_column';
+				break;
+			case 'post':
+				$filter_hook = 'manage_posts_columns';
+				$action_hook = 'manage_posts_custom_column';
+				break;
+			default:
+				$filter_hook = 'manage_' . $post_type . '_posts_columns';
+				$action_hook = 'manage_' . $post_type . '_posts_custom_column';
+				break;
+		}
+
+		// Create the hook settings and arguments list
+		$filter_hook = array( $filter_hook, 10, 1 );
+		$action_hook = array( $action_hook, 10, 2 );
+		$args = array( $columnset );
+
+		// Save the callbacks
+		$this->save_callback( 'edit_columns', $args, $filter_hook );
+		$this->save_callback( 'do_columns', $args, $action_hook );
+	}
+
+	/**
+	 * Sets up the requested columns for each post type.
+	 *
+	 * Simply loops through and calls Setup::_setup_columnset().
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array $feature The list of features to register.
+	 */
+	public function _setup_columns( array $columns ) {
+		foreach ( $columns as $post_type => $columnset ) {
+			$this->_setup_columnset( $post_type, $columnset );
+		}
+	}
+
+	/**
+	 * Edit the list of columns using the passed columnset.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array $old_columns The current columns to edit (skip when saving).
+	 * @param array $new_columns The list of desired columns.
+	 *
+	 * @return array The updated columns list.
+	 */
+	public function _edit_columns( $old_columns, $new_columns ) {
+		$columns = array();
+
+		// Go through the columns, and add/modify as needed
+		foreach ( $new_columns as $column_id => $args ) {
+			// Handle non-associative entries
+			if ( is_int( $column_id ) ) {
+				$column_id = $args;
+				$args = array();
+			}
+
+			if ( isset( $old_columns[ $column_id ] ) ) { // Use the existing column and edit the title if set
+				// Old value
+				$title = $old_columns[ $column_id ];
+
+				if ( $args ) {
+					// Replace the title if set
+					if ( is_array( $args ) && isset( $args['title'] ) ){
+						$title = $args['title'];
+					} elseif ( is_string( $args ) ) {
+						$title = $args;
+					}
+				}
+
+				$columns[ $column_id ] = $title;
+			} elseif ( is_array( $args ) ) { // Add a new column, but only if it has arguments
+				// Default title is legible version of id
+				$title = make_legible( $id );
+
+				if ( isset( $args['title'] ) ) {
+					$title = $args['title'];
+				}
+
+				$columns[ $column_id ] = $title;
+			}
+		}
+
+		// Return the modified columns
+		return $columns;
+	}
+
+	/**
+	 * Do whatever output is needed for the current column.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array $column_id The current column to handle (skip when saving).
+	 * @param int   $post_id   The ID of the current post (skip when saving).
+	 * @param array $columns   The custom columns to work with.
+	 *
+	 * @return array The updated columns list.
+	 */
+	public function _do_columns( $column_id, $post_id, $columns ) {
+		// Get the arguments for the current column
+		if ( isset( $columns[ $column_id ] ) ) {
+			$args = $columns[ $column_id ];
+		} else{
+			// Nothing to do
+			return;
+		}
+
+		// Skip non-associative and arg-less entries
+		if ( is_int( $column_id ) || empty( $args ) || ! is_array( $args ) ) return;
+
+		// First, check for an all-purpose output callback
+		if ( isset( $args['output'] ) && is_callable( $args['output'] ) ) {
+			/**
+			 * Output the content for the column
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param int    $post_id The id of the post to output for.
+			 * @param string $column_id The id of the column to output for.
+			 */
+			call_user_func( $args['output'], $post_id, $column_id );
+		} elseif ( $args['meta_key'] ) {
+			// Output the meta_value for this posts meta_key
+			echo get_post_meta( $post_id, $args['meta_key'], true );
+		} elseif ( $args['post_field'] ) {
+			// Output the post_filed for this post
+			echo get_post_field( $post_id, $args['meta_key'] );
+		}
+
+		// No output otherwise
 	}
 
 	// =========================
