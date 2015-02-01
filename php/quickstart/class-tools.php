@@ -348,7 +348,7 @@ class Tools {
 	 *
 	 * @param array $enqueues Optional An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
-	public static function enqueue( $enqueues = null ) {
+	public static function enqueue( array $enqueues = array() ) {
 		if ( isset( $enqueues['css'] ) ) {
 			static::do_enqueues( $enqueues['css'], 'wp_enqueue_style' );
 		}
