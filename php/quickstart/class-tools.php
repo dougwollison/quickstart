@@ -293,8 +293,9 @@ class Tools {
 	 *
 	 * @param mixed  $enqueues  The enqueues to handle.
 	 * @param string $function  The function to call.
+	 * @param string $option_var The name of the 5th enqueue argument (css = media, js = in_footer).
 	 */
-	protected static function do_enqueues( $enqueues, $function ) {
+	protected static function do_enqueues( $enqueues, $function, $option_var ) {
 		//  Check if its a callback, run it and get the value from that
 		if ( is_callable( $enqueues ) ) {
 			$enqueues = call_user_func( $enqueues );
@@ -308,7 +309,11 @@ class Tools {
 			} else {
 				// Must be registered first
 				$args = (array) $args;
-				$src = $deps = $ver = $option = null;
+				
+				// Default values of the args
+				$src = $deps = $ver = $option = $$option_var = null;
+				
+				// Get values from $args based on format
 				if ( is_assoc( $args ) ) {
 					// If a condition callback was passed, test it and skip if it fails
 					if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
@@ -326,6 +331,7 @@ class Tools {
 					}
 
 					extract( $args );
+					$option = $$option_var;
 				} else {
 					list( $src, $deps, $ver, $option ) = fill_array( $args, 4 );
 				}
@@ -350,11 +356,11 @@ class Tools {
 	 */
 	public static function enqueue( array $enqueues = array() ) {
 		if ( isset( $enqueues['css'] ) ) {
-			static::do_enqueues( $enqueues['css'], 'wp_enqueue_style' );
+			static::do_enqueues( $enqueues['css'], 'wp_enqueue_style', 'media' );
 		}
 
 		if ( isset( $enqueues['js'] ) ) {
-			static::do_enqueues( $enqueues['js'], 'wp_enqueue_script' );
+			static::do_enqueues( $enqueues['js'], 'wp_enqueue_script', 'in_footer' );
 		}
 	}
 	
