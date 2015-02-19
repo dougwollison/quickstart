@@ -129,7 +129,7 @@ class Hooks extends \Smart_Plugin {
 	 *
 	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
-	public function _frontend_enqueue( $enqueues ) {
+	public static function _frontend_enqueue( $enqueues ) {
 		Tools::enqueue( $enqueues );
 	}
 
@@ -141,7 +141,7 @@ class Hooks extends \Smart_Plugin {
 	 *
 	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
-	public function _backend_enqueue( $enqueues ) {
+	public static function _backend_enqueue( $enqueues ) {
 		Tools::enqueue( $enqueues );
 	}
 
@@ -154,7 +154,7 @@ class Hooks extends \Smart_Plugin {
 	 * @param string       $type  "css" or "js" for what styles/scripts respectively.
 	 * @param string|array $files A path, handle, or array of paths/handles to enqueue.
 	 */
-	public function _quick_frontend_enqueue( $type, $files ) {
+	public static function _quick_frontend_enqueue( $type, $files ) {
 		Tools::quick_enqueue( $type, $files );
 	}
 
@@ -167,7 +167,7 @@ class Hooks extends \Smart_Plugin {
 	 * @param string       $type  "css" or "js" for what styles/scripts respectively.
 	 * @param string|array $files A path, handle, or array of paths/handles to enqueue.
 	 */
-	public function _quick_backend_enqueue( $type, $files ) {
+	public static function _quick_backend_enqueue( $type, $files ) {
 		Tools::quick_enqueue( $type, $files );
 	}
 
@@ -182,7 +182,7 @@ class Hooks extends \Smart_Plugin {
 	 * @param string $post_type The post_type this callback is intended for.
 	 * @param callback $callback The callback to run after the check.
 	 */
-	protected function _post_type_save( $post_id, $post_type, $callback ) {
+	protected static function _post_type_save( $post_id, $post_type, $callback ) {
 		if ( ! Tools::save_post_check( $post_id, $post_type ) ) return;
 		call_user_func( $callback, $post_id );
 	}
@@ -199,7 +199,7 @@ class Hooks extends \Smart_Plugin {
 	 * @param string $meta_key   The meta_key to save the value to.
 	 * @param string $field_name Optional The name of the $_POST field to use (defaults to $meta_key).
 	 */
-	protected function _post_type_save_meta( $post_id, $post_type, $meta_key, $field_name = null ) {
+	protected static function _post_type_save_meta( $post_id, $post_type, $meta_key, $field_name = null ) {
 		if ( ! Tools::save_post_check( $post_id, $post_type ) ) return;
 
 		if ( is_null( $field_name ) ) {
@@ -219,7 +219,7 @@ class Hooks extends \Smart_Plugin {
 	 * @param array  $elements  The list of items to add (skip when saving).
 	 * @param string $post_type The slug of the post type.
 	 */
-	protected function _post_type_count( $elements, $post_type ) {
+	protected static function _post_type_count( $elements, $post_type ) {
 		// Make sure the post type exists
 		if ( ! $object = get_post_type_object( $post_type ) ) {
 			return;
@@ -241,7 +241,7 @@ class Hooks extends \Smart_Plugin {
 
 		return $elements;
 	}
-	
+
 	/**
 	 * Edit an existing registered meta box.
 	 *
@@ -258,24 +258,24 @@ class Hooks extends \Smart_Plugin {
 	 */
 	public static function _edit_meta_box( $post_type, $context, $meta_box, $changes, $post_types = null ) {
 		global $wp_meta_boxes;
-		
+
 		// We only want to run this once; we'll only do it on the "normal" context
 		if ( 'normal' != $context ) {
 			return;
 		}
-		
+
 		// Ensure $post_types is in array form
 		csv_array_ref( $post_types );
-	
+
 		foreach ( $wp_meta_boxes as $post_type => $contexts ) {
 			// Reset $args each round
 			$args = null;
-			
+
 			// Skip if this isn't post type isn't desired
 			if ( $post_types && ! in_array( $post_type, $post_types ) ) {
 				continue;
 			}
-			
+
 			// Drill down through contexts and priorities to find the meta box
 			foreach ( $contexts as $context => $priorities ) {
 				foreach ( $priorities as $priority => $meta_boxes ) {
@@ -286,11 +286,11 @@ class Hooks extends \Smart_Plugin {
 					}
 				}
 			}
-			
+
 			// Now that we found it, modify it's arguments
 			if ( $meta_box ) {
 				$args = array_merge( $args, $changes );
-		
+
 				// Update the arguments with the modified ones
 				$wp_meta_boxes[ $post_type ][ $context ][ $priority ][ $meta_box ] = $args;
 			}
@@ -344,7 +344,7 @@ class Hooks extends \Smart_Plugin {
 			// Remove edit- for post_types in case it's a post type
 			$screen = preg_replace( '/^edit-/', '', $screen );
 		}
-		
+
 		if ( in_array( $screen, $taxonomy->object_type ) ) {
 			$var = $taxonomy->query_var;
 			$selected = isset( $_GET[ $var ] ) ? $_GET[ $var ] : null;
