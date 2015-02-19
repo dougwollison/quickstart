@@ -75,11 +75,7 @@ class Template {
 	 * @param string|array $settings Optional The wp_title options like separator and location.
 	 */
 	public static function title( $settings = null ) {
-		global $_wp_theme_features, $page, $paged;
-		// At the moment, the title-tag feature can't be detected by plugins yet.
-		if ( isset( $_wp_theme_features['title-tag'] ) ) {
-			return; // The title-tag feature is registered, nothing to do here.
-		}
+		global $page, $paged;
 
 		// Default separator & location
 		$sep = '|';
@@ -309,8 +305,8 @@ class Template {
 			$settings = null;
 		}
 
-		// Make sure the method exists
-		if ( method_exists( get_called_class(), $method ) ) {
+		// Make sure the method exists and that the settings isn't set to FALSE
+		if ( method_exists( get_called_class(), $method ) && $settings !== false ) {
 			call_user_func( array( get_called_class(), $method ), $settings );
 			echo "\n";
 		}
