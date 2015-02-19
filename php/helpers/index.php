@@ -52,6 +52,16 @@ function get_index( $post_type = null, $return = 'id' ) {
 			$index = get_option( 'page_for_posts' );
 		}
 
+		/**
+		 * Filter the ID of the index page retrieved.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param int    $page_id   The ID of the page determined.
+		 * @param string $post_type The post type it's meant for.
+		 */
+		$index = apply_filters( 'qs_helper_get_index', $index, $post_type );
+
 		// Return the desired value
 		return $return == 'id' ? $index : get_post( $index );
 	}
