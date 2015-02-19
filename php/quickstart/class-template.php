@@ -68,6 +68,56 @@ class Template {
 	}
 
 	/**
+	 * Print out the title tag.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string|array $settings Optional The wp_title options like separator and location.
+	 */
+	public static function title( $settings = null ) {
+		global $_wp_theme_features, $page, $paged;
+		// At the moment, the title-tag feature can't be detected by plugins yet.
+		if ( isset( $_wp_theme_features['title-tag'] ) ) {
+			return; // The title-tag feature is registered, nothing to do here.
+		}
+
+		// Default separator & location
+		$sep = '|';
+		$seplocation = 'right';
+
+		if ( is_string( $settings ) ) {
+			// $settings is just the separator
+			$sep = $settings;
+		} elseif ( is_array( $settings ) ) {
+			// $settings is the separater and location...
+			if ( is_assoc( $settings ) ) {
+				// As an associative array, extract
+				extract( $settings );
+			} else {
+				// As a numeric array, list in order
+				list( $sep, $seplocation ) = $settings;
+			}
+		}
+
+		// Get the title and build the output
+
+		$title = wp_title( $sep, false, $seplocation );
+
+		$title .= get_bloginfo( 'name', 'display' );
+
+		$site_description = get_bloginfo( 'description', 'display' );
+		if ( $site_description && ( is_home() || is_front_page() ) ) {
+			$title .= " $sep $site_description";
+		}
+
+		if ( ( $paged >= 2 || $page >= 2 ) && ! is_404() ) {
+			$title .= " $sep " . sprintf( __( 'Page %s' ), max( $paged, $page ) );
+		}
+
+		echo '<title>' . $title . '</title>';
+	}
+
+	/**
 	 * Print out the favicon link (along with apple icons if passed).
 	 *
 	 * @since 1.8.0
@@ -234,10 +284,10 @@ class Template {
 	 * @param array $features An array of features to call.
 	 */
 	public static function the_head( array $features = array() ){
-		// Ensure the title-tag feature is supported
-		add_theme_support( 'title-tag' );
-
-		// Make sure favicon feature is set
+		// Make sure favicon and title features are set
+		if ( ! isset( $features['title'] ) && ! in_array( 'title', $features ) ) {
+			$features[] = 'title';
+		}
 		if ( ! isset( $features['favicon'] ) && ! in_array( 'favicon', $features ) ) {
 			$features[] = 'favicon';
 		}
@@ -258,7 +308,7 @@ class Template {
 			$method = $settings;
 			$settings = null;
 		}
-		
+
 		// Make sure the method exists
 		if ( method_exists( get_called_class(), $method ) ) {
 			call_user_func( array( get_called_class(), $method ), $settings );
