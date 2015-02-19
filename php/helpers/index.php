@@ -10,6 +10,7 @@
 /**
  * Get the ID or full post object of the index page.
  *
+ * @since 1.8.0 Added qs_helpers_get_index filter hook.
  * @since 1.6.0
  *
  * @param string $post_type Optional The post type to get the index page for.
@@ -55,7 +56,7 @@ function get_index( $post_type = null, $return = 'id' ) {
 		/**
 		 * Filter the ID of the index page retrieved.
 		 *
-		 * @since 1.0.0
+		 * @since 1.8.0
 		 *
 		 * @param int    $page_id   The ID of the page determined.
 		 * @param string $post_type The post type it's meant for.
@@ -106,12 +107,12 @@ function is_index_page( $post_id = null, $match_post_type = null ) {
 	} else {
 		$post_type = get_post_type( $post_id );
 	}
-	
+
 	// Automatically return false if not a page
 	if ( $post_type != 'page' ) {
 		return false;
 	}
-	
+
 	// Reverse lookup the option name that this post's ID is the value of,
 	// provided it's a page_for_ option.
 	$option = $wpdb->get_var( $wpdb->prepare( "
@@ -119,7 +120,7 @@ function is_index_page( $post_id = null, $match_post_type = null ) {
 		(  option_name = 'page_for_posts' OR option_name LIKE 'page\_for\_%%\_posts' )
 		ORDER BY option_id DESC
 	", $post->ID ) );
-	
+
 	// Set the properties for testing and details if a match
 	if ( $option ) {
 		// Extract the post_type slug from the option name (default is post)
@@ -127,7 +128,7 @@ function is_index_page( $post_id = null, $match_post_type = null ) {
 		if ( preg_match( '/page_for_(.+)_posts/', $option, $matches ) ) {
 			$for_post_type = $matches[1];
 		}
-		
+
 		if ( is_null( $match_post_type ) ) {
 			// No match requested, return the post type
 			return $for_post_type;
@@ -136,6 +137,6 @@ function is_index_page( $post_id = null, $match_post_type = null ) {
 			return $match_post_type == $for_post_type;
 		}
 	}
-	
+
 	return false;
 }
