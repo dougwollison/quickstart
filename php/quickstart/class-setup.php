@@ -1000,6 +1000,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the requested feature.
 	 *
+	 * @since 1.8.0 Added use of add_theme_support for plugin capabilities.
 	 * @since 1.0.0
 	 *
 	 * @param string $feature The slug of the taxonomy to register.
