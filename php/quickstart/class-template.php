@@ -224,7 +224,7 @@ class Template {
 	 * @since 1.6.2
 	 *
 	 * @param string|array $account    The ID code of the account to track for, or array of $account and $production.
-	 * @param string       $production Optional A host name or IP address to check for before printing.
+	 * @param string|array $production Optional A host name or IP address to check for before printing.
 	 */
 	public static function ga_code( $account, $production = null ) {
 		// If $account is an array, split it into $account and $production
@@ -236,16 +236,27 @@ class Template {
 		}
 
 		if ( ! is_null( $production ) ) {
-			// By default, check for the host name
-			$field = 'SERVER_NAME';
+			$check = false;
 
-			// If it looks like an IP address, check for server address
-			if ( preg_match( '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $production ) ){
-				$field = 'SERVER_ADDR';
+			// Convert production test to array and loop
+			foreach ( (array) $production as $match ) {
+				// By default, check for the host name
+				$field = 'SERVER_NAME';
+
+				// If it looks like an IP address, check for server address
+				if ( preg_match( '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $match ) ){
+					$field = 'SERVER_ADDR';
+				}
+
+				// If the check passes skip further testing
+				if ( $_SERVER[ $field ] == $match ) {
+					$check = true;
+					break;
+				}
 			}
 
-			// If the check fails, don't print anything
-			if ( $_SERVER[ $field ] != $production ) {
+			// Abort if check fails
+			if ( ! $check ) {
 				return;
 			}
 		}
@@ -254,15 +265,15 @@ class Template {
 		<!-- Start Google Analytics tracking code -->
 		<script type="text/javascript">
 
-		  var _gaq = _gaq || [];
-		  _gaq.push(['_setAccount', '<?php echo $account; ?>']);
-		  _gaq.push(['_trackPageview']);
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', '<?php echo $account; ?>']);
+		_gaq.push(['_trackPageview']);
 
-		  (function() {
-		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
 
 		</script>
 		<!-- End Google Analytics tracking code -->
