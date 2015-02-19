@@ -185,7 +185,7 @@ class Setup extends \Smart_Plugin {
 	 * @param array  &$args    The arguments for the post_type/taxonomy registration.
 	 * @param array  $template The template of special labels to create.
 	 */
-	protected function maybe_setup_labels( $object, &$args, $template ) {
+	protected static function maybe_setup_labels( $object, &$args, $template ) {
 		// Check if labels need to be auto created
 		if ( ! isset( $args['labels'] ) ) {
 			// Auto create the singular form if needed
@@ -251,7 +251,7 @@ class Setup extends \Smart_Plugin {
 			$args['labels'] = $labels;
 		}
 	}
-	
+
 	/**
 	 * Check a list of fields for types that would require the media_manager helper.
 	 *
@@ -513,7 +513,7 @@ class Setup extends \Smart_Plugin {
 		if ( isset( $args['post_type'] ) ) {
 			csv_array_ref( $args['post_type'] );
 		}
-		
+
 		// Check if the taxonomy exists, if so, see if a post_type
 		// is set in the $args and then tie them together.
 		if ( taxonomy_exists( $taxonomy ) ) {
@@ -730,28 +730,28 @@ class Setup extends \Smart_Plugin {
 			// If test fails, don't setup the meta box
 			if ( ! $result ) return;
 		}
-		
+
 		// Check if media_manager helper needs to be loaded
 		static::maybe_load_media_manager( $args['fields'] );
-		
+
 		// Register all meta keys found
 		foreach ( $args['fields'] as $field => $_args ) {
 			// By default, the field name is the meta key
 			$meta_key = $field;
-			
+
 			// Attempt to override with name or data_name if set
 			if ( isset( $_args['data_name'] ) ) {
 				$meta_key = $_args['data_name'];
 			} elseif ( isset( $_args['name'] ) ) {
 				$meta_key = $_args['name'];
 			}
-			
+
 			// Get sanitize callback if set
 			$sanitize_callback = null;
 			if ( isset( $_args['sanitize'] ) ) {
 				$sanitize_callback = $_args['sanitize'];
 			}
-			
+
 			// Register the meta (it will automatically be protected)
 			register_meta( 'post', $meta_key, $sanitize_callback, '__return_false' );
 		}
@@ -799,7 +799,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	public function _save_meta_box( $post_id, $meta_box, $args ) {
 		if ( ! Tools::save_post_check( $post_id, $args['post_type'], "_qsnonce-$meta_box", $meta_box ) ) return;
-		
+
 		// Determine method to save meta box data
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
 			// Method 1: explicit save callback
@@ -862,7 +862,7 @@ class Setup extends \Smart_Plugin {
 
 				// By default, post and meta keys are the same as the field name
 				$post_key = $meta_key = $field;
-				
+
 				// By default, array values are stored in a single entry
 				$save_single = true;
 
@@ -878,7 +878,7 @@ class Setup extends \Smart_Plugin {
 					if ( isset( $settings['data_name'] ) ) {
 						$meta_key = $settings['data_name'];
 					}
-					
+
 					// Override $save_single if present
 					if ( isset( $settings['save_single'] ) ) {
 						$save_single = $settings['save_single'];
@@ -888,7 +888,7 @@ class Setup extends \Smart_Plugin {
 				// If the post key is an array, get the root key specifically
 				if ( preg_match( '/^([\w-]+)\[([\w-]+)\](.*)$/', $post_key, $matches ) ) {
 					$post_key = $matches[1];
-					
+
 					// Update $meta_key to match if it wasn't overwritten
 					if ( ! isset( $settings['data_name'] ) ) {
 						$meta_key = $post_key;
@@ -946,14 +946,14 @@ class Setup extends \Smart_Plugin {
 					update_post_meta( $post_id, $meta_key, $value );
 				} else {
 					// Save individually...
-					
+
 					// First, delete all existing values
 					delete_post_meta( $post_id, $meta_key );
-					
+
 					// Next, make sure the value is an array if set
 					if ( ! is_null( $value ) ) {
 						$value = (array) $value;
-						
+
 						// Finally, loop through the values and save
 						foreach ( $value as $val ) {
 							add_post_meta( $post_id, $meta_key, $val );
@@ -1541,7 +1541,7 @@ class Setup extends \Smart_Plugin {
 				$setting => $args,
 			);
 		}
-		
+
 		// Check if media_manager helper needs to be loaded
 		static::maybe_load_media_manager( $args['fields'] );
 
