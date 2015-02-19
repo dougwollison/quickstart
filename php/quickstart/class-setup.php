@@ -1012,6 +1012,9 @@ class Setup extends \Smart_Plugin {
 		if ( method_exists( __NAMESPACE__ . '\Features', $method ) ) {
 			Features::$method( $args );
 		}
+
+		// Also register it as a theme support for plugin purposes
+		add_theme_support( "quickstart-$feature" );
 	}
 
 	/**
