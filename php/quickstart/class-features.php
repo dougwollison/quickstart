@@ -19,6 +19,7 @@ class Features extends \Smart_Plugin {
 	 */
 	protected static $static_method_hooks = array(
 		'index_page_query'      => array( 'parse_query', 10, 1 ),
+		'index_page_link'       => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part' => array( 'wp_title_parts', 10, 1 ),
 	);
 
@@ -34,7 +35,7 @@ class Features extends \Smart_Plugin {
 	 *
 	 * @param array $args A list of options for the order manager.
 	 */
-	public function setup_order_manager( $args ) {
+	public static function setup_order_manager( $args ) {
 		// Don't bother if on the admin side.
 		if ( ! is_admin() ) {
 			return;
@@ -234,11 +235,12 @@ class Features extends \Smart_Plugin {
 	/**
 	 * Setup index page setting/hook for certain post types.
 	 *
+	 * @since 1.8.0 Restructured to use a hooks once for all post_types.
 	 * @since 1.6.0
 	 *
 	 * @param array $args A list of options for the custom indexes.
 	 */
-	public function setup_index_page( $args ) {
+	public static function setup_index_page( $args ) {
 		// Abort if no post types set
 		if ( ! isset( $args['post_type'] ) ) {
 			return;
@@ -256,12 +258,14 @@ class Features extends \Smart_Plugin {
 			}
 
 			if ( is_admin() ) {
+				$option = "page_for_{$post_type}_posts";
+
 				// Register the setting on the backend
-				$this->register_setting( "page_for_{$post_type}_posts" , array(
+				$this->register_setting( $option , array(
 					'title' => sprintf( __( 'Page for %s' ) , get_post_type_object( $post_type )->labels->name ),
 					'field' => function( $value ) use ( $post_type ) {
 						wp_dropdown_pages( array(
-							'name'              => "page_for_{$post_type}_posts",
+							'name'              => $option,
 							'echo'              => 1,
 							'show_option_none'  => __( '&mdash; Select &mdash;' ),
 							'option_none_value' => '0',
@@ -271,17 +275,18 @@ class Features extends \Smart_Plugin {
 				), 'default', 'reading' );
 			}
 		}
-		
+
 		// Setup the frontend hooks if needed
 		if ( ! is_admin() ) {
 			// Build the array of available index pages to use
 			$index_pages = array();
 			foreach ( $post_types as $post_type ) {
-				$index_pages[ $post_type ] = get_option( "page_for_{$post_type}_posts", 0 );
+				$index_pages[ $post_type ] = get_index( $post_type );
 			}
-			
-			// Add the query/title hooks on the frontend
+
+			// Add the query/link/title hooks on the frontend
 			static::index_page_query( $index_pages );
+			static::index_page_link( $index_pages );
 			static::index_page_title_part( $index_pages );
 		}
 	}
@@ -293,9 +298,9 @@ class Features extends \Smart_Plugin {
 	 * @since 1.6.0
 	 *
 	 * @param WP_Query $query       The query object (skip when saving).
-	 * @param string   $index_pages The post type to check for.
+	 * @param string   $index_pages An associative array of post type index pages.
 	 */
-	protected function _index_page_query( $query, $index_pages ) {
+	protected static function _index_page_query( $query, $index_pages ) {
 		$qv =& $query->query_vars;
 
 		// Make sure this is a page
@@ -318,6 +323,23 @@ class Features extends \Smart_Plugin {
 	}
 
 	/**
+	 * Rewrite the post type archive link to be that of the index page.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $link      The original link.
+	 * @param string $post_type The post type this link is for.
+	 *
+	 * @return string The new link.
+	 */
+	protected static function _index_page_link( $link, $post_type ) {
+		if ( $index = get_index( $post_type ) ) {
+			$link = get_permalink( $index );
+		}
+		return $link;
+	}
+
+	/**
 	 * Modify the title to display the index page's title.
 	 *
 	 * @since 1.8.0 Restructured to handle all post_types at once.
@@ -328,25 +350,25 @@ class Features extends \Smart_Plugin {
 	 *
 	 * @return string|array The modified title.
 	 */
-	protected function _index_page_title_part( $title, $index_pages ) {
+	protected static function _index_page_title_part( $title, $index_pages ) {
 		// Skip if not an archive
 		if ( ! is_post_type_archive() ) {
 			return $title;
 		}
-		
+
 		// Get the queried post type
 		$post_type = get_query_var( 'post_type' );
-		
+
 		// Abort if not a post type with an index
 		if ( ! isset( $index_pages[ $post_type ] ) ) {
 			return $title;
 		}
-		
+
 		// Get the index page for this post type
 		$index_page = $index_pages[ $post_type ];
-		
+
 		// Replace the first part of the title with the index page's title
-		$title[0] = get_the_title( $index_page );	
+		$title[0] = get_the_title( $index_page );
 
 		return $title;
 	}
