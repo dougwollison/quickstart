@@ -387,7 +387,7 @@ class Setup extends \Smart_Plugin {
 						);
 					} elseif ( empty( $mb_args ) ) {
 						// Or, if no args passed, make a "dumb" meta box
-						$mb_args = static::make_dumb_meta_box( $mb_args, $meta_box );
+						$mb_args = self::make_dumb_meta_box( $mb_args, $meta_box );
 					}
 
 					// Add this post type to the post_types argument to this meta box
@@ -459,7 +459,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Setup the labels if needed
-		static::maybe_setup_labels( $post_type, $args, array(
+		self::maybe_setup_labels( $post_type, $args, array(
 			'new_item'           => 'New %S',
 			'not_found_in_trash' => 'No %p found in Trash.',
 		) );
@@ -541,7 +541,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Setup the labels if needed
-		static::maybe_setup_labels( $taxonomy, $args, array(
+		self::maybe_setup_labels( $taxonomy, $args, array(
 			'new_item_name' => 'New %S Name',
 			'parent_item' => 'Parent %S',
 			'popular_items' => 'Popular %P',
@@ -676,7 +676,7 @@ class Setup extends \Smart_Plugin {
 	public function register_meta_box( $meta_box, $args ) {
 		if ( empty( $args ) ) {
 			// Empty array; make dumb meta box
-			$args = static::make_dumb_meta_box( $args, $meta_box );
+			$args = self::make_dumb_meta_box( $args, $meta_box );
 		} elseif ( is_callable( $args ) ) {
 			// A callback, recreate into proper array
 			$args = array(
@@ -747,7 +747,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Check if media_manager helper needs to be loaded
-		static::maybe_load_media_manager( $args['fields'] );
+		self::maybe_load_media_manager( $args['fields'] );
 
 		// Register all meta keys found
 		foreach ( $args['fields'] as $field => $_args ) {
@@ -1516,7 +1516,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Check if media_manager helper needs to be loaded
-		static::maybe_load_media_manager( $args['fields'] );
+		self::maybe_load_media_manager( $args['fields'] );
 
 		// Set the current arguments
 		$_args = array(
@@ -1888,7 +1888,7 @@ class Setup extends \Smart_Plugin {
 		$post_type = get_post_type_object( $type );
 
 		// Get the post, nesting if the post type is hierarchical
-		$posts = static::menu_order_array( $type, $post_type->hierarchical );
+		$posts = self::menu_order_array( $type, $post_type->hierarchical );
 		?>
 		<div class="wrap">
 			<?php screen_icon( $icon )?>
@@ -1899,7 +1899,7 @@ class Setup extends \Smart_Plugin {
 			<form method="post" action="edit.php">
 				<?php wp_nonce_field( 'manage_menu_order', '_qsnonce' )?>
 				<div class="qs-order-manager <?php if ( $post_type->hierarchical ) echo 'qs-nested'?>">
-					<?php static::menu_order_list( $posts, $post_type->hierarchical )?>
+					<?php self::menu_order_list( $posts, $post_type->hierarchical )?>
 
 					<?php if ( ! $post_type->hierarchical ) :?>
 					<p class="qs-sort">
@@ -1951,7 +1951,7 @@ class Setup extends \Smart_Plugin {
 			foreach ( $posts as $post ) {
 				// Loop through and repeat, deeper... and deeper... and deeper...
 				// We must go deeper!
-				$post->children = static::menu_order_array( $type, $nested, $post->ID );
+				$post->children = self::menu_order_array( $type, $nested, $post->ID );
 			}
 		}
 
@@ -1982,7 +1982,7 @@ class Setup extends \Smart_Plugin {
 				</div>
 				<?php
 				if ( $nested && $post->children ) {
-					static::menu_order_list( $post->children, $nested );
+					self::menu_order_list( $post->children, $nested );
 				}
 				?>
 			</li>
