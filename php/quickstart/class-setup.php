@@ -1840,7 +1840,7 @@ class Setup extends \Smart_Plugin {
 			$this->register_page( "$post_type-order", array(
 				'title'      => sprintf( __( '%s Order' ), make_legible( $post_type ) ),
 				'capability' => get_post_type_object( $post_type )->cap->edit_posts,
-				'callback'   => array( $this, 'menu_order_manager' ),
+				'callback'   => array( __NAMESPACE__ . '\Callbacks', 'menu_order_admin_page' ),
 			), $post_type );
 		}
 	}
@@ -1870,125 +1870,6 @@ class Setup extends \Smart_Plugin {
 			header( 'Location: ' . $_POST['_wp_http_referer'] );
 			exit;
 		}
-	}
-
-	/**
-	 * Menu order manager admin page.
-	 *
-	 * Prints a sortable list of all posts of a specific type, to manage menu_order.
-	 *
-	 * @since 1.6.0 Fixed use of nested/hierarchical aspect, added quicksort buttons.
-	 * @since 1.4.0 Added use of $nested option.
-	 * @since 1.0.0
-	 */
-	public static function menu_order_manager() {
-		global $wpdb;
-		$type      = $_GET['post_type'];
-		$icon      = $type == 'post' ? 'post' : 'page';
-		$post_type = get_post_type_object( $type );
-
-		// Get the post, nesting if the post type is hierarchical
-		$posts = self::menu_order_array( $type, $post_type->hierarchical );
-		?>
-		<div class="wrap">
-			<?php screen_icon( $icon )?>
-			<h2><?php echo get_admin_page_title()?></h2>
-
-			<br>
-
-			<form method="post" action="edit.php">
-				<?php wp_nonce_field( 'manage_menu_order', '_qsnonce' )?>
-				<div class="qs-order-manager <?php if ( $post_type->hierarchical ) echo 'qs-nested'?>">
-					<?php self::menu_order_list( $posts, $post_type->hierarchical )?>
-
-					<?php if ( ! $post_type->hierarchical ) :?>
-					<p class="qs-sort">
-						<label>Quick Sort:</label>
-						<button type="button" class="button-secondary" value="name">Alphabetical</button>
-						<button type="button" class="button-secondary" value="date">Date</button>
-						<button type="button" class="button-secondary" value="flip">Reverse</button>
-					</p>
-					<?php endif;?>
-				</div>
-				<button type="submit" class="button-primary">Save Order</button>
-			</form>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Build the tree of posts.
-	 *
-	 * @since 1.6.2 Updated query to also exclude trashed posts.
-	 * @since 1.6.0 Added post_date to results selecting.
-	 * @since 1.4.0 Added $nested argument.
-	 * @since 1.0.0
-	 *
-	 * @param array $posts  The list of posts to go through.
-	 * @param bool  $nested Optional Wether or not to create a nested array.
-	 * @param int   $parent Optional The parent ID to filter by (if nesting).
-	 */
-	protected static function menu_order_array( $type, $nested = false, $parent = 0 ) {
-		global $wpdb;
-
-		$post_parent = '';
-		// If nesting, include the post_parent clause
-		if ( $nested ) {
-			$post_parent = "AND post_parent = $parent";
-		}
-
-		// Fetch the posts for the specified parent
-		$posts = $wpdb->get_results( $wpdb->prepare( "
-			SELECT ID, post_title, post_parent, post_date
-			FROM $wpdb->posts
-			WHERE post_type = %s
-			AND post_status NOT IN ('auto-draft', 'trash')
-			$post_parent
-			ORDER BY menu_order ASC
-		", $type, $parent ) );
-
-		if ( $nested ) {
-			foreach ( $posts as $post ) {
-				// Loop through and repeat, deeper... and deeper... and deeper...
-				// We must go deeper!
-				$post->children = self::menu_order_array( $type, $nested, $post->ID );
-			}
-		}
-
-		return $posts;
-	}
-
-	/**
-	 * Print out the tree of posts.
-	 *
-	 * @since 1.6.0 Added data attributes for quick sort purposes.
-	 * @since 1.4.0 Added $nested argument.
-	 * @since 1.0.0
-	 *
-	 * @param array $posts  The list of posts to go through.
-	 * @param bool  $nested Optional Wether or not to list the nested posts and include a parent field.
-	 */
-	protected static function menu_order_list( $posts, $nested = false ) {
-		?>
-		<ol>
-		<?php foreach ( $posts as $post ) : ?>
-			<li data-date="<?php echo strtotime( $post->post_date )?>" data-name="<?php echo sanitize_title( $post->post_title )?>">
-				<div class="inner">
-					<input type="hidden" class="qs-order-id" name="menu_order[]" value="<?php echo $post->ID?>">
-					<?php if ( $nested ) : ?>
-						<input type="hidden" class="qs-order-parent" name="parent[<?php echo $post->ID?>]" value="<?php echo $post->post_parent?>">
-					<?php endif; ?>
-					<?php echo $post->post_title?>
-				</div>
-				<?php
-				if ( $nested && $post->children ) {
-					self::menu_order_list( $post->children, $nested );
-				}
-				?>
-			</li>
-		<?php endforeach;?>
-		</ol>
-		<?php
 	}
 
 	// =========================
