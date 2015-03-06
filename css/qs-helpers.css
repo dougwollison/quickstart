@@ -1,7 +1,9 @@
-.qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-item:after, .qs-map:after {
-  content: '';
-  display: table;
-  clear: both; }
+.qs-field, .qs-fieldset .inputlist, .qs-container, .qs-item, .qs-map {
+  *zoom: 1; }
+  .qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-item:after, .qs-map:after {
+    content: "";
+    display: table;
+    clear: both; }
 
 .qs-meta-box .inputlist {
   margin-bottom: 0;
@@ -54,7 +56,6 @@
   border-top: 1px solid #eee; }
 
 .qs-sortable {
-  padding: 10px;
   background: #fff;
   margin: 10px 0; }
 
