@@ -1,7 +1,6 @@
+@import 'compass/utilities/general/clearfix';
+@import 'compass/css3/transition';
+
 %clearfix{
-	&:after{
-		content: '';
-		display: table;
-		clear: both;
-	}
+	@include pie-clearfix();
 }
