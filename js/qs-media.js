@@ -161,10 +161,11 @@ window.QS = window.QS || {};
 		/**
 		 * Preload the media manager with provided attachment ids.
 		 *
+		 * @since 1.8.0 Added support for passing a single id.
 		 * @since 1.0.0
 		 *
-		 * @param string|array ids   A comma separated string or array of ids.
-		 * @param wp.media     frame The frame workflow (defaults to current frame stored in QS.media).
+		 * @param string|array|number ids   A comma separated string, array of ids, or single id.
+		 * @param wp.media            frame The frame workflow (defaults to current frame stored in QS.media).
 		 */
 		preload: function( ids, frame ) {
 			if ( undefined === frame ) {
@@ -179,6 +180,8 @@ window.QS = window.QS || {};
 
 				if ( typeof ids === 'string' ) {
 					ids = ids.split( ',' );
+				} else if ( typeof ids !== 'object' ) {
+					ids = [ ids ];
 				}
 
 				var id;
@@ -301,51 +304,60 @@ window.QS = window.QS || {};
 	 */
 
 	/**
-	 * Setup file adder functionality.
+	 * Setup media attachment functionality.
 	 *
-	 * @since 1.6.2 Fixed attachment date for just-uploaded files
-	 * @since 1.6.1 Fixed typo with single attachment check
-	 * @since 1.6.0 Moved sortable handling, added thubmnail check, show option, and initonly mode.
-	 * @since 1.5.0 Overhauled for live-plugin purposes.
-	 * @since 1.2.0
+	 * Replaces addFile, editGallery, and setImage.
 	 *
-	 * @param Event event The click event that triggered this.
+	 * @since 1.8.0
+	 *
+	 * @param Event  event The (click) event that triggered this.
 	 * @param string mode  Pass 'initonly' to setup but not open the frame.
 	 */
-	QS.addFile = function( event, mode ) {
-		var $elm = $( this );
+	QS.setupMedia = function( event, mode ) {
+		var $elm = $( this ), $btn;
+
+		// Cancel the default event trigger
+		event.preventDefault();
 
 		// If this is a button, update $elm to the parent qs-field
-		if ( $elm.hasClass('qs-button') ) {
-			$elm = $elm.parents('.qs-addfile');
+		if ( $elm.hasClass( 'qs-button' ) ) {
+			$elm = $elm.parents( '.qs-field' ).eq( 0 );
+			$btn = $( this );
+		} else {
+			$btn = $elm.find( '.qs-button' );
 		}
 
 		// Load the stored addFile configurations
-		var plugin = $elm.data('QS.addFile');
+		var plugin = $elm.data('QS.setupMedia');
 
-		// Extract the passed options
-		var options = event.data;
+		// Extract any passed options
+		var options = event.data || {};
 
 		// Check if plugin data already exists, setup if not
 		if ( ! plugin ) {
 			// Check for multiple mode
 			var is_multi = $elm.hasClass( 'multiple' );
 
-			// Get media type
-			var type = $elm.data( 'type' );
+			// Check for gallery mode
+			var is_gallery = $elm.hasClass( 'gallery' );
 
-			// Get what display for the file
-			var show = $elm.data( 'show' );
+			// Get display mode
+			var display = $elm.data( 'display' );
+
+			// Get media type
+			var mimetype = $elm.data( 'type' );
+
+			// Create the type's name for label purposes
+			var typename = ucwords( mimetype ) || 'File';
+			if ( typename.indexOf( '/' ) >= 0 ) {
+				typename = typename.replace( /.+?\//, '' );
+				typename = typename.toUpperCase();
+				typename += ' File';
+			}
 
 			// Title and choose button text
-			var title = 'Select ' + ucwords( type );
-			var choose = 'Use Selected ' + ucwords( type );
-
-			// Add " file" to text bits for non images
-			if ( type !== 'image' ) {
-				title += ' File';
-				choose += ' File';
-			}
+			var title = 'Select ' + typename;
+			var choose = 'Use Selected ' + typename;
 
 			// Pluralize text bits if needed
 			if ( is_multi ) {
@@ -356,85 +368,165 @@ window.QS = window.QS || {};
 			var defaults = {
 				// Component selectors
 				trigger:    '.qs-button',
-				container:  '.qs-container',
-				template:   '.qs-template',
 				preview:    '.qs-preview',
 				input:      '.qs-value',
+			};
 
-				// GUI Text
-				title:      title,
-				choose:     choose,
+			// Extend defaults based on mode
+			if ( is_gallery ) {
+				_.extend( defaults, {
+					// GUI Text
+					title:      $btn.text(),
 
-				// Functionality Options
-				multiple:   is_multi,
-				media:		type,
+					// Events
+					events:     {
+						update: function() {
+							// Get the attachments
+							var attachments = media.attachments();
 
-				// Events
-				events:     {
-					select: function() {
-						// Get the selected files
-						var attachments = media.attachments();
+							// Loop vars
+							var items = [], img;
 
-						// Loop vars
-						var attachment, $item, $preview, $input;
+							// Empty the preview box
+							plugin.$preview.empty();
 
-						// Empty the container if not in multiple mode
-						if ( ! is_multi ) {
-							plugin.$container.empty();
+							// Go through each attachment
+							_.each( attachments, function( attachment ) {
+								// Add the id to the items list
+								items.push( attachment.id );
+
+								var src = '';
+								// Use thumbnail or full size if unavailable
+								if ( null != attachment.sizes.thumbnail ) {
+									src = attachment.sizes.thumbnail.url;
+								} else {
+									src = attachment.sizes.full.url;
+								}
+
+								// Create a new image with the thumbnail URL
+								img = $( '<img src="' + src + '">' );
+
+								// Add the new image to the preview
+								plugin.$preview.append( img );
+							});
+
+							// Update the input with the id list
+							plugin.$input.val( items.join( ',' ) );
 						}
+					}
+				});
+			} else  {
+				_.extend( defaults, {
+					// Additional component selectors
+					container:  '.qs-container',
+					template:   '.qs-template',
 
-						// Loop through all attachments found
-						_.each( attachments, function( attachment, i ) {
-							// If not multiple and this isn't the first item, skip
-							if ( ! is_multi && i > 0 ) {
+					// GUI Text
+					title:      title,
+					choose:     choose,
+
+					// Functionality Options
+					multiple:   is_multi,
+					media:		mimetype,
+
+					// Events
+					events:     {
+						open: function() {
+							if ( is_multi ) {
+								// Don't preload if it's for multiple items
 								return;
 							}
 
-							// Make a copty of the template item
-							$item = plugin.$template.clone();
+							// Get and preload the already selected item
+							var value = plugin.$input.val();
+							this.preload( value, this.frame );
+						},
+						select: function() {
+							// Get the selected files
+							var attachments = media.attachments();
 
-							console.log(i);
+							// Update preview if singular
+							if ( ! is_multi ) {
+								var attachment = attachments[0];
+								img = document.createElement( 'img' );
 
-							// Get the preview and input elements
-							$preview = $item.find( plugin.preview );
-							$input = $item.find( plugin.input );
+								// Clear the preview
+								plugin.$preview.empty();
 
-							// Update preview accordingly
-							if ( $preview.is( 'img' ) && 'image' === attachment.type ) {
-								// Preview is an image, update the source
-								// Use thumbnail or full size if unavailable
-								if ( null != attachment.sizes.thumbnail ) {
-									$preview.attr( 'src', attachment.sizes.thumbnail.url );
+								if ( attachment.type == 'image' ) {
+									// Attachment is an image, set the img.src to thumbnail...
+									if ( null != attachment.sizes.medium ) {
+										img.src = attachment.sizes.medium.url;
+									} else {
+										// ...Or full size if no thumbnail is set
+										img.src = attachment.sizes.full.url;
+									}
 								} else {
-									$preview.attr( 'src', attachment.sizes.full.url );
+									// Attachment is some kind of file, set img.src to icon
+									img.src = attachment.icon;
 								}
-							} else {
-								// Preview should be plain text of the title or filename, update the content
-								if ( 'title' === show ) {
-									$preview.html( attachment.title );
-								} else {
-									$preview.html( attachment.url.replace( /.+?([^\/]+)$/, '$1' ) );
-								}
+
+								// Update the preivew, input value, and show the clear button
+								plugin.$preview.append( img );
+								plugin.$input.val( attachment.id );
+
+								plugin.$elm.find( '.qs-clear' ).show();
 							}
+							else {
+								// Loop through attachments and add them to the preview
+								var $item, $preview, $input, img, text;
+								_.each( attachments, function( attachment, i ) {
+									// Make a copty of the template item
+									$item = plugin.$template.clone();
 
-							// Convert the date if only a timestamp
-							if ( typeof attachment.date === 'number' ) {
-								attachment.date = new Date( attachment.date );
+									// Get the preview and input elements
+									$preview = $item.find( plugin.preview );
+									$input = $item.find( plugin.input );
+
+									// Update preview accordingly
+									if ( $preview.is( 'img' ) && 'image' === attachment.type ) {
+										// Preview is an image, update the source
+										// Use thumbnail or full size if unavailable
+										if ( null != attachment.sizes.thumbnail ) {
+											$preview.attr( 'src', attachment.sizes.thumbnail.url );
+										} else {
+											$preview.attr( 'src', attachment.sizes.full.url );
+										}
+									} else {
+										// Preview should be plain text of the title or filename, update the content
+										if ( 'title' === show ) {
+											$preview.html( attachment.title );
+										} else {
+											$preview.html( attachment.filename );
+										}
+									}
+
+									// Make sure the clear button is visible
+									plugin.$container.find('.qs-clear').show();
+
+									// Convert the date if only a timestamp
+									if ( typeof attachment.date === 'number' ) {
+										attachment.date = new Date( attachment.date );
+									}
+
+									// Add data attributes for quick sort support
+									$item.data( 'name', attachment.filename.replace( /[^\w\-]+/g, '-' ).toLowerCase() );
+									$item.data( 'date', attachment.date.getTime() / 1000 );
+
+									// Store the ID in the input field
+									$input.val( attachment.id );
+
+									// Add the item to the container
+									plugin.$container.append( $item );
+
+									// Trigger the media-added event
+									$item.trigger( 'qs:media-added' );
+								});
 							}
-
-							// Add data attributes for quick sort support
-							$item.data( 'name', attachment.filename.replace( /[^\w\-]+/g, '-' ).toLowerCase() );
-							$item.data( 'date', attachment.date.getTime() / 1000 );
-
-							// Store the ID in the input field
-							$input.val( attachment.id );
-
-							// Add the item to the container
-							$plugin.$container.append( $item );
-						});
+						}
 					}
-				}
-			};
+				});
+			}
 
 			// Get the data- attribute values that are allowed
 			var attributes = _.pick( $elm.data(), 'title', 'choose', 'trigger', 'container', 'template', 'preview', 'input' );
@@ -442,17 +534,39 @@ window.QS = window.QS || {};
 			// Merge options with the matching data- attribute values
 			plugin = _.extend( {}, defaults, options, attributes );
 
-			// Query the trigger, container, and template elements if not present
-			autoQuery( $elm, plugin, [ 'trigger', 'container', 'template' ] );
+			// Query the necessary elments
+			var elements = [ 'trigger' ];
+			if ( is_multi ) {
+				elements = elements.concat( 'container', 'template' );
+			} else {
+				elements = elements.concat( 'preview', 'input' );
+			}
+			autoQuery( $elm, plugin, elements );
 
-			// Create the template object
-			plugin.$template = $( plugin.$template.html() );
+			// Store the parent elment
+			plugin.$elm = $elm;
 
-			// Setup the insert hook and get the frame
-			plugin.frame = media.insert( plugin, true );
+			// If multiple mode, create the template object
+			if ( is_multi && plugin.$template.length > 0 ) {
+				plugin.$template = $( plugin.$template.html() );
+			}
+
+			// If gallery mode and no gallery is defined, use the input's value
+			if ( is_gallery && plugin.gallery === undefined ) {
+				plugin.gallery = plugin.$input.val();
+			}
+
+			// If in single mode and no value is set, hide the clear button
+			if ( ! is_multi && plugin.$input.val() === '' ) {
+				plugin.$elm.find( '.qs-clear' ).hide();
+			}
+
+			// Call appropriate setup function
+			func = is_gallery ? 'gallery' : 'insert';
+			plugin.frame = media[ func ]( plugin, true );
 
 			// Store the plugin options for later use
-			$elm.data( 'QS.addFile', plugin );
+			$elm.data( 'QS.setupMedia', plugin );
 		}
 
 		// Set this frame as the current frame
@@ -465,10 +579,35 @@ window.QS = window.QS || {};
 
 		// Now, open the frame
 		plugin.frame.open();
+	}
+
+	/**
+	 * Setup file adder functionality.
+	 *
+	 * @deprecated 1.8.0 Converted to setupMedia alias.
+	 *
+	 * @since 1.6.2 Fixed attachment date for just-uploaded files.
+	 * @since 1.6.1 Fixed typo with single attachment check.
+	 * @since 1.6.0 Moved sortable handling, added thubmnail check, show option, and initonly mode.
+	 * @since 1.5.0 Overhauled for live-plugin purposes.
+	 * @since 1.2.0
+	 *
+	 * @param Event event The click event that triggered this.
+	 * @param string mode  Pass 'initonly' to setup but not open the frame.
+	 */
+	QS.addFile = function( event, mode ) {
+		var $elm = $( this );
+
+		$elm.data( 'mode', 'gallery' );
+
+		// Alias to the addFile method
+		return QS.setupMedia.call( this, event );
 	};
 
 	/**
 	 * Setup gallery editor functionality.
+	 *
+	 * @deprecated 1.8.0 Converted to setupMedia alias.
 	 *
 	 * @since 1.6.0 Preloading of gallery items, initonly mode.
 	 * @since 1.5.0 Overhauled for live-plugin purposes.
@@ -480,102 +619,18 @@ window.QS = window.QS || {};
 	QS.editGallery = function( event, mode ) {
 		var $elm = $( this );
 
-		// If this is a button, update $elm to the parent qs-field
-		if ( $elm.hasClass( 'qs-button' ) ) {
-			$elm = $elm.parents('.qs-editgallery' );
-		}
+		// Ensure the type is set to image
+		$elm.data( 'type', 'image' );
 
-		// Load the stored editGallery configurations
-		var plugin = $elm.data( 'QS.editGallery' );
-
-		// Extract the passed options
-		var options = event.data;
-
-		// Check if plugin data already exists, setup if not
-		if ( ! plugin || ! plugin.frame ) {
-			var defaults = {
-				// Component selectors
-				trigger:    '.qs-button',
-				preview:    '.qs-preview',
-				input:      '.qs-value',
-
-				// GUI Text
-				title:      $elm.text(),
-
-				// Events
-				events:     {
-					update: function() {
-						// Get the attachments
-						var attachments = media.attachments();
-
-						// Loop vars
-						var items = [], $img;
-
-						// Empty the preview box
-						plugin.$preview.empty();
-
-						// Go through each attachment
-						_.each( attachments, function( attachment ) {
-							// Add the id to the items list
-							items.push( attachment.id );
-							
-							var src = '';
-							// Use thumbnail or full size if unavailable
-							if ( null != attachment.sizes.thumbnail ) {
-								src = attachment.sizes.thumbnail.url;
-							} else {
-								src = attachment.sizes.full.url;
-							}
-
-							// Create a new image with the thumbnail URL
-							$img = $( '<img src="' + src + '">' );
-
-							// Add the new image to the preview
-							plugin.$preview.append( $img );
-						});
-
-						// Update the input with the id list
-						plugin.$input.val( items.join( ',' ) );
-					}
-				}
-			};
-
-			// Get the data- attribute values that are allowed
-			var attributes = _.pick( $elm.data(), 'title', 'trigger', 'preview', 'input' );
-
-			// Merge options with the matching data- attribute values
-			plugin = _.extend( {}, defaults, options, attributes );
-
-			// Query the trigger, container, and template elements if not present
-			autoQuery( $elm, plugin, [ 'trigger', 'preview', 'input' ] );
-
-			// If no gallery is defined, use the input's value
-			if ( plugin.gallery === undefined ) {
-				plugin.gallery = plugin.$input.val();
-			}
-
-			// Setup the insert hook and get the frame
-			plugin.frame = media.gallery( plugin, true );
-
-			// Store the plugin options for later use
-			$elm.data( 'QS.editGallery', plugin );
-		}
-
-		// Set this frame as the current frame
-		media.frame = plugin.frame;
-
-		// End now if initializing only
-		if ( 'initonly' === mode ) {
-			return;
-		}
-
-		// Now, open the frame
-		plugin.frame.open();
+		// Alias to the addFile method
+		return QS.setupMedia.call( this, event );
 	};
 
 
 	/**
 	 * Setup image setter functionality.
+	 *
+	 * @deprecated 1.8.0 Converted to setupMedia alias.
 	 *
 	 * @since 1.5.0 Modified to reflect live-plugin approach.
 	 * @since 1.4.0 Converted to addFile alias.
@@ -590,7 +645,7 @@ window.QS = window.QS || {};
 		$elm.data( 'type', 'image' );
 
 		// Alias to the addFile method
-		return QS.addFile.call( this, event );
+		return QS.setupMedia.call( this, event );
 	};
 
 	/**
@@ -654,6 +709,7 @@ window.QS = window.QS || {};
 
 	// Auto register hooks for addFile, setImage and editGallery
 	$(function() {
+		$( 'body' ).QS( '.qs-media .qs-button', 'setupMedia' );
 		$( 'body' ).QS( '.qs-addfile .qs-button', 'addFile' );
 		$( 'body' ).QS( '.qs-editgallery .qs-button', 'editGallery' );
 	});

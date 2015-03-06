@@ -58,7 +58,7 @@ class Form {
 		} else {
 			$format .= "$label %input";
 		}
-		
+
 		$format .= '%description';
 
 		$format .= '</' . $tag . '>';
@@ -93,12 +93,12 @@ class Form {
 			if ( isset( $settings['format'] ) ) {
 				$format = $settings['format'];
 			}
-	
+
 			// If no format is provided, make it an empty array
 			if ( is_null( $format ) ) {
 				$format = array();
 			}
-	
+
 			// If $format is an array, run through build_field_wrapper()
 			if ( is_array( $format ) ) {
 				$format = call_user_func_array( array( get_called_class(), 'build_field_wrapper' ), $format );
@@ -113,7 +113,7 @@ class Form {
 			 * @param array  $settings The settings array used by the field.
 			 */
 			$format = apply_filters( 'qs_form_field_wrap_format', $format, $settings );
-			
+
 			// Store the input HTML in the 'input' setting for sprintp()
 			$settings['input'] = $input;
 
@@ -718,72 +718,103 @@ class Form {
 	}
 
 	/**
-	 * Build a file adder field.
+	 * Build a media attachment manager.
 	 *
-	 * @since 1.6.2 Fixed template output to include $show option.
-	 * @since 1.6.0 Added qs-sortable class with data-axis attribute, quick sort support, "show" option.
-	 * @since 1.4.0 Overhauled markup/functionality.
-	 * @since 1.3.3
+	 * Replaces addfile, setimage and editgallery.
+	 *
+	 * @since 1.8.0
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_addfile( $settings, $value ) {
+	public static function build_media( $settings, $value ) {
 		// Get the field name
-		$name = $settings['name'];
+		$field_name = $settings['name'];
 
-		// Determine if this is a muti-item adder
-		$is_multi = isset( $settings['multiple'] ) && $settings['multiple'];
+		// Determine gallery mode support
+		$is_gallery = isset( $settings['gallery'] ) ? $settings['gallery'] : false;
 
-		// Determine if use of quick sort buttons is desired
+		// Determine multiple file support (not the same as gallery)
+		$is_multi = ! $is_gallery && isset( $settings['multiple'] ) && $settings['multiple'];
+
+		// Determine quicksort utility support
 		$use_sort = $is_multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
 
-		// Determine the media type
-		$media = isset( $settings['media'] ) ? $settings['media'] : null;
+		// Determine media type support (defaults to any, or image if gallery)
+		$media = isset( $settings['media'] ) ? $settings['media'] : ( $is_gallery ? 'image' : null );
 
-		// Determine what to display for plain files (default to filename)
-		$show = isset( $settings['show'] ) ? $settings['show'] : 'filename';
+		// Determine display mode for text (title, filename, or none, default none for image type)
+		$display = isset( $settings['display'] ) ? $settings['display'] : ( $media == 'image' ? false : 'filename' );
 
-		// Flag for if we're using images only or not
-		$is_image = $media == 'image';
+		// Determin icon support (for multiple, non-image items)
+		$icon = isset( $settings['icon'] ) ? $settings['icon'] : false;
 
-		// If the label seems auto generated, modify the label text to Add/Choose
-		if ( $settings['label'] == make_legible( $name ) ) {
-			$settings['label'] = ( $is_multi ? 'Add' : 'Choose' ) . ' ' . $settings['label'];
+		// Build the Add/Remove Labels
+		if ( ! isset( $settings['add_label'] ) ) {
+			$settings['add_label'] = ( $is_multi ? 'Add' : 'Set' ) . ' ' . $settings['label'];
+		}
+		if ( ! isset( $settings['remove_label'] ) ) {
+			$settings['remove_label'] = $is_multi ? 'Clear' : 'Remove ' . $settings['label'];
 		}
 
 		// Setup the classes for the container
-		$classes = array( 'qs-field', 'qs-media', 'qs-addfile' );
-		if ( $is_multi ) {
-			$classes[] = 'multiple';
+		$classes = array( 'qs-field', 'qs-media' );
+		if ( $media != 'image' ) {
+			$classes[] = 'media-file';
 		}
 		if ( $media ) {
-			$classes[] = 'media-' . $media;
+			$classes[] = 'media-' . sanitize_title( $media );
+		}
+		if ( $is_gallery ) {
+			$classes[] = 'gallery';
+		} elseif ( $is_multi ) {
+			$classes[] = 'multiple';
+		} else {
+			$classes[] = 'single';
 		}
 
 		// Begin the markup for this component
-		$html = sprintf( '<div class="%s" data-type="%s" data-show="%s">', implode( ' ', $classes ), $media, $show );
-			// The button to open the media manager
-			$html .= '<button type="button" class="button button-primary qs-button">' . $settings['label'] . '</button>';
+		$html = sprintf( '<div id="%s" class="%s" data-type="%s" data-display="%s" data-mode="%s">', $settings['id'], implode( ' ', $classes ), $media, $display, $is_gallery ? 'gallery' : 'normal' );
 
-			// A button to clear all items currently loaded
+		// Special output for certain conditions
+		if ( $is_gallery ) {
+			// If the label seems auto generated, modify the label text to Edit [label]
+			if ( $settings['label'] == make_legible( $settings['name'] ) ) {
+				$settings['label'] = 'Edit ' . $settings['label'];
+			}
+
+			// The button to open the gallery editor
+			$html .= '<button type="button" class="button-primary qs-button">' . $settings['label'] . '</button>';
+
+			// The button to clear all existing items
 			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
 
-			// Start the preview list container, adding sortable class and axis if needed
-			$html .= sprintf( '<div class="qs-container %s" %s>', $is_multi ? 'qs-sortable' : '', $is_image ? '' : 'data-axis="y"' );
+			// The preview container with the list of images
+			$html .= '<div class="qs-preview">';
+			foreach ( explode( ',', $value ) as $image ) {
+				$html .= wp_get_attachment_image( $image, 'thumbnail', true, array( 'data-id' => $image ) );
+			}
+			$html .= '</div>';
+
+			// The value input to hold the ID list
+			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $field_name, $value );
+		} elseif ( $is_multi ) {
+			// The button to open the media manager
+			$html .= '<button type="button" class="button button-primary qs-button">' . $settings['add_label'] . '</button>';
+
+			// The button to clear all existing items
+			$html .= ' <button type="button" class="button qs-clear">' . $settings['remove_label'] . '</button>';
+
+			// Start the preview list container, adding axis setting for non-image media types
+			$html .= sprintf( '<div class="qs-container qs-sortable" %s>', $media == 'image' ? '' : 'data-axis="y"' );
 			// Print the items if present
 			if ( $value ) {
-				// Process into an appropriate array
-				$value = (array) $value;
+				// Ensure value is in the form of an array
+				csv_array_ref( $value );
 
 				// Loop through each image and print an item
-				foreach ( $value as $file ) {
+				foreach ( $value as $attachment_id ) {
 					// Add an item for the current file
-					$html .= static::build_addfile_item( $file, $name, $is_image, $is_multi, $use_sort, $show );
-
-					// If we're only to do a single item, break now.
-					if ( ! $is_multi ) {
-						break;
-					}
+					$html .= static::build_media_item( $attachment_id, $field_name, $display, $icon );
 				}
 			}
 			$html .= '</div>';
@@ -800,110 +831,127 @@ class Form {
 
 			// Print the template so javascript knows how to add new items
 			$html .= '<template class="qs-template">';
-				$html .= static::build_addfile_item( null, $name, $is_image, $is_multi, $use_sort, $show );
+				$html .= static::build_media_item( null, $field_name, $display );
 			$html .= '</template>';
+		} else {
+			// Build a simple version similar to the Featured Image box
+			$html .= '<div class="qs-container">';
+				$html .= '<a href="#" class="qs-preview qs-button" title="' . $settings['add_label'] . '">';
+				if ( $value ) {
+					$preview = basename( wp_get_attachment_url( $value ) );
+					if ( $display == 'title' ) {
+						$preview = get_the_title( $value );
+					}
+
+					$html .= wp_get_attachment_image( $value, 'medium', true, array(
+						'title' => $preview,
+					) );
+				} else {
+					$html .= $settings['add_label'];
+				}
+				$html .= '</a>';
+
+				// The value input to hold the ID
+				$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $field_name, $value );
+			$html .= '</div>';
+
+			// Add the remove button
+			$html .= '<a href="#" class="qs-clear">' . $settings['remove_label'] . '</a>';
+		}
+
 		$html .= '</div>';
 
 		return $html;
 	}
 
 	/**
-	 * Build a single file adder item.
+	 * Build a single media manager item.
 	 *
-	 * @since 1.6.0 Added quick sort support.
-	 * @since 1.4.0
+	 * @since 1.8.0
 	 *
-	 * @param int    $id       The ID of the attachment to use.
-	 * @param string $name     The name of the file adder field.
-	 * @param bool   $is_image Wether or not this is for images or any file.
-	 * @param bool   $is_multi Wether or not this supports multiple files.
-	 * @param bool   $use_sort Wether or not quick sort is desired.
-	 * @param string $show     What to display of the non-image file (title|filename).
+	 * @param int            $attachment_id The ID of the attachment to use.
+	 * @param string         $field_name    The name of the file adder field.
+	 * @param string|boolean $display       What text to display with the image/icon (title|filename|FALSE).
+	 * @param boolean        $icon          Wether or not to display the icon for non-image files.
 	 *
 	 * @return string The markup fo the item.
 	 */
-	public static function build_addfile_item( $id, $name, $is_image, $is_multi, $use_sort, $show ) {
-		if ( $use_sort && ! is_null( $id ) ) {
-			// Setup item for quick sort support
-			$item_name = sanitize_title( basename( wp_get_attachment_url( $id ) ) );
-			$item_date = get_the_date( 'U' );
-			$html = sprintf( '<div class="qs-item" data-name="%s" data-date="%s">', $item_name, $item_date );
-		} else {
-			$html = '<div class="qs-item">';
-		}
+	protected static function build_media_item( $attachment_id, $field_name, $display, $icon ) {
+		// Setup item for quicksort support
+		$item_name = sanitize_title( basename( wp_get_attachment_url( $attachment_id ) ) );
+		$item_date = get_the_date( 'U', $attachment_id );
+		$html = sprintf( '<div class="qs-item" data-name="%s" data-date="%s">', $item_name, $item_date );
 
-		if ( is_null( $id ) ) {
-			// No id passed, print a blank
-			$html .= $is_image ? '<img class="qs-preview" />' : '<span class="qs-preview"></span>';
-		} elseif ( $is_image ) {
-			// Image mode, print the thumbnail
-			$html .= wp_get_attachment_image( $id, 'thumbnail', false, array(
-				'class' => 'qs-preview',
-			) );
-		} else {
-			// Any kind of file, print the attachment title or filename
-			$preview = basename( wp_get_attachment_url( $id ) );
-			if ( $show == 'title' ) {
-				$preview = get_the_title( $id );
+		$html .= '<div class="qs-preview">';
+		if ( $attachment_id ) {
+			$html .= wp_get_attachment_image( $attachment_id, 'thumbnail', $icon );
+
+			if ( $display ) {
+				$preview = basename( wp_get_attachment_url( $attachment_id ) );
+				if ( $display == 'title' ) {
+					$preview = get_the_title( $attachment_id );
+				}
+				$html .= '<span class="qs-preview-text">' . $preview . '</span>';
 			}
-			$html .= '<span class="qs-preview">' . $preview . '</span>';
 		}
+		$html .= '</div>';
 
 		// Add delete button and field name brackets if in mulitple mode
-		if ( $is_multi ) {
-			$html .= '<button type="button" class="button qs-delete">Delete</button>';
-			$name .= '[]';
-		}
+		$html .= '<button type="button" class="button qs-delete">Delete</button>';
 
-		// Add the input field for this item
-		$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $name, $id );
+		// Add the input field for this item (and append [] to the field name)
+		$html .= sprintf( '<input type="hidden" name="%s[]" value="%s" class="qs-value">', $field_name, $attachment_id );
 
 		$html .= '</div>';
 		return $html;
+	}
+
+	/**
+	 * Build a file adder field.
+	 *
+	 * @deprecated 1.8.0 Use build_media() instead (now an alias).
+	 *
+	 * @since 1.6.2 Fixed template output to include $show option.
+	 * @since 1.6.0 Added qs-sortable class with data-axis attribute, quick sort support, "show" option.
+	 * @since 1.4.0 Overhauled markup/functionality.
+	 * @since 1.3.3
+	 *
+	 * @see Form::build_media()
+	 */
+	public static function build_addfile( $settings, $value ) {
+		return self::build_media( $settings, $value );
 	}
 
 	/**
 	 * Build an image setter field.
 	 *
+	 * @deprecated 1.8.0 Use build_media() instead (now an alias).
+	 *
 	 * @since 1.4.0 Reduced to alias of build_addfile
 	 * @since 1.0.0
 	 *
-	 * @see Form::build_addfile()
+	 * @see Form::build_media()
 	 */
 	public static function build_setimage( $settings, $value ) {
 		// Force the media type to image
 		$settings['media'] = 'image';
 
-		return static::build_addfile( $settings, $value );
+		return self::build_media( $settings, $value );
 	}
 
 	/**
 	 * Build a gallery editor field.
 	 *
+	 * @deprecated 1.8.0 Use build_media() instead (now an alias).
+	 *
 	 * @since 1.6.0 Added clear button, data-id to image for inline sortability.
 	 * @since 1.4.0 Added semi-intelligent button text guessing.
 	 * @since 1.0.0
 	 *
-	 * @see Form::build_generic()
+	 * @see Form::build_gallery()
 	 */
 	public static function build_editgallery( $settings, $value ) {
-		// If the label seems auto generated, modify the label text to Edit [label]
-		if ( $settings['label'] == make_legible( $settings['name'] ) ) {
-			$settings['label'] = 'Edit ' . $settings['label'];
-		}
-
-		$html = '<div class="qs-field qs-media qs-editgallery">';
-			$html .= '<button type="button" class="button-primary qs-button">' . $settings['label'] . '</button>';
-			$html .= ' <button type="button" class="button qs-clear">Clear</button>';
-			$html .= '<div class="qs-preview">';
-			foreach ( explode( ',', $value ) as $image ) {
-				$html .= wp_get_attachment_image( $image, 'thumbnail', false, array( 'data-id' => $image ) );
-			}
-			$html .= '</div>';
-			$html .= sprintf( '<input type="hidden" name="%s" value="%s" class="qs-value">', $settings['name'], $value );
-		$html .= '</div>';
-
-		return $html;
+		return self::build_gallery( $settings, $value );
 	}
 
 	/**
@@ -997,7 +1045,7 @@ class Form {
 					// Loop through each field for the template, and build them
 					foreach ( $template['fields'] as $field => $settings ) {
 						make_associative( $field, $settings );
-	
+
 						$html .= static::build_repeater_item_field( $name, $settings, $item, $i, $field );
 					}
 				} else {
@@ -1008,7 +1056,7 @@ class Form {
 					$html .= static::build_repeater_item_field( $name, $template, $item, $i );
 				}
 				$html .= '</div>';
-				
+
 				// Add the delete button
 				$html .= '<button type="button" class="button qs-delete">Delete</button>';
 			}
@@ -1016,7 +1064,7 @@ class Form {
 
 		return $html;
 	}
-	
+
 	/**
 	 * Build a single field for a single repeater item.
 	 *
@@ -1035,7 +1083,7 @@ class Form {
 		} else {
 			$settings['name'] = sprintf( '%s[]', $field );
 		}
-		
+
 		$id = ! is_null( $subfield ) ? $subfield : $field;
 
 		// Create the ID for the field
@@ -1129,7 +1177,7 @@ class Form {
 				$data_atts[] = 'data-' . $attr . '="' . $settings[ $attr ] . '"';
 			}
 		}
-		
+
 		// Default values for the data
 		$data = wp_parse_args( $data, array(
 			'lat' => null,

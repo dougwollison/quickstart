@@ -26,10 +26,10 @@ window.QS = window.QS || {};
 			if ( typeof $parent === 'string' ) {
 				$parent = $( $parent );
 			}
-			
+
 			// Get all the first level items
 			var collection = $parent.children( item );
-			
+
 			if ( method === 'flip' ) {
 				// Since jQuery has no reverse method...
 				collection.each(function() {
@@ -40,18 +40,18 @@ window.QS = window.QS || {};
 				collection.sort(function( a, b ) {
 					var a_ = $( a ).data( method );
 					var b_ = $( b ).data( method );
-					
+
 					if ( a_ === b_ ){
 						return 0;
 					}
-					
+
 					return a_ > b_ ? 1 : -1;
 				});
-				
+
 				// Reload list with sorted items
 				collection.detach().appendTo( $parent );
 			}
-			
+
 			// Refresh the sortability
 			$parent.sortable( 'refresh' );
 		}
@@ -66,14 +66,14 @@ jQuery(function($){
 	// Delete item button setup
 	$( 'body' ).on( 'click', '.qs-delete', function() {
 		var $item = $( this ).parents( '.qs-item' );
-		
+
 		$item.animate({
 			height:  'toggle',
 			opacity: 'toggle'
 		}, function() {
 			$( this ).remove();
 		});
-		
+
 		// Fire an item-removed
 		$item.trigger( 'qs:item-deleted' );
 	});
@@ -82,15 +82,35 @@ jQuery(function($){
 	$( 'body' ).on( 'click', '.qs-clear', function() {
 		var $parent = $( this ).parent();
 
-		if ( $parent.hasClass( 'qs-editgallery' ) ) {
-			// Empty the gallery preview and input value
-			$parent.find( '.qs-preview' ).animate({
-				height:  'toggle',
-				opacity: 'toggle'
-			}, function() {
-				$( this ).empty().show();
-			});
-			$parent.find( '.qs-value' ).val( '' );
+		// Get the parent field or repeater
+		var $parent = $( this ).parents( '.qs-field, .qs-repeater' ).eq( 0 );
+
+		if ( $parent.hasClass( '.qs-media' ) ) {
+			if ( $parent.hasClass( 'single' ) ) {
+				// Empty the preview, replacing it with the add_label text
+				var $preview = $parent.find( '.qs-preview' );
+				$preview.html( $preview.attr( 'title' ) );
+				$parent.find( '.qs-value' ).val( '' );
+				// And hide this button
+				$( this ).hide();
+			} else if ( $parent.hasClass( 'gallery' ) ) {
+				// Empty the gallery preview and input value
+				$parent.find( '.qs-preview' ).animate({
+					height:  'toggle',
+					opacity: 'toggle'
+				}, function() {
+					$( this ).empty().show();
+				});
+				$parent.find( '.qs-value' ).val( '' );
+			} else if ( $parent.hasClass( 'multiple' ) ) {
+				// Delete the single item
+				$parent.find( '.qs-item' ).animate({
+					height:  'toggle',
+					opacity: 'toggle'
+				}, function() {
+					$( this ).remove();
+				});
+			}
 		} else {
 			// Remove all items by triggering their delete buttons
 			$parent.find( '.qs-item .qs-delete' ).click();
@@ -123,11 +143,11 @@ jQuery(function($){
 		var $repeater = $( this );
 		var $container = $repeater.find( '.qs-container' );
 		var $template = $repeater.find( '.qs-template' );
-		
+
 		if ( $template.length === 0 ) {
 			return;
 		}
-		
+
 		// Create the template object
 		$template = $( $template.html() );
 
@@ -167,7 +187,7 @@ jQuery(function($){
 			// Insert the new item, update the set
 			$container.append( $item );
 			updateItems();
-			
+
 			// Fire an item-added event
 			$item.trigger( 'qs:item-added' );
 		})
@@ -249,7 +269,7 @@ jQuery(function($){
 
 				marker.setPosition( new google.maps.LatLng( lat, lng ) );
 				marker.setMap( map );
-				
+
 				// Fire a marker-placed event, passing the marker object
 				$canvas.trigger( 'qs:marker-placed', [ marker ] );
 			});
@@ -305,7 +325,7 @@ jQuery(function($){
 							// Center/zoom the map
 							map.setCenter( coords );
 							map.setZoom( 10 );
-				
+
 							// Fire a marker-placed event, passing the marker object
 							$canvas.trigger( 'qs:marker-placed', [ marker ] );
 						}
