@@ -471,8 +471,7 @@ window.QS = window.QS || {};
 								plugin.$input.val( attachment.id );
 
 								plugin.$elm.find( '.qs-clear' ).show();
-							}
-							else {
+							} else {
 								// Loop through attachments and add them to the preview
 								var $item, $preview, $input, img, text;
 								_.each( attachments, function( attachment, i ) {
@@ -494,7 +493,7 @@ window.QS = window.QS || {};
 										}
 									} else {
 										// Preview should be plain text of the title or filename, update the content
-										if ( 'title' === show ) {
+										if ( 'title' === display ) {
 											$preview.html( attachment.title );
 										} else {
 											$preview.html( attachment.filename );
