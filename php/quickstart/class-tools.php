@@ -145,14 +145,18 @@ class Tools {
 		$callback = $fields = null;
 		if ( isset( $args['callback'] ) && is_callable( $args['callback'] ) ) {
 			$callback = $args['callback'];
-		} elseif ( is_callable( $args['fields'] ) && is_callable( $args['fields'] ) ) {
-			$callback = $args['fields'];
-		} elseif ( is_callable( $args['field'] ) && is_callable( $args['field'] ) ) {
-			$callback = $args['field'];
 		} elseif ( isset( $args['fields'] ) ) {
-			$fields = $args['fields'];
+			if ( is_callable( $args['fields'] ) ) {
+				$callback = $args['fields'];
+			} else {
+				$fields = $args['fields'];
+			}
 		} elseif ( isset( $args['field'] ) ) {
-			$fields = $args['fields'];
+			if ( is_callable( $args['field'] ) ) {
+				$callback = $args['field'];
+			} else {
+				$fields = $args['field'];
+			}
 		} elseif ( isset( $args['get_fields'] ) && is_callable( $args['get_fields'] ) ) {
 			/**
 			 * Dynamically generate the fields array.
