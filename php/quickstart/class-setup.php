@@ -319,6 +319,7 @@ class Setup extends \Smart_Plugin {
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined.
 	 * within a post_type configuration.
 	 *
+	 * @since 1.8.0 Tweaked check for post-thumbnails support.
 	 * @since 1.6.0 Add meta boxes/features numerically to prevent overwriting.
 	 * @since 1.3.3 Removed callback chek on feature args.
 	 * @since 1.2.0 Added check for dumb meta box setup
@@ -350,7 +351,7 @@ class Setup extends \Smart_Plugin {
 
 			// Check if this post type uses thumbnails, and
 			// make sure the theme supports includes it
-			if ( in_array( 'thumbnail', $pt_args['supports'] ) && ! in_array( 'post-thumbnails', $configs['supports'] ) ) {
+			if ( in_array( 'thumbnail', $pt_args['supports'] ) && ! in_array( 'post-thumbnails', $configs['supports'] ) && ! isset( $config['supports']['post-thumbnails'] ) ) {
 				$configs['supports'][] = 'post-thumbnails';
 			}
 
