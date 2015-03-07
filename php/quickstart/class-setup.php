@@ -664,7 +664,8 @@ class Setup extends \Smart_Plugin {
 	 * Register the requested meta box.
 	 *
 	 * @since 1.8.0 Added use of register_meta() for sanitizing and protection,
-	 *              also added handling of condition setting.
+	 *              also added handling of condition setting, modified single
+	 *				field handling to account for callbacks.
 	 * @since 1.7.1 Added use of maybe_load_media_manager()
 	 * @since 1.3.5 Added use-args-as-field-args handling.
 	 * @since 1.3.3 Fixed bug with single field expansion.
@@ -684,17 +685,18 @@ class Setup extends \Smart_Plugin {
 				'callback' => $args,
 			);
 		} elseif ( isset( $args['field'] ) ) {
-			// Single field passed, recreate into proper array
-			$field = $args['field'];
-
-			// Turn off wrapping by default
-			if ( ! isset( $field['wrap_with_label'] ) ) {
-				$field['wrap_with_label'] = false;
-			}
-
-			$args['fields'] = array(
-				$meta_box => $field,
-			);
+			// A single field is provided, the name of the metabox is also the name of the field
+ 
+            // Default the wrap_with_label argument to false if applicable
+            if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
+                // Auto set wrap_with_label to false if not present already
+                $args['field']['wrap_with_label'] = false;
+            }
+ 
+            // Create a fields entry
+            $args['fields'] = array(
+                $meta_box => $args['field'],
+            );
 		} elseif ( ! isset( $args['fields'] ) && ! isset( $args['callback'] ) ) {
 			// No separate fields list or callback passed
 
@@ -716,9 +718,9 @@ class Setup extends \Smart_Plugin {
 			'post_type' => 'post',
 		);
 
-		// Prep and parse the $defaults
-		$this->prep_defaults( 'meta_box', $defaults );
-		$args = wp_parse_args( $args, $defaults );
+		// Prep $defaults and parse the $args
+        $this->prep_defaults( 'meta_box', $defaults );
+        $args = wp_parse_args( $args, $defaults );
 
 		// Check if condition callback exists; test it before proceeding
 		if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
@@ -1155,7 +1157,7 @@ class Setup extends \Smart_Plugin {
 			echo get_post_meta( $post_id, $args['meta_key'], true );
 		} elseif ( $args['post_field'] ) {
 			// Output the post_filed for this post
-			echo get_post_field( $post_id, $args['meta_key'] );
+			echo get_post( $post_id )->{ $args['meta_key'] };
 		}
 
 		// No output otherwise
