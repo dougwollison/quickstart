@@ -182,7 +182,8 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
-	 * @since 1.8.0 Added use of "save_single" option, "data_name" value now defaults to the same as "name".
+	 * @since 1.8.0 Added use of "save_single" option, "default" value option,
+	 * 				"data_name" value now defaults to the same as "name".
 	 * @since 1.6.0 Added qs_field_ prefix to field id, get_value() use for callback.
 	 * @since 1.5.0 Added "taxonomy" option handling.
 	 * @since 1.4.2 Added "get_value" and "post_field" option handling.
@@ -292,6 +293,11 @@ class Form {
 		} else {
 			// Otherwise, use the built in get_value method
 			$value = static::get_value( $data, $source, $settings['data_name'], $settings['save_single'] );
+		}
+
+		// If the value is empty, and a default value has been provided, use that
+		if ( ( is_null( $value ) || $value === '' ) && isset( $settings['default'] ) ){
+			$value = $settings['default'];
 		}
 
 		// Set a default value for the class setting;
