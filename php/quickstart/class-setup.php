@@ -800,7 +800,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the save hook for the meta box.
 	 *
-	 * @since 1.8.0 Added use of "save_single" option and support for foo[bar] style fields.
+	 * @since 1.8.0 Added use of "save_single" option and support for foo[bar] style fields,
+	 *				$meta_key value now defaults to the same as $post_key.
 	 * @since 1.6.0 Restructured for better handling.
 	 * @since 1.5.0 Added taxonomy meta box saving.
 	 * @since 1.4.2 Added "post_field" update handling.
@@ -889,9 +890,11 @@ class Setup extends \Smart_Plugin {
 						$post_key = $settings['name'];
 					}
 
-					// Overide $meta_key with data_name setting if present
+					// Overide $meta_key with data_name setting if present, otherwise with $post_key
 					if ( isset( $settings['data_name'] ) ) {
 						$meta_key = $settings['data_name'];
+					} else {
+						$meta_key = $post_key;
 					}
 
 					// Override $save_single if present

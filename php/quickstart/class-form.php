@@ -182,7 +182,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
-	 * @since 1.8.0 Added use of "save_single" option.
+	 * @since 1.8.0 Added use of "save_single" option, "data_name" value now defaults to the same as "name".
 	 * @since 1.6.0 Added qs_field_ prefix to field id, get_value() use for callback.
 	 * @since 1.5.0 Added "taxonomy" option handling.
 	 * @since 1.4.2 Added "get_value" and "post_field" option handling.
@@ -233,6 +233,11 @@ class Form {
 
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
+
+		// If no data_name is set, make it the same as name
+		if ( ! isset( $settings['data_name'] ) ) {
+			$settings['data_name'] = $settings['name'];
+		}
 
 		// Check if condition callback exists; test it before proceeding
 		if ( isset( $settings['condition'] ) && is_callable( $settings['condition'] ) ) {
