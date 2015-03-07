@@ -19,15 +19,18 @@ class Hooks extends \Smart_Plugin {
 	 */
 	protected static $static_method_hooks = array(
 		'fix_shortcodes'         => array( 'the_content', 10, 1 ),
+		'do_quicktags'    	     => array( 'admin_print_footer_scripts', 10, 0 ),
 		'disable_quickedit'      => array( 'post_row_actions', 10, 2 ),
 		'frontend_enqueue'       => array( 'wp_enqueue_scripts', 10, 0 ),
 		'backend_enqueue'        => array( 'admin_enqueue_scripts', 10, 0 ),
 		'quick_frontend_enqueue' => array( 'wp_enqueue_scripts', 10, 0 ),
 		'quick_backend_enqueue'  => array( 'admin_enqueue_scripts', 10, 0 ),
 		'post_type_save'         => array( 'save_post', 10, 1 ),
+		'post_type_save_meta'    => array( 'save_post', 10, 1 ),
 		'post_type_count'        => array( 'dashboard_glance_items', 10, 1 ),
 		'edit_meta_box'          => array( 'do_meta_boxes', 10, 2 ),
 		'taxonomy_filter'        => array( 'restrict_manage_posts', 10, 0 ),
+		'print_extra_editor'     => array( 'edit_form_after_editor', 10, 1 ),
 	);
 
 	/**
@@ -73,7 +76,7 @@ class Hooks extends \Smart_Plugin {
 		$buttons = csv_array( $settings );
 
 		// These are the default buttons that we can ignore
-		$builtin = array('strong','em','link','block','del','ins','img','ul','ol','li','code','more','close');
+		$builtin = array( 'strong', 'em', 'link', 'block', 'del', 'ins', 'img', 'ul', 'ol', 'li', 'code', 'more', 'close' );
 
 		// Go through the buttons and auto-create them\
 		foreach ( $buttons as $button ) {
