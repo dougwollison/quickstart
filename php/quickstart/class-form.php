@@ -13,6 +13,7 @@ class Form {
 	/**
 	 * Convert a field name to a valid ID.
 	 *
+	 * @since 1.8.0 Fixed to catch empty brackets.
 	 * @since 1.6.0 Fixed to catch all brackets.
 	 * @since 1.0.0
 	 *
@@ -22,6 +23,8 @@ class Form {
 	 */
 	public static function make_id( $name ) {
 		return preg_replace( '/\[(.+?)\]/', '_$1', $name );
+		$name = str_replace( '[]', '', $name );
+		return $name;
 	}
 
 	/**
