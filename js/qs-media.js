@@ -342,7 +342,7 @@ window.QS = window.QS || {};
 			var is_gallery = $elm.hasClass( 'gallery' );
 
 			// Get display mode
-			var display = $elm.data( 'display' );
+			var show = $elm.data( 'show' );
 
 			// Get media type
 			var mimetype = $elm.data( 'type' );
@@ -493,7 +493,7 @@ window.QS = window.QS || {};
 										}
 									} else {
 										// Preview should be plain text of the title or filename, update the content
-										if ( 'title' === display ) {
+										if ( 'title' === show ) {
 											$preview.html( attachment.title );
 										} else {
 											$preview.html( attachment.filename );

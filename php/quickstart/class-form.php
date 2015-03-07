@@ -748,7 +748,7 @@ class Form {
 		$media = isset( $settings['media'] ) ? $settings['media'] : ( $is_gallery ? 'image' : null );
 
 		// Determine display mode for text (title, filename, or none, default none for image type)
-		$display = isset( $settings['display'] ) ? $settings['display'] : ( $media == 'image' ? false : 'filename' );
+		$show = isset( $settings['display'] ) ? $settings['display'] : ( $media == 'image' ? false : 'filename' );
 
 		// Determin icon support (for multiple, non-image items)
 		$icon = isset( $settings['icon'] ) ? $settings['icon'] : false;
@@ -778,7 +778,7 @@ class Form {
 		}
 
 		// Begin the markup for this component
-		$html = sprintf( '<div id="%s" class="%s" data-type="%s" data-display="%s" data-mode="%s">', $settings['id'], implode( ' ', $classes ), $media, $display, $is_gallery ? 'gallery' : 'normal' );
+		$html = sprintf( '<div id="%s" class="%s" data-type="%s" data-show="%s" data-mode="%s">', $settings['id'], implode( ' ', $classes ), $media, $show, $is_gallery ? 'gallery' : 'normal' );
 
 		// Special output for certain conditions
 		if ( $is_gallery ) {
@@ -819,7 +819,7 @@ class Form {
 				// Loop through each image and print an item
 				foreach ( $value as $attachment_id ) {
 					// Add an item for the current file
-					$html .= static::build_media_item( $attachment_id, $field_name, $display, $icon );
+					$html .= static::build_media_item( $attachment_id, $field_name, $show, $icon );
 				}
 			}
 			$html .= '</div>';
@@ -836,7 +836,7 @@ class Form {
 
 			// Print the template so javascript knows how to add new items
 			$html .= '<template class="qs-template">';
-				$html .= static::build_media_item( null, $field_name, $display );
+				$html .= static::build_media_item( null, $field_name, $show );
 			$html .= '</template>';
 		} else {
 			// Build a simple version similar to the Featured Image box
@@ -844,7 +844,7 @@ class Form {
 				$html .= '<a href="#" class="qs-preview qs-button" title="' . $settings['add_label'] . '">';
 				if ( $value ) {
 					$preview = basename( wp_get_attachment_url( $value ) );
-					if ( $display == 'title' ) {
+					if ( $show == 'title' ) {
 						$preview = get_the_title( $value );
 					}
 
@@ -876,12 +876,12 @@ class Form {
 	 *
 	 * @param int            $attachment_id The ID of the attachment to use.
 	 * @param string         $field_name    The name of the file adder field.
-	 * @param string|boolean $display       What text to display with the image/icon (title|filename|FALSE).
+	 * @param string|boolean $show          What text to display with the image/icon (title|filename|FALSE).
 	 * @param boolean        $icon          Wether or not to display the icon for non-image files.
 	 *
 	 * @return string The markup fo the item.
 	 */
-	protected static function build_media_item( $attachment_id, $field_name, $display, $icon ) {
+	protected static function build_media_item( $attachment_id, $field_name, $show, $icon ) {
 		// Setup item for quicksort support
 		$item_name = sanitize_title( basename( wp_get_attachment_url( $attachment_id ) ) );
 		$item_date = get_the_date( 'U', $attachment_id );
@@ -891,9 +891,9 @@ class Form {
 		if ( $attachment_id ) {
 			$html .= wp_get_attachment_image( $attachment_id, 'thumbnail', $icon );
 
-			if ( $display ) {
+			if ( $show ) {
 				$preview = basename( wp_get_attachment_url( $attachment_id ) );
-				if ( $display == 'title' ) {
+				if ( $show == 'title' ) {
 					$preview = get_the_title( $attachment_id );
 				}
 				$html .= '<span class="qs-preview-text">' . $preview . '</span>';
