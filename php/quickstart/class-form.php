@@ -854,7 +854,7 @@ class Form {
 			$html .= '<div class="qs-container">';
 				$html .= '<a href="#" class="qs-preview qs-button" title="' . $settings['add_label'] . '">';
 				if ( $value ) {
-					$preview = basename( wp_get_attachment_url( $value ) );
+					$preview = rawurldecode( basename( wp_get_attachment_url( $value ) ) );
 					if ( $show == 'title' ) {
 						$preview = get_the_title( $value );
 					}
@@ -903,7 +903,7 @@ class Form {
 			$html .= wp_get_attachment_image( $attachment_id, 'thumbnail', $icon );
 
 			if ( $show ) {
-				$preview = basename( wp_get_attachment_url( $attachment_id ) );
+				$preview = rawurldecode( basename( wp_get_attachment_url( $attachment_id ) ) );
 				if ( $show == 'title' ) {
 					$preview = get_the_title( $attachment_id );
 				}

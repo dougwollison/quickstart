@@ -496,7 +496,7 @@ window.QS = window.QS || {};
 										if ( 'title' === show ) {
 											$preview.html( attachment.title );
 										} else {
-											$preview.html( attachment.filename );
+											$preview.html( decodeURI( attachment.filename ) );
 										}
 									}
 
