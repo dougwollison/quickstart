@@ -61,12 +61,12 @@ class Tools {
 				$attr = $value;
 				$value = true;
 			}
-			
+
 			// Make sure it's a registerd attribute (or data- attribute)
 			if ( ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) {
 				continue;
 			}
-			
+
 			if ( 'value' != $attr && is_bool( $value ) ) {
 				// Boolean attributes (e.g. checked, selected)
 				$html .= $value ? " $attr" : '';
@@ -76,7 +76,7 @@ class Tools {
 					// Implode into a space separated list
 					$value = implode( ' ', $value );
 				}
-				
+
 				// Escape the value for attribute use
 				$value = esc_attr( $value );
 
@@ -313,10 +313,10 @@ class Tools {
 			} else {
 				// Must be registered first
 				$args = (array) $args;
-				
+
 				// Default values of the args
 				$src = $deps = $ver = $option = $$option_var = null;
-				
+
 				// Get values from $args based on format
 				if ( is_assoc( $args ) ) {
 					// If a condition callback was passed, test it and skip if it fails
@@ -367,7 +367,7 @@ class Tools {
 			static::do_enqueues( $enqueues['js'], 'wp_enqueue_script', 'in_footer' );
 		}
 	}
-	
+
 	/**
 	 * A shortcut for registering/enqueueing styles and scripts.
 	 *
@@ -382,13 +382,13 @@ class Tools {
 	 */
 	public static function quick_enqueue( $type, $files ) {
 		$files = (array) $files;
-		
+
 		// Determin which function to use based on $type
 		$func = 'css' == $type ? 'wp_enqueue_style' : 'wp_enqueue_script';
-		
+
 		// The regex to look for is-file detection
 		$match = 'css' == $type ? '/\.css$/' : '/\.js$/';
-		
+
 		foreach ( $files as $file ) {
 			// If it looks like a file, enqueue with generated $handle and $src
 			if ( preg_match( $match, $file ) ) {
@@ -398,7 +398,7 @@ class Tools {
 				// Assume pre-registered style/script
 				$args = array( $file );
 			}
-			
+
 			call_user_func_array( $func, $args );
 		}
 	}
