@@ -199,7 +199,7 @@ jQuery(function($){
 	});
 
 	// Setup map fields, provided google maps is loaded
-	if ( google && google.maps ) {
+	if ( typeof google !== 'undefined' && google.maps ) {
 		$( '.qs-map' ).each(function() {
 			var $ui = $( this );
 
