@@ -528,7 +528,8 @@ window.QS = window.QS || {};
 			}
 
 			// Get the data- attribute values that are allowed
-			var attributes = _.pick( $elm.data(), 'title', 'choose', 'trigger', 'container', 'template', 'preview', 'input' );
+			var data = $elm.data() || {};
+			var attributes = _.pick( data, 'title', 'choose', 'trigger', 'container', 'template', 'preview', 'input' );
 
 			// Merge options with the matching data- attribute values
 			plugin = _.extend( {}, defaults, options, attributes );
@@ -597,10 +598,8 @@ window.QS = window.QS || {};
 	QS.addFile = function( event, mode ) {
 		var $elm = $( this );
 
-		$elm.data( 'mode', 'gallery' );
-
 		// Alias to the addFile method
-		return QS.setupMedia.call( this, event );
+		return QS.setupMedia.apply( this, arguments );
 	};
 
 	/**
@@ -622,7 +621,7 @@ window.QS = window.QS || {};
 		$elm.data( 'type', 'image' );
 
 		// Alias to the addFile method
-		return QS.setupMedia.call( this, event );
+		return QS.setupMedia.apply( this, arguments );
 	};
 
 
@@ -644,7 +643,7 @@ window.QS = window.QS || {};
 		$elm.data( 'type', 'image' );
 
 		// Alias to the addFile method
-		return QS.setupMedia.call( this, event );
+		return QS.setupMedia.apply( this, arguments );
 	};
 
 	/**
@@ -659,7 +658,7 @@ window.QS = window.QS || {};
 	 */
 	jQuery.fn.QS = function( /* [selector,] plugin [, options] */ ) {
 		var $elm = $( this ),
-			selector, plugin, options;
+			selector = '.qs-button', plugin, options;
 
 		// Proceed based on number of arguments
 		switch ( arguments.length ) {
@@ -675,8 +674,8 @@ window.QS = window.QS || {};
 					plugin   = arguments[1];
 				} else {
 					// ( plugin, options )
-					plugin   = arguments[1];
-					options  = arguments[2];
+					plugin   = arguments[0];
+					options  = arguments[1];
 				}
 				break;
 			case 1: // ( plugin )
@@ -691,12 +690,13 @@ window.QS = window.QS || {};
 		// Setup the (delegated) click event
 		if ( selector ) {
 			$elm.on( 'click', selector, options, callback );
+			// Immediately initialize existing elements
+			$elm.find( selector ).trigger( 'click', [ 'initonly' ] );
 		} else {
 			$elm.on( 'click', options, callback );
+			// Immediately initialize existing elements
+			$elm.trigger( 'click', [ 'initonly' ] );
 		}
-
-		// Immediately initialize existing elements
-		$elm.find( selector ).trigger( 'click', [ 'initonly' ] );
 
 		return $elm;
 	};
