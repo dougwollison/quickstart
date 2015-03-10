@@ -804,8 +804,10 @@ class Form {
 
 			// The preview container with the list of images
 			$html .= '<div class="qs-preview">';
-			foreach ( explode( ',', $value ) as $image ) {
-				$html .= wp_get_attachment_image( $image, 'thumbnail', true, array( 'data-id' => $image ) );
+			if ( $value ) {
+				foreach ( explode( ',', $value ) as $image ) {
+					$html .= wp_get_attachment_image( $image, 'thumbnail', true, array( 'data-id' => $image ) );
+				}
 			}
 			$html .= '</div>';
 
