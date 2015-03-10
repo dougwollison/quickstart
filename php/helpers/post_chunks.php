@@ -10,6 +10,7 @@
 /**
  * Adds new property to $post object with chopped up version of the post.
  *
+ * @since 1.8.0 Added filtering hook for the separator string used.
  * @since 1.0.0
  *
  * @param object $post The post to be chopped up.
@@ -20,9 +21,29 @@ function post_chunks( $post ) {
 		return;
 	}
 
-	$post->post_content = preg_replace( '/(<!--more-->)((?:\s*<\/\w+>\s*)+)/', '$2$1', $post->post_content );
+	// The default separator is the more tag
+	$sep = '<!--more-->';
 
-	$post->chunks = explode( '<!--more-->', $post->post_content );
+	/**
+	 * Filter the chunk separator string.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string  $sep  The separator to filter.
+	 * @param WP_Post $post The post object being used.
+	 */
+	$sep = apply_filters( 'qs_post_chunks_separator', $sep, $post );
+
+	// Escape it to make sure it works in a regex
+	$sep_quoted = preg_quote( $sep, '/' );
+
+	// Move closing tags after a more tag to before it, prevents broken code
+	$post->post_content = preg_replace( '/(' . $sep_quoted . ')((?:\s*<\/\w+>\s*)+)/', '$2$1', $post->post_content );
+
+	// Create the chunks
+	$post->chunks = explode( $sep, $post->post_content );
+
+	// Store the default chunk number for looping
 	$post->chunk = 1;
 }
 add_action( 'the_post', 'post_chunks' );
