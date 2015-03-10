@@ -85,7 +85,7 @@ jQuery(function($){
 		// Get the parent field or repeater
 		var $parent = $( this ).parents( '.qs-field, .qs-repeater' ).eq( 0 );
 
-		if ( $parent.hasClass( '.qs-media' ) ) {
+		if ( $parent.hasClass( 'qs-media' ) ) {
 			if ( $parent.hasClass( 'single' ) ) {
 				// Empty the preview, replacing it with the add_label text
 				var $preview = $parent.find( '.qs-preview' );
