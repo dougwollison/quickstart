@@ -32,7 +32,7 @@ function post_chunks( $post ) {
 	 * @param string  $sep  The separator to filter.
 	 * @param WP_Post $post The post object being used.
 	 */
-	$sep = apply_filters( 'qs_post_chunks_separator', $sep, $post );
+	$sep = apply_filters( 'qs_helper_chunk_separator', $sep, $post );
 
 	// Escape it to make sure it works in a regex
 	$sep_quoted = preg_quote( $sep, '/' );
