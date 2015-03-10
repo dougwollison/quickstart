@@ -545,6 +545,7 @@ class Form {
 	/**
 	 * Build a checkbox field.
 	 *
+	 * @since 1.8.0 Fixed dummy field to have a 0 value, not null.
 	 * @since 1.4.2 Added $dummy argument and printing of dummy input for null value.
 	 * @since 1.4.1 Added modified default value for $wrapper.
 	 * @since 1.0.0
@@ -575,7 +576,7 @@ class Form {
 			$hidden = Tools::build_tag( 'input', array(
 				'type' => 'hidden',
 				'name' => $settings['name'],
-				'value' => null,
+				'value' => 0,
 			) );
 		}
 
