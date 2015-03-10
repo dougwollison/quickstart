@@ -37,6 +37,10 @@
 				padding: 10px 10px 0 0;
 				border: none;
 
+				&:before{
+					content: none;
+				}
+
 				&:hover .qs-delete{
 					opacity: 1;
 				}
