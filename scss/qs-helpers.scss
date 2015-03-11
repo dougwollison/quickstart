@@ -1,6 +1,8 @@
 @import 'utilities';
 
 .qs-meta-box{
+	@extend %clearfix;
+
 	.inputlist{
 		margin-bottom: 0;
 		overflow: auto;
@@ -143,10 +145,6 @@
 		float: left;
 		line-height: 28px;
 		padding-right: 10px;
-	}
-
-	.qs-field &{
-		margin-bottom: 10px;
 	}
 }
 
