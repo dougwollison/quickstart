@@ -1,82 +1,82 @@
 /* line 4, ../scss/_utilities.scss */
-.qs-field, .qs-fieldset .inputlist, .qs-container, .qs-item, .qs-map {
+.qs-meta-box, .qs-field, .qs-fieldset .inputlist, .qs-container, .qs-item, .qs-map {
   *zoom: 1; }
   /* line 38, ../../../../../../../../../../../usr/lib64/ruby/gems/1.8/gems/compass-core-1.0.1/stylesheets/compass/utilities/general/_clearfix.scss */
-  .qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-item:after, .qs-map:after {
+  .qs-meta-box:after, .qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-item:after, .qs-map:after {
     content: "";
     display: table;
     clear: both; }
 
-/* line 4, ../scss/qs-helpers.scss */
+/* line 6, ../scss/qs-helpers.scss */
 .qs-meta-box .inputlist {
   margin-bottom: 0;
   overflow: auto;
   max-width: 300px; }
-  /* line 9, ../scss/qs-helpers.scss */
+  /* line 11, ../scss/qs-helpers.scss */
   .qs-meta-box .inputlist li {
     margin: 0;
     padding: 5px 0; }
 
-/* line 16, ../scss/qs-helpers.scss */
+/* line 18, ../scss/qs-helpers.scss */
 .qs-field,
 .qs-fieldset {
   margin-top: 10px; }
 
-/* line 21, ../scss/qs-helpers.scss */
+/* line 23, ../scss/qs-helpers.scss */
 .qs-field {
   line-height: 1.5; }
-  /* line 25, ../scss/qs-helpers.scss */
+  /* line 27, ../scss/qs-helpers.scss */
   .qs-fieldset .qs-field {
     padding-top: 0; }
-  /* line 32, ../scss/qs-helpers.scss */
+  /* line 34, ../scss/qs-helpers.scss */
   .qs-field.generic .qs-label, .qs-field.textarea .qs-label, .qs-field.select .qs-label {
     float: left;
     padding: 5px 0;
     margin: 0 10px 0 0; }
 
-/* line 39, ../scss/qs-helpers.scss */
+/* line 41, ../scss/qs-helpers.scss */
 .qs-label {
   margin: 0; }
 
-/* line 42, ../scss/qs-helpers.scss */
+/* line 44, ../scss/qs-helpers.scss */
 .qs-legend {
   padding: 0 0 2px;
   margin: 0 0 5px;
   border-bottom: 1px solid #eee; }
 
-/* line 49, ../scss/qs-helpers.scss */
+/* line 51, ../scss/qs-helpers.scss */
 .qs-fieldset .inputlist {
   margin: 5px 0 0; }
-/* line 56, ../scss/qs-helpers.scss */
+/* line 58, ../scss/qs-helpers.scss */
 .qs-fieldset.horizontal .qs-legend,
 .qs-fieldset.horizontal .qs-field,
 .qs-fieldset.horizontal .inputlist {
   float: left; }
-/* line 62, ../scss/qs-helpers.scss */
+/* line 64, ../scss/qs-helpers.scss */
 .qs-fieldset.horizontal .qs-legend {
   margin: 0;
   padding: 0;
   border: none; }
-/* line 68, ../scss/qs-helpers.scss */
+/* line 70, ../scss/qs-helpers.scss */
 .qs-fieldset.horizontal .qs-field,
 .qs-fieldset.horizontal .inputlist {
   margin: 0 5px; }
-/* line 76, ../scss/qs-helpers.scss */
+/* line 78, ../scss/qs-helpers.scss */
 .qs-fieldset .horizontal .qs-field {
   float: left;
   margin: 0 10px 0 0; }
 
-/* line 83, ../scss/qs-helpers.scss */
+/* line 85, ../scss/qs-helpers.scss */
 .qs-container {
   margin: 10px 0 0;
   border-top: 1px solid #eee; }
 
-/* line 89, ../scss/qs-helpers.scss */
+/* line 91, ../scss/qs-helpers.scss */
 .qs-sortable {
   background: #fff;
   margin: 10px 0; }
 
-/* line 93, ../scss/qs-helpers.scss */
+/* line 95, ../scss/qs-helpers.scss */
 .qs-item {
   display: block;
   background: rgba(255, 255, 255, 0.7);
@@ -84,7 +84,7 @@
   border-bottom: 1px solid #eee;
   cursor: move;
   padding: 5px 48px 5px 0; }
-  /* line 102, ../scss/qs-helpers.scss */
+  /* line 104, ../scss/qs-helpers.scss */
   .qs-item:before {
     content: '\f156';
     font-family: dashicons;
@@ -95,43 +95,40 @@
     height: 40px;
     text-align: center;
     line-height: 40px; }
-  /* line 114, ../scss/qs-helpers.scss */
+  /* line 116, ../scss/qs-helpers.scss */
   .qs-item .qs-delete {
     float: right; }
 
-/* line 119, ../scss/qs-helpers.scss */
+/* line 121, ../scss/qs-helpers.scss */
 .qs-template {
   display: none; }
 
-/* line 124, ../scss/qs-helpers.scss */
+/* line 126, ../scss/qs-helpers.scss */
 .qs-repeater .qs-sortable {
   padding: 0;
   margin: 10px 0 0; }
-/* line 129, ../scss/qs-helpers.scss */
+/* line 131, ../scss/qs-helpers.scss */
 .qs-repeater .qs-field {
   float: left;
   margin: 4px 10px 4px 0; }
-/* line 133, ../scss/qs-helpers.scss */
+/* line 135, ../scss/qs-helpers.scss */
 .qs-repeater label {
   display: block; }
-/* line 136, ../scss/qs-helpers.scss */
+/* line 138, ../scss/qs-helpers.scss */
 .qs-repeater .qs-delete {
   margin-top: 5px; }
 
-/* line 142, ../scss/qs-helpers.scss */
+/* line 144, ../scss/qs-helpers.scss */
 .qs-sort label {
   float: left;
   line-height: 28px;
   padding-right: 10px; }
-/* line 148, ../scss/qs-helpers.scss */
-.qs-field .qs-sort {
-  margin-bottom: 10px; }
 
-/* line 156, ../scss/qs-helpers.scss */
+/* line 154, ../scss/qs-helpers.scss */
 .qs-map .qs-clear {
   float: right; }
 
-/* line 160, ../scss/qs-helpers.scss */
+/* line 158, ../scss/qs-helpers.scss */
 .qs-map-canvas {
   width: 100%;
   height: 500px;

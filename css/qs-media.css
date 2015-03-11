@@ -1,7 +1,7 @@
 /* line 4, ../scss/_utilities.scss */
 .qs-media.gallery .qs-preview {
   *zoom: 1; }
-  /* line 38, ../../../../../../../lib/gems/1.9.1/gems/compass-core-1.0.3/stylesheets/compass/utilities/general/_clearfix.scss */
+  /* line 38, ../../../../../../../../../../../usr/lib64/ruby/gems/1.8/gems/compass-core-1.0.1/stylesheets/compass/utilities/general/_clearfix.scss */
   .qs-media.gallery .qs-preview:after {
     content: "";
     display: table;
@@ -13,41 +13,42 @@
   background: transparent; }
 /* line 10, ../scss/qs-media.scss */
 .qs-media.single .qs-container {
+  margin: 0;
   border-top: none; }
-/* line 14, ../scss/qs-media.scss */
+/* line 15, ../scss/qs-media.scss */
 .qs-media.single img {
   max-width: 100%;
   height: auto;
   width: auto; }
-/* line 22, ../scss/qs-media.scss */
+/* line 23, ../scss/qs-media.scss */
 .qs-media.multiple .qs-preview {
   float: left;
   padding: 5px 0;
   margin: 0;
   font-style: italic; }
-  /* line 28, ../scss/qs-media.scss */
+  /* line 29, ../scss/qs-media.scss */
   .qs-media.multiple .qs-preview img {
     vertical-align: middle;
     margin-right: 1em; }
-/* line 34, ../scss/qs-media.scss */
+/* line 35, ../scss/qs-media.scss */
 .qs-media.multiple.media-image .qs-item {
   float: left;
   width: 156px;
   padding: 10px 10px 0 0;
   border: none; }
-  /* line 40, ../scss/qs-media.scss */
+  /* line 41, ../scss/qs-media.scss */
   .qs-media.multiple.media-image .qs-item:before {
     content: none; }
-  /* line 44, ../scss/qs-media.scss */
+  /* line 45, ../scss/qs-media.scss */
   .qs-media.multiple.media-image .qs-item:hover .qs-delete {
     opacity: 1; }
-/* line 48, ../scss/qs-media.scss */
+/* line 49, ../scss/qs-media.scss */
 .qs-media.multiple.media-image .qs-preview {
   float: none;
   display: block;
   padding: 2px;
   border: 1px solid #eee; }
-/* line 54, ../scss/qs-media.scss */
+/* line 55, ../scss/qs-media.scss */
 .qs-media.multiple.media-image .qs-delete {
   float: none;
   position: absolute;
@@ -60,13 +61,13 @@
   -o-transition: opacity 0.2s linear;
   -webkit-transition: opacity 0.2s linear;
   transition: opacity 0.2s linear; }
-/* line 68, ../scss/qs-media.scss */
+/* line 69, ../scss/qs-media.scss */
 .qs-media.gallery img {
   float: left;
   margin: 4px 4px 0 0;
   padding: 2px;
   border: 1px solid #ddd; }
-/* line 74, ../scss/qs-media.scss */
+/* line 75, ../scss/qs-media.scss */
 .qs-media.gallery .qs-preview {
   margin: 6px 0 0;
   padding: 0; }
