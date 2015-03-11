@@ -1913,7 +1913,7 @@ class Setup extends \Smart_Plugin {
 				// Register the setting on the backend
 				$this->register_setting( $option , array(
 					'title' => sprintf( __( 'Page for %s' ) , get_post_type_object( $post_type )->labels->name ),
-					'field' => function( $value ) use ( $post_type ) {
+					'field' => function( $value ) use ( $option ) {
 						wp_dropdown_pages( array(
 							'name'              => $option,
 							'echo'              => 1,
