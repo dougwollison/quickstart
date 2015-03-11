@@ -968,7 +968,10 @@ class Form {
 	 * @see Form::build_gallery()
 	 */
 	public static function build_editgallery( $settings, $value ) {
-		return self::build_gallery( $settings, $value );
+		// Force the media type to image
+		$settings['gallery'] = true;
+
+		return self::build_media( $settings, $value );
 	}
 
 	/**
