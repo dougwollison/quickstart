@@ -45,11 +45,11 @@ function get_index( $post_type = null, $return = 'id' ) {
 			return get_index( $post_type, $return );
 		}
 	} else {
-		// If it's not the post post_type, see if an index page is set for this type
-		if ( $post_type != 'post' && $page = get_option( "page_for_{$post_type}_posts" ) ) {
-			$index = $page;
+		// Get the index page for this post type
+		if ( $post_type != 'post' ) {
+			$index = get_option( "page_for_{$post_type}_posts", 0 );
 		} else {
-			// Default to the page for posts
+			// Post of course doesn't use our custom option
 			$index = get_option( 'page_for_posts' );
 		}
 
@@ -96,6 +96,8 @@ function the_index() {
  * @return string|bool The result of the test.
  */
 function is_index_page( $post_id = null, $match_post_type = null ) {
+	global $wpdb;
+
 	// Handle no post or post object, also get the post type
 	if ( is_null( $post_id ) ) {
 		global $post;
@@ -119,7 +121,7 @@ function is_index_page( $post_id = null, $match_post_type = null ) {
 		SELECT option_name FROM $wpdb->options WHERE option_value = %d AND
 		(  option_name = 'page_for_posts' OR option_name LIKE 'page\_for\_%%\_posts' )
 		ORDER BY option_id DESC
-	", $post->ID ) );
+	", $post_id ) );
 
 	// Set the properties for testing and details if a match
 	if ( $option ) {
