@@ -665,7 +665,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @since 1.8.0 Added use of register_meta() for sanitizing and protection,
 	 *              also added handling of condition setting, modified single
-	 *				field handling to account for callbacks.
+	 *				field handling to account for callbacks and default to widefat.
 	 * @since 1.7.1 Added use of maybe_load_media_manager()
 	 * @since 1.3.5 Added use-args-as-field-args handling.
 	 * @since 1.3.3 Fixed bug with single field expansion.
@@ -691,6 +691,12 @@ class Setup extends \Smart_Plugin {
             if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
                 // Auto set wrap_with_label to false if not present already
                 $args['field']['wrap_with_label'] = false;
+            }
+
+            // Default the class argument to widefat if applicable
+            if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['class'] ) ) {
+                // Auto set class to widefat if not present already
+                $args['field']['class'] = 'widefat';
             }
 
             // Create a fields entry
