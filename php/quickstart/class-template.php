@@ -225,14 +225,16 @@ class Template {
 	 *
 	 * @param string|array $account    The ID code of the account to track for, or array of $account and $production.
 	 * @param string|array $production Optional A host name or IP address to check for before printing.
+	 * @param bool         $universal  Optional Wether or not to use analytics.js vs ga.js (default TRUE)
 	 */
-	public static function ga_code( $account, $production = null ) {
+	public static function ga_code( $account, $production = null, $universal = true ) {
 		// If $account is an array, split it into $account and $production
 		if ( is_array( $account ) ) {
-			if ( isset( $account[1] ) ) {
-				$production = $account[1];
+			if ( is_assoc( $account ) ) {
+				extract( $account );
+			} else {
+				list( $account, $production, $universal ) = fill_array( $account, 3 );
 			}
-			$account = $account[0];
 		}
 
 		if ( ! is_null( $production ) ) {
@@ -264,17 +266,25 @@ class Template {
 		?>
 		<!-- Start Google Analytics tracking code -->
 		<script type="text/javascript">
+		<?php if($universal):?>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-		var _gaq = _gaq || [];
-		_gaq.push(['_setAccount', '<?php echo $account; ?>']);
-		_gaq.push(['_trackPageview']);
+			ga('create', '<?php echo $account; ?>', 'auto');
+			ga('send', 'pageview');
+		<?php else:?>
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', '<?php echo $account; ?>']);
+			_gaq.push(['_trackPageview']);
 
-		(function() {
-			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		})();
-
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		<?php endif;?>
 		</script>
 		<!-- End Google Analytics tracking code -->
 		<?php
