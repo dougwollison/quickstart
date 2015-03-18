@@ -1806,18 +1806,24 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup an order manager for certain post types.
 	 *
+	 * @since 1.8.0 Allowed passing of just the post_type list instead of args.
 	 * @since 1.6.0 Added check if enqueues were already handled.
 	 * @since 1.0.0
 	 *
 	 * @param array $args A list of options for the order manager.
 	 */
 	public function setup_order_manager( $args ) {
-		// Don't bother if on the admin side.
+		// Don't bother if not on the admin side.
 		if ( ! is_admin() ) {
 			return;
 		}
 
-		// Default post_type option to page
+		// If $args looks like it could be the list of post types, restructure
+		if ( is_string( $args ) || ( is_array( $args ) && ! empty( $args ) && ! is_assoc( $args ) ) ) {
+			$args = array( 'post_type' => $args );
+		}
+
+		// If no post type is specified, default to page
 		if ( ! isset( $args['post_type'] ) ) {
 			$args['post_type'] = 'page';
 		}
@@ -1892,13 +1898,19 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup index page setting/hook for certain post types.
 	 *
-	 * @since 1.8.0 Restructured to use a hooks once for all post_types.
+	 * @since 1.8.0 Restructured to use a hooks once for all post_types,
+	 *				Also allowed passing of just the post_type list instead of args.
 	 * @since 1.6.0
 	 *
 	 * @param array $args A list of options for the custom indexes.
 	 */
 	public function setup_index_page( $args ) {
-		// Abort if no post types set
+		// If $args looks like it could be the list of post types, restructure
+		if ( is_string( $args ) || ( is_array( $args ) && ! empty( $args ) && ! is_assoc( $args ) ) ) {
+			$args = array( 'post_type' => $args );
+		}
+
+		// If no post type is specified, abort
 		if ( ! isset( $args['post_type'] ) ) {
 			return;
 		}
@@ -1908,13 +1920,14 @@ class Setup extends \Smart_Plugin {
 		// Make sure the index helper is loaded
 		Tools::load_helpers( 'index' );
 
-		foreach ( $post_types as $post_type ) {
-			// Make sure the post type is registered
-			if ( ! post_type_exists( $post_type ) ) {
-				continue;
-			}
+		// Setup settings or hooks depending on where we are
+		if ( is_admin() ) {
+			foreach ( $post_types as $post_type ) {
+				// Make sure the post type is registered
+				if ( ! post_type_exists( $post_type ) ) {
+					continue;
+				}
 
-			if ( is_admin() ) {
 				$option = "page_for_{$post_type}_posts";
 
 				// Register the setting on the backend
@@ -1931,10 +1944,7 @@ class Setup extends \Smart_Plugin {
 					}
 				), 'default', 'reading' );
 			}
-		}
-
-		// Setup the frontend hooks if needed
-		if ( ! is_admin() ) {
+		} else {
 			// Build the array of available index pages to use
 			$index_pages = array();
 			foreach ( $post_types as $post_type ) {
@@ -2042,13 +2052,24 @@ class Setup extends \Smart_Plugin {
 	 * @param array $args A list of options for the parent filter.
 	 */
 	public function setup_parent_filtering( $args ) {
-		// Abort if no post types set or not in the admin
-		if ( ! isset( $args['post_type'] ) || ! is_admin() ) {
+		// Don't bother if not on the admin side.
+		if ( ! is_admin() ) {
 			return;
 		}
 
-		$post_types = csv_array( $args['post_type'] );
+		// If $args looks like it could be the list of post types, restructure
+		if ( is_string( $args ) || ( is_array( $args ) && ! empty( $args ) && ! is_assoc( $args ) ) ) {
+			$args = array( 'post_type' => $args );
+		}
 
+		// Get the post types if specified, default to "any" if not
+		if ( isset( $args['post_type'] ) ) {
+			$post_types = csv_array( $args['post_type'] );
+		} else {
+			$post_types = 'any';
+		}
+
+		// Setup the callback for restrict_manage_posts
 		$this->parent_filtering_input( $post_types );
 
 		// Register the post_parent query var for the filtering to work
@@ -2060,13 +2081,16 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @since 1.8.0
 	 *
-	 * @param array $post_types The list of post types that require this.
+	 * @param array|string $post_types The list of post types that require this.
 	 */
-	protected function _parent_filtering_input( $post_types ) {
+	protected function _parent_filtering_input( $post_types = 'any' ) {
 		$post_type = get_query_var('post_type');
 
+		// Check if this is a match
+		$match = $post_types == 'any' || is_array( $post_types ) && in_array( $post_type, $post_types );
+
 		// Only proceed if it's one of the desired post types and it's hierarchical.
-		if ( in_array( $post_type, $post_types ) && get_post_type_object( $post_type )->hierarchical ) {
+		if ( $match && get_post_type_object( $post_type )->hierarchical ) {
 			// Build the query for the dropdown
 			$request = array(
 				'post_type' => $post_type,
