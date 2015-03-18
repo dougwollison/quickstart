@@ -31,6 +31,7 @@ class Hooks extends \Smart_Plugin {
 		'edit_meta_box'          => array( 'do_meta_boxes', 10, 2 ),
 		'taxonomy_filter'        => array( 'restrict_manage_posts', 10, 0 ),
 		'print_extra_editor'     => array( 'edit_form_after_editor', 10, 1 ),
+		'add_query_var'          => array( 'query_vars', 10, 1 ),
 	);
 
 	/**
@@ -402,5 +403,23 @@ class Hooks extends \Smart_Plugin {
 			echo '<h3>' . $settings['title'] . '</h3>';
 			echo Form::build_editor( $settings, $value );
 		echo '</div>';
+	}
+
+	/**
+	 * Register additional public query vars.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array        $vars     The current list of query vars.
+	 * @param string|array $new_vars A list of vars to add.
+	 *
+	 * @param return The updated list of vars.
+	 */
+	public static function _add_query_var( $vars, $new_vars ) {
+		// Ensure the list is an array
+		csv_array_ref( $new_vars );
+
+		// Merge the arrays
+		return array_merge( $vars, $new_vars );
 	}
 }

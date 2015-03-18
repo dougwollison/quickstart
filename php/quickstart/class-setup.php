@@ -65,6 +65,7 @@ class Setup extends \Smart_Plugin {
 		'index_page_query'      => array( 'parse_query', 10, 1 ),
 		'index_page_link'       => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part' => array( 'wp_title_parts', 10, 1 ),
+		'parent_filtering_input' => array( 'restrict_manage_posts', 10, 0 ),
 	);
 
 	// =========================
@@ -487,7 +488,7 @@ class Setup extends \Smart_Plugin {
 
 		// Now that it's registered, fetch the resulting show_in_menu argument,
 		// and add the post_type_count hook if true
-		if ( get_post_type_object( $post_type )->show_in_menu ){
+		if ( get_post_type_object( $post_type )->show_in_menu ) {
 			Hooks::post_type_count( $post_type );
 		}
 	}
@@ -2027,5 +2028,72 @@ class Setup extends \Smart_Plugin {
 		$title[0] = get_the_title( $index_page );
 
 		return $title;
+	}
+
+	// =========================
+	// !Feature: Parent Filtering
+	// =========================
+
+	/**
+	 * Setup parent filtering option in the admin for certain post types.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array $args A list of options for the parent filter.
+	 */
+	public function setup_parent_filtering( $args ) {
+		// Abort if no post types set or not in the admin
+		if ( ! isset( $args['post_type'] ) || ! is_admin() ) {
+			return;
+		}
+
+		$post_types = csv_array( $args['post_type'] );
+
+		$this->parent_filtering_input( $post_types );
+
+		// Register the post_parent query var for the filtering to work
+		Hooks::add_query_var( 'post_parent' );
+	}
+
+	/**
+	 * Add the dropdown to the posts manager for filtering by parent.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array $post_types The list of post types that require this.
+	 */
+	protected function _parent_filtering_input( $post_types ) {
+		$post_type = get_query_var('post_type');
+
+		// Only proceed if it's one of the desired post types and it's hierarchical.
+		if ( in_array( $post_type, $post_types ) && get_post_type_object( $post_type )->hierarchical ) {
+			// Build the query for the dropdown
+			$request = array(
+				'post_type' => $post_type,
+				'post_parent' => '',
+				'posts_per_page' => -1,
+				'orderby' => 'title',
+				'order' => 'asc',
+				'selected' => null,
+			);
+
+			// Update the selected option if needed
+			if ( isset( $_GET['post_parent'] ) ) {
+				$request['selected'] = $_GET['post_parent'];
+			}
+
+			// Get the posts
+			$posts = get_posts( $request );
+
+			// Print the dropdown
+			echo '<select name="post_parent" id="parent_filter">';
+				// Print the no filtering option
+				echo '<option value="">Any Parent</option>';
+				// Print the 0 option for showing only top level posts
+				echo '<option value="0"' . ( $request['selected'] === '0' ? ' selected="selected"' : '' ) . '>&mdash; None/Root &mdash;</option>';
+				// Print the rest of the items
+				echo walk_page_dropdown_tree( $posts, 0, $request );
+			echo '</select>';
+		}
 	}
 }
