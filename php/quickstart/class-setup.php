@@ -2093,6 +2093,7 @@ class Setup extends \Smart_Plugin {
 		if ( $match && get_post_type_object( $post_type )->hierarchical ) {
 			// Build the query for the dropdown
 			$request = array(
+				'qs-context' => 'parent-filtering',
 				'post_type' => $post_type,
 				'post_parent' => '',
 				'posts_per_page' => -1,
