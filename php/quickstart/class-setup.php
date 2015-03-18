@@ -2107,8 +2107,8 @@ class Setup extends \Smart_Plugin {
 				$request['selected'] = $_GET['post_parent'];
 			}
 
-			// Get the posts
-			$posts = get_posts( $request );
+			// Run the query
+			$query = new \WP_Query( $request );
 
 			// Print the dropdown
 			echo '<select name="post_parent" id="parent_filter">';
@@ -2116,8 +2116,8 @@ class Setup extends \Smart_Plugin {
 				echo '<option value="">Any Parent</option>';
 				// Print the 0 option for showing only top level posts
 				echo '<option value="0"' . ( $request['selected'] === '0' ? ' selected="selected"' : '' ) . '>&mdash; None/Root &mdash;</option>';
-				// Print the rest of the items
-				echo walk_page_dropdown_tree( $posts, 0, $request );
+				// Print the queried items
+				echo walk_page_dropdown_tree( $query->posts, 0, $request );
 			echo '</select>';
 		}
 	}
