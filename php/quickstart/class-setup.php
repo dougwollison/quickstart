@@ -279,7 +279,7 @@ class Setup extends \Smart_Plugin {
 		if ( ! defined( 'QS_LOADED_MEDIA_MANAGER' ) || ! QS_LOADED_MEDIA_MANAGER ) {
 			foreach ( $fields as $field ) {
 				$dependants = array( 'addfile', 'editgallery', 'setimage' );
-				if ( isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
+				if ( is_array( $field ) && isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
 					// Make sure the media_manager helper is loaded
 					Tools::load_helpers( 'media_manager' );
 					break;
