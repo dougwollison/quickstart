@@ -1058,7 +1058,7 @@ class Setup extends \Smart_Plugin {
 	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
 	 * @since 1.0.0
 	 */
-	protected function run_theme_setups() {
+	protected function _run_theme_setups() {
 		// Load the configuration array
 		$configs = &$this->configs;
 
