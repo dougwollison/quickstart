@@ -6,7 +6,7 @@
  * @subpackage Smart_Plugin
  *
  * @since 1.6.1 Changed name for WordPress standards
- * @since 1.0.0.0
+ * @since 1.0.0
  */
 
 abstract class Smart_Plugin{

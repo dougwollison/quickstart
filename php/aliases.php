@@ -18,7 +18,7 @@
  *
  * @return QuickStart $QS The class instance.
  */
-function QuickStart( $configs, $defaults = array(), $global = true ) {
+function QuickStart( $configs, $defaults = array(), $global = false ) {
 	$obj = new QuickStart\Setup( $configs, $defaults );
 
 	if ( $global ) {

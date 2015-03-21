@@ -21,7 +21,7 @@ jQuery(function( $ ) {
 	var nestedSortableOptions = $.extend( {}, sortableOptions, {
 		update: function( event, $ui ) {
 			var $parent = $ui.item.parent(), parent_id = 0;
-			if ( parent.prev( '.inner' ).length > 0 ) {
+			if ( $parent.prev( '.inner' ).length > 0 ) {
 				parent_id = $parent.prev( '.inner' ).find( '.qs-order-id' ).val();
 			}
 			$ui.item.find( '> .inner .qs-order-parent' ).val( parent_id );
