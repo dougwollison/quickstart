@@ -39,7 +39,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected $method_hooks = array(
 		// Content Hooks
-		'run_theme_setups'       => array( 'after_theme_setup', 10, 0 ),
+		'run_theme_setups'       => array( 'after_setup_theme', 10, 0 ),
 
 		// Metabox Hooks
 		'save_meta_box'          => array( 'save_post', 10, 1 ),
