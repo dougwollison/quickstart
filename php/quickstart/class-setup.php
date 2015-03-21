@@ -31,6 +31,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
+	 * @since 1.9.0 Fixed run_theme_setups hook.
 	 * @since 1.8.0 Added hooks from Setup/Feature merge.
 	 * @since 1.1.4 Added regster_page_setting(s) entries.
 	 * @since 1.0.0
@@ -1174,7 +1175,7 @@ class Setup extends \Smart_Plugin {
 		// Load the configuration array
 		$configs = &$this->configs;
 		
-		$this->register_pages( $configs['pages'] ); // Will run now and setup various hooks
+		$this->setup_pages( $configs['pages'] ); // Will run now and setup various hooks
 		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
 		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
 	}
