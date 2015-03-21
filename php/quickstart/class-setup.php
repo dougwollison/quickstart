@@ -62,9 +62,10 @@ class Setup extends \Smart_Plugin {
 		'add_page_to_menu'       => array( 'admin_menu', 0 ),
 
 		// Feature Hooks
-		'index_page_query'      => array( 'parse_query', 10, 1 ),
-		'index_page_link'       => array( 'post_type_archive_link', 10, 2 ),
-		'index_page_title_part' => array( 'wp_title_parts', 10, 1 ),
+		'order_manager_save'     => array( 'admin_init', 10, 0 ),
+		'index_page_query'       => array( 'parse_query', 10, 1 ),
+		'index_page_link'        => array( 'post_type_archive_link', 10, 2 ),
+		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
 		'parent_filtering_input' => array( 'restrict_manage_posts', 10, 0 ),
 	);
 
@@ -279,7 +280,7 @@ class Setup extends \Smart_Plugin {
 		if ( ! defined( 'QS_LOADED_MEDIA_MANAGER' ) || ! QS_LOADED_MEDIA_MANAGER ) {
 			foreach ( $fields as $field ) {
 				$dependants = array( 'addfile', 'editgallery', 'setimage' );
-				if ( isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
+				if ( is_array( $field ) && isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
 					// Make sure the media_manager helper is loaded
 					Tools::load_helpers( 'media_manager' );
 					break;
@@ -320,19 +321,16 @@ class Setup extends \Smart_Plugin {
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined.
 	 * within a post_type configuration.
 	 *
+	 * @since 1.9.0 Now protected, no longer accepts external $configs argument.
 	 * @since 1.8.0 Tweaked check for post-thumbnails support.
 	 * @since 1.6.0 Add meta boxes/features numerically to prevent overwriting.
 	 * @since 1.3.3 Removed callback chek on feature args.
 	 * @since 1.2.0 Added check for dumb meta box setup
 	 * @since 1.0.0
-	 *
-	 * @param array &$configs Optional The post types, taxonomies and meta boxes to setup.
 	 */
-	public function run_content_setups( $configs = null ) {
-		// If no $configs is passed, load the locally stored ones.
-		if ( is_null( $configs ) ) {
-			$configs = &$this->configs;
-		}
+	protected function run_content_setups() {
+		// Load the configurations array
+		$configs = &$this->configs;
 
 		$configs = array_merge( array(
 			'post_types' => array(),
@@ -447,6 +445,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested post_type.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.6.0 Modified handling of save_post callback to Tools::post_type_save().
 	 * @since 1.2.0 Added use of save argument for general save_post callback.
 	 * @since 1.0.0
@@ -454,7 +453,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $post_type The slug of the post type to register.
 	 * @param array  $args      Optional The arguments for registration.
 	 */
-	public function _register_post_type( $post_type, array $args = array() ) {
+	protected function _register_post_type( $post_type, array $args = array() ) {
 		// Make sure the post type doesn't already exist
 		if ( post_type_exists( $post_type ) ) {
 			return;
@@ -498,11 +497,12 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Simply loops through and calls Setup::_register_post_type().
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
 	 * @param array $post_types The list of post types to register.
 	 */
-	public function _register_post_types( array $post_types ) {
+	protected function _register_post_types( array $post_types ) {
 		foreach ( $post_types as $post_type => $args ) {
 			make_associative( $post_type, $args );
 			$this->_register_post_type( $post_type, $args );
@@ -516,7 +516,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested taxonomy.
 	 *
-	 * @sicne 1.8.0 Added enforcement of array for for post_type value.
+	 * @since 1.9.0 Now protected.
+	 * @since 1.8.0 Added enforcement of array for for post_type value.
 	 * @since 1.6.0 Updated static replacement meta box title based on $multiple.
 	 * @since 1.5.0 Added "static" option handling (custom taxonomy meta box).
 	 * @since 1.3.1 Removed Hooks::taxonomy_count call.
@@ -525,7 +526,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $taxonomy The slug of the taxonomy to register.
 	 * @param array  $args     The arguments for registration.
 	 */
-	public function _register_taxonomy( $taxonomy, $args ) {
+	protected function _register_taxonomy( $taxonomy, $args ) {
 		// Ensure post_type is in array form if set.
 		if ( isset( $args['post_type'] ) ) {
 			csv_array_ref( $args['post_type'] );
@@ -646,11 +647,12 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Simply loops through and calls Setup::_register_taxonomy().
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
 	 * @param array $taxonomies The list of taxonomies to register.
 	 */
-	public function _register_taxonomies( array $taxonomies ) {
+	protected function _register_taxonomies( array $taxonomies ) {
 		foreach ( $taxonomies as $taxonomy => $args ) {
 			make_associative( $taxonomy, $args );
 			$this->_register_taxonomy( $taxonomy, $args );
@@ -664,6 +666,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0 Added use of register_meta() for sanitizing and protection,
 	 *              also added handling of condition setting, modified single
 	 *				field handling to account for callbacks and default to widefat.
@@ -676,7 +679,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments for registration.
 	 */
-	public function register_meta_box( $meta_box, $args ) {
+	protected function register_meta_box( $meta_box, $args ) {
 		if ( empty( $args ) ) {
 			// Empty array; make dumb meta box
 			$args = self::make_dumb_meta_box( $args, $meta_box );
@@ -791,12 +794,13 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Simply loops through and calls Setup::register_meta_box().
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.6.0 Handle meta boxes added numerically via run_content_setups().
 	 * @since 1.0.0
 	 *
 	 * @param array $meta_boxes The list of meta boxes to register.
 	 */
-	public function register_meta_boxes( array $meta_boxes ) {
+	protected function register_meta_boxes( array $meta_boxes ) {
 		foreach ( $meta_boxes as $meta_box => $args ) {
 			if ( ! make_associative( $meta_box, $args ) ) {
 				// Metabox was added numerically, assume id, args format.
@@ -810,6 +814,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the save hook for the meta box.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0 Added use of "save_single" option and support for foo[bar] style fields,
 	 *				$meta_key value now defaults to the same as $post_key.
 	 * @since 1.6.0 Restructured for better handling.
@@ -823,7 +828,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments from registration.
 	 */
-	public function _save_meta_box( $post_id, $meta_box, $args ) {
+	protected function _save_meta_box( $post_id, $meta_box, $args ) {
 		if ( ! Tools::save_post_check( $post_id, $args['post_type'], "_qsnonce-$meta_box", $meta_box ) ) return;
 
 		// Determine method to save meta box data
@@ -997,13 +1002,14 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Add the meta box to WordPress.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.6.0 Added qs_metabox_ prefix to meta box id.
 	 * @since 1.0.0
 	 *
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments from registration.
 	 */
-	public function _add_meta_box( $meta_box, $args ) {
+	protected function _add_meta_box( $meta_box, $args ) {
 		$post_types = csv_array( $args['post_type'] );
 		foreach ( $post_types as $post_type ) {
 			add_meta_box(
@@ -1028,12 +1034,13 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the requested columns for the post type.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param string $post_type The slug of the post type to setup for.
 	 * @param array  $columnset The list of columns to use/register.
 	 */
-	public function _setup_columnset( $post_type, $columnset ) {
+	protected function _setup_columnset( $post_type, $columnset ) {
 		switch ( $post_type ) {
 			case 'page':
 				$filter_hook = 'manage_pages_columns';
@@ -1064,11 +1071,12 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Simply loops through and calls Setup::_setup_columnset().
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param array $feature The list of features to register.
 	 */
-	public function _setup_columns( array $columns ) {
+	protected function _setup_columns( array $columns ) {
 		foreach ( $columns as $post_type => $columnset ) {
 			$this->_setup_columnset( $post_type, $columnset );
 		}
@@ -1077,6 +1085,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Edit the list of columns using the passed columnset.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param array $old_columns The current columns to edit (skip when saving).
@@ -1084,7 +1093,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @return array The updated columns list.
 	 */
-	public function _edit_columns( $old_columns, $new_columns ) {
+	protected function _edit_columns( $old_columns, $new_columns ) {
 		$columns = array();
 
 		// Go through the columns, and add/modify as needed
@@ -1128,6 +1137,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Do whatever output is needed for the current column.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param array $column_id The current column to handle (skip when saving).
@@ -1136,7 +1146,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @return array The updated columns list.
 	 */
-	public function _do_columns( $column_id, $post_id, $columns ) {
+	protected function _do_columns( $column_id, $post_id, $columns ) {
 		// Get the arguments for the current column
 		if ( isset( $columns[ $column_id ] ) ) {
 			$args = $columns[ $column_id ];
@@ -1177,16 +1187,13 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Proccess the theme setups; registering the various features and supports.
 	 *
+	 * @since 1.9.0 Now protected, no longer accepts external $configs argument.
 	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
 	 * @since 1.0.0
-	 *
-	 * @param array &$configs Optional The features and supports for the theme.
 	 */
-	public function run_theme_setups( $configs = null ) {
-		// If no $configs is passed, load the locally stored ones.
-		if ( is_null( $configs ) ) {
-			$configs = &$this->configs;
-		}
+	protected function run_theme_setups() {
+		// Load the configuration array
+		$configs = &$this->configs;
 
 		// Theme supports
 		if ( isset( $configs['supports'] ) ) {
@@ -1296,13 +1303,14 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * This simply adds them; there must be associated JavaScript to display them.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
 	 * @param array        $buttons        The currently enabled buttons. (skip when saving)
 	 * @param array|string $buttons_to_add A list of buttons to enable.
 	 * @param int          $position       Optional An exact position to inser the button.
 	 */
-	public function _add_mce_buttons( $buttons, $buttons_to_add, $position = null ) {
+	protected function _add_mce_buttons( $buttons, $buttons_to_add, $position = null ) {
 		csv_array_ref( $buttons_to_add );
 
 		// Go through each button and remove them if they are already present;
@@ -1329,7 +1337,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @see Setup::_enable_mce_buttons()
 	 */
-	public function _add_mce_buttons_2( $buttons, $buttons_to_add, $position = null ) {
+	protected function _add_mce_buttons_2( $buttons, $buttons_to_add, $position = null ) {
 		return $this->_add_mce_buttons( $buttons, $buttons_to_add, $position );
 	}
 
@@ -1338,13 +1346,14 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @see Setup::_enable_mce_buttons()
 	 */
-	public function _add_mce_buttons_3( $buttons, $buttons_to_add, $position = null ) {
+	protected function _add_mce_buttons_3( $buttons, $buttons_to_add, $position = null ) {
 		return $this->_add_mce_buttons( $buttons, $buttons_to_add, $position );
 	}
 
 	/**
 	 * Add a plugin to the MCE plugins list.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
 	 * @param array  $plugins The current list of plugins. (skip when saving)
@@ -1353,7 +1362,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @return $plugins The modified plugins array.
 	 */
-	public function _add_mce_plugin( $plugins, $plugin, $src ) {
+	protected function _add_mce_plugin( $plugins, $plugin, $src ) {
 		$plugins[ $plugin ] = $src;
 		return $plugins;
 	}
@@ -1361,6 +1370,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register an MCE Plugin/Button
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.2.0 Removed separator before each button.
 	 * @since 1.0.0
 	 *
@@ -1369,7 +1379,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $button Optional the ID of the button to be added to the toolbar.
 	 * @param int    $row    Optional the row number of the toolbar (1, 2, or 3) to add the button to.
 	 */
-	public function register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
+	protected function register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
 		// Skip if the current use can't edit posts/pages
 		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
 			return;
@@ -1395,12 +1405,13 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register multiple MCE Plugins/Buttons.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.2.0 Revised $args logic and flexibility.
 	 * @since 1.0.0
 	 *
 	 * @param array $plugins The list of MCE plugins to be registered.
 	 */
-	public function register_mce_plugins( $plugins ) {
+	protected function register_mce_plugins( $plugins ) {
 		if ( is_array( $plugins ) ) {
 			foreach( $plugins as $plugin => $args ) {
 				$src = $button = $row = null;
@@ -1426,12 +1437,13 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Helper; add style formats to the MCE settings.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
 	 * @param array $settings The TinyMCE settings array to alter. (skip when saving)
 	 * @param array $styles   An array of styles to register.
 	 */
-	public function _add_mce_style_formats( $settings, $styles ) {
+	protected function _add_mce_style_formats( $settings, $styles ) {
 		$style_formats = array();
 
 		if ( isset( $settings['style_formats'] ) ) {
@@ -1448,11 +1460,12 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register custom styles for MCE.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
 	 * @param array $styles An array of styles to register.
 	 */
-	public function register_mce_styles( $styles ) {
+	protected function register_mce_styles( $styles ) {
 		// Add the styleselect item to the second row of buttons.
 		$this->add_mce_buttons_2( 'styleselect', 1 );
 
@@ -1467,6 +1480,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register and build a setting.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0 Added use of Tools::build_settings_field().
 	 * @since 1.7.1 Added use of Setup::maybe_load_media_manager().
 	 * @since 1.4.0 Added 'source' to build_fields $args.
@@ -1479,7 +1493,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string       $group   Optional The id of the group this setting belongs to.
 	 * @param string       $page    Optional The id of the page this setting belongs to.
 	 */
-	public function _register_setting( $setting, $args = null, $section = null, $page = null ) {
+	protected function _register_setting( $setting, $args = null, $section = null, $page = null ) {
 		make_associative( $setting, $args );
 
 		// Default arguments
@@ -1555,6 +1569,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register multiple settings.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 * @uses Setup::register_setting()
 	 *
@@ -1562,7 +1577,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $group    Optional The id of the group this setting belongs to.
 	 * @param string $page     Optional The id of the page this setting belongs to.
 	 */
-	public function _register_settings( $settings, $section = null, $page = null ) {
+	protected function _register_settings( $settings, $section = null, $page = null ) {
 		// If page is provided, rebuild $settings to be in $page => $settings format
 		if ( $page ) {
 			$settings = array(
@@ -1588,6 +1603,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register and build a page.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.4.1 Fixed child page registration.
 	 * @since 1.2.0 Added child page registration from other methods.
 	 * @since 1.0.0
@@ -1599,7 +1615,7 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $args    The page configuration.
 	 * @param string $parent  Optional The slug of the parent page.
 	 */
-	public function register_page( $page, $args, $parent = null ) {
+	protected function register_page( $page, $args, $parent = null ) {
 		// Add settings for the page
 		$this->register_page_settings( $page, $args );
 
@@ -1615,6 +1631,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register multiple pages.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
 	 * @uses Setup::register_page()
@@ -1622,7 +1639,7 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $settings An array of pages to register.
 	 * @param string $parent   Optional The id of the page these are children of.
 	 */
-	public function register_pages( $pages, $parent = null ) {
+	protected function register_pages( $pages, $parent = null ) {
 		foreach ( $pages as $page => $args ) {
 			$this->register_page( $page, $args, $parent );
 		}
@@ -1631,6 +1648,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the settings for this page.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.6.0 Allow registering just settings, no fields, in name => sanitize format.
 	 * @since 1.3.0 Reordered so bare fields go before sections.
 	 * @since 1.2.0 Moved child page registration to Setup::register_page().
@@ -1641,7 +1659,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $setting The id of the page to register.
 	 * @param array  $args    The page configuration.
 	 */
-	public function _register_page_settings( $page, $args ) {
+	protected function _register_page_settings( $page, $args ) {
 		// Register any settings (not fields).
 		if ( isset( $args['settings'] ) ) {
 			foreach ( $args['settings'] as $setting => $sanitize ) {
@@ -1672,6 +1690,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the settings for this page.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.3.3 Fixed submenu registration for custom post types.
 	 * @since 1.3.0 Reworked processing, now supports passing a file and no callback/function.
 	 * @since 1.2.0 Moved child page registration to Setup::register_page().
@@ -1682,7 +1701,7 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $args    The page configuration.
 	 * @param string $parent  Optional The parent the page belongs to.
 	 */
-	public function _add_page_to_menu( $page, $args, $parent = null ) {
+	protected function _add_page_to_menu( $page, $args, $parent = null ) {
 		$default_args = array(
 			'type'       => 'menu',
 			'title'      => make_legible( $page ),
@@ -1760,13 +1779,14 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the requested feature.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0 Added use of add_theme_support for plugin capabilities.
 	 * @since 1.0.0
 	 *
 	 * @param string $feature The slug of the taxonomy to register.
 	 * @param array  $args     The arguments for registration.
 	 */
-	public function _setup_feature( $feature, $args ) {
+	protected function _setup_feature( $feature, $args ) {
 		// Call the appropriate setup method.
 
 		$method = "setup_{$feature}";
@@ -1783,12 +1803,13 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Simply loops through and calls Setup::_register_feature().
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.6.0 Handle features added numerically via run_content_setups().
 	 * @since 1.0.0
 	 *
 	 * @param array $feature The list of features to register.
 	 */
-	public function _setup_features( array $features ) {
+	protected function _setup_features( array $features ) {
 		foreach ( $features as $feature => $args ) {
 			if ( ! make_associative( $feature, $args ) ) {
 				// Feature was added numerically, assume id, args format.
@@ -1806,13 +1827,14 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup an order manager for certain post types.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0 Allowed passing of just the post_type list instead of args.
 	 * @since 1.6.0 Added check if enqueues were already handled.
 	 * @since 1.0.0
 	 *
 	 * @param array $args A list of options for the order manager.
 	 */
-	public function setup_order_manager( $args ) {
+	protected function setup_order_manager( $args ) {
 		// Don't bother if not on the admin side.
 		if ( ! is_admin() ) {
 			return;
@@ -1832,10 +1854,10 @@ class Setup extends \Smart_Plugin {
 
 		// Use the provided save callback if provided
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
-			$callback = $args['save'];
+			add_action( 'admin_init', $args['save'] );
 		} else {
 			// Otherwise, use the built in one
-			$callback = array( $this, 'save_menu_order' );
+			$this->order_manager_save();
 		}
 
 		add_action( 'admin_init', $callback );
@@ -1867,9 +1889,10 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Default save callback for order manager.
 	 *
+	 * @since 1.9.0 Now protected, renamed to be auto-hooked.
 	 * @since 1.0.0
 	 */
-	public function save_menu_order() {
+	protected function _order_manager_save() {
 		global $wpdb;
 		if ( isset( $_POST['_qsnonce'] ) && wp_verify_nonce( $_POST['_qsnonce'], 'manage_menu_order' ) ) {
 			// Loop through the list of posts and update
@@ -1898,13 +1921,14 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup index page setting/hook for certain post types.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0 Restructured to use a hooks once for all post_types,
 	 *				Also allowed passing of just the post_type list instead of args.
 	 * @since 1.6.0
 	 *
 	 * @param array $args A list of options for the custom indexes.
 	 */
-	public function setup_index_page( $args ) {
+	protected function setup_index_page( $args ) {
 		// If $args looks like it could be the list of post types, restructure
 		if ( is_string( $args ) || ( is_array( $args ) && ! empty( $args ) && ! is_assoc( $args ) ) ) {
 			$args = array( 'post_type' => $args );
@@ -2047,11 +2071,12 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup parent filtering option in the admin for certain post types.
 	 *
+	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param array $args A list of options for the parent filter.
 	 */
-	public function setup_parent_filtering( $args ) {
+	protected function setup_parent_filtering( $args ) {
 		// Don't bother if not on the admin side.
 		if ( ! is_admin() ) {
 			return;
