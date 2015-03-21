@@ -76,6 +76,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
 	 *
+	 * @since 1.9.0 Moving register_pages() to new run_admin_setups().
 	 * @since 1.8.0 Added quick-enqueue handling.
 	 * @since 1.4.0 Added helpers css/js backend enqueue.
 	 * @since 1.1.0 Added tinymce key; mce is deprecated.
@@ -149,9 +150,6 @@ class Setup extends \Smart_Plugin {
 				case 'settings':
 					$this->register_settings( $value );
 				break;
-				case 'pages':
-					$this->register_pages( $value );
-				break;
 			}
 		}
 
@@ -160,6 +158,9 @@ class Setup extends \Smart_Plugin {
 
 		// Run the theme setups
 		$this->run_theme_setups();
+
+		// Run the admin setups
+		$this->run_admin_setups();
 
 		// Enqueue the general css/js if not already
 		if ( is_admin() && ( ! defined( 'QS_HELPERS_ENQUEUED' ) || ! QS_HELPERS_ENQUEUED ) ) {
@@ -322,9 +323,11 @@ class Setup extends \Smart_Plugin {
 	 * within a post_type configuration.
 	 *
 	 * @since 1.9.0 Now protected, no longer accepts external $configs argument.
+	 *				Also added handling of pages passed in the post type.
+	 *				Also moved setup_features and setup_columns to new run_admin_setups().
 	 * @since 1.8.0 Tweaked check for post-thumbnails support.
 	 * @since 1.6.0 Add meta boxes/features numerically to prevent overwriting.
-	 * @since 1.3.3 Removed callback chek on feature args.
+	 * @since 1.3.3 Removed callback check on feature args.
 	 * @since 1.2.0 Added check for dumb meta box setup
 	 * @since 1.0.0
 	 */
@@ -336,6 +339,7 @@ class Setup extends \Smart_Plugin {
 			'post_types' => array(),
 			'taxonomies' => array(),
 			'meta_boxes' => array(),
+			'pages'      => array(), // Admin pages
 			'features'   => array(), // Custom QuickStart features
 			'columns'    => array(), // Custom manager columns
 		), $configs );
@@ -403,6 +407,24 @@ class Setup extends \Smart_Plugin {
 				}
 			}
 
+			// Check for pages to register under this post type
+			if ( isset( $pt_args['pages'] ) ) {
+				csv_array_ref( $pt_args['pages'] );
+				foreach ( $pt_args['pages'] as $page => $pg_args ) {
+					// Fix if dumb page was passed (numerically, not associatively)
+					make_associative( $page, $pg_args );
+
+					// Set the paren to this post type
+					$pg_args['parent'] = $post_type;
+
+					// Add this page to pages list
+					$configs['pages'][ $page ] = $pg_args;
+					
+					//and remove from this post type
+					unset( $pt_args['pages'][ $page ] );
+				}
+			}
+
 			// Check for features to register for the post type
 			if ( isset( $pt_args['features'] ) ) {
 				csv_array_ref( $pt_args['features'] );
@@ -410,7 +432,7 @@ class Setup extends \Smart_Plugin {
 					// Fix if dumb feature was passed (numerically, not associatively)
 					make_associative( $feature, $ft_args );
 
-					// Add this post type to the post_types argument to this meta box
+					// Add this post type to the post_types argument to this feature
 					$ft_args['post_type'] = array( $post_type );
 
 					// Add this feauture to features list
@@ -434,8 +456,6 @@ class Setup extends \Smart_Plugin {
 		$this->register_post_types( $configs['post_types'] ); // Will run during "init"
 		$this->register_taxonomies( $configs['taxonomies'] ); // Will run during "init"
 		$this->register_meta_boxes( $configs['meta_boxes'] ); // Will run now and setup various hooks
-		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
-		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
 	}
 
 	// =========================
@@ -1028,6 +1048,138 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
+	// !Theme Setups
+	// =========================
+
+	/**
+	 * Proccess the theme setups; registering the various features and supports.
+	 *
+	 * @since 1.9.0 Now protected, no longer accepts external $configs argument.
+	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
+	 * @since 1.0.0
+	 */
+	protected function run_theme_setups() {
+		// Load the configuration array
+		$configs = &$this->configs;
+
+		// Theme supports
+		if ( isset( $configs['supports'] ) ) {
+			csv_array_ref( $configs['supports'] );
+			foreach ( $configs['supports'] as $key => $value ) {
+				make_associative( $key, $value );
+				// Pass just $key or $key & $value depending on $value
+				if ( empty( $value ) ) {
+					add_theme_support( $key );
+				} else {
+					add_theme_support( $key, $value );
+				}
+			}
+		}
+
+		// Custom image sizes(s)
+		if ( isset( $configs['image_sizes'] ) ) {
+			foreach( $configs['image_sizes'] as $name => $specs ) {
+				list( $width, $height, $crop ) = $specs + array( 0, 0, false );
+				add_image_size( $name, $width, $height, $crop );
+			}
+		}
+
+		// Editor style(s)
+		if ( isset( $configs['editor_style'] ) ) {
+			add_editor_style( $configs['editor_style'] );
+		}
+
+		// Navigation menus
+		if ( isset( $configs['nav_menus'] ) ) {
+			register_nav_menus( $configs['nav_menus'] );
+		}
+
+		// Sidebars
+		if ( isset( $configs['sidebars'] ) ) {
+			$defaults = null;
+
+			// Prep defaults, if present
+			if ( isset( $this->defaults['sidebar'] ) ) {
+				$defaults = $this->defaults['sidebar'];
+				$find = '/.*<(\w+).*>.*/';
+				$replace = '$1';
+
+				if ( isset( $defaults['before_widget'] ) && ! isset( $defaults['after_widget'] ) ) {
+					$defaults['after_widget'] = '</' . preg_replace( $find, $replace, $defaults['before_widget'] ) . '>';
+				}
+				if ( isset( $defaults['before_title'] ) && ! isset( $defaults['after_title'] ) ) {
+					$defaults['after_title'] = '</' . preg_replace( $find, $replace, $defaults['before_title'] ) . '>';
+				}
+			}
+
+			foreach ( $configs['sidebars'] as $id => $args ) {
+				make_associative( $id, $args );
+
+				// If just a string is passed for $args,
+				// assume it's to be the name of the sidebar
+				if ( is_string( $args ) ) {
+					$args = array(
+						'name' => $args,
+					);
+				}
+				// If no args are passed,
+				// Auto create name from $id
+				elseif ( is_array( $args ) && empty( $args ) ) {
+					$args = array(
+						'name' => make_legible( $id ),
+					);
+				}
+
+				$args['id'] = $id;
+
+				// Process args with defaults, it present
+				if ( $defaults ) {
+					// Set default before_widget if default exists
+					if ( ! isset( $args['before_widget'] ) && isset( $defaults['before_widget'] ) ) {
+						$args['before_widget'] = $defaults['before_widget'];
+					}
+
+					// Set default before_title if default exists
+					if ( ! isset( $args['before_title'] ) && isset( $defaults['before_title'] ) ) {
+						$args['before_title'] = $defaults['before_title'];
+					}
+
+					// Auto set after_widget if not set but before_widget is
+					if ( isset( $args['before_widget'] ) && ! isset( $args['after_widget'] ) ) {
+						$args['after_widget'] = $defaults['after_widget'];
+					}
+
+					// Auto set after_title if not set but before_title is
+					if ( isset( $args['before_title'] ) && ! isset( $args['after_title'] ) ) {
+						$args['after_title'] = $defaults['after_title'];
+					}
+				}
+
+				// Finally, register the sidebar
+				register_sidebar( $args );
+			}
+		}
+	}
+
+	// =========================
+	// !Admin Setups
+	// =========================
+
+	/**
+	 * Proccess the admin setups; registering pages, features, and columns.
+	 *
+	 * @since 1.9.0
+	 */
+	protected function run_admin_setups() {
+		// Load the configuration array
+		$configs = &$this->configs;
+		
+		$this->register_pages( $configs['pages'] ); // Will run now and setup various hooks
+		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
+		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
+	}
+
+	// =========================
 	// !Column Setups
 	// =========================
 
@@ -1178,120 +1330,6 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// No output otherwise
-	}
-
-	// =========================
-	// !Theme Setups
-	// =========================
-
-	/**
-	 * Proccess the theme setups; registering the various features and supports.
-	 *
-	 * @since 1.9.0 Now protected, no longer accepts external $configs argument.
-	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
-	 * @since 1.0.0
-	 */
-	protected function run_theme_setups() {
-		// Load the configuration array
-		$configs = &$this->configs;
-
-		// Theme supports
-		if ( isset( $configs['supports'] ) ) {
-			csv_array_ref( $configs['supports'] );
-			foreach ( $configs['supports'] as $key => $value ) {
-				make_associative( $key, $value );
-				// Pass just $key or $key & $value depending on $value
-				if ( empty( $value ) ) {
-					add_theme_support( $key );
-				} else {
-					add_theme_support( $key, $value );
-				}
-			}
-		}
-
-		// Custom image sizes(s)
-		if ( isset( $configs['image_sizes'] ) ) {
-			foreach( $configs['image_sizes'] as $name => $specs ) {
-				list( $width, $height, $crop ) = $specs + array( 0, 0, false );
-				add_image_size( $name, $width, $height, $crop );
-			}
-		}
-
-		// Editor style(s)
-		if ( isset( $configs['editor_style'] ) ) {
-			add_editor_style( $configs['editor_style'] );
-		}
-
-		// Navigation menus
-		if ( isset( $configs['nav_menus'] ) ) {
-			register_nav_menus( $configs['nav_menus'] );
-		}
-
-		// Sidebars
-		if ( isset( $configs['sidebars'] ) ) {
-			$defaults = null;
-
-			// Prep defaults, if present
-			if ( isset( $this->defaults['sidebar'] ) ) {
-				$defaults = $this->defaults['sidebar'];
-				$find = '/.*<(\w+).*>.*/';
-				$replace = '$1';
-
-				if ( isset( $defaults['before_widget'] ) && ! isset( $defaults['after_widget'] ) ) {
-					$defaults['after_widget'] = '</' . preg_replace( $find, $replace, $defaults['before_widget'] ) . '>';
-				}
-				if ( isset( $defaults['before_title'] ) && ! isset( $defaults['after_title'] ) ) {
-					$defaults['after_title'] = '</' . preg_replace( $find, $replace, $defaults['before_title'] ) . '>';
-				}
-			}
-
-			foreach ( $configs['sidebars'] as $id => $args ) {
-				make_associative( $id, $args );
-
-				// If just a string is passed for $args,
-				// assume it's to be the name of the sidebar
-				if ( is_string( $args ) ) {
-					$args = array(
-						'name' => $args,
-					);
-				}
-				// If no args are passed,
-				// Auto create name from $id
-				elseif ( is_array( $args ) && empty( $args ) ) {
-					$args = array(
-						'name' => make_legible( $id ),
-					);
-				}
-
-				$args['id'] = $id;
-
-				// Process args with defaults, it present
-				if ( $defaults ) {
-					// Set default before_widget if default exists
-					if ( ! isset( $args['before_widget'] ) && isset( $defaults['before_widget'] ) ) {
-						$args['before_widget'] = $defaults['before_widget'];
-					}
-
-					// Set default before_title if default exists
-					if ( ! isset( $args['before_title'] ) && isset( $defaults['before_title'] ) ) {
-						$args['before_title'] = $defaults['before_title'];
-					}
-
-					// Auto set after_widget if not set but before_widget is
-					if ( isset( $args['before_widget'] ) && ! isset( $args['after_widget'] ) ) {
-						$args['after_widget'] = $defaults['after_widget'];
-					}
-
-					// Auto set after_title if not set but before_title is
-					if ( isset( $args['before_title'] ) && ! isset( $args['after_title'] ) ) {
-						$args['after_title'] = $defaults['after_title'];
-					}
-				}
-
-				// Finally, register the sidebar
-				register_sidebar( $args );
-			}
-		}
 	}
 
 	// =========================
@@ -1601,9 +1639,9 @@ class Setup extends \Smart_Plugin {
 	// =========================
 
 	/**
-	 * Register and build a page.
+	 * Setup an admin page, registering settings and adding to the menu.
 	 *
-	 * @since 1.9.0 Now protected.
+	 * @since 1.9.0 Now protected. Renamed from register_page().
 	 * @since 1.4.1 Fixed child page registration.
 	 * @since 1.2.0 Added child page registration from other methods.
 	 * @since 1.0.0
@@ -1615,7 +1653,7 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $args    The page configuration.
 	 * @param string $parent  Optional The slug of the parent page.
 	 */
-	protected function register_page( $page, $args, $parent = null ) {
+	protected function setup_page( $page, $args, $parent = null ) {
 		// Add settings for the page
 		$this->register_page_settings( $page, $args );
 
@@ -1624,24 +1662,24 @@ class Setup extends \Smart_Plugin {
 
 		// Run through any submenus in this page and set them up
 		if ( isset( $args['children'] ) ) {
-			$this->register_pages( $args['children'], $page );
+			$this->setup_pages( $args['children'], $page );
 		}
 	}
 
 	/**
-	 * Register multiple pages.
+	 * Setup multiple pages.
 	 *
-	 * @since 1.9.0 Now protected.
+	 * @since 1.9.0 Now protected. Renamed from register_pages().
 	 * @since 1.0.0
 	 *
-	 * @uses Setup::register_page()
+	 * @uses Setup::setup_page()
 	 *
 	 * @param array  $settings An array of pages to register.
 	 * @param string $parent   Optional The id of the page these are children of.
 	 */
-	protected function register_pages( $pages, $parent = null ) {
+	protected function setup_pages( $pages, $parent = null ) {
 		foreach ( $pages as $page => $args ) {
-			$this->register_page( $page, $args, $parent );
+			$this->setup_page( $page, $args, $parent );
 		}
 	}
 
@@ -1878,7 +1916,7 @@ class Setup extends \Smart_Plugin {
 
 		// Setup the admin pages for each post type
 		foreach ( $post_types as $post_type ) {
-			$this->register_page( "$post_type-order", array(
+			$this->setup_page( "$post_type-order", array(
 				'title'      => sprintf( __( '%s Order' ), make_legible( $post_type ) ),
 				'capability' => get_post_type_object( $post_type )->cap->edit_posts,
 				'callback'   => array( __NAMESPACE__ . '\Callbacks', 'menu_order_admin_page' ),
