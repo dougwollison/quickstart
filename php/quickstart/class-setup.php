@@ -2161,7 +2161,7 @@ class Setup extends \Smart_Plugin {
 				'post_type' => $post_type,
 				'post_parent' => '',
 				'posts_per_page' => -1,
-				'orderby' => 'title',
+				'orderby' => array('menu_order', 'title'),
 				'order' => 'asc',
 				'selected' => null,
 			);
