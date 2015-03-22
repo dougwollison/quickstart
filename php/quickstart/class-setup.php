@@ -748,13 +748,18 @@ class Setup extends \Smart_Plugin {
 		$defaults = array(
 			'title'     => make_legible( $meta_box ),
 			'context'   => 'normal',
-			'priority'  => 'high',
 			'post_type' => 'post',
 		);
 
 		// Prep $defaults and parse the $args
         $this->prep_defaults( 'meta_box', $defaults );
         $args = wp_parse_args( $args, $defaults );
+        
+        // Set the priority if it's not already set
+        if ( ! isset( $args['priority'] ) ) {
+	        // Normal meta boxes should be high priority by default, or default for side ones
+	        $args['priority'] = $args['context'] == 'normal' ? 'high' : 'default';
+        }
 
 		// Check if condition callback exists; test it before proceeding
 		if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
