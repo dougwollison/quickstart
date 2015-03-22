@@ -427,7 +427,7 @@ class Tools extends \Smart_Plugin {
 	// =========================
 
 	/**
-	 * Helper function for Tools::enqueue()
+	 * Helper function for static::enqueue()
 	 *
 	 * @since 1.8.0
 	 *
@@ -899,7 +899,7 @@ class Tools extends \Smart_Plugin {
 	 *
 	 * @since 1.8.0
 	 *
-	 * @uses Tools::$void_elements
+	 * @uses static::$void_elements
 	 *
 	 * @param array|string $buttons   The array/list of buttons.
 	 * @param string       $editor_id Optional The ID of the wp_editor.
@@ -919,7 +919,7 @@ class Tools extends \Smart_Plugin {
 		foreach ( $buttons as $button ) {
 			if ( ! in_array( $button, $builtin ) ) {
 				// Handle void element buttons appropriately
-				if ( in_array( $button, Tools::$void_elements ) ) {
+				if ( in_array( $button, static::$void_elements ) ) {
 					$open = "<$button />";
 					$close = null;
 				} else {
@@ -962,59 +962,59 @@ class Tools extends \Smart_Plugin {
 	}
 
 	/**
-	 * Alias to Tools::enqueue(), for the frontend.
+	 * Alias to static::enqueue(), for the frontend.
 	 *
 	 * @since 1.0.0
-	 * @uses Tools::enqueue()
+	 * @uses static::enqueue()
 	 *
 	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
 	public static function _frontend_enqueue( $enqueues ) {
-		Tools::enqueue( $enqueues );
+		static::enqueue( $enqueues );
 	}
 
 	/**
-	 * Alias to Tools::enqueue() for the backend.
+	 * Alias to static::enqueue() for the backend.
 	 *
 	 * @since 1.0.0
-	 * @uses Tools::enqueue()
+	 * @uses static::enqueue()
 	 *
 	 * @param array $enqueues An array of the scripts/styles to enqueue, sectioned by type (js/css).
 	 */
 	public static function _backend_enqueue( $enqueues ) {
-		Tools::enqueue( $enqueues );
+		static::enqueue( $enqueues );
 	}
 
 	/**
-	 * Alias to Tools::quick_enqueue(), for the frontend.
+	 * Alias to static::quick_enqueue(), for the frontend.
 	 *
 	 * @since 1.8.0
-	 * @uses Tools::quick_enqueue()
+	 * @uses static::quick_enqueue()
 	 *
 	 * @param string       $type  "css" or "js" for what styles/scripts respectively.
 	 * @param string|array $files A path, handle, or array of paths/handles to enqueue.
 	 */
 	public static function _quick_frontend_enqueue( $type, $files ) {
-		Tools::quick_enqueue( $type, $files );
+		static::quick_enqueue( $type, $files );
 	}
 
 	/**
-	 * Alias to Tools::quick_enqueue() for the backend.
+	 * Alias to static::quick_enqueue() for the backend.
 	 *
 	 * @since 1.8.0
-	 * @uses Tools::quick_enqueue()
+	 * @uses static::quick_enqueue()
 	 *
 	 * @param string       $type  "css" or "js" for what styles/scripts respectively.
 	 * @param string|array $files A path, handle, or array of paths/handles to enqueue.
 	 */
 	public static function _quick_backend_enqueue( $type, $files ) {
-		Tools::quick_enqueue( $type, $files );
+		static::quick_enqueue( $type, $files );
 	}
 
 	/**
 	 * Call the save_post hook for a specific post_type.
 	 *
-	 * Runs passed callback after running Tools::save_post_check().
+	 * Runs passed callback after running static::save_post_check().
 	 *
 	 * @since 1.6.0
 	 *
@@ -1023,14 +1023,14 @@ class Tools extends \Smart_Plugin {
 	 * @param callback $callback The callback to run after the check.
 	 */
 	protected static function _post_type_save( $post_id, $post_type, $callback ) {
-		if ( ! Tools::save_post_check( $post_id, $post_type ) ) return;
+		if ( ! static::save_post_check( $post_id, $post_type ) ) return;
 		call_user_func( $callback, $post_id );
 	}
 
 	/**
 	 * Save a specific meta field for a specific post_type.
 	 *
-	 * Saves desired field after running Tools::save_post_check().
+	 * Saves desired field after running static::save_post_check().
 	 *
 	 * @since 1.8.0
 	 *
@@ -1040,7 +1040,7 @@ class Tools extends \Smart_Plugin {
 	 * @param string $field_name Optional The name of the $_POST field to use (defaults to $meta_key).
 	 */
 	protected static function _post_type_save_meta( $post_id, $post_type, $meta_key, $field_name = null ) {
-		if ( ! Tools::save_post_check( $post_id, $post_type ) ) return;
+		if ( ! static::save_post_check( $post_id, $post_type ) ) return;
 
 		if ( is_null( $field_name ) ) {
 			$field_name = $meta_key;
