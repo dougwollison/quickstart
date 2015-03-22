@@ -340,17 +340,20 @@ class Setup extends \Smart_Plugin {
 			'post_types' => array(),
 			'taxonomies' => array(),
 			'meta_boxes' => array(),
+			'supports'   => array(), // Theme supports
 			'pages'      => array(), // Admin pages
 			'features'   => array(), // Custom QuickStart features
 			'columns'    => array(), // Custom manager columns
 		), $configs );
+		
+		// Make sure supports is an array
+		csv_array_ref( $configs['supports'] );
 
 		// Loop through each post_type, check for supports, taxonomies or meta_boxes
 		foreach ( $configs['post_types'] as $post_type => &$pt_args ) {
 			make_associative( $post_type, $pt_args );
 
-			// Force theme and post type supports into array form
-			csv_array_ref( $configs['supports'] );
+			// Make sure supports is an array
 			csv_array_ref( $pt_args['supports'] );
 
 			// Check if this post type uses thumbnails, and
