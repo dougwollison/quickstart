@@ -115,23 +115,23 @@ class Setup extends \Smart_Plugin {
 				case 'enqueue':
 					// Enqueue frontend scripts/styles if set
 					if ( isset( $value['frontend'] ) ) {
-						Hooks::frontend_enqueue( $value['frontend'] );
+						Tools::frontend_enqueue( $value['frontend'] );
 					}
 					// Enqueue backend scripts/styles if set
 					if ( isset( $value['backend'] ) ) {
-						Hooks::backend_enqueue( $value['backend'] );
+						Tools::backend_enqueue( $value['backend'] );
 					}
 				break;
 				case 'css':
 				case 'js':
 					// Process quick enqueue scripts/styles for the frontend
-					Hooks::quick_frontend_enqueue( $key, $value );
+					Tools::quick_frontend_enqueue( $key, $value );
 				break;
 				case 'admin_css':
 				case 'admin_js':
 					// Process quick enqueue scripts/styles for the backend
 					$key = str_replace( 'admin_', '', $key );
-					Hooks::quick_backend_enqueue( $key, $value );
+					Tools::quick_backend_enqueue( $key, $value );
 				break;
 				case 'tinymce':
 				case 'mce':
@@ -165,7 +165,7 @@ class Setup extends \Smart_Plugin {
 
 		// Enqueue the general css/js if not already
 		if ( is_admin() && ( ! defined( 'QS_HELPERS_ENQUEUED' ) || ! QS_HELPERS_ENQUEUED ) ) {
-			Hooks::backend_enqueue( array(
+			Tools::backend_enqueue( array(
 				'css' => array(
 					'qs-helpers-css' => array( plugins_url( '/css/qs-helpers.css', QS_FILE ) ),
 				),
@@ -506,13 +506,13 @@ class Setup extends \Smart_Plugin {
 
 		// If a save hook is passed, register it
 		if ( isset( $args['save'] ) ) {
-			Hooks::post_type_save( $post_type, $args['save'] );
+			Tools::post_type_save( $post_type, $args['save'] );
 		}
 
 		// Now that it's registered, fetch the resulting show_in_menu argument,
 		// and add the post_type_count hook if true
 		if ( get_post_type_object( $post_type )->show_in_menu ) {
-			Hooks::post_type_count( $post_type );
+			Tools::post_type_count( $post_type );
 		}
 	}
 
@@ -544,7 +544,7 @@ class Setup extends \Smart_Plugin {
 	 * @since 1.8.0 Added enforcement of array for for post_type value.
 	 * @since 1.6.0 Updated static replacement meta box title based on $multiple.
 	 * @since 1.5.0 Added "static" option handling (custom taxonomy meta box).
-	 * @since 1.3.1 Removed Hooks::taxonomy_count call.
+	 * @since 1.3.1 Removed Tools::taxonomy_count call.
 	 * @since 1.0.0
 	 *
 	 * @param string $taxonomy The slug of the taxonomy to register.
@@ -662,7 +662,7 @@ class Setup extends \Smart_Plugin {
 		// Now that it's registered, fetch the resulting show_ui argument,
 		// and add the taxonomy_filter hooks if true
 		if ( $taxonomy_obj->show_ui ){
-			Hooks::taxonomy_filter( $taxonomy );
+			Tools::taxonomy_filter( $taxonomy );
 		}
 	}
 
@@ -1916,7 +1916,7 @@ class Setup extends \Smart_Plugin {
 
 		// Enqueue the necessary scripts if not already
 		if ( is_admin() && ( ! defined( 'QS_ORDER_ENQUEUED' ) || ! QS_ORDER_ENQUEUED ) ) {
-			Hooks::backend_enqueue( array(
+			Tools::backend_enqueue( array(
 				'css' => array(
 					'qs-order-css' => array( plugins_url( '/css/qs-order.css', QS_FILE ) ),
 				),
@@ -2150,7 +2150,7 @@ class Setup extends \Smart_Plugin {
 		$this->parent_filtering_input( $post_types );
 
 		// Register the post_parent query var for the filtering to work
-		Hooks::add_query_var( 'post_parent' );
+		Tools::add_query_var( 'post_parent' );
 	}
 
 	/**

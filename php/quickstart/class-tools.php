@@ -1201,7 +1201,7 @@ class Tools extends \Smart_Plugin {
 	 *
 	 * @since 1.8.0
 	 *
-	 * @see Hooks::add_extra_editor()
+	 * @see Tools::add_extra_editor()
 	 *
 	 * @param object $post     The post object being edited (skip when saving).
 	 * @param array  $settings Optional Any special settings such as post_type and title.

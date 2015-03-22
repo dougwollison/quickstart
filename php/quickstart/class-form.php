@@ -1159,7 +1159,7 @@ class Form {
 
 		// Handle any QuickTags settings if present
 		if ( isset( $settings['quicktags'] ) ) {
-			Hooks::do_quicktags( $settings['quicktags'], $settings['id'] );
+			Tools::do_quicktags( $settings['quicktags'], $settings['id'] );
 
 			// Also format into proper from
 			$settings['quicktags'] = array(
