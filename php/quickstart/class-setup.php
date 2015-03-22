@@ -793,6 +793,11 @@ class Setup extends \Smart_Plugin {
 
 		// Register all meta keys found
 		foreach ( $args['fields'] as $field => $_args ) {
+			// Skip if this field is for a post field or taxonomy
+			if ( isset( $_args['post_field'] ) || isset( $_args['taxonomy'] ) ) {
+				continue;
+			}
+			
 			// By default, the field name is the meta key
 			$meta_key = $field;
 
