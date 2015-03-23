@@ -181,42 +181,38 @@ function qs_register_shortcodes( $shortcodes ) {
 	QuickStart\Tools::register_shortcodes( $shortcodes );
 }
 
-// =========================
-// !Hooks aliases
-// =========================
-
 /**
  * Alias to the fix_shortcodes hook
  *
- * @see QuickStart\Hooks::_fix_shortcodes()
+ * @see QuickStart\Tools::_fix_shortcodes()
  */
 function qs_fix_shortcodes( $tags ) {
-	QuickStart\Hooks::fix_shortcodes( $tags );
+	QuickStart\Tools::fix_shortcodes( $tags );
 }
 
 /**
  * Alias to the disable_quickedit hook
  *
- * @see QuickStart\Hooks::_disable_quickedit()
+ * @see QuickStart\Tools::_disable_quickedit()
  */
 function qs_disable_quickedit( $post_types ) {
-	QuickStart\Hooks::disable_quickedit( $post_types );
+	QuickStart\Tools::disable_quickedit( $post_types );
 }
 
 /**
  * Alias to the edit_meta_box hook
  *
- * @see QuickStart\Hooks::_edit_meta_box()
+ * @see QuickStart\Tools::_edit_meta_box()
  */
 function qs_edit_meta_box( $meta_box, $changes, $post_types = null ) {
-	QuickStart\Hooks::edit_meta_box( $meta_box, $changes, $post_types );
+	QuickStart\Tools::edit_meta_box( $meta_box, $changes, $post_types );
 }
 
 /**
  * Alias to the extra_editor hook
  *
- * @see QuickStart\Hooks::extra_editor()
+ * @see QuickStart\Tools::extra_editor()
  */
 function qs_extra_editor( $name, $settings = array() ) {
-	QuickStart\Hooks::extra_editor( $name, $settings );
+	QuickStart\Tools::extra_editor( $name, $settings );
 }
