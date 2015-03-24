@@ -266,6 +266,15 @@ class Template {
 	}
 
 	/**
+	 * Print out the theme url for javascript.
+	 *
+	 * @since 1.9.0
+	 */
+	public static function theme_url(){
+		echo '<script>var theme_url = "' . get_bloginfo('theme_url') . '";</script>';
+	}
+
+	/**
 	 * Print out the Google Analytics gode.
 	 *
 	 * @since 1.8.0 Added ability to pass $account & $production as array for first argument.
