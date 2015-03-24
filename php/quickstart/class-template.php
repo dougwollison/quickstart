@@ -36,8 +36,6 @@ class Template {
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
 
-	<?php wp_head(); ?>
-
 	<?php
 	// Call each feature method
 	foreach ( $features as $method => $settings ) {
@@ -53,11 +51,13 @@ class Template {
 		}
 	}
 	?>
+
+	<?php wp_head(); ?>
 </head>
 		<?php
 		// End output
 	}
-	
+
 	/**
 	 * Print out the start of the document.
 	 *
