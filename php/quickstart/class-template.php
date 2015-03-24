@@ -11,6 +11,54 @@ namespace QuickStart;
 
 class Template {
 	/**
+	 * Print out the start of the header (doctype and head tag)
+	 *
+	 * This basically merges all the above template functions into one call.
+	 * By default only favicon is called, all others must be registered via $features.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array $features An array of features to call.
+	 */
+	public static function the_head( array $features = array() ){
+		// Make sure favicon and title features are set
+		if ( ! isset( $features['title'] ) && ! in_array( 'title', $features ) ) {
+			$features[] = 'title';
+		}
+		if ( ! isset( $features['favicon'] ) && ! in_array( 'favicon', $features ) ) {
+			$features[] = 'favicon';
+		}
+
+		// Begin output
+		static::doc_start();
+		?>
+<head>
+	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+
+	<?php wp_head(); ?>
+
+	<?php
+	// Call each feature method
+	foreach ( $features as $method => $settings ) {
+		if ( is_int( $method ) ) {
+			$method = $settings;
+			$settings = null;
+		}
+
+		// Make sure the method exists and that the settings isn't set to FALSE
+		if ( method_exists( get_called_class(), $method ) && $settings !== false ) {
+			call_user_func( array( get_called_class(), $method ), $settings );
+			echo "\n";
+		}
+	}
+	?>
+</head>
+		<?php
+		// End output
+	}
+	
+	/**
 	 * Print out the start of the document.
 	 *
 	 * Doctype and opening html tag with
@@ -288,53 +336,5 @@ class Template {
 		</script>
 		<!-- End Google Analytics tracking code -->
 		<?php
-	}
-
-	/**
-	 * Print out the start of the header (doctype and head tag)
-	 *
-	 * This basically merges all the above template functions into one call.
-	 * By default only favicon is called, all others must be registered via $features.
-	 *
-	 * @since 1.8.0
-	 *
-	 * @param array $features An array of features to call.
-	 */
-	public static function the_head( array $features = array() ){
-		// Make sure favicon and title features are set
-		if ( ! isset( $features['title'] ) && ! in_array( 'title', $features ) ) {
-			$features[] = 'title';
-		}
-		if ( ! isset( $features['favicon'] ) && ! in_array( 'favicon', $features ) ) {
-			$features[] = 'favicon';
-		}
-
-		// Begin output
-		static::doc_start();
-		?>
-<head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
-	<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
-
-	<?php wp_head(); ?>
-
-	<?php
-	// Call each feature method
-	foreach ( $features as $method => $settings ) {
-		if ( is_int( $method ) ) {
-			$method = $settings;
-			$settings = null;
-		}
-
-		// Make sure the method exists and that the settings isn't set to FALSE
-		if ( method_exists( get_called_class(), $method ) && $settings !== false ) {
-			call_user_func( array( get_called_class(), $method ), $settings );
-			echo "\n";
-		}
-	}
-	?>
-</head>
-		<?php
-		// End output
 	}
 }
