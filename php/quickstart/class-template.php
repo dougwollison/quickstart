@@ -64,6 +64,7 @@ class Template {
 	 * Doctype and opening html tag with
 	 * IE conditional comments for classes.
 	 *
+	 * @since 1.9.0 Revised condition for old IE.
 	 * @since 1.1.0 Fixed IE9 tagging.
 	 * @since 1.0.0
 	 */
@@ -81,7 +82,7 @@ class Template {
 <!--[if IE 9]>
 <html id="ie9" class="ie9-" <?php language_attributes(); ?>>
 <![endif]-->
-<!--[if !(IE 6) | !(IE 7) | !(IE 8) | !(IE 9)  ]><!-->
+<!--[if !(lte IE 9) ]><!-->
 <html <?php language_attributes(); ?>>
 <!--<![endif]-->
 <?php
