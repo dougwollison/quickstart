@@ -10,25 +10,6 @@
  */
 
 /**
- * Convert an associative array of objects into an associative array of scalars.
- *
- * @since 1.5.0
- *
- * @param array  $objects    The array of objects.
- * @param string $key_prop   The property to use for the key.
- * @param string $value_prop The property to use for the value.
- *
- * @return array The simplified array.
- */
-function simplify_object_array( $objects, $key_prop, $value_prop ) {
-	$array = array();
-	foreach ( $objects as $object ) {
-		$array[ $object->$key_prop ] = $object->$value_prop;
-	}
-	return $array;
-}
-
-/**
  * Test if  an array is associative or numeric.
  *
  * @since 1.0.0
@@ -71,100 +52,6 @@ function make_associative( &$key, &$value, $fill = array() ) {
  */
 function make_legible( $string ) {
 	return ucwords( str_replace( array( '_', '-' ), ' ', $string ) );
-}
-
-/**
- * Restructure an array into a more logical layout.
- *
- * Best exable is the $_FILES array when you have multiple file fields with an array name.
- *
- * <input type="file" name="import[something]">
- * This would restructure $_FILES so instead of $_FILES['import']['name']['something'],
- * we get $_FILES['import']['something']['name']
- *
- * @since 1.0.0
- *
- * @param array $array The array that is to be restructured.
- *
- * @return array The restructured array.
- */
-function diverse_array( $array ) {
-    $result = array();
-    foreach ( $array as $key1 => $value1 ) {
-        foreach ( $value1 as $key2 => $value2 ) {
-            $result[ $key2 ][ $key1 ] = $value2;
-        }
-    }
-
-   return $result;
-}
-
-/**
- * Get the values of the array, whitelisted.
- *
- * @since 1.9.0
- *
- * @param array $array The array of values.
- * @param array $keys  The whitelist of keys (can also pass as individual arguments).
- *
- * @return array The whitelisted values.
- */
-function get_array_values( array $array, $whitelist ) {
-	// Get the full arguments, make the list (sans the first one)
-	// the $whitelist if it's not already an array.
-	$args = func_get_args();
-	array_shift( $args );
-	if ( ! is_array( $whitelist ) ) {
-		$whitelist = $args;
-	}
-
-	$values = array();
-	if ( is_assoc( $array ) ) {
-		// Associative array, add only keys that are whitelisted
-		foreach ( $whitelist as $key ) {
-			if ( isset( $array[ $key ] ) ) {
-				$values[ $key ] = $array[ $key ];
-			}
-		}
-	} else {
-		// Numeric array, assume values are in proper order
-		foreach ( $array as $i => $value ) {
-			$values[ $whitelist[ $i ] ] = $value;
-		}
-	}
-
-	return $values;
-}
-
-/**
- * Take a comma/whitespace separated string and split it into an array.
- *
- * Will return an array of one value if no commas are found.
- *
- * @since 1.0.0
- *
- * @param string $var The string to split.
- *
- * @return array The split array.
- */
-function csv_array( $var ) {
-	if ( is_array( $var ) ) {
-		return $var;
-	}
-	return preg_split( '/[\s,]+/', $var, 0, PREG_SPLIT_NO_EMPTY );
-}
-
-/**
- * Calls csv_array on the passed variable if it's not already an array.
- *
- * @since 1.0.0
- *
- * @param mixed &$var The variable to process, passed by reference.
- */
-function csv_array_ref( &$var ) {
-	if ( ! is_array( $var ) ) {
-		$var = csv_array( $var );
-	}
 }
 
 /**
@@ -236,59 +123,6 @@ function singularize( $string ) {
 }
 
 /**
- * Given an array, extract the disired value defined like so: myvar[mykey][0].
- *
- * @since 1.6.0 Overhauled and simplified.
- * @since 1.0.0
- *
- * @param array        $array The array to extract from.
- * @param array|string $map   The map to follow, in myvar[mykey] or [myvar, mykey] form.
- *
- * @return mixed The extracted value.
- */
-function extract_value( $array, $map ) {
-	// Abort if not an array
-	if ( ! is_array( $array ) ) return $array;
-
-	// If $map is a string, turn it into an array
-	if ( ! is_array( $map ) ) {
-		$map = trim( $map, ']' ); // Get rid of last ] so we don't have an empty value at the end
-		$map = preg_split( '/[\[\]]+/', $map );
-	}
-
-	// Extract the first key to look for
-	$key = array_shift( $map );
-
-	// See if it exists
-	if ( isset( $array[ $key ] ) ) {
-		// See if we need to go deeper
-		if ( $map ) {
-			return extract_value( $array[ $key ], $map );
-		} else {
-			return $array[ $key ];
-		}
-	} else {
-		// Nothing found.
-		return null;
-	}
-}
-
-/**
- * Replace a string within all array values.
- *
- * @since 1.0.0
- *
- * @param mixed $find    The string( s ) to find in the array.
- * @param mixed $replace The string( s ) to replace in the array.
- * @param array &$array  The array to be processed, passed by reference.
- */
-function str_replace_in_array( $find, $replace, &$array ) {
-	array_walk_recursive( $array, function( &$item ) use ( $find, $replace ) {
-		$item = str_replace( $find, $replace, $item );
-	} );
-}
-
-/**
  * Parse a format string and replace the placeholders with the matched values.
  *
  * Formatting is similar to in vprintf; placeholders are prefixed with a %,
@@ -327,4 +161,170 @@ function sprintp( $format, $values ) {
  */
 function printp( $format, $values ) {
 	echo sprintp( $format, $values );
+}
+
+/**
+ * Take a comma/whitespace separated string and split it into an array.
+ *
+ * Will return an array of one value if no commas are found.
+ *
+ * @since 1.0.0
+ *
+ * @param string $var The string to split.
+ *
+ * @return array The split array.
+ */
+function csv_array( $var ) {
+	if ( is_array( $var ) ) {
+		return $var;
+	}
+	return preg_split( '/[\s,]+/', $var, 0, PREG_SPLIT_NO_EMPTY );
+}
+
+/**
+ * Calls csv_array on the passed variable if it's not already an array.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed &$var The variable to process, passed by reference.
+ */
+function csv_array_ref( &$var ) {
+	if ( ! is_array( $var ) ) {
+		$var = csv_array( $var );
+	}
+}
+
+/**
+ * Given an array, extract the disired value defined like so: myvar[mykey][0].
+ *
+ * @since 1.6.0 Overhauled and simplified.
+ * @since 1.0.0
+ *
+ * @param array        $array The array to extract from.
+ * @param array|string $map   The map to follow, in myvar[mykey] or [myvar, mykey] form.
+ *
+ * @return mixed The extracted value.
+ */
+function extract_value( $array, $map ) {
+	// Abort if not an array
+	if ( ! is_array( $array ) ) return $array;
+
+	// If $map is a string, turn it into an array
+	if ( ! is_array( $map ) ) {
+		$map = trim( $map, ']' ); // Get rid of last ] so we don't have an empty value at the end
+		$map = preg_split( '/[\[\]]+/', $map );
+	}
+
+	// Extract the first key to look for
+	$key = array_shift( $map );
+
+	// See if it exists
+	if ( isset( $array[ $key ] ) ) {
+		// See if we need to go deeper
+		if ( $map ) {
+			return extract_value( $array[ $key ], $map );
+		} else {
+			return $array[ $key ];
+		}
+	} else {
+		// Nothing found.
+		return null;
+	}
+}
+
+/**
+ * Get the values of the array, whitelisted.
+ *
+ * @since 1.9.0
+ *
+ * @param array $array The array of values.
+ * @param array $keys  The whitelist of keys (can also pass as individual arguments).
+ *
+ * @return array The whitelisted values.
+ */
+function get_array_values( array $array, $whitelist ) {
+	// Get the full arguments, make the list (sans the first one)
+	// the $whitelist if it's not already an array.
+	$args = func_get_args();
+	array_shift( $args );
+	if ( ! is_array( $whitelist ) ) {
+		$whitelist = $args;
+	}
+
+	$values = array();
+	if ( is_assoc( $array ) ) {
+		// Associative array, add only keys that are whitelisted
+		foreach ( $whitelist as $key ) {
+			if ( isset( $array[ $key ] ) ) {
+				$values[ $key ] = $array[ $key ];
+			}
+		}
+	} else {
+		// Numeric array, assume values are in proper order
+		foreach ( $array as $i => $value ) {
+			$values[ $whitelist[ $i ] ] = $value;
+		}
+	}
+
+	return $values;
+}
+
+/**
+ * Restructure an array into a more logical layout.
+ *
+ * Best exable is the $_FILES array when you have multiple file fields with an array name.
+ *
+ * <input type="file" name="import[something]">
+ * This would restructure $_FILES so instead of $_FILES['import']['name']['something'],
+ * we get $_FILES['import']['something']['name']
+ *
+ * @since 1.0.0
+ *
+ * @param array $array The array that is to be restructured.
+ *
+ * @return array The restructured array.
+ */
+function diverse_array( $array ) {
+    $result = array();
+    foreach ( $array as $key1 => $value1 ) {
+        foreach ( $value1 as $key2 => $value2 ) {
+            $result[ $key2 ][ $key1 ] = $value2;
+        }
+    }
+
+   return $result;
+}
+
+/**
+ * Replace a string within all array values.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $find    The string( s ) to find in the array.
+ * @param mixed $replace The string( s ) to replace in the array.
+ * @param array &$array  The array to be processed, passed by reference.
+ */
+function str_replace_in_array( $find, $replace, &$array ) {
+	array_walk_recursive( $array, function( &$item ) use ( $find, $replace ) {
+		$item = str_replace( $find, $replace, $item );
+	} );
+}
+
+/**
+ * Convert an associative array of objects into an associative array of scalars.
+ *
+ * @since 1.5.0
+ *
+ * @param array  $objects    The array of objects.
+ * @param string $key_prop   The property to use for the key.
+ * @param string $value_prop The property to use for the value.
+ *
+ * @return array The simplified array.
+ */
+function simplify_object_array( $objects, $key_prop, $value_prop ) {
+	$array = array();
+	foreach ( $objects as $object ) {
+		$array[ $object->$key_prop ] = $object->$value_prop;
+	}
+	return $array;
 }
