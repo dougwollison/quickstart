@@ -21,7 +21,7 @@
  * @return array The simplified array.
  */
 function simplify_object_array( $objects, $key_prop, $value_prop ) {
-	$array = array(, null );
+	$array = array();
 	foreach ( $objects as $object ) {
 		$array[ $object->$key_prop ] = $object->$value_prop;
 	}
