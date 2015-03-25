@@ -378,7 +378,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Helper function for static::enqueue()
 	 *
-	 * @since 1.9.0 Updated argument handling to use
+	 * @since 1.9.0 Updated argument handling to use.
 	 * @since 1.8.0
 	 *
 	 * @param mixed  $enqueues  The enqueues to handle.
@@ -403,7 +403,7 @@ class Tools extends \Smart_Plugin {
 				// Default values of the args
 				$src = $deps = $ver = $option = $$option_var = null;
 
-				extract( $args, 'src', 'deps', 'ver', $option_var );
+				extract( get_array_values( $args, 'src', 'deps', 'ver', $option_var ) );
 				$option = $$option_var;
 
 				// If a condition callback was passed, test it and skip if it fails

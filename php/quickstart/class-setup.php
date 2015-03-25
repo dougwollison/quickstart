@@ -1457,7 +1457,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register multiple MCE Plugins/Buttons.
 	 *
-	 * @since 1.9.0 Now protected.
+	 * @since 1.9.0 Now protected. Updated argument handling to use.
 	 * @since 1.2.0 Revised $args logic and flexibility.
 	 * @since 1.0.0
 	 *
