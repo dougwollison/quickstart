@@ -91,34 +91,46 @@ class Template {
 	/**
 	 * Print out the viewport meta tag.
 	 *
+	 * @since 1.9.0 Added support for passing the content as a string.
 	 * @since 1.8.0
 	 *
-	 * @param array $settings Optional An array of settings to add/overwrite.
+	 * @param array|string $settings Optional An array/string of settings to add/overwrite.
 	 */
 	public static function viewport( $settings = array() ){
-		// Handle the settings to go in the content attribue
-		$settings = wp_parse_args( $settings, array(
-			'width' => 'device-width',
-			'initial-scale' => 1,
-		) );
-
-		$content = array();
-		foreach ( $settings as $key => $value ) {
-			// Skip empty values
-			if ( is_null( $value ) ) {
-				continue;
-			}
-
-			// Add the pair
-			$content[] = "$key=$value";
+		if ( empty( $settings ) ) {
+			$settings = (array) $settings;
 		}
 
-		echo '<meta name="viewport" content="'.implode(',', $content).'">';
+		// Process the $settings if it's an array
+		if ( is_array( $settings ) ) {
+			// Handle the settings to go in the content attribue
+			$settings = wp_parse_args( $settings, array(
+				'width' => 'device-width',
+				'initial-scale' => 1,
+			) );
+
+			$content = array();
+			foreach ( $settings as $key => $value ) {
+				// Skip empty values
+				if ( is_null( $value ) ) {
+					continue;
+				}
+
+				// Add the pair
+				$content[] = "$key=$value";
+			}
+
+			$settings = implode(',', $content);
+		}
+
+		echo '<meta name="viewport" content="' . $settings . '">';
 	}
 
 	/**
 	 * Print out the title tag.
 	 *
+	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
+	 *				Also allowed detection of passing $side as sole argument.
 	 * @since 1.8.0
 	 *
 	 * @param string|array $settings Optional The wp_title options like separator and location.
@@ -126,28 +138,29 @@ class Template {
 	public static function title( $settings = null ) {
 		global $page, $paged;
 
-		// Default separator & location
 		$sep = '|';
-		$seplocation = 'right';
+		$side = 'right';
 
-		if ( is_string( $settings ) ) {
+		// If multiple arguments were passed, make that $settings
+		if ( func_num_args() > 1 ) {
+			$settings = func_get_args();
+		}
+
+		if ( in_array( $settings, array( 'left', 'right' ) ) ) {
+			// $settings is just the side
+			$side = $settings;
+		} elseif ( is_string( $settings ) ) {
 			// $settings is just the separator
 			$sep = $settings;
 		} elseif ( is_array( $settings ) ) {
-			// $settings is the separater and location...
-			if ( is_assoc( $settings ) ) {
-				// As an associative array, extract
-				extract( $settings );
-			} else {
-				// As a numeric array, list in order
-				list( $sep, $seplocation ) = $settings;
-			}
+			// $settings is multiple options...
+			extract( get_array_values( $settings, 'sep', 'side' ) );
 		}
 
-		// Get the title and build the output
+		// Get the title
+		$title = wp_title( $sep, false, $side );
 
-		$title = wp_title( $sep, false, $seplocation );
-
+		// Do the extra output if desired
 		$title .= get_bloginfo( 'name', 'display' );
 
 		$site_description = get_bloginfo( 'description', 'display' );
@@ -165,33 +178,44 @@ class Template {
 	/**
 	 * Print out the favicon link (along with apple icons if passed).
 	 *
+	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
+	 * 				Also added check for if an icon url is set before printing.
 	 * @since 1.8.0
 	 *
 	 * @param string|array $settings Optional The favicon URL or array of favicons.
 	 */
 	public static function favicon( $settings = null ) {
 		$icon_url = home_url('/favicon.ico');
+		$apple_touch = array();
 		$settings = (array) $settings;
 
-		// Overwrite if needed; either 0th or favicon entry
-		if ( isset( $settings['favicon'] ) ) {
-			$icon_url = $settings['favicon'];
-		} elseif ( isset( $settings[0] ) ) {
-			$icon_url = $settings[0];
+		// If multiple arguments were passed, make that $settings
+		if ( func_num_args() > 1 ) {
+			$settings = func_get_args();
 		}
 
-		// Print the favicon, getting the mimetype from the extension
-		$ext = pathinfo( $icon_url, PATHINFO_EXTENSION );
-		$mimetype = $ext == 'ico' ? 'icon' : $ext;
-		echo '<link rel="shortcut icon" type="image/' . $mimetype . '" href="' . $icon_url . '" />';
-		echo "\n";
+		if ( is_string( $settings ) ) {
+			// $settings is just the separator
+			$icon_url = $settings;
+		} elseif ( is_array( $settings ) ) {
+			// $settings is multiple options...
+			extract( get_array_values( $settings, 'icon_url', 'apple_touch' ) );
+		}
+
+		// Print the favicon if present, getting the mimetype from the extension
+		if ( $icon_url ) {
+			$ext = pathinfo( $icon_url, PATHINFO_EXTENSION );
+			$mimetype = $ext == 'ico' ? 'icon' : $ext;
+			echo '<link rel="shortcut icon" type="image/' . $mimetype . '" href="' . $icon_url . '" />';
+			echo "\n";
+		}
 
 		// Handle apple-touch icons if present
-		if ( isset( $settings['apple-touch'] ) ) {
-			$touch_icons = (array) $settings['apple-touch'];
+		if ( $apple_touch ) {
+			$apple_touch = (array) $apple_touch;
 			$rel = 'apple-touch-icon-precomposed';
 
-			foreach ( $touch_icons as $size => $url ) {
+			foreach ( $apple_touch as $size => $url ) {
 				if ( is_int( $size ) ) {
 					$size = '60x60';
 				}
@@ -208,6 +232,7 @@ class Template {
 	 * Pass a string for the URL (default is css/ie.css in the theme folder)
 	 * Pass an int for the IE version cap (default to 9)
 	 *
+	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
 	 * @since 1.8.0
 	 *
 	 * @param string|int|array $settings Optional The stylesheet URL and/or version number
@@ -216,21 +241,23 @@ class Template {
 		$version = 9;
 		$css_url = THEME_URL . '/css/ie.css';
 
-		// Handle settings for custom url and/or version
-		if ( is_array( $settings ) ) {
-			if ( isset( $settings['version'] ) ) {
-				$version = $settings['version'];
-			}
-			if ( isset( $settings['src'] ) ) {
-				$css_url = $settings['src'];
-			}
-		} elseif ( is_int( $settings ) ) {
-			$version = $settings;
-		} elseif ( ! empty( $settings ) ) {
-			$css_url = $settings;
+		// If multiple arguments were passed, make that $settings
+		if ( func_num_args() > 1 ) {
+			$settings = func_get_args();
 		}
 
-		echo '<!--[if lt IE ' . $version . ']><link rel="stylesheet" type="text/css" href="' . $css_url . '" /><![endif]-->';
+		if ( is_string( $settings ) ) {
+			// $settings is just the source
+			$css_url = $settings;
+		} elseif ( is_int( $settings ) ) {
+			// $settings is just the version
+			$version = $settings;
+		} elseif ( is_array( $settings ) ) {
+			// $settings is multiple options...
+			extract( get_array_values( $settings, 'css_url', 'version' ) );
+		}
+
+		echo '<!--[if lte IE ' . $version . ']><link rel="stylesheet" type="text/css" href="' . $css_url . '" /><![endif]-->';
 	}
 
 	/**
@@ -244,6 +271,7 @@ class Template {
 		if ( empty( $shiv_url ) ) {
 			$shiv_url = '//html5shiv.googlecode.com/svn/trunk/html5.js';
 		}
+
 		// Print out within an IE conditional comment
 		echo '<!--[if lt IE 9]><script src="' . $shiv_url . '"></script><![endif]-->';
 	}
@@ -278,21 +306,29 @@ class Template {
 	/**
 	 * Print out the Google Analytics gode.
 	 *
+	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
 	 * @since 1.8.0 Added ability to pass $account & $production as array for first argument.
 	 * @since 1.6.2
 	 *
-	 * @param string|array $account    The ID code of the account to track for, or array of $account and $production.
-	 * @param string|array $production Optional A host name or IP address to check for before printing.
-	 * @param bool         $universal  Optional Wether or not to use analytics.js vs ga.js (default TRUE)
+	 *
+	 * @param string|array $settings Optional The account number and/or other options
 	 */
 	public static function ga_code( $account, $production = null, $universal = true ) {
-		// If $account is an array, split it into $account and $production
-		if ( is_array( $account ) ) {
-			if ( is_assoc( $account ) ) {
-				extract( $account );
-			} else {
-				list( $account, $production, $universal ) = fill_array( $account, 3 );
-			}
+		$account = null;
+		$production = null;
+		$universal = true;
+
+		// If multiple arguments were passed, make that $settings
+		if ( func_num_args() > 1 ) {
+			$settings = func_get_args();
+		}
+
+		if ( is_string( $settings ) ) {
+			// $settings is just the account
+			$account = $settings;
+		} elseif ( is_array( $settings ) ) {
+			// $settings is multiple options...
+			extract( get_array_values( $settings, 'account', 'production', 'universal' ) );
 		}
 
 		if ( ! is_null( $production ) ) {

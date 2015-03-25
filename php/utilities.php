@@ -100,6 +100,39 @@ function diverse_array( $array ) {
 }
 
 /**
+ * Get the values of the array, whitelisted.
+ *
+ * @since 1.9.0
+ *
+ * @param array $array The array of values.
+ * @param array $keys  The whitelist of keys (can also pass as individual arguments).
+ *
+ * @return array The whitelisted values.
+ */
+function get_array_values( array $array, $whitelist ) {
+	$args = func_get_args();
+	array_shift( $args );
+	if ( ! is_array( $whitelist ) ) {
+		$whitelist = $args;
+	}
+	$values = array();
+	if ( is_assoc( $array ) ) {
+		// Associative array, add only keys that are whitelisted
+		foreach ( $whitelist as $key ) {
+			if ( isset( $array[ $key ] ) ) {
+				$values[ $key ] = $array[ $key ];
+			}
+		}
+	} else {
+		// Numeric array, assume values are in proper order
+		foreach ( $array as $i => $value ) {
+			$values[ $whitelist[ $i ] ] = $value;
+		}
+	}
+	return $values;
+}
+
+/**
  * Take a comma/whitespace separated string and split it into an array.
  *
  * Will return an array of one value if no commas are found.
