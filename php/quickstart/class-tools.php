@@ -378,6 +378,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Helper function for static::enqueue()
 	 *
+	 * @since 1.9.0 Updated argument handling to use
 	 * @since 1.8.0
 	 *
 	 * @param mixed  $enqueues  The enqueues to handle.
@@ -402,27 +403,22 @@ class Tools extends \Smart_Plugin {
 				// Default values of the args
 				$src = $deps = $ver = $option = $$option_var = null;
 
-				// Get values from $args based on format
-				if ( is_assoc( $args ) ) {
-					// If a condition callback was passed, test it and skip if it fails
-					if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
-						/**
-						 * Test if the current style should be enqueued.
-						 *
-						 * @since 1.8.0
-						 *
-						 * @param array $style The style settings.
-						 *
-						 * @return bool Wether or not to continue enqueuing.
-						 */
-						$result = call_user_func( $args['condition'], $args );
-						if ( ! $result ) continue;
-					}
+				extract( $args, 'src', 'deps', 'ver', $option_var );
+				$option = $$option_var;
 
-					extract( $args );
-					$option = $$option_var;
-				} else {
-					list( $src, $deps, $ver, $option ) = array_pad( $args, 4, null );
+				// If a condition callback was passed, test it and skip if it fails
+				if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
+					/**
+					 * Test if the current style should be enqueued.
+					 *
+					 * @since 1.8.0
+					 *
+					 * @param array $style The style settings.
+					 *
+					 * @return bool Wether or not to continue enqueuing.
+					 */
+					$result = call_user_func( $args['condition'], $args );
+					if ( ! $result ) continue;
 				}
 
 				// Ensure $deps is an array
@@ -504,11 +500,13 @@ class Tools extends \Smart_Plugin {
 			foreach ( (array) $callbacks as $callback => $settings ) {
 				$priority = 10;
 				$arguments = 1;
+
 				if ( is_numeric( $callback ) ) {
 					$callback = $settings;
 				} else {
 					list( $priority, $arguments ) = array_pad( $settings, 2, null );
 				}
+
 				add_filter( $hook, $callback, $priority, $arguments );
 			}
 		}

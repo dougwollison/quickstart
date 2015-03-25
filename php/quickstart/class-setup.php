@@ -1469,13 +1469,11 @@ class Setup extends \Smart_Plugin {
 				$src = $button = $row = null;
 
 				// $args can be a source string or an arguments array
-				if ( ! is_array( $args ) ) {
+				if ( is_array( $args ) ) {
+					extract( get_array_values( $args, 'src', 'button', 'row' ) );
+				} else {
 					$button = true; // By default, any plugin will have a button by the same name
 					$src = $args;
-				} elseif ( is_assoc( $args ) ) {
-					extract( $args );
-				} else {
-					list( $src, $button, $row ) = array_pad( $args, 3, null );
 				}
 
 				// Default value for row
