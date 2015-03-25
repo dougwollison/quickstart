@@ -20,6 +20,8 @@ class Tools extends \Smart_Plugin {
 	 * @var array
 	 */
 	protected static $static_method_hooks = array(
+		'relabel_posts_object'   => array( 'init', 10, 0 ),
+		'relabel_posts_menu'     => array( 'admin_menu', 10, 0 ),
 		'fix_shortcodes'         => array( 'the_content', 10, 1 ),
 		'do_quicktags'    	     => array( 'admin_print_footer_scripts', 10, 0 ),
 		'disable_quickedit'      => array( 'post_row_actions', 10, 2 ),
@@ -147,59 +149,6 @@ class Tools extends \Smart_Plugin {
 				require_once( $file );
 			}
 		}
-	}
-
-	/**
-	 * Relabel the "post" post type.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param mixed $label Optional A string of the new label (singular) or an array of singular, plural for ms.
-	 */
-	public static function relabel_posts( $label = null ) {
-		if ( is_array( $label ) ) {
-			$singular = $plural = $menuname = $label[0];
-			list( $singular, $plural, $menuname ) = array_pad( $label, 3, null );
-			if ( ! $plural ) $plural = pluralize( $singular );
-			if ( ! $menuname ) $menuname = $plural;
-		} else {
-			$singular = $label;
-			$plural = pluralize( $singular );
-			$menuname = $plural;
-		}
-
-		/**
-		 * Replace all instances off Post(s) with the new singular and plural strings.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @global array $wp_post_types The registered post types array.
-		 *
-		 * @uses string $singular The new singular form.
-		 * @uses string $plural The new plural form.
-		 */
-		add_action( 'init', function() use ( $singular, $plural ) {
-			global $wp_post_types;
-		    str_replace_in_array( array( __( 'Posts' ), __( 'Post' ) ), array( $plural, $singular ), $wp_post_types['post']->labels );
-		} );
-
-		/**
-		 * Replace all instances off Post(s) with the new singular and plural strings.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @global array $menu The admin menu items array.
-		 * @global array $submenu The admin submenu items array.
-		 *
-		 * @uses string $singular The new singular form.
-		 * @uses string $plural The new plural form.
-		 * @uses string $menuname The new menu name.
-		 */
-		add_action( 'admin_menu', function() use ( $singular, $plural, $menuname ) {
-			global $menu, $submenu;
-		    $menu[5][0] = $menuname;
-		    str_replace_in_array( array( __( 'Posts' ), __( 'Post' ) ), array( $plural, $singular ), $submenu['edit.php'] );
-		} );
 	}
 
 	/**
@@ -869,6 +818,84 @@ class Tools extends \Smart_Plugin {
 	// =========================
 	// !Self-Hooking Tools
 	// =========================
+
+	/**
+	 * Relabel the "post" post type.
+	 *
+	 * @since 1.9.0 Revised to use self-hooking methods instead of aononymous callbacks.
+	 * 				Also reworked acceptance of label values.
+	 * @since 1.0.0
+	 *
+	 * @params mixed $labels... Strings or an array of strings to use for singular/plural form and menu name.
+	 */
+	public static function relabel_posts( $labels ) {
+		// Make sure labels is an array; use arguments list if not
+		$args = func_get_args();
+		if ( ! is_array( $labels ) ) {
+			$labels = $args;
+		}
+
+		$singular = $plural = $menuname = null;
+
+		// Get the labels
+		extract( get_array_values( $labels, 'singular', 'plural', 'menuname' ) );
+
+		// Figure out the plural form and menu name if not provided
+		if ( ! $plural ) {
+			$plural = pluralize( $singular );
+		}
+		if ( ! $menuname ) {
+			$menuname = $plural;
+		}
+
+		// Update the post type directory
+		static::replabel_post_type_object( $singular, $plural );
+
+		// Update the menus
+		static::replabel_post_type_menus( $singular, $plural, $menuname );
+	}
+
+	/**
+	 * Used by relabel_posts() to update the $wp_post_types array.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @global array $wp_post_types The registered post types array.
+	 *
+	 * @param string $singular The singular form to use in the replacement.
+	 * @param string $plural   The plural form to use in the replacement.
+	 */
+	protected static function _relabel_posts_object( $singular, $plural ) {
+		global $wp_post_types;
+
+		str_replace_in_array(
+			array( __( 'Posts' ), __( 'Post' ) ),
+			array( $plural, $singular ),
+			$wp_post_types['post']->labels
+		);
+	}
+
+	/**
+	 * Used by relabel_posts() to update the menus.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @global array $menu The admin menu items array.
+	 * @global array $submenu The admin submenu items array.
+	 *
+	 * @param string $singular The singular form to use in the replacement.
+	 * @param string $plural   The plural form to use in the replacement.
+	 * @param string $menuname The new menu name to use.
+	 */
+	protected static function _relabel_posts_menus( $singular, $plural, $menuname ) {
+		global $menu, $submenu;
+	    $menu[5][0] = $menuname;
+	    str_replace_in_array(
+	    	array( __( 'Posts' ), __( 'Post' ) ),
+	    	array( $plural, $singular ),
+	    	$submenu['edit.php']
+	    );
+	}
 
 	/**
 	 * Setup filter to unwrap shortcodes for proper processing.
