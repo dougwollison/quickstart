@@ -35,7 +35,7 @@ class Tools extends \Smart_Plugin {
 		'print_extra_editor'     => array( 'edit_form_after_editor', 10, 1 ),
 		'add_query_var'          => array( 'query_vars', 10, 1 ),
 	);
-	
+
 	/**
 	 * A list of accepted attributes for tag building.
 	 *
@@ -159,7 +159,7 @@ class Tools extends \Smart_Plugin {
 	public static function relabel_posts( $label = null ) {
 		if ( is_array( $label ) ) {
 			$singular = $plural = $menuname = $label[0];
-			list( $singular, $plural, $menuname ) = fill_array( $label, 3 );
+			list( $singular, $plural, $menuname ) = array_pad( $label, 3, null );
 			if ( ! $plural ) $plural = pluralize( $singular );
 			if ( ! $menuname ) $menuname = $plural;
 		} else {
@@ -473,7 +473,7 @@ class Tools extends \Smart_Plugin {
 					extract( $args );
 					$option = $$option_var;
 				} else {
-					list( $src, $deps, $ver, $option ) = fill_array( $args, 4 );
+					list( $src, $deps, $ver, $option ) = array_pad( $args, 4, null );
 				}
 
 				// Ensure $deps is an array
@@ -558,7 +558,7 @@ class Tools extends \Smart_Plugin {
 				if ( is_numeric( $callback ) ) {
 					$callback = $settings;
 				} else {
-					list( $priority, $arguments ) = fill_array( $settings, 2 );
+					list( $priority, $arguments ) = array_pad( $settings, 2, null );
 				}
 				add_filter( $hook, $callback, $priority, $arguments );
 			}
@@ -578,7 +578,7 @@ class Tools extends \Smart_Plugin {
 				$function = array_shift( $hooks );
 			}
 			foreach ( (array) $hooks as $hook ) {
-				list( $priority, $arguments ) = fill_array( $hook, 2 );
+				list( $priority, $arguments ) = array_pad( $hook, 2, null );
 				add_filter( $hook, $function, $priority, $arguments );
 			}
 		}

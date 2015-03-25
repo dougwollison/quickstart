@@ -4,28 +4,10 @@
  *
  * @package QuickStart
  * @subpackage Utilities
+ *
+ * @since 1.9.0 Removed fill_array(), now using native array_pad() instead.
  * @since 1.0.0
  */
-
-/**
- * Fill up an array to a set length, setting null values for entries that aren't set.
- *
- * @since 1.0.0
- *
- * @param array $array  The array of arguments.
- * @param int   $length The length to fill the array to.
- *
- * @return $array The newly filled array.
- */
-function fill_array( &$array, $length ) {
-	if ( ! is_array( $array ) ) {
-		$array = (array) $array;
-	}
-
-	$array += array_fill( 0, $length, null );
-
-	return $array;
-}
 
 /**
  * Convert an associative array of objects into an associative array of scalars.
@@ -39,7 +21,7 @@ function fill_array( &$array, $length ) {
  * @return array The simplified array.
  */
 function simplify_object_array( $objects, $key_prop, $value_prop ) {
-	$array = array();
+	$array = array(, null );
 	foreach ( $objects as $object ) {
 		$array[ $object->$key_prop ] = $object->$value_prop;
 	}

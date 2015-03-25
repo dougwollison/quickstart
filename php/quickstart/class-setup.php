@@ -345,7 +345,7 @@ class Setup extends \Smart_Plugin {
 			'features'   => array(), // Custom QuickStart features
 			'columns'    => array(), // Custom manager columns
 		), $configs );
-		
+
 		// Make sure supports is an array
 		csv_array_ref( $configs['supports'] );
 
@@ -423,7 +423,7 @@ class Setup extends \Smart_Plugin {
 
 					// Add this page to pages list
 					$configs['pages'][ $page ] = $pg_args;
-					
+
 					//and remove from this post type
 					unset( $pt_args['pages'][ $page ] );
 				}
@@ -754,7 +754,7 @@ class Setup extends \Smart_Plugin {
 		// Prep $defaults and parse the $args
         $this->prep_defaults( 'meta_box', $defaults );
         $args = wp_parse_args( $args, $defaults );
-        
+
         // Set the priority if it's not already set
         if ( ! isset( $args['priority'] ) ) {
 	        // Normal meta boxes should be high priority by default, or default for side ones
@@ -797,7 +797,7 @@ class Setup extends \Smart_Plugin {
 			if ( isset( $_args['post_field'] ) || isset( $_args['taxonomy'] ) ) {
 				continue;
 			}
-			
+
 			// By default, the field name is the meta key
 			$meta_key = $field;
 
@@ -1187,7 +1187,7 @@ class Setup extends \Smart_Plugin {
 	protected function run_admin_setups() {
 		// Load the configuration array
 		$configs = &$this->configs;
-		
+
 		$this->setup_pages( $configs['pages'] ); // Will run now and setup various hooks
 		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
 		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
@@ -1475,7 +1475,7 @@ class Setup extends \Smart_Plugin {
 				} elseif ( is_assoc( $args ) ) {
 					extract( $args );
 				} else {
-					list( $src, $button, $row ) = fill_array( $args, 3 );
+					list( $src, $button, $row ) = array_pad( $args, 3, null );
 				}
 
 				// Default value for row
