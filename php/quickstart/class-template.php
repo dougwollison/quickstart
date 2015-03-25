@@ -120,7 +120,7 @@ class Template {
 				$content[] = "$key=$value";
 			}
 
-			$settings = implode(',', $content);
+			$settings = implode( ',', $content );
 		}
 
 		echo '<meta name="viewport" content="' . $settings . '">';

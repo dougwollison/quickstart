@@ -110,11 +110,14 @@ function diverse_array( $array ) {
  * @return array The whitelisted values.
  */
 function get_array_values( array $array, $whitelist ) {
+	// Get the full arguments, make the list (sans the first one)
+	// the $whitelist if it's not already an array.
 	$args = func_get_args();
 	array_shift( $args );
 	if ( ! is_array( $whitelist ) ) {
 		$whitelist = $args;
 	}
+
 	$values = array();
 	if ( is_assoc( $array ) ) {
 		// Associative array, add only keys that are whitelisted
@@ -129,6 +132,7 @@ function get_array_values( array $array, $whitelist ) {
 			$values[ $whitelist[ $i ] ] = $value;
 		}
 	}
+
 	return $values;
 }
 
