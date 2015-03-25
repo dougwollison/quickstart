@@ -311,7 +311,8 @@ function str_replace_in_array( $find, $replace, &$array ) {
 }
 
 /**
- * Convert an associative array of objects into an associative array of scalars.
+ * Convert an array of objects into an associative array of scalars,
+ * using provided properies as the key and value data.
  *
  * @since 1.5.0
  *
