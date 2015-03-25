@@ -12,7 +12,6 @@
 /**
  * Test if  an array is associative or numeric.
  *
- * @since 1.9.0 Improved testing quality.
  * @since 1.0.0
  *
  * @param array	$array The array to be tested.
@@ -20,23 +19,7 @@
  * @return bool The result of the test.
  */
 function is_assoc( $array ) {
-	// Get the values of the array
-	$values = array_values( (array) $array );
-
-	// If not the same as the array itself, return false
-	if ( $values !== $array ) {
-		return true;
-	}
-
-	// Check in case any of the keys are not numeric
-	// Otherwise an array like array( '0' => 'foo', '1' => 'bar' ) could fail.
-	foreach ( $array as $key => $value ) {
-		if ( ! is_int( $key ) ) {
-			return true;
-		}
-	}
-
-	return false;
+	return array_values( (array) $array ) !== $array;
 }
 
 /**
