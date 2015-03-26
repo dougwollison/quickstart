@@ -10,6 +10,7 @@
 /**
  * Creates the teaser from a post of a specified length.
  *
+ * @since 1.9.0 $post can now be an ID.
  * @since 1.6.0 Reworked to properly handle $use_excerpt boolean.
  * @since 1.0.0
  *
@@ -23,6 +24,9 @@
 function get_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = false, $trailer = '...' ) {
 	if ( is_null( $post ) ) {
 		global $post;
+	} elseif ( is_int( $post ) ) {
+		// Get the post
+		$post = get_post( $post );
 	}
 
 	if ( is_string( $post ) ) {
