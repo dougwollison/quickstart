@@ -274,6 +274,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Check a list of fields for types that would require the media_manager helper.
 	 *
+	 * @since 1.8.1 Added 'media' to dependants list.
 	 * @since 1.7.1
 	 *
 	 * @param array $fields The list of fields to check through.
