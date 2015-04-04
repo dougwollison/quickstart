@@ -129,8 +129,9 @@ class Template {
 	/**
 	 * Print out the title tag.
 	 *
-	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
-	 *				Also allowed detection of passing $side as sole argument.
+	 * @since 1.9.0 Restructured to allow passing settings as separate arugments,
+	 *				renamed $seplocation to $side, added detection of passing
+	 *				$side as sole argument, and $filter option.
 	 * @since 1.8.0
 	 *
 	 * @param string|array $settings Optional The wp_title options like separator and location.
@@ -140,13 +141,17 @@ class Template {
 
 		$sep = '|';
 		$side = 'right';
+		$filter = true;
 
 		// If multiple arguments were passed, make that $settings
 		if ( func_num_args() > 1 ) {
 			$settings = func_get_args();
 		}
 
-		if ( in_array( $settings, array( 'left', 'right' ) ) ) {
+		if ( $settings == 'nofilter' ) {
+			// $settings is just the fitler toggle set to false
+			$filter = false;
+		} elseif ( in_array( $settings, array( 'left', 'right' ) ) ) {
 			// $settings is just the side
 			$side = $settings;
 		} elseif ( is_string( $settings ) ) {
@@ -154,14 +159,37 @@ class Template {
 			$sep = $settings;
 		} elseif ( is_array( $settings ) ) {
 			// $settings is multiple options...
-			extract( get_array_values( $settings, 'sep', 'side' ) );
+			extract( get_array_values( $settings, 'sep', 'side', 'filter' ) );
 		}
 
-		// Get the title
+		// Add the custom filter if not disabled
+		if ( $filter ) {
+			add_filter( 'wp_title', array( get_called_class(), 'title_filter' ), 999, 3 );
+		}
+
+		// Get the title and build the output
 		$title = wp_title( $sep, false, $side );
 
-		// Do the extra output if desired
-		$title .= get_bloginfo( 'name', 'display' );
+		echo '<title>' . $title . '</title>';
+	}
+
+	/**
+	 * Filter the page title. Added via title().
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param string $title The title to filter.
+	 * @param string $sep   The title separator.
+	 * @param string $side  The separator location (left|right)
+	 *
+	 * @return string The filtered title.
+	 */
+	public static function title_filter( $title, $sep, $side ) {
+		if ( $side == 'right' ) {
+			$title = $title . get_bloginfo( 'name', 'display' );
+		} else {
+			$title = get_bloginfo( 'name', 'display' ) . $title;
+		}
 
 		$site_description = get_bloginfo( 'description', 'display' );
 		if ( $site_description && ( is_home() || is_front_page() ) ) {
@@ -172,7 +200,7 @@ class Template {
 			$title .= " $sep " . sprintf( __( 'Page %s' ), max( $paged, $page ) );
 		}
 
-		echo '<title>' . $title . '</title>';
+		return $title;
 	}
 
 	/**
