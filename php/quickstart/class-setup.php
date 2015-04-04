@@ -64,7 +64,7 @@ class Setup extends \Smart_Plugin {
 
 		// Feature Hooks
 		'order_manager_save'     => array( 'admin_init', 10, 0 ),
-		'index_page_query'       => array( 'parse_query', 10, 1 ),
+		'index_page_query'       => array( 'parse_query', 0, 1 ),
 		'index_page_link'        => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
 		'parent_filtering_input' => array( 'restrict_manage_posts', 10, 0 ),
