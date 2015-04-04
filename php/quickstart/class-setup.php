@@ -72,9 +72,9 @@ class Setup extends \Smart_Plugin {
 		'add_page_to_menu'       => array( 'admin_menu', 0 ),
 
 		// Feature Hooks
-		'order_manager_pages'    => array( 'admin_init', 10, 0 ),
+		'order_manager_pages'    => array( 'init', 10, 0 ),
 		'order_manager_save'     => array( 'admin_init', 10, 0 ),
-		'index_page_settings'    => array( 'admin_init', 10, 0 ),
+		'index_page_settings'    => array( 'init', 10, 0 ),
 		'index_page_query'       => array( 'parse_query', 0, 1 ),
 		'index_page_link'        => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
