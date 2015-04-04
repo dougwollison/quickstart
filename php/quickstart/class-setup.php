@@ -716,22 +716,22 @@ class Setup extends \Smart_Plugin {
 		} elseif ( isset( $args['field'] ) ) {
 			// A single field is provided, the name of the metabox is also the name of the field
 
-            // Default the wrap_with_label argument to false if applicable
-            if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
-                // Auto set wrap_with_label to false if not present already
-                $args['field']['wrap_with_label'] = false;
-            }
+			// Default the wrap_with_label argument to false if applicable
+			if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
+				// Auto set wrap_with_label to false if not present already
+				$args['field']['wrap_with_label'] = false;
+			}
 
-            // Default the class argument to widefat if applicable
-            if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['class'] ) ) {
-                // Auto set class to widefat if not present already
-                $args['field']['class'] = 'widefat';
-            }
+			// Default the class argument to widefat if applicable
+			if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['class'] ) ) {
+				// Auto set class to widefat if not present already
+				$args['field']['class'] = 'widefat';
+			}
 
-            // Create a fields entry
-            $args['fields'] = array(
-                $meta_box => $args['field'],
-            );
+			// Create a fields entry
+			$args['fields'] = array(
+				$meta_box => $args['field'],
+			);
 		} elseif ( ! isset( $args['fields'] ) && ! isset( $args['callback'] ) ) {
 			// No separate fields list or callback passed
 
@@ -753,14 +753,14 @@ class Setup extends \Smart_Plugin {
 		);
 
 		// Prep $defaults and parse the $args
-        $this->prep_defaults( 'meta_box', $defaults );
-        $args = wp_parse_args( $args, $defaults );
+		$this->prep_defaults( 'meta_box', $defaults );
+		$args = wp_parse_args( $args, $defaults );
 
-        // Set the priority if it's not already set
-        if ( ! isset( $args['priority'] ) ) {
+		// Set the priority if it's not already set
+		if ( ! isset( $args['priority'] ) ) {
 	        // Normal meta boxes should be high priority by default, or default for side ones
 	        $args['priority'] = $args['context'] == 'normal' ? 'high' : 'default';
-        }
+		}
 
 		// Check if condition callback exists; test it before proceeding
 		if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
