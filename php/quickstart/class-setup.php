@@ -1994,7 +1994,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup index page setting/hook for certain post types.
 	 *
-	 * @since 1.9.0 Now protected.
+	 * @since 1.9.0 Now protected, dropped $index_pages array creation.
 	 * @since 1.8.0 Restructured to use a hooks once for all post_types,
 	 *				Also allowed passing of just the post_type list instead of args.
 	 * @since 1.6.0
@@ -2022,16 +2022,10 @@ class Setup extends \Smart_Plugin {
 			// Register the settings
 			$this->index_page_settings( $post_types );
 		} else {
-			// Build the array of available index pages to use
-			$index_pages = array();
-			foreach ( $post_types as $post_type ) {
-				$index_pages[ $post_type ] = get_index( $post_type );
-			}
-
-			// Add the query/link/title hooks on the frontend
-			$this->index_page_query( $index_pages );
-			$this->index_page_link( $index_pages );
-			$this->index_page_title_part( $index_pages );
+			// Add the query/title/link hooks on the frontend
+			$this->index_page_query( $post_types );
+			$this->index_page_title_part();
+			$this->index_page_link();
 		}
 	}
 	
@@ -2071,14 +2065,20 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Check if the page is a custom post type's index page.
 	 *
+	 * @since 1.9.0 Modified to create $index_pages from $post_types.
 	 * @since 1.8.0 Restructured to handle all post_types at once.
 	 * @since 1.6.0
 	 *
 	 * @param WP_Query $query       The query object (skip when saving).
-	 * @param string   $index_pages An associative array of post type index pages.
+	 * @param array    $post_types The list of post types.
 	 */
-	protected function _index_page_query( $query, $index_pages ) {
+	protected function _index_page_query( $query, $post_types ) {
 		$qv =& $query->query_vars;
+		
+		$index_pages = array();
+		foreach( $post_types as $post_type ) {
+			$index_pages[ $post_type ] = get_index( $post_type );
+		}
 
 		// Make sure this is a page
 		if ( '' != $qv['pagename'] ) {
@@ -2119,15 +2119,15 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Modify the title to display the index page's title.
 	 *
+	 * @since 1.9.0 Reworked to not need $post_types at all.
 	 * @since 1.8.0 Restructured to handle all post_types at once.
 	 * @since 1.6.0
 	 *
-	 * @param string|array $title       The page title or parts (skip when saving).
-	 * @param string       $index_pages An associative array of post type index pages.
+	 * @param string|array $title The page title or parts (skip when saving).
 	 *
 	 * @return string|array The modified title.
 	 */
-	protected function _index_page_title_part( $title, $index_pages ) {
+	protected function _index_page_title_part( $title ) {
 		// Skip if not an archive
 		if ( ! is_post_type_archive() ) {
 			return $title;
@@ -2135,17 +2135,11 @@ class Setup extends \Smart_Plugin {
 
 		// Get the queried post type
 		$post_type = get_query_var( 'post_type' );
-
-		// Abort if not a post type with an index
-		if ( ! isset( $index_pages[ $post_type ] ) ) {
-			return $title;
+		
+		// Get the index for this post type, update the title if found
+		if ( $index_page = get_index( $post_type ) ) {
+			$title[0] = get_the_title( $index_page );
 		}
-
-		// Get the index page for this post type
-		$index_page = $index_pages[ $post_type ];
-
-		// Replace the first part of the title with the index page's title
-		$title[0] = get_the_title( $index_page );
 
 		return $title;
 	}
