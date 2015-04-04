@@ -31,7 +31,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
-	 * @since 1.9.0 Fixed run_theme_setups hook.
+	 * @since 1.9.0 Fixed run_theme_setups hook, added init hooks for explicitness.
 	 * @since 1.8.0 Added hooks from Setup/Feature merge.
 	 * @since 1.1.4 Added regster_page_setting(s) entries.
 	 * @since 1.0.0
@@ -40,7 +40,17 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected $method_hooks = array(
 		// Content Hooks
+		'register_post_type'     => array( 'init', 10, 0 ),
+		'register_post_types'    => array( 'init', 10, 0 ),
+		'register_taxonomy'      => array( 'init', 10, 0 ),
+		'register_taxonomies'    => array( 'init', 10, 0 ),
+		
+		// Theme Hooks
 		'run_theme_setups'       => array( 'after_setup_theme', 10, 0 ),
+		
+		// Admin Hooks
+		'edit_columns'           => array( 'admin_init', 10, 0 ),
+		'do_columns'             => array( 'admin_init', 10, 0 ),
 
 		// Metabox Hooks
 		'save_meta_box'          => array( 'save_post', 10, 1 ),
@@ -58,12 +68,13 @@ class Setup extends \Smart_Plugin {
 		'register_settings'      => array( 'admin_init', 10, 0 ),
 
 		// Menu Page Hooks
-		'register_page_setting'  => array( 'admin_init', 10, 0 ),
 		'register_page_settings' => array( 'admin_init', 10, 0 ),
 		'add_page_to_menu'       => array( 'admin_menu', 0 ),
 
 		// Feature Hooks
+		'order_manager_pages'    => array( 'admin_init', 10, 0 ),
 		'order_manager_save'     => array( 'admin_init', 10, 0 ),
+		'index_page_settings'    => array( 'admin_init', 10, 0 ),
 		'index_page_query'       => array( 'parse_query', 0, 1 ),
 		'index_page_link'        => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
@@ -1207,7 +1218,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $post_type The slug of the post type to setup for.
 	 * @param array  $columnset The list of columns to use/register.
 	 */
-	protected function _setup_columnset( $post_type, $columnset ) {
+	protected function setup_columnset( $post_type, $columnset ) {
 		switch ( $post_type ) {
 			case 'page':
 				$filter_hook = 'manage_pages_columns';
@@ -1243,9 +1254,9 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @param array $feature The list of features to register.
 	 */
-	protected function _setup_columns( array $columns ) {
+	protected function setup_columns( array $columns ) {
 		foreach ( $columns as $post_type => $columnset ) {
-			$this->_setup_columnset( $post_type, $columnset );
+			$this->setup_columnset( $post_type, $columnset );
 		}
 	}
 
@@ -1837,7 +1848,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $feature The slug of the taxonomy to register.
 	 * @param array  $args     The arguments for registration.
 	 */
-	protected function _setup_feature( $feature, $args ) {
+	protected function setup_feature( $feature, $args ) {
 		// Call the appropriate setup method.
 
 		$method = "setup_{$feature}";
@@ -1860,14 +1871,14 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @param array $feature The list of features to register.
 	 */
-	protected function _setup_features( array $features ) {
+	protected function setup_features( array $features ) {
 		foreach ( $features as $feature => $args ) {
 			if ( ! make_associative( $feature, $args ) ) {
 				// Feature was added numerically, assume id, args format.
 				$feature = $args['id'];
 				$args = $args['args'];
 			}
-			$this->_setup_feature( $feature, $args );
+			$this->setup_feature( $feature, $args );
 		}
 	}
 
@@ -1927,6 +1938,17 @@ class Setup extends \Smart_Plugin {
 			define( 'QS_ORDER_ENQUEUED', true );
 		}
 
+		$this->order_manager_pages( $post_types );
+	}
+	
+	/**
+	 * Register the order manager admin pages for the post types.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param array $post_types The list of post types to add the page for.
+	 */
+	protected function _order_manager_pages( $post_types ) {
 		// Setup the admin pages for each post type
 		foreach ( $post_types as $post_type ) {
 			$this->setup_page( "$post_type-order", array(
@@ -1997,28 +2019,8 @@ class Setup extends \Smart_Plugin {
 
 		// Setup settings or hooks depending on where we are
 		if ( is_admin() ) {
-			foreach ( $post_types as $post_type ) {
-				// Make sure the post type is registered
-				if ( ! post_type_exists( $post_type ) ) {
-					continue;
-				}
-
-				$option = "page_for_{$post_type}_posts";
-
-				// Register the setting on the backend
-				$this->register_setting( $option , array(
-					'title' => sprintf( __( 'Page for %s' ) , get_post_type_object( $post_type )->labels->name ),
-					'field' => function( $value ) use ( $option ) {
-						wp_dropdown_pages( array(
-							'name'              => $option,
-							'echo'              => 1,
-							'show_option_none'  => __( '&mdash; Select &mdash;' ),
-							'option_none_value' => '0',
-							'selected'          => $value,
-						) );
-					}
-				), 'default', 'reading' );
-			}
+			// Register the settings
+			$this->index_page_settings( $post_types );
 		} else {
 			// Build the array of available index pages to use
 			$index_pages = array();
@@ -2030,6 +2032,39 @@ class Setup extends \Smart_Plugin {
 			$this->index_page_query( $index_pages );
 			$this->index_page_link( $index_pages );
 			$this->index_page_title_part( $index_pages );
+		}
+	}
+	
+	/**
+	 * Register the index page settings for the post types.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param array $post_types The list of post types.
+	 */
+	protected function _index_page_settings( $post_types ) {
+		// Register a setting for each post type
+		foreach ( $post_types as $post_type ) {
+			// Make sure the post type is registered
+			if ( ! post_type_exists( $post_type ) ) {
+				continue;
+			}
+
+			$option = "page_for_{$post_type}_posts";
+
+			// Register the setting on the backend
+			$this->register_setting( $option , array(
+				'title' => sprintf( __( 'Page for %s' ) , get_post_type_object( $post_type )->labels->name ),
+				'field' => function( $value ) use ( $option ) {
+					wp_dropdown_pages( array(
+						'name'              => $option,
+						'echo'              => 1,
+						'show_option_none'  => __( '&mdash; Select &mdash;' ),
+						'option_none_value' => '0',
+						'selected'          => $value,
+					) );
+				}
+			), 'default', 'reading' );
 		}
 	}
 
