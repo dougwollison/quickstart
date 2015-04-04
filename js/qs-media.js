@@ -412,6 +412,9 @@ window.QS = window.QS || {};
 
 							// Update the input with the id list
 							plugin.$input.val( items.join( ',' ) );
+ 
+                            // Show the clear button
+                            plugin.$elm.find( '.qs-clear' ).show();
 						}
 					}
 				});
