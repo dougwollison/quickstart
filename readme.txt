@@ -3,7 +3,7 @@ Contributors: dougwollison
 Tags: development, function, utility, utilities, framework, code, coding
 Requires at least: 4.0
 Tested up to: 4.1.1
-Stable tag: 1.8
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,9 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 == Changelog ==
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
+
+= 1.9.0 =
+Code restructuring, supports can be passed as a list now, merged `Hooks` with `Tools` (backwards-compatible though), ditched fill_array (use array_pad instead), added filter option to `Template::title()`, and reworked handling of features for better extensibility.
 
 = 1.8.0 =
 Major updates; numerous new features, bug fixes, and extensibility improvements. [Details on GitHub](https://github.com/dougwollison/quickstart/releases/tag/v1.8.0).
