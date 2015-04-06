@@ -88,7 +88,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
 	 *
-	 * @since 1.9.1 Added jquery-ui-sortable dependency for qs-helpers script.
+	 * @since 1.9.2 Added jquery-ui-sortable dependency for qs-helpers script.
 	 * @since 1.9.0 Moving register_pages() to new run_admin_setups().
 	 * @since 1.8.0 Added quick-enqueue handling.
 	 * @since 1.4.0 Added helpers css/js backend enqueue.
