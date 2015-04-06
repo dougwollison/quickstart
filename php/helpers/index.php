@@ -119,6 +119,15 @@ function is_index_page( $post_id = null, $match_post_type = null ) {
 		return false;
 	}
 
+	/**
+	 * Filter the ID of the index page to check.
+	 *
+	 * @since 1.9.1
+	 *
+	 * @param int $post_id The ID of the page determined.
+	 */
+	$post_id = apply_filters( 'qs_helper_is_index_page', $post_id );
+
 	// Reverse lookup the option name that this post's ID is the value of,
 	// provided it's a page_for_ option.
 	$option = $wpdb->get_var( $wpdb->prepare( "
