@@ -23,7 +23,7 @@ class Tools extends \Smart_Plugin {
 		'relabel_posts_object'   => array( 'init', 10, 0 ),
 		'relabel_posts_menu'     => array( 'admin_menu', 10, 0 ),
 		'fix_shortcodes'         => array( 'the_content', 10, 1 ),
-		'do_quicktags'    	     => array( 'admin_print_footer_scripts', 10, 0 ),
+		'do_quicktags'           => array( 'admin_print_footer_scripts', 10, 0 ),
 		'disable_quickedit'      => array( 'post_row_actions', 10, 2 ),
 		'frontend_enqueue'       => array( 'wp_enqueue_scripts', 10, 0 ),
 		'backend_enqueue'        => array( 'admin_enqueue_scripts', 10, 0 ),
