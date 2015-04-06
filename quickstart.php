@@ -2,7 +2,7 @@
 /*
 Plugin Name: QuickStart
 Plugin URI: https://github.com/dougwollison/quickstart
-Description: A utility kit for quick development of WordPress themes (and plugins). ***YOUR CUSTOM THEME RELIES ON THIS PLUGIN***
+Description: A utility kit for quick development of WordPress themes (and plugins). <strong>YOUR CUSTOM THEME RELIES ON THIS PLUGIN</strong>
 Version: 1.9.1
 Author: Doug Wollison
 Author URI: http://dougw.me
