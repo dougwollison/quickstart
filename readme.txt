@@ -24,7 +24,7 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
 = 1.9.1 =
-Minor bug fix to get_index().
+Minor bug fix to get_index(), added qs_helper_is_index_page filter.
 
 = 1.9.0 =
 Code restructuring, supports can be passed as a list now, merged `Hooks` with `Tools` (backwards-compatible though), ditched fill_array (use array_pad instead), added filter option to `Template::title()`, and reworked handling of features for better extensibility.
