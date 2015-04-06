@@ -92,6 +92,7 @@ function the_index() {
  * If you don't pass a post type, it'll return the slug of the post
  * type it's the index page for. Otherwise, it'll return true/false.
  *
+ * @since 1.9.1 Added qs_helper_is_index_page filter.
  * @since 1.8.0
  *
  * @param int|object $post_id          Optional The ID of the post to check.
