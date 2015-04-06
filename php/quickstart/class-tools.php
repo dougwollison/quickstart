@@ -820,6 +820,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Relabel the "post" post type.
 	 *
+	 * @since 1.9.2 Fixed method names.
 	 * @since 1.9.0 Revised to use self-hooking methods instead of aononymous callbacks.
 	 * 				Also reworked acceptance of label values.
 	 * @since 1.0.0
@@ -847,10 +848,10 @@ class Tools extends \Smart_Plugin {
 		}
 
 		// Update the post type directory
-		static::replabel_post_type_object( $singular, $plural );
+		static::relabel_posts_object( $singular, $plural );
 
 		// Update the menus
-		static::replabel_post_type_menus( $singular, $plural, $menuname );
+		static::relabel_posts_menu( $singular, $plural, $menuname );
 	}
 
 	/**
@@ -885,14 +886,15 @@ class Tools extends \Smart_Plugin {
 	 * @param string $plural   The plural form to use in the replacement.
 	 * @param string $menuname The new menu name to use.
 	 */
-	protected static function _relabel_posts_menus( $singular, $plural, $menuname ) {
+	protected static function _relabel_posts_menu( $singular, $plural, $menuname ) {
 		global $menu, $submenu;
-	    $menu[5][0] = $menuname;
-	    str_replace_in_array(
-	    	array( __( 'Posts' ), __( 'Post' ) ),
-	    	array( $plural, $singular ),
-	    	$submenu['edit.php']
-	    );
+		
+		$menu[5][0] = $menuname;
+		str_replace_in_array(
+			array( __( 'Posts' ), __( 'Post' ) ),
+			array( $plural, $singular ),
+			$submenu['edit.php']
+		);
 	}
 
 	/**
