@@ -88,6 +88,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
 	 *
+	 * @since 1.9.1 Added jquery-ui-sortable dependency for qs-helpers script.
 	 * @since 1.9.0 Moving register_pages() to new run_admin_setups().
 	 * @since 1.8.0 Added quick-enqueue handling.
 	 * @since 1.4.0 Added helpers css/js backend enqueue.
@@ -181,7 +182,7 @@ class Setup extends \Smart_Plugin {
 					'qs-helpers-css' => array( plugins_url( '/css/qs-helpers.css', QS_FILE ) ),
 				),
 				'js' => array(
-					'qs-helpers-js' => array( plugins_url( '/js/qs-helpers.js', QS_FILE ), array( 'underscore', 'jquery' ) ),
+					'qs-helpers-js' => array( plugins_url( '/js/qs-helpers.js', QS_FILE ), array( 'underscore', 'jquery', 'jquery-ui-sortable' ) ),
 				),
 			) );
 			define( 'QS_HELPERS_ENQUEUED', true );
