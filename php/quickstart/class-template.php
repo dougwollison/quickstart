@@ -334,18 +334,18 @@ class Template {
 	/**
 	 * Print out the Google Analytics gode.
 	 *
+	 * @since 1.9.2 Updated arguments list.
 	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
 	 * @since 1.8.0 Added ability to pass $account & $production as array for first argument.
 	 * @since 1.6.2
 	 *
-	 *
 	 * @param string|array $settings Optional The account number and/or other options
 	 */
-	public static function ga_code( $account, $production = null, $universal = true ) {
+	public static function ga_code( $settings ) {
 		$account = null;
 		$production = null;
 		$universal = true;
-
+		
 		// If multiple arguments were passed, make that $settings
 		if ( func_num_args() > 1 ) {
 			$settings = func_get_args();
