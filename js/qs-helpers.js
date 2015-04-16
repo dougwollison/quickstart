@@ -141,8 +141,10 @@ jQuery(function($){
 	// Repeater setup
 	$( '.qs-repeater' ).each(function() {
 		var $repeater = $( this );
-		var $container = $repeater.find( '.qs-container' );
-		var $template = $repeater.find( '.qs-template' );
+		
+		// Get the container and template (make sure to grab closest decendants)
+		var $container = $repeater.find( '.qs-container' ).eq(0);
+		var $template = $repeater.find( '.qs-template' ).eq(0);
 
 		if ( $template.length === 0 ) {
 			return;
