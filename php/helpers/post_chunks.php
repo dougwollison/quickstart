@@ -33,13 +33,13 @@ function get_content_chunks( $content, $separator ) {
 /**
  * Adds new property to $post object with chopped up version of the post.
  *
- * @since 1.10.0 Moved chunk creation to separate utility function.
+ * @since 1.10.0 Renamed. Moved chunk creation to separate utility function.
  * @since 1.8.0  Added filtering hook for the separator string used.
  * @since 1.0.0
  *
  * @param object $post The post to be chopped up.
  */
-function post_chunks( $post ) {
+function qs_helper_chunks_process( $post ) {
 	// Just in case, make sure $post is even an object
 	if ( ! is_object( $post ) ) {
 		return;
@@ -64,7 +64,7 @@ function post_chunks( $post ) {
 	// Store the default chunk number for looping
 	$post->chunk = 1;
 }
-add_action( 'the_post', 'post_chunks' );
+add_action( 'the_post', 'qs_helper_chunks_process' );
 
 /**
  * Return a specified chunk
