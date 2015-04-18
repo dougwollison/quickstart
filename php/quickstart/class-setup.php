@@ -568,83 +568,103 @@ class Setup extends \Smart_Plugin {
 		if ( isset( $args['post_type'] ) ) {
 			csv_array_ref( $args['post_type'] );
 		}
+		
+		// Register the taxonomy if it doesn't exist
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			// Setup the labels if needed
+			self::maybe_setup_labels( $taxonomy, $args, array(
+				'new_item_name' => 'New %S Name',
+				'parent_item' => 'Parent %S',
+				'popular_items' => 'Popular %P',
+				'separate_items_with_commas' => 'Separate %p with commas',
+				'add_or_remove_items' => 'Add or remove %p',
+				'choose_from_most_used' => 'Choose from most used %p',
+			) );
+	
+			// Default arguments for the taxonomy
+			$defaults = array(
+				'hierarchical' => true,
+				'show_admin_column' => true,
+			);
+	
+			// Prep $defaults
+			$this->prep_defaults( 'taxonomy', $defaults );
+	
+			// Parse the arguments with the defaults
+			$args = wp_parse_args( $args, $defaults );
+	
+			// Check for the "static" option, set it up
+			$static = false;
+			if ( isset( $args['static'] ) && $args['static'] ) {
+				$static = true;
+	
+				// Disable the default meta box
+				$args['meta_box_cb'] = false;
+	
+				$multiple = false;
+				// Default the "multiple" flag to false
+				if ( isset( $args['multiple'] ) ) {
+					$multiple = $args['multiple'];
+					unset( $args['multiple'] );
+				}
+	
+				// Remove the static argument before saving
+				unset( $args['static'] );
+			}
+	
+			// Now, register the post type
+			register_taxonomy( $taxonomy, $args['post_type'], $args );
+	
+			// Proceed with post-registration stuff, provided it was successfully registered.
+			if ( ! ( $taxonomy_obj = get_taxonomy( $taxonomy ) ) ) {
+				return;
+			}
+	
+			// Now that it's registered, fetch the resulting show_ui argument,
+			// and add the taxonomy_filter hooks if true
+			if ( $taxonomy_obj->show_ui ){
+				Tools::taxonomy_filter( $taxonomy );
+			}
 
-		// Check if the taxonomy exists, if so, see if a post_type
-		// is set in the $args and then tie them together.
-		if ( taxonomy_exists( $taxonomy ) ) {
+			// Finish setting up the static taxonomy meta box if needed
+			if ( $static ) {
+				$this->register_meta_box( "$taxonomy-terms", array(
+					'title'     => ( $multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name ),
+					'post_type' => $taxonomy_obj->object_type,
+					'context'   => 'side',
+					'priority'  => 'core',
+					'name'      => $taxonomy,
+					'type'      => $multiple ? 'checklist' : 'select',
+					'class'     => 'widefat static-terms',
+					'null'      => '&mdash; None &mdash;',
+					'taxonomy'  => $taxonomy,
+				) );
+			}
+		} else {
+			// Existing taxonomy, check if any additional post types should be attached to it.
 			if ( isset( $args['post_type'] ) ) {
 				foreach ( (array) $args['post_type'] as $post_type ) {
 					register_taxonomy_for_object_type( $taxonomy, $post_type );
 				}
 			}
-			return;
-		}
-
-		// Setup the labels if needed
-		self::maybe_setup_labels( $taxonomy, $args, array(
-			'new_item_name' => 'New %S Name',
-			'parent_item' => 'Parent %S',
-			'popular_items' => 'Popular %P',
-			'separate_items_with_commas' => 'Separate %p with commas',
-			'add_or_remove_items' => 'Add or remove %p',
-			'choose_from_most_used' => 'Choose from most used %p',
-		) );
-
-		// Default arguments for the taxonomy
-		$defaults = array(
-			'hierarchical' => true,
-			'show_admin_column' => true,
-		);
-
-		// Prep $defaults
-		$this->prep_defaults( 'taxonomy', $defaults );
-
-		// Parse the arguments with the defaults
-		$args = wp_parse_args( $args, $defaults );
-
-		// Check for the "static" option, set it up
-		$static = false;
-		if ( isset( $args['static'] ) && $args['static'] ) {
-			$static = true;
-
-			// Disable the default meta box
-			$args['meta_box_cb'] = false;
-
-			$multiple = false;
-			// Default the "multiple" flag to false
-			if ( isset( $args['multiple'] ) ) {
-				$multiple = $args['multiple'];
-				unset( $args['multiple'] );
-			}
-
-			// Remove the static argument before saving
-			unset( $args['static'] );
-		}
-
-		// Now, register the post type
-		register_taxonomy( $taxonomy, $args['post_type'], $args );
-
-		// Proceed with post-registration stuff, provided it was successfully registered.
-		if ( ! ( $taxonomy_obj = get_taxonomy( $taxonomy ) ) ) {
-			return;
 		}
 
 		// Now that it's registered, see if there are preloaded terms to add
 		if ( isset( $args['preload'] ) && is_array( $args['preload'] ) ) {
 			$is_assoc = is_assoc( $args['preload'] );
 
-			foreach ( $args['preload'] as $term => $args ) {
+			foreach ( $args['preload'] as $term => $t_args ) {
 				// Check if the term was added numerically on it's own
 				if ( ! $is_assoc ) {
-					$term = $args;
-					$args = array();
+					$term = $t_args;
+					$t_args = array();
 				}
 
 				// If $args is not an array, assume slug => name format
-				if ( ! is_array( $args ) ) {
+				if ( ! is_array( $t_args ) ) {
 					$slug = $term;
-					$term = $args;
-					$args = array( 'slug' => $slug );
+					$term = $t_args;
+					$t_args = array( 'slug' => $slug );
 				}
 
 				// Check if it exists, skip if so
@@ -653,29 +673,17 @@ class Setup extends \Smart_Plugin {
 				}
 
 				// Insert the term
-				wp_insert_term( $term, $taxonomy, $args );
+				wp_insert_term( $term, $taxonomy, $t_args );
 			}
 		}
-
-		// Finish setting up the static taxonomy meta box if needed
-		if ( $static ) {
-			$this->register_meta_box( "$taxonomy-terms", array(
-				'title'     => ( $multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name ),
-				'post_type' => $taxonomy_obj->object_type,
-				'context'   => 'side',
-				'priority'  => 'core',
-				'name'      => $taxonomy,
-				'type'      => $multiple ? 'checklist' : 'select',
-				'class'     => 'widefat static-terms',
-				'null'      => '&mdash; None &mdash;',
-				'taxonomy'  => $taxonomy,
-			) );
-		}
-
-		// Now that it's registered, fetch the resulting show_ui argument,
-		// and add the taxonomy_filter hooks if true
-		if ( $taxonomy_obj->show_ui ){
-			Tools::taxonomy_filter( $taxonomy );
+		
+		// Check if any meta fields were defined, set them up if so
+		if ( isset( $args['meta_fields'] ) ) {
+			// Ensure the term meta helper is loaded
+			Tools::load_helpers( 'term_meta' );
+			
+			$this->save_callback( 'build_term_meta_fields', $args['meta_fields'], "{$taxonomy}_edit_form_field" );
+			$this->save_callback( 'save_term_meta_fields', $args['meta_fields'], "edited_{$taxonomy}" );
 		}
 	}
 
@@ -1071,6 +1079,87 @@ class Setup extends \Smart_Plugin {
 					'args' => $args,
 				)
 			);
+		}
+	}
+
+	// =========================
+	// !Term Meta Field Setups
+	// =========================
+	
+	/**
+	 * Build and print out a term meta field row.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $term     The term being edited. (skip when saving)
+	 * @param string $taxonomy The taxonomy of the term. (skip when saving)
+	 * @param string $field    The id/name meta field to build.
+	 * @param array  $args     The arguments for the field.
+	 */
+	protected function _build_term_meta_field( $term, $taxonomy, $field, $args ) {
+		Tools::build_field_row( $field, $args, $term, 'term' );
+	}
+	
+	/**
+	 * Build and print a series of term meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $term     The term being edited. (skip when saving)
+	 * @param string $taxonomy The taxonomy of the term. (skip when saving)
+	 * @param array  $fields   The fields to register.
+	 */
+	protected function _build_term_meta_fields( $term, $taxonomy, $fields ) {
+		foreach ( $fields as $field => $args ) {
+			$this->_build_term_meta_field( $term, $taxonomy, $field, $args );
+		}
+	}
+	
+	/**
+	 * Save the data for a term meta field.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $term     The term being edited. (skip when saving)
+	 * @param string $field    The id/name meta field to build.
+	 * @param array  $args     The arguments for the field.
+	 * @param bool   $_checked Wether or not a check has been taken care of.
+	 */
+	protected function _save_term_meta_field( $term_id, $field, $args, $_checked = false ) {
+		$post_key = $meta_key = $field;
+		
+		// Check if an explicit $_POST key is set
+		if ( isset( $args['post_key'] ) ) {
+			$post_key = $args['post_key'];
+		}
+		
+		// Check if an explicit meta key is set
+		if ( isset( $args['meta_key'] ) ) {
+			$meta_key = $args['meta_key'];
+		}
+		
+		// Save the field if it's been passed
+		if ( isset( $_POST[ $post_key ] ) ) {
+			update_term_meta( $term_id, $meta_key, $_POST[ $post_key ] );
+		}
+	}
+	
+	/**
+	 * Save multiple term meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $term_id The term being saved. (skip when saving)
+	 * @param array  $fields  The fields to register.
+	 */
+	protected function _save_term_meta_fields( $term_id, $fields ) {
+		// Check that there's a nonce and that it validates.
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-tag_' . $term_id ) ) {
+			return;
+		}
+		
+		foreach ( $fields as $field => $args ) {
+			$this->_save_term_meta_field( $term_id, $fields, true );
 		}
 	}
 
@@ -1608,13 +1697,6 @@ class Setup extends \Smart_Plugin {
 		// Check if media_manager helper needs to be loaded
 		self::maybe_load_media_manager( $args['fields'] );
 
-		// Set the current arguments
-		$_args = array(
-			'setting' => $setting,
-			'fields' => $args['fields'],
-			'__extract',
-		);
-
 		// Register the setting
 		register_setting( $page, $setting, $args['sanitize'] );
 
@@ -1625,7 +1707,10 @@ class Setup extends \Smart_Plugin {
 			array( __NAMESPACE__ . '\Tools', 'build_settings_field' ),
 			$page,
 			$section,
-			$_args
+			array( // arguments for build_settings_field
+				'setting' => $setting,
+				'args' => $args,
+			)
 		);
 	}
 

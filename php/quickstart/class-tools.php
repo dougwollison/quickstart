@@ -248,31 +248,23 @@ class Tools extends \Smart_Plugin {
 
 		return true;
 	}
-
+	
 	/**
-	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.
+	 * Print the fields via Form or custom callback.
 	 *
-	 * @since 1.8.0 Fixed callback checking to check callback, fields AND field values.
-	 *              Also added preprocessing of fields for meta box specific purposes.
-	 * @since 1.6.0 Added use of get_fields option.
-	 * @since 1.4.0 Added use of $source parameter in Form::build_fields().
-	 * @since 1.3.0 Added option of callback key instead of fields for a callback.
-	 * @since 1.0.0
-	 * @uses Form::build_fields()
+	 * Determines the fields array or callback based on the arguments.
 	 *
-	 * @param object $post The post object to be sent when called via add_meta_box.
-	 * @param array $args The callback args to be sent when called via add_meta_box.
+	 * @since 1.10.0
+	 *
+	 * @param string $context The context (meta_box, setting, etc).
+	 * @param string $field   The name/ID of the field/fieldset.
+	 * @param array  $args    The original arguments used.
+	 * @param mixed  $data    The data to use for the fields.
+	 * @param string $source  The source type of the data.
+	 * @param bool   $wrap    The default $wrap argument for build_fields.
 	 */
-	public static function build_meta_box( $post, $args ) {
-		// Extract $args
-		$id = $args['args']['id'];
-		$args = $args['args']['args'];
-
-		// Print nonce field
-		wp_nonce_field( $id, "_qsnonce-$id" );
-
-		// Determine the callback or fields argument
-		$callback = $fields = null;
+	protected static function do_fields_or_callback( $context, $id, $args, $data, $source, $wrap ) {
+		$fields = $callback = null;
 		if ( isset( $args['callback'] ) && is_callable( $args['callback'] ) ) {
 			$callback = $args['callback'];
 		} elseif ( isset( $args['fields'] ) ) {
@@ -291,51 +283,80 @@ class Tools extends \Smart_Plugin {
 			/**
 			 * Dynamically generate the fields array.
 			 *
-			 * @since 1.6.0
+			 * @since 1.10.0
 			 *
-			 * @param WP_Post $post The post object.
-			 * @param array   $args The original arguments for the meta box.
-			 * @param string  $id   The ID of the meta box.
+			 * @param WP_Post $post   The post object.
+			 * @param array   $args   The original arguments for the meta box.
+			 * @param string  $id     The ID of the meta box.
+			 * @param string  $source The source type for the data.
 			 */
-			$fields = call_user_func( $args['get_fields'], $post, $args, $id );
+			$fields = call_user_func( $args['get_fields'], $data, $args, $id, $source );
 		}
+		
+		if ( $callback ) {
+			/**
+			 * Build the HTML of the metabox.
+			 *
+			 * @since 1.10.0
+			 *
+			 * @param mixed  $data   The data for the fields.
+			 * @param array  $args   The arguments for the fields.
+			 * @param string $id     The id of the field(set).
+			 * @param string $source The source type of the data.
+			 */
+			call_user_func( $callback, $data, $args, $id, $source );
+		} elseif ( $fields ) {
+			// First, handle any special processing of the fields
+			foreach ( $fields as $field => &$settings ) {
+				if ( $context == 'meta_box' && isset( $settings['type'] ) ) {
+					// Special conditions for meta boxes
+					switch ( $settings['type'] ) {
+						case 'editor':
+							// Meta boxes can't have tinyce-enabled editors; they're buggy
+							$settings['tinymce'] = false;
+							break;
+					}
+				}
+			}
+			
+			// Build the fields
+			Form::build_fields( $fields, $data, $source, $wrap );
+		}
+	}
+
+	/**
+	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.
+	 *
+	 * @since 1.10.0 Added use of do_fields_or_callback().
+	 * @since 1.8.0  Fixed callback checking to check callback, fields AND field values.
+	 *               Also added preprocessing of fields for meta box specific purposes.
+	 * @since 1.6.0  Added use of get_fields option.
+	 * @since 1.4.0  Added use of $source parameter in Form::build_fields().
+	 * @since 1.3.0  Added option of callback key instead of fields for a callback.
+	 * @since 1.0.0
+	 * @uses Form::build_fields()
+	 *
+	 * @param object $post    The post object to be sent when called via add_meta_box.
+	 * @param array  $metabox The settings for the metabox, including callback args.
+	 */
+	public static function build_meta_box( $post, $metabox ) {
+		// Extract $args
+		$id = $metabox['args']['id'];
+		$args = $metabox['args']['args'];
+
+		// Print nonce field
+		wp_nonce_field( $id, "_qsnonce-$id" );
 
 		// Wrap in container for any specific targeting needed
 		echo '<div class="qs-meta-box">';
-			if ( $callback ) {
-				/**
-				 * Build the HTML of the meta box.
-				 *
-				 * @since 1.3.0 Use $callback from 'fields' or 'callback' arg.
-				 * @since 1.0.0
-				 *
-				 * @param WP_Post $post The post object.
-				 * @param array   $args The original arguments for the meta box
-				 * @param string  $id   The ID of the meta box.
-				 */
-				call_user_func( $callback, $post, $args, $id );
-			} elseif ( $fields ) {
-				// First, handle any special meta box only processing of the fields
-				foreach ( $fields as $field => &$settings ) {
-					if ( isset( $settings['type'] ) ) {
-						switch ( $settings['type'] ) {
-							case 'editor':
-								// Meta boxes can't have tinyce-enabled editors; they're buggy
-								$settings['tinymce'] = false;
-								break;
-						}
-					}
-				}
-
-				// Now, Build the fields
-				Form::build_fields( $fields, $post, 'post', true );
-			}
+			static::do_fields_or_callback( 'meta_box', $id, $args, $post, 'post', true );
 		echo '</div>';
 	}
 
 	/**
 	 * Build a settings fieldset, either calling the callback of running the build_fields Form method.
 	 *
+	 * @since 1.10.0 Reworked $args, added use of do_fields_or_callback().
 	 * @since 1.8.0
 	 * @uses Form::build_fields()
 	 *
@@ -344,27 +365,49 @@ class Tools extends \Smart_Plugin {
 	public static function build_settings_field( $args ) {
 		// Extract $args
 		$setting = $args['setting'];
-		$fields = $args['fields'];
+		$args = $args['args'];
 
 		// Wrap in container for any specific targeting needed
 		echo '<div class="qs-settings-field" id="' . $setting . '-settings-field">';
-			if ( is_callable( $fields ) ) {
-				/**
-				 * Build the HTML of the metabox.
-				 *
-				 * @since 1.3.0 Use $callback from 'fields' or 'callback' arg.
-				 * @since 1.0.0
-				 *
-				 * @param WP_Post $post The post object.
-				 * @param array   $args The original arguments for the metabox
-				 * @param string  $id   The ID of the metabox.
-				 */
-				call_user_func( $fields );
-			} else {
-				// Build the fields
-				Form::build_fields( $fields, null, 'option', true );
-			}
+			static::do_fields_or_callback( 'field_row', $setting, $args, null, 'option', false );
 		echo '</div>';
+	}
+	
+	/**
+	 * Build a field row for a form table.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param string $field  The name/id of the field.
+	 * @param array  $args   The arguments for the field.
+	 * @param array  $data   The data to pass to Form::build_field().
+	 * @param array  $source The source to pass to Form::build_field().
+	 */
+	public static function build_field_row( $field, $args, $data, $source ) {
+		$default_args = array(
+			'id'              => 'qs_field_' . static::make_id( $field ),
+			'name'            => $field,
+			'title'           => static::make_label( $field ),
+		);
+
+		// Parse the passed args with the defaults
+		$args = wp_parse_args( $args, $default_args );
+		
+		echo '<tr class="form-field qs-form-field-row" id="' . $source . '-' . $field . '-wrap">';
+			echo '<th scope="row">';
+				// Print the row title as needed
+				if ( isset( $args['title_not_label'] ) && $args['title_not_label'] ) {
+					// Print just the title
+					echo $args['title'];
+				} else {
+					// Print the title as a label
+					printf( '<label for="%s">%s</label>', $args['id'], $args['title'] );
+				}
+			echo '</th>';
+			echo '<td>';
+				static::do_fields_or_callback( 'field_row', $setting, $args, $data, $source, false );
+			echo '</td>';
+		echo '</tr>';
 	}
 
 	/**

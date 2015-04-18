@@ -161,6 +161,13 @@ class Form {
 				}
 				$value = get_post_meta( $data, $key, $single );
 				break;
+			case 'term':
+				// Get the matching meta value for this term
+				if ( is_object( $data ) ) {
+					$data = $data->term_id;
+				}
+				$value = get_term_meta( $data, $key, $single );
+				break;
 			case 'option':
 				// Get the matching option value
 				$value = get_option( $key );
