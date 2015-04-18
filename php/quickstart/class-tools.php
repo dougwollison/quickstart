@@ -131,12 +131,28 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Load the requested helper files.
 	 *
-	 * @since 1.7.1 Added use of constants to flag which helpers have been loaded.
+	 * @sicne 1.10.0 Added option to load all helpers.
+	 * @since 1.7.1  Added use of constants to flag which helpers have been loaded.
 	 * @since 1.0.0
 	 *
 	 * @param mixed $helpers A name or array of helper files to load (sans extention).
 	 */
 	public static function load_helpers( $helpers ) {
+		// Check if ALL helpers are requested
+		if ( $helpers == 'all' ) {
+			$helpers = array(
+				'attachment',
+				'family',
+				'index',
+				'media_manager',
+				'post_chunks',
+				'post_field',
+				'post_meta',
+				'teaser',
+				'wpedit',
+			);
+		}
+		
 		csv_array_ref( $helpers );
 		foreach ( $helpers as $helper ) {
 			$constant = 'QS_LOADED_' . strtoupper( $helper );
