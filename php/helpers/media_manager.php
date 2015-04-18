@@ -3,18 +3,19 @@
  * Media Manager helpers; hooks/functions for setting up the QuickStart media manager JavaScript and CSS.
  *
  * @package QuickStart
- * @subpackage MediaManager
+ * @subpackage Media_Manager
  * @since 1.0.0
  */
 
 /**
  * Enqueues the necessary JavaScript and CSS files for the media manager interfaces.
  *
+ * @since 1.10.0 Renamed.
  * @since 1.0.0
  *
  * @uses QuickStart\Tools::enqueue()
  */
-function quickstart_enqueue_media_manager(){
+function qs_helper_mediamanager_enqueue(){
 	wp_enqueue_media();
 
 	QuickStart\Tools::enqueue( array(
@@ -26,4 +27,4 @@ function quickstart_enqueue_media_manager(){
 		)
 	) );
 }
-add_action( 'admin_enqueue_scripts', 'quickstart_enqueue_media_manager' );
+add_action( 'admin_enqueue_scripts', 'qs_helper_mediamanager_enqueue' );
