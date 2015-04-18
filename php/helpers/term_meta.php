@@ -74,10 +74,13 @@ add_action( 'delete_term', 'qs_helper_termmeta_deleteterm' );
 /**
  * Add meta data field to a term.
  *
- * @param int $term_id Term ID.
+ * @since 1.10.0
+ *
+ * @param int    $term_id Term ID.
  * @param string $meta_key Metadata name.
- * @param mixed $meta_value Metadata value.
- * @param bool $unique Optional, default is false. Whether the same key should not be added.
+ * @param mixed  $meta_value Metadata value.
+ * @param bool   $unique Optional, default is false. Whether the same key should not be added.
+ *
  * @return int|bool Meta ID on success, false on failure.
  */
 function add_term_meta( $term_id, $meta_key, $meta_value, $unique = false ) {
@@ -91,9 +94,12 @@ function add_term_meta( $term_id, $meta_key, $meta_value, $unique = false ) {
  * value, will keep from removing duplicate metadata with the same key. It also
  * allows removing all metadata matching key, if needed.
  *
- * @param int $term_id term ID
+ * @since 1.10.0
+ *
+ * @param int    $term_id term ID
  * @param string $meta_key Metadata name.
- * @param mixed $meta_value Optional. Metadata value.
+ * @param mixed  $meta_value Optional. Metadata value.
+ *
  * @return bool True on success, false on failure.
  */
 function delete_term_meta( $term_id, $meta_key, $meta_value = '' ) {
@@ -103,11 +109,14 @@ function delete_term_meta( $term_id, $meta_key, $meta_value = '' ) {
 /**
  * Retrieve term meta field for a term.
  *
- * @param int $term_id Term ID.
- * @param string $key Optional. The meta key to retrieve. By default, returns data for all keys.
- * @param bool $single Whether to return a single value.
- * @return mixed Will be an array if $single is false. Will be value of meta data field if $single
- *  is true.
+ * @since 1.10.0
+ *
+ * @param int    $term_id Term ID.
+ * @param string $key     Optional. The meta key to retrieve. By default, returns data for all keys.
+ * @param bool   $single  Whether to return a single value.
+ *
+ * @return mixed Will be an array if $single is false.
+ *               Will be value of meta data field if $single is true.
  */
 function get_term_meta( $term_id, $key = '', $single = false ) {
 	return get_metadata( 'term', $term_id, $key, $single );
@@ -121,10 +130,13 @@ function get_term_meta( $term_id, $key = '', $single = false ) {
  *
  * If the meta field for the term does not exist, it will be added.
  *
- * @param int $term_id Term ID.
+ * @since 1.10.0
+ *
+ * @param int    $term_id Term ID.
  * @param string $meta_key Metadata key.
- * @param mixed $meta_value Metadata value.
- * @param mixed $prev_value Optional. Previous value to check before removing.
+ * @param mixed  $meta_value Metadata value.
+ * @param mixed  $prev_value Optional. Previous value to check before removing.
+ *
  * @return int|bool Meta ID if the key didn't exist, true on successful update, false on failure.
  */
 function update_term_meta( $term_id, $meta_key, $meta_value, $prev_value = '' ) {
