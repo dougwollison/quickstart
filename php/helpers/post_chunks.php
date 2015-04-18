@@ -6,11 +6,35 @@
  * @subpackage Post_Chunks
  * @since 1.0.0
  */
+ 
+/**
+ * Utility for splitting the content into chunks.
+ *
+ * @since 1.10.0
+ *
+ * @param string $content   The content to split.
+ * @param string $separator The separator to split at.
+ *
+ * @return array The resulting chunks.
+ */
+function get_content_chunks( $content, $separator ) {
+	// Escape the separator to make sure it works in a regex
+	$separator = preg_quote( $separator, '/' );
+
+	// Move closing tags after a more tag to before it, prevents broken code
+	$content = preg_replace( '/(' . $separator . ')((?:\s*<\/\w+>\s*)+)/', '$2$1', $content );
+
+	// Create the chunks
+	$chunks = explode( $sep, $content );
+	
+	return $chunks;
+}
 
 /**
  * Adds new property to $post object with chopped up version of the post.
  *
- * @since 1.8.0 Added filtering hook for the separator string used.
+ * @since 1.10.0 Moved chunk creation to separate utility function.
+ * @since 1.8.0  Added filtering hook for the separator string used.
  * @since 1.0.0
  *
  * @param object $post The post to be chopped up.
@@ -33,15 +57,9 @@ function post_chunks( $post ) {
 	 * @param WP_Post $post The post object being used.
 	 */
 	$sep = apply_filters( 'qs_helper_chunk_separator', $sep, $post );
-
-	// Escape it to make sure it works in a regex
-	$sep_quoted = preg_quote( $sep, '/' );
-
-	// Move closing tags after a more tag to before it, prevents broken code
-	$post->post_content = preg_replace( '/(' . $sep_quoted . ')((?:\s*<\/\w+>\s*)+)/', '$2$1', $post->post_content );
-
-	// Create the chunks
-	$post->chunks = explode( $sep, $post->post_content );
+	
+	// Get the chunks
+	$post->chunks = get_content_chunks( $post->post_content, $sep );
 
 	// Store the default chunk number for looping
 	$post->chunk = 1;
