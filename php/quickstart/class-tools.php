@@ -20,22 +20,24 @@ class Tools extends \Smart_Plugin {
 	 * @var array
 	 */
 	protected static $static_method_hooks = array(
-		'relabel_posts_object'   => array( 'init', 10, 0 ),
-		'relabel_posts_menu'     => array( 'admin_menu', 10, 0 ),
-		'fix_shortcodes'         => array( 'the_content', 10, 1 ),
-		'do_quicktags'           => array( 'admin_print_footer_scripts', 10, 0 ),
-		'disable_quickedit'      => array( 'post_row_actions', 10, 2 ),
-		'frontend_enqueue'       => array( 'wp_enqueue_scripts', 10, 0 ),
-		'backend_enqueue'        => array( 'admin_enqueue_scripts', 10, 0 ),
-		'quick_frontend_enqueue' => array( 'wp_enqueue_scripts', 10, 0 ),
-		'quick_backend_enqueue'  => array( 'admin_enqueue_scripts', 10, 0 ),
-		'post_type_save'         => array( 'save_post', 10, 1 ),
-		'post_type_save_meta'    => array( 'save_post', 10, 1 ),
-		'post_type_count'        => array( 'dashboard_glance_items', 10, 1 ),
-		'edit_meta_box'          => array( 'do_meta_boxes', 10, 2 ),
-		'taxonomy_filter'        => array( 'restrict_manage_posts', 10, 0 ),
-		'print_extra_editor'     => array( 'edit_form_after_editor', 10, 1 ),
-		'add_query_var'          => array( 'query_vars', 10, 1 ),
+		'relabel_posts_object'     => array( 'init', 10, 0 ),
+		'relabel_posts_menu'       => array( 'admin_menu', 10, 0 ),
+		'fix_shortcodes'           => array( 'the_content', 10, 1 ),
+		'do_quicktags'             => array( 'admin_print_footer_scripts', 10, 0 ),
+		'disable_quickedit'        => array( 'post_row_actions', 10, 2 ),
+		'frontend_enqueue'         => array( 'wp_enqueue_scripts', 10, 0 ),
+		'backend_enqueue'          => array( 'admin_enqueue_scripts', 10, 0 ),
+		'quick_frontend_enqueue'   => array( 'wp_enqueue_scripts', 10, 0 ),
+		'quick_backend_enqueue'    => array( 'admin_enqueue_scripts', 10, 0 ),
+		'post_type_save'           => array( 'save_post', 10, 1 ),
+		'post_type_save_meta'      => array( 'save_post', 10, 1 ),
+		'post_type_count'          => array( 'dashboard_glance_items', 10, 1 ),
+		'edit_meta_box'            => array( 'do_meta_boxes', 10, 2 ),
+		'taxonomy_filter'          => array( 'restrict_manage_posts', 10, 0 ),
+		'print_extra_editor'       => array( 'edit_form_after_editor', 10, 1 ),
+		'print_extra_editor_above' => array( 'edit_form_after_title', 10, 1 ),
+		'print_extra_editor_below' => array( 'edit_form_after_editor', 10, 1 ),
+		'add_query_var'            => array( 'query_vars', 10, 1 ),
 	);
 
 	/**
@@ -413,6 +415,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Setup an extra wp_editor for the edit post form.
 	 *
+	 * @since 1.10.0 Added support for post_field and location.
 	 * @since 1.8.0
 	 *
 	 * @param string $name     The name of the field (by default also the meta_key).
@@ -424,10 +427,19 @@ class Tools extends \Smart_Plugin {
 			'meta_key' => $name,
 			'post_type' => 'page',
 			'title' => make_legible( $name ),
+			'location' => 'below',
 		) );
 
-		static::post_type_save_meta( $settings['post_type'], $settings['meta_key'], $settings['name'] );
-		static::print_extra_editor( $settings );
+		// Determine and setup the necessary save hook, based on settings
+		if ( isset( $settings['post_field'] ) ) {
+			static::post_type_save_field( $settings['post_type'], $settings['post_field'], $settings['name'] );
+		} else {
+			static::post_type_save_meta( $settings['post_type'], $settings['meta_key'], $settings['name'] );
+		}
+
+		// Determine and call the necessary method, based on location
+		$method = 'print_extra_editor_' . $settings['location'];
+		static::$method( $settings );
 	}
 
 	// =========================
@@ -1285,6 +1297,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Print an extra wp_editor to the edit post form.
 	 *
+	 * @since 1.10.0 Fixed class & id of wrapper.
 	 * @since 1.8.0
 	 *
 	 * @see Tools::add_extra_editor()
@@ -1299,12 +1312,40 @@ class Tools extends \Smart_Plugin {
 		}
 
 		// Get the value
-		$value = get_post_meta( $post->ID, $settings['meta_key'], true );
+		if ( isset( $settings['post_field'] ) ) {
+			// Auto prefix if needed
+			$field = static::maybe_prefix_post_field( $settings['post_field'] );
+			$value = $post->{$field};
+		} elseif ( isset( $settings['meta_key'] ) ) {
+			$value = get_post_meta( $post->ID, $settings['meta_key'], true );
+		}
 
-		printf( '<div class="qs-editor" id="%s-editor">', $name );
+		printf( '<div class="qs-editor-wrap" id="%s-editor-wrap">', $settings['name'] );
 			echo '<h3>' . $settings['title'] . '</h3>';
 			echo Form::build_editor( $settings, $value );
 		echo '</div>';
+	}
+
+	/**
+	 * Alias of print_extra_editor() but fires before the main editor.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @see Tools::print_extra_editor()
+	 */
+	public static function _print_extra_editor_above( $post, $settings = array() ) {
+		static::_print_extra_editor( $post, $settings );
+	}
+
+	/**
+	 * Alias of print_extra_editor() but fires after the main editor.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @see Tools::print_extra_editor()
+	 */
+	public static function _print_extra_editor_below( $post, $settings = array() ) {
+		static::_print_extra_editor( $post, $settings );
 	}
 
 	/**
