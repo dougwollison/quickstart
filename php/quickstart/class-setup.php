@@ -869,6 +869,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the save hook for the meta box.
 	 *
+	 * @since 1.10.0 Added use of Tools::maybe_prefix_post_field when handling post_field values.
 	 * @since 1.9.0 Now protected.
 	 * @since 1.8.0 Added use of "save_single" option and support for foo[bar] style fields,
 	 *				$meta_key value now defaults to the same as $post_key.
@@ -995,6 +996,9 @@ class Setup extends \Smart_Plugin {
 					// If "post_field" is present, update the field, not a meta value
 					if ( isset( $settings['post_field'] ) && $settings['post_field'] ) {
 						global $wpdb;
+
+						// Prefix the field if necessary
+						$field = Tools::maybe_prefix_post_field( $settings['post_field'] );
 
 						// Directly update the entry in the database
 						$wpdb->update( $wpdb->posts, array(
