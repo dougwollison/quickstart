@@ -10,8 +10,9 @@
 /**
  * Creates the teaser from a post of a specified length.
  *
- * @since 1.9.0 $post can now be an ID.
- * @since 1.6.0 Reworked to properly handle $use_excerpt boolean.
+ * @since 1.10.0 $length can now be the entire $args array.
+ * @since 1.9.0  $post can now be an ID.
+ * @since 1.6.0  Reworked to properly handle $use_excerpt boolean.
  * @since 1.0.0
  *
  * @param int    $length      Optional The length, in words, that the teaser should be.
@@ -22,6 +23,11 @@
  * @return string The resulting teaser text.
  */
 function get_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = false, $trailer = '...' ) {
+	if ( is_array( $length ) ) {
+		$args = $length;
+		extract( $args );
+	}
+	
 	if ( is_null( $post ) ) {
 		global $post;
 	} elseif ( is_int( $post ) ) {
