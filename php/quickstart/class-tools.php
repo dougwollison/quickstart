@@ -442,6 +442,37 @@ class Tools extends \Smart_Plugin {
 		static::$method( $settings );
 	}
 
+	/**
+	 * Geocode an address using the Google Geocode JSON API.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param string $address The address string to geocode.
+	 * @param string $api_key Optional The Google API key to use in the request.
+	 *
+	 * @return array The gecoded address; latitude and longitude.
+	 */
+	public static function geocode_address( $address = null, $api_key = null ) {
+		// Default to the GOOGLE_API_SERVER_KEY constant if defined
+		if ( is_null( $api_key ) && defined( 'GOOGLE_API_SERVER_KEY' ) ) {
+			$api_key = GOOGLE_API_SERVER_KEY;
+		}
+		
+		// Build the URL to query
+		$url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query( array(
+			'address' => str_replace( "\n", ' ', $value ),
+			'key' => $api_key,
+		) );
+		
+		// Get the JSON data, and parse, update if successful
+		if ( ( $result = file_get_contents( $url ) )
+		&& ( $result = json_decode( $result, true ) ) ) {
+			return $result['results'][0]['geometry']['location'];
+		}
+		
+		return false;
+	}
+
 	// =========================
 	// !Style/Script Enqueue Methods
 	// =========================
