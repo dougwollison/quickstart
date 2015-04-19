@@ -43,8 +43,9 @@ class Form {
 	/**
 	 * Generate the format string to use in sprintp.
 	 *
-	 * @since 1.7.0 Added %description placeholder and qs-field-[side] class.
-	 * @since 1.5.0 Added %id-field id.
+	 * @since 1.10.0 Changed wrapper class/id scheme.
+	 * @since 1.7.0  Added %description placeholder and qs-field-[side] class.
+	 * @since 1.5.0  Added %id-field id.
 	 * @since 1.4.0
 	 *
 	 * @param string $side Which side the label should appear on (left/right).
@@ -53,7 +54,7 @@ class Form {
 	 * @return string The generated format string.
 	 */
 	public static function build_field_wrapper( $side = 'left', $tag = 'div' ) {
-		$format = '<' . $tag . ' class="qs-field %type %wrapper_class" id="%id-field">';
+		$format = '<' . $tag . ' class="qs-field qs-field-%field_id-wrapper %type %wrapper_class" id="%id-wrapper">';
 
 		$label = '<label for="%id" class="qs-label qs-label-' . $side . '">%label</label>';
 		if ( $side == 'right' ) {
@@ -193,16 +194,18 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
-	 * @since 1.8.0 Added use of "save_single" option, "default" value option,
-	 * 				"data_name" value now defaults to the same as "name".
-	 * @since 1.6.0 Added qs_field_ prefix to field id, get_value() use for callback.
-	 * @since 1.5.0 Added "taxonomy" option handling.
-	 * @since 1.4.2 Added "get_value" and "post_field" option handling.
-	 * @since 1.4.0 Added $source argument.
-	 * @since 1.3.3 Added use of new make_label() method.
-	 * @since 1.3.0 Added $wrap argument for setting default wrap_with_label value,
-	 *				also merged filters into one, and added 'build' callback.
-	 * @since 1.1.0 Added check if $settings is a callback.
+	 * @since 1.10.0 Added use of Tools::maybe_prefix_post_field when handling post_field values.
+	 *				 Also added/tweaked default input/wrapper classes/id values.
+	 * @since 1.8.0  Added use of "save_single" option, "default" value option,
+	 * 				 "data_name" value now defaults to the same as "name".
+	 * @since 1.6.0  Added qs_field_ prefix to field id, get_value() use for callback.
+	 * @since 1.5.0  Added "taxonomy" option handling.
+	 * @since 1.4.2  Added "get_value" and "post_field" option handling.
+	 * @since 1.4.0  Added $source argument.
+	 * @since 1.3.3  Added use of new make_label() method.
+	 * @since 1.3.0  Added $wrap argument for setting default wrap_with_label value,
+	 *				 also merged filters into one, and added 'build' callback.
+	 * @since 1.1.0  Added check if $settings is a callback.
 	 * @since 1.0.0
 	 *
 	 * @param string $field    The name/id of the field.
@@ -231,10 +234,13 @@ class Form {
 			 */
 			return call_user_func( $settings, $value, $field );
 		}
+		
+		$field_id = static::make_id( $field );
 
 		$default_settings = array(
 			'type'            => 'text',
-			'id'              => 'qs_field_' . static::make_id( $field ),
+			'field_id'        => $field_id,
+			'id'              => 'qs_field_' . $field_id,
 			'name'            => $field,
 			'label'           => static::make_label( $field ),
 			'data_name'       => $field, // The name of the postmeta or option to retrieve
@@ -288,6 +294,10 @@ class Form {
 			$value = call_user_func( $settings['get_value'], $data, $source, $settings, $field );
 		} elseif ( isset( $settings['post_field'] ) && $settings['post_field'] && $source == 'post' ) {
 			// Alternately, if "post_field" is present (and the source is a post), get the matching field
+
+			// Prefix the field if necessary
+			$field = Tools::maybe_prefix_post_field( $settings['post_field'] );
+			
 			$value = $data->{$settings['post_field']};
 		} elseif ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] && $source == 'post' ) {
 			// Alternately, if "taxonomy" is present (and the source is a post), get the matching terms
@@ -318,6 +328,10 @@ class Form {
 		} elseif ( ! is_array( $settings['class'] ) ) {
 			$settings['class'] = (array) $settings['class'];
 		}
+
+		// Add the default qs-field and qs-field-$field_id classes
+		$settings['class'][] = 'qs-field';
+		$settings['class'][] = 'qs-field-' . $field_id;
 
 		// Check if the "get_values" callback is present,
 		// Run it and replace "values" key with the returned value.
