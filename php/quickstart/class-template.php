@@ -316,19 +316,21 @@ class Template {
 	/**
 	 * Print out the template url for javascript.
 	 *
+	 * @since 1.10.0 Now uses TEMPLATE_URL constant for value.
 	 * @since 1.8.0
 	 */
 	public static function template_url(){
-		echo '<script>var template_url = "' . get_bloginfo('template_url') . '";</script>';
+		echo '<script>var template_url = "' . TEMPLATE_URL . '";</script>';
 	}
 
 	/**
 	 * Print out the theme url for javascript.
 	 *
+	 * @since 1.10.0 Now uses THEME_URL constant for value.
 	 * @since 1.9.0
 	 */
 	public static function theme_url(){
-		echo '<script>var theme_url = "' . get_bloginfo('theme_url') . '";</script>';
+		echo '<script>var theme_url = "' . THEME_URL . '";</script>';
 	}
 
 	/**
