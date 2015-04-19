@@ -131,8 +131,9 @@ class Form {
 	/**
 	 * Get the value to use for the field.
 	 *
-	 * @since 1.8.0 Added $single param.
-	 * @since 1.6.0 Added use of extract_value().
+	 * @since 1.10.0 Added handling of term meta.
+	 * @since 1.8.0  Added $single param.
+	 * @since 1.6.0  Added use of extract_value().
 	 * @since 1.4.0
 	 *
 	 * @uses extract_value()
