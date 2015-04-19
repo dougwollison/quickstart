@@ -10,6 +10,7 @@
 /**
  * Fetch the specified field from the specified post (by ID or post_name).
  *
+ * @since 1.10.0 Moved $post_fields to Tools
  * @since 1.0.0
  *
  * @global wpdb $wpdb The database abstraction class.
@@ -22,24 +23,6 @@
 function get_postfield( $field, $id ) {
 	global $wpdb;
 
-	$post_fields = array(
-		'author',
-		'date',
-		'date_gmt',
-		'content',
-		'title',
-		'excerpt',
-		'status',
-		'password',
-		'name',
-		'modified',
-		'modified_gmt',
-		'content_filtered',
-		'parent',
-		'type',
-		'mime_type',
-	);
-
 	$where = 'ID';
 	$format = '%d';
 
@@ -49,10 +32,8 @@ function get_postfield( $field, $id ) {
 		$format = '%s';
 	}
 
-	// Check if the $field doesn't start with post_ but should; prefix if so
-	if ( strpos( $field, 'post_' ) !== 0 && in_array( $field, $post_fields ) ) {
-		$field = "post_$field";
-	}
+	// Prefix the field if necessary
+	$field = QuickStart\Tools::maybe_prefix_post_field( $field );
 
 	return $wpdb->get_var( $wpdb->prepare( "SELECT $field FROM $wpdb->posts WHERE $where = $format", $id ) );
 }

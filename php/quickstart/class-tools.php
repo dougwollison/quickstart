@@ -41,6 +41,16 @@ class Tools extends \Smart_Plugin {
 	);
 
 	/**
+	 * A list of post table fields that are prefixed with post_
+	 *
+	 * @since 1.10.0
+	 *
+	 * @access public
+	 * @var array
+	 */
+	public static $prefixed_post_fields = array( 'author', 'content_filtered', 'content', 'date_gmt', 'date', 'excerpt', 'mime_type', 'modified_gmt', 'modified', 'name', 'parent', 'password', 'status', 'title', 'type' );
+
+	/**
 	 * A list of accepted attributes for tag building.
 	 *
 	 * @since 1.5.0 Moved from Form to Tools class.
@@ -205,6 +215,24 @@ class Tools extends \Smart_Plugin {
 		wp_update_attachment_metadata( $attachment_id, $attachment_data );
 
 		return $attachment_id;
+	}
+
+	/**
+	 * Check if a post field name needs to be prefixed with post_
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param string $field The name of the field to check/prefix.
+	 *
+	 * @return string The possibly prefixed field.
+	 */
+	public static function maybe_prefix_post_field( $field ) {
+		// Check if the $field doesn't start with post_ but should; prefix if so
+		if ( strpos( $field, 'post_' ) !== 0 && in_array( $field, static::$prefixed_post_fields ) ) {
+			$field = "post_$field";
+		}
+
+		return $field;
 	}
 
 	/**
