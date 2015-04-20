@@ -53,13 +53,14 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * A list of accepted attributes for tag building.
 	 *
-	 * @since 1.5.0 Moved from Form to Tools class.
+	 * @since 1.10.0 Removed type from list.
+	 * @since 1.5.0  Moved from Form to Tools class.
 	 * @since 1.0.0
 	 *
 	 * @access public
 	 * @var array
 	 */
-	public static $accepted_attrs = array( 'accesskey', 'autocomplete', 'checked', 'class', 'cols', 'disabled', 'id', 'max', 'maxlength', 'min', 'multiple', 'name', 'placeholder', 'readonly', 'required', 'rows', 'size', 'style', 'tabindex', 'title', 'type', 'value' );
+	public static $accepted_attrs = array( 'accesskey', 'autocomplete', 'checked', 'class', 'cols', 'disabled', 'id', 'max', 'maxlength', 'min', 'multiple', 'name', 'placeholder', 'readonly', 'required', 'rows', 'size', 'style', 'tabindex', 'title', 'value' );
 
 	/**
 	 * A list of tags that should have no content.
@@ -78,6 +79,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Build an HTML tag.
 	 *
+	 * @since 1.10.0 Now adding 'type' to $accepted when doing an INPUT tag.
 	 * @since 1.7.0 Further refined attribute filtering and escaping.
 	 * @since 1.6.2 Added attribute escaping.
 	 * @since 1.6.0 Revised handling of boolean attributes, added $void_elements.
@@ -95,6 +97,11 @@ class Tools extends \Smart_Plugin {
 	public static function build_tag( $tag, $atts, $content = false, $accepted = null ) {
 		if ( is_null( $accepted ) ) {
 			$accepted = static::$accepted_attrs;
+		}
+		
+		// Add 'type' to accepted attributes list if INPUT
+		if ( $tag == 'input' ) {
+			$accepted[] = 'type';
 		}
 
 		$html = "<$tag";
