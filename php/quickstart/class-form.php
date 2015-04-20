@@ -73,17 +73,17 @@ class Form {
 	/**
 	 * Wrap the field in a label, if wrap_with_label is true.
 	 *
-	 * @since 1.7.0 Added handling of description option, mild restructuring.
-	 * @since 1.4.0 Renamed $html to $input, revised $format handling.
+	 * @since 1.10.0 Dropped $wrapper argument; use 'format' setting.
+	 * @since 1.7.0  Added handling of description option, mild restructuring.
+	 * @since 1.4.0  Renamed $html to $input, revised $format handling.
 	 * @since 1.0.0
 	 *
 	 * @param string $input    The html of the input to wrap.
 	 * @param array  $settings The settings array for the field.
-	 * @param string $format   Optional The format to use.
 	 *
 	 * @return string The processed HTML.
 	 */
-	public static function maybe_wrap_field( $input, $settings, $format = null ) {
+	public static function maybe_wrap_field( $input, $settings ) {
 		// If a description is set, prep it
 		if ( isset( $settings['description'] ) && ! empty( $settings['description'] ) ) {
 			$settings['description'] = sprintf( '<p class="description">%s</p>', $settings['description'] );
@@ -196,6 +196,7 @@ class Form {
 	 *
 	 * @since 1.10.0 Added use of Tools::maybe_prefix_post_field when handling post_field values.
 	 *				 Also added/tweaked default input/wrapper classes/id values.
+	 *               Dropped use of absent $wrapper argument in function calls.
 	 * @since 1.8.0  Added use of "save_single" option, "default" value option,
 	 * 				 "data_name" value now defaults to the same as "name".
 	 * @since 1.6.0  Added qs_field_ prefix to field id, get_value() use for callback.
@@ -361,17 +362,19 @@ class Form {
 			 *
 			 * @param array  $settings The settings for the field.
 			 * @param mixed  $value    The retrieved value of the field.
+			 * @param mixed  $data     The source of the value.
+			 * @param string $source   The source's type.
 			 * @param string $field    The name of the field to build.
 			 *
 			 * @return string The HTML of the field.
 			 */
-			$html = call_user_func( $settings['build'], $settings, $value, $field );
+			$html = call_user_func( $settings['build'], $settings, $value, $data, $source, $field );
 		} elseif ( $method != __FUNCTION__ && method_exists( get_called_class(), $method ) ) {
 			// Matches one of the specialized internal field builders
-			$html = static::$method( $settings, $value );
+			$html = static::$method( $settings, $value, $data, $source );
 		} else {
 			// Assume a text-like input, use the generic field builder
-			$html = static::build_generic( $settings, $value );
+			$html = static::build_generic( $settings, $value, $data, $source );
 		}
 
 		/**
@@ -450,16 +453,18 @@ class Form {
 	/**
 	 * Build a generic field (e.g. text, number, email, etc.)
 	 *
-	 * @since 1.4.0 Dropped $field arg, added $wrapper arg, revised wrapping usage.
+	 * @since 1.10.0 Dropped use of $wrapper argument (just pass 'format' in $settings).
+	 * @since 1.4.0  Dropped $field arg, added $wrapper arg, revised wrapping usage.
 	 * @since 1.0.0
 	 *
 	 * @param array  $settings The settings to use in creating the field.
 	 * @param mixed  $value    The value to fill the field with.
-	 * @param string $wrapper  Optional The format string to use when wrapping the field.
+	 * @param mixed  $data     The original source of the data.
+	 * @param string $source   The data source's type.
 	 *
 	 * @return string The HTML for the field.
 	 */
-	public static function build_generic( $settings, $value, $wrapper = null ) {
+	public static function build_generic( $settings, $value, $data = null, $source = null ) {
 		// Load the value attribute with the field value
 		$settings['value'] = $value;
 
@@ -470,7 +475,7 @@ class Form {
 		$settings['wrapper_class'] .= ' generic';
 
 		// Wrap the input in the html if needed
-		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
+		$html = static::maybe_wrap_field( $input, $settings );
 
 		return $html;
 	}
@@ -482,12 +487,12 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_textarea( $settings, $value, $wrapper = null ) {
+	public static function build_textarea( $settings, $value, $data = null, $source = null ) {
 		// Build the <input>
 		$input = Tools::build_tag( 'textarea', $settings, $value );
 
 		// Wrap the input in the html if needed
-		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
+		$html = static::maybe_wrap_field( $input, $settings );
 
 		return $html;
 	}
@@ -502,7 +507,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_select( $settings, $value, $wrapper = null ) {
+	public static function build_select( $settings, $value, $data = null, $source = null ) {
 		$options = '';
 
 		// Ensure a values setting has been passed
@@ -559,32 +564,159 @@ class Form {
 		// Build the <select>
 		$input = Tools::build_tag( 'select', $settings, $options );
 
-		$html = static::maybe_wrap_field( $input, $settings, $wrapper );
+		$html = static::maybe_wrap_field( $input, $settings );
 
 		return $html;
 	}
 
 	/**
+	 * Build a hierarchical post select field.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_postselect( $settings, $value, $data = null, $source = null ) {
+		// Default Settings
+		$default_settings = array(
+			'post_type' => null,
+			'post_status' => 'publish,private,draft',
+			'exclude' => null,
+			'none_option' => '&mdash; None &mdash;',
+		);
+
+		// Parse the passed settings with the defaults
+		$settings = wp_parse_args( $settings, $default_settings );
+
+		if ( is_null( $settings['post_type'] ) ) {
+			// Determine default post type
+			if ( $data && $source == 'post' ) {
+				// Default to this posts post type
+				$settings['post_type'] = $data->post_type;
+			} else {
+				// Default to page
+				$settings['post_type'] = 'page';
+			}
+		}
+
+		if ( is_null( $settings['exclude'] ) ) {
+			// Determine default exclude ID
+			if ( $data && $source == 'post' ) {
+				// Default to this posts post type
+				$settings['exclude'] = $data->ID;
+			}
+		}
+
+		// Create the arguments for wp_dropdown_pages()
+		$args = array(
+			'selected'         => $value,
+			'post_type'        => $settings['post_type'],
+			'post_status'      => $settings['post_status'],
+			'exclude_tree'     => $settings['exclude'],
+			'sort_column'      => 'menu_order, post_title',
+		);
+
+		// Query the pages
+		$pages = get_pages( $args );
+
+		// Build the options
+		$options = '';
+		if ( $label = $settings['none_option'] ) {
+			$options .= '<option value="0">' . $settings['none_option'] . '</option>';
+		}
+		$options .= walk_page_dropdown_tree( $pages, 0, $args );
+
+		// Build the <select>
+		$input = Tools::build_tag( 'select', $settings, $options );
+
+		// Update the wrapper_class so to include the select class
+		$settings['wrapper_class'] .= ' select';
+
+		$html = static::maybe_wrap_field( $input, $settings );
+
+		return $html;
+	}
+
+	/**
+	 * Build a template select field.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_templateselect( $settings, $value, $data = null, $source = null ) {
+		// Default Settings
+		$default_settings = array(
+			'default' => 'default',
+			'default_name' => 'Default Template',
+		);
+
+		// Parse the passed settings with the defaults
+		$settings = wp_parse_args( $settings, $default_settings );
+
+		// Build the options list array
+		$options = array( $settings['default'] => $settings['default_name'] );
+
+		// Get the temlates, sort them
+		$templates = get_page_templates();
+		ksort( $templates );
+
+		// Flip it into a proper values list
+		$templates = array_flip( $templates );
+
+		// Merge with default option and update $settings
+		$settings['values'] = array_merge( $options, $templates );
+
+		// Update the wrapper_class so to include the select class
+		$settings['wrapper_class'] .= ' select';
+
+		// Pass it over to build_select
+		return static::build_select( $settings, $value, $data, $source );
+	}
+
+	/**
+	 * Build a menu select field.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_menuselect( $settings, $value, $data = null, $source = null ) {
+		// Get the menus
+		$menus = wp_get_nav_menus();
+
+		// Convert it to a values array and update $settings
+		$settings['values'] = simplify_object_array( $menus, 'term_id', 'name' );
+
+		// Update the wrapper_class so to include the select class
+		$settings['wrapper_class'] .= ' select';
+
+		// Pass it over to build_select
+		return static::build_select( $settings, $value, $data, $source );
+	}
+
+	/**
 	 * Build a checkbox field.
 	 *
-	 * @since 1.8.0 Fixed dummy field to have a 0 value, not null.
-	 * @since 1.4.2 Added $dummy argument and printing of dummy input for null value.
-	 * @since 1.4.1 Added modified default value for $wrapper.
+	 * @since 1.10.0 Updated handling of default wrapper format.
+	 * @since 1.8.0  Fixed dummy field to have a 0 value, not null.
+	 * @since 1.4.2  Added $dummy argument and printing of dummy input for null value.
+	 * @since 1.4.1  Added modified default value for $wrapper.
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
 	 *
 	 * @param bool $dummy Wether or not to print a hidden null input first.
 	 */
-	public static function build_checkbox( $settings, $value, $wrapper = null, $dummy = true ) {
+	public static function build_checkbox( $settings, $value, $data = null, $source = null, $dummy = true ) {
 		// Default the value to 1 if it's a checkbox
 		if ( $settings['type'] == 'checkbox' && ! isset( $settings['value'] ) ) {
 			$settings['value'] = 1;
 		}
 
 		// Default the wrapper to right sided
-		if ( is_null( $wrapper ) ) {
-			$wrapper = array( 'right' );
+		if ( ! isset( $settings['format'] ) ) {
+			$settings['format'] = array( 'right' );
 		}
 
 		// If the values match, mark as checked
@@ -606,7 +738,7 @@ class Form {
 		$input = Tools::build_tag( 'input', $settings );
 
 		// Wrap the inputs in the html if needed
-		$html = static::maybe_wrap_field( $hidden . $input, $settings, $wrapper );
+		$html = static::maybe_wrap_field( $hidden . $input, $settings );
 
 		return $html;
 	}
@@ -621,22 +753,23 @@ class Form {
 	 *
 	 * @see Form::build_checkbox()
 	 */
-	public static function build_radio( $settings, $value, $wrapper = null, $dummy = true ) {
-		return static::build_checkbox( $settings, $value, $wrapper, $dummy );
+	public static function build_radio( $settings, $value, $data = null, $source = null, $dummy = true ) {
+		return static::build_checkbox( $settings, $value, $data, $source, $dummy );
 	}
 
 	/**
 	 * Build a checklist or radio list.
 	 *
-	 * @since 1.6.0 Added checked_first support.
-	 * @since 1.5.0 Added %id-fieldset id.
-	 * @since 1.4.2 Added dummy input for null value.
-	 * @since 1.4.0 Overhauled item building and wrapper handling.
+	 * @since 1.10.0 Updated handling of default wrapper format.
+	 * @since 1.6.0  Added checked_first support.
+	 * @since 1.5.0  Added %id-fieldset id.
+	 * @since 1.4.2  Added dummy input for null value.
+	 * @since 1.4.0  Overhauled item building and wrapper handling.
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
 	 */
-	protected static function build_inputlist( $type, $settings, $value, $wrapper = null ) {
+	protected static function build_inputlist( $type, $settings, $value, $data = null, $source = null ) {
 		if ( ! isset( $settings['values'] ) ) {
 			throw new Exception( 'Checklist/radiolist fieldsets MUST have a values parameter.' );
 		}
@@ -703,9 +836,12 @@ class Form {
 			// Get the type to determine the callback to use
 			$type = $item['type'];
 			$build = "build_$type";
+			
+			// Setup the wrapper format for this item
+			$item['format'] = array( 'right', 'li' );
 
 			// Add the input, wrapped in a list item (and sans the dummy input)
-			$item = static::$build( $item, null, array( 'right', 'li' ), false );
+			$item = static::$build( $item, null, $data, $source, false );
 		}
 
 		$items = implode( '', $items );
@@ -715,8 +851,8 @@ class Form {
 		// Build the list
 		$list = Tools::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
 
-		if ( is_null( $wrapper ) ) {
-			$wrapper = '<div class="qs-fieldset inputlist %type %wrapper_class" id="%id-fieldset"><p class="qs-legend">%label</p> %input</div>';
+		if ( ! isset( $settings['format'] ) ) {
+			$settings['format'] = '<div class="qs-fieldset inputlist %type %wrapper_class" id="%id-fieldset"><p class="qs-legend">%label</p> %input</div>';
 		}
 
 		// Build a dummy <input>
@@ -727,7 +863,7 @@ class Form {
 		) );
 
 		// Optionally wrap the fieldset
-		$html = static::maybe_wrap_field( $hidden . $list, $settings, $wrapper );
+		$html = static::maybe_wrap_field( $hidden . $list, $settings );
 
 		return $html;
 	}
@@ -739,8 +875,8 @@ class Form {
 	 *
 	 * @see Form::build_inputlist()
 	 */
-	public static function build_checklist( $settings, $value, $wrapper = null ) {
-		return static::build_inputlist( 'checkbox', $settings, $value, $wrapper );
+	public static function build_checklist( $settings, $value, $data = null, $source = null ) {
+		return static::build_inputlist( 'checkbox', $settings, $value, $data, $source );
 	}
 
 	/**
@@ -750,8 +886,8 @@ class Form {
 	 *
 	 * @see Form::build_inputlist()
 	 */
-	public static function build_radiolist( $settings, $value, $wrapper = null ) {
-		return static::build_inputlist( 'radio', $settings, $value, $wrapper );
+	public static function build_radiolist( $settings, $value, $data = null, $source = null ) {
+		return static::build_inputlist( 'radio', $settings, $value, $data, $source );
 	}
 
 	/**
@@ -763,7 +899,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_media( $settings, $value ) {
+	public static function build_media( $settings, $value, $data = null, $source = null ) {
 		// Get the field name
 		$field_name = $settings['name'];
 
@@ -957,7 +1093,7 @@ class Form {
 	 *
 	 * @see Form::build_media()
 	 */
-	public static function build_addfile( $settings, $value ) {
+	public static function build_addfile( $settings, $value, $data = null, $source = null ) {
 		return self::build_media( $settings, $value );
 	}
 
@@ -971,7 +1107,7 @@ class Form {
 	 *
 	 * @see Form::build_media()
 	 */
-	public static function build_setimage( $settings, $value ) {
+	public static function build_setimage( $settings, $value, $data = null, $source = null ) {
 		// Force the media type to image
 		$settings['media'] = 'image';
 
@@ -989,7 +1125,7 @@ class Form {
 	 *
 	 * @see Form::build_gallery()
 	 */
-	public static function build_editgallery( $settings, $value ) {
+	public static function build_editgallery( $settings, $value, $data = null, $source = null ) {
 		// Force the media type to image
 		$settings['gallery'] = true;
 
@@ -1005,7 +1141,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_repeater( $settings, $data ) {
+	public static function build_repeater( $settings, $value, $data = null, $source = null ) {
 		if ( ! isset( $settings['template'] ) ) {
 			// Default to single generic text field
 			$settings['template'] = array(
@@ -1015,9 +1151,6 @@ class Form {
 
 		// Get the field name
 		$name = $settings['name'];
-
-		// Get the value to use, based on $source and the data_name
-		$values = static::get_value( $data, $source, $field );
 
 		// If the label seems auto generated, modify the label text to Add
 		if ( $settings['label'] == make_legible( $name ) ) {
@@ -1040,9 +1173,9 @@ class Form {
 
 			// Write the existing items if present
 			$html .= '<div class="qs-container qs-sortable" data-axis="y">';
-			if ( $values ) {
+			if ( $value ) {
 				// Loop through each entry in the data, write the items
-				foreach ( $values as $i => $item ) {
+				foreach ( $value as $i => $item ) {
 					$html .= static::build_repeater_item( $settings, $item, $i );
 				}
 			}
@@ -1157,7 +1290,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_editor( $settings, $data ) {
+	public static function build_editor( $settings, $value, $data = null, $source = null ) {
 		// Get the field name
 		$name = $settings['name'];
 
@@ -1193,7 +1326,7 @@ class Form {
 		$html = sprintf( '<div class="qs-editor" id="%s-editor">', $name );
 			ob_start();
 			// Print out the editor
-			wp_editor( $data, $settings['id'], $settings );
+			wp_editor( $value, $settings['id'], $settings );
 			$html .= ob_get_clean();
 		$html .= '</div>';
 
@@ -1207,7 +1340,7 @@ class Form {
 	 *
 	 * @see Form::build_generic()
 	 */
-	public static function build_map( $settings, $data ) {
+	public static function build_map( $settings, $value, $data = null, $source = null ) {
 		// Get the field name
 		$name = $settings['name'];
 
@@ -1221,7 +1354,7 @@ class Form {
 		}
 
 		// Default values for the data
-		$data = wp_parse_args( $data, array(
+		$value = wp_parse_args( $value, array(
 			'lat' => null,
 			'lng' => null,
 			'zoom' => null,
@@ -1231,9 +1364,9 @@ class Form {
 		$html = sprintf( '<div class="qs-map" id="%s-map" %s>', $name, implode( ' ', $data_atts ) );
 			// Print the hidden fields (lat, lng, zoom)
 			$field = '<input type="hidden" name="%2$s[%1$s]" class="qs-value-%1$s" value="%3$s" />';
-			$html .= sprintf( $field, 'lat', $name, $data['lat'] );
-			$html .= sprintf( $field, 'lng', $name, $data['lng'] );
-			$html .= sprintf( $field, 'zoom', $name, $data['zoom'] );
+			$html .= sprintf( $field, 'lat', $name, $value['lat'] );
+			$html .= sprintf( $field, 'lng', $name, $value['lng'] );
+			$html .= sprintf( $field, 'zoom', $name, $value['zoom'] );
 
 			// Add the address search option if available
 			if ( isset( $settings['search'] ) && $settings['search'] ) {
