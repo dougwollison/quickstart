@@ -15,8 +15,7 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 
 These feautres are accessible through the following classes:
 - `Setup`, for, well, setting up things like post types, taxonomies, meta boxes, theme supports/features, tinyMCE styles/buttons/plugins, settings, and admin pages.
-- `Hooks`, for setting up simpler callbacks for things like frontend and backend enqueuing, taxonomy filter dropdowns, and more.
-- `Tools`, various utility methods for both internal and external use, including style/script enqueuing, post/page/comment/links/wp_head hiding, faster shortcode registration, Post relabeling, file upload handling, among other things.
+- `Tools`, various utilities used internally and available externally, some with self-hooking capabilities.
 - `Form`, the field building kit for creating inputs and other form elements.
 - `Template`, various (currently just 1) methods for quickly handling repetative elements of page template files.
 - `Callbacks`, assorted (again, just 1 at the moment) callback methods for special uses.
@@ -54,6 +53,9 @@ Full details can be found in the wiki, which is still being written.
 Included in QuickStart are a number of helpers; files that can be included for accessing features and functions.
 
 Below is a list of helpers currently available:
+- `attachment`: shortcuts for getting the URL or an attachment or post thumbnail.
+- `family`: utility functions for testing relations between posts.
+- `index`: utility functions used by and in conjuction with the `index_page` feature.
 - `media_manager`: enques the QS.media javascript object; a collection of utilities and plugins for accessing the WordPress Media Manager (also enques the css for the special setimage and editgallery field types).
 - `post_chunks`: adds a hook to split the post content into chunks at each `<!--more-->` tag, as well as functions for accessing and looping through said chunks (`get_chunk`, `the_chunk`, `have_chunks`).
 - `post_field`: utility functions (`get_postfield` and `the_postfield`) for quickly fetching a posts table field for a post.
