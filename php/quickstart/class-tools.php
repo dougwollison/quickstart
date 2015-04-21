@@ -31,6 +31,7 @@ class Tools extends \Smart_Plugin {
 		'quick_backend_enqueue'    => array( 'admin_enqueue_scripts', 10, 0 ),
 		'post_type_save'           => array( 'save_post', 10, 1 ),
 		'post_type_save_meta'      => array( 'save_post', 10, 1 ),
+		'post_type_save_field'     => array( 'save_post', 10, 1 ),
 		'post_type_count'          => array( 'dashboard_glance_items', 10, 1 ),
 		'edit_meta_box'            => array( 'do_meta_boxes', 10, 2 ),
 		'taxonomy_filter'          => array( 'restrict_manage_posts', 10, 0 ),
@@ -1212,6 +1213,38 @@ class Tools extends \Smart_Plugin {
 
 		$value = $_POST[ $field_name ];
 		update_post_meta( $post_id, $meta_key, $value );
+	}
+
+	/**
+	 * Save a specific post field for a specific post_type.
+	 *
+	 * Saves desired field after running static::save_post_check().
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param int    $post_id    The ID of the post being saved (skip when saving).
+	 * @param string $post_type  The post_type to limit this call to.
+	 * @param string $post_field The field in the posts table to save the value to.
+	 * @param string $field_name Optional The name of the $_POST field to use (defaults to $post_field).
+	 */
+	protected static function _post_type_save_field( $post_id, $post_type, $post_field, $field_name = null ) {
+		if ( ! static::save_post_check( $post_id, $post_type ) ) return;
+		global $wpdb;
+
+		if ( is_null( $field_name ) ) {
+			$field_name = $post_field;
+		}
+
+		// Auto prefix if needed
+		$post_field = static::maybe_prefix_post_field( $post_field );
+
+		$value = $_POST[ $field_name ];
+
+		$wpdb->update( $wpdb->posts, array(
+			$post_field => $value,
+		), array(
+			'ID' => $post_id,
+		) );
 	}
 
 	/**
