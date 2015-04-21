@@ -87,6 +87,7 @@ function _process_n_form( $string, $rules ) {
 function pluralize( $string ) {
 	// The find/replace rules, ordered most specialised to most generic
 	$plurals = array(
+ 		array( '/([^aeiou])ies$/', 'ies' ), // series => series
  		array( '/erson$/', 'eople' ), // person => people
  		array( '/man$/', 'men' ), // woman => women
 		array( '/(fe?)$/i', '$1ves' ), // half => halves, knife > knives
