@@ -54,7 +54,7 @@ class Form {
 	 * @return string The generated format string.
 	 */
 	public static function build_field_wrapper( $side = 'left', $tag = 'div' ) {
-		$format = '<' . $tag . ' class="qs-field qs-field-%field_id-wrapper %type %wrapper_class" id="%id-wrapper">';
+		$format = '<' . $tag . ' class="%wrapper_class" id="%id-wrapper">';
 
 		$label = '<label for="%id" class="qs-label qs-label-' . $side . '">%label</label>';
 		if ( $side == 'right' ) {
@@ -235,7 +235,7 @@ class Form {
 			 */
 			return call_user_func( $settings, $value, $field );
 		}
-		
+
 		$field_id = static::make_id( $field );
 
 		$default_settings = array(
@@ -298,7 +298,7 @@ class Form {
 
 			// Prefix the field if necessary
 			$field = Tools::maybe_prefix_post_field( $settings['post_field'] );
-			
+
 			$value = $data->{$settings['post_field']};
 		} elseif ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] && $source == 'post' ) {
 			// Alternately, if "taxonomy" is present (and the source is a post), get the matching terms
@@ -322,17 +322,28 @@ class Form {
 			$value = $settings['default'];
 		}
 
-		// Set a default value for the class setting;
-		// otherwise, make sure it's an array
+		// Make sure class is set and in array form
 		if ( ! isset( $settings['class'] ) ) {
 			$settings['class'] = array();
 		} elseif ( ! is_array( $settings['class'] ) ) {
 			$settings['class'] = (array) $settings['class'];
 		}
 
-		// Add the default qs-field and qs-field-$field_id classes
-		$settings['class'][] = 'qs-field';
-		$settings['class'][] = 'qs-field-' . $field_id;
+		// Add the default qs-input and qs-input-$field_id classes
+		$settings['class'][] = 'qs-input';
+		$settings['class'][] = 'qs-input-' . $field_id;
+
+		// Make sure wrapper_class is set
+		if ( ! isset( $settings['wrapper_class'] ) ) {
+			$settings['wrapper_class'] = '';
+		}
+
+		// Add the default qs-field, qs-field-$field_id, and $type classes
+		$settings['wrapper_class'] .= implode( ' ', array(
+			'qs-field',
+			'qs-field-' . $field_id,
+			$settings['type'],
+		) );
 
 		// Check if the "get_values" callback is present,
 		// Run it and replace "values" key with the returned value.
@@ -854,7 +865,7 @@ class Form {
 			// Get the type to determine the callback to use
 			$type = $item['type'];
 			$build = "build_$type";
-			
+
 			// Setup the wrapper format for this item
 			$item['format'] = array( 'right', 'li' );
 
@@ -911,6 +922,7 @@ class Form {
 	 *
 	 * Replaces addfile, setimage and editgallery.
 	 *
+	 * @since 1.10.0 Now uses value-(filled|empty) classes.
 	 * @since 1.8.0
 	 *
 	 * @see Form::build_generic()
@@ -946,7 +958,7 @@ class Form {
 		}
 
 		// Setup the classes for the container
-		$classes = array( 'qs-field', 'qs-media' );
+		$classes = array( 'qs-field', 'qs-media', $value ? 'value-filled' : 'value-empty' );
 		if ( $media != 'image' ) {
 			$classes[] = 'media-file';
 		}
