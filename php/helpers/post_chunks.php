@@ -6,7 +6,7 @@
  * @subpackage Post_Chunks
  * @since 1.0.0
  */
- 
+
 /**
  * Utility for splitting the content into chunks.
  *
@@ -25,8 +25,8 @@ function get_content_chunks( $content, $separator ) {
 	$content = preg_replace( '/(' . $separator . ')((?:\s*<\/\w+>\s*)+)/', '$2$1', $content );
 
 	// Create the chunks
-	$chunks = explode( $sep, $content );
-	
+	$chunks = explode( $separator, $content );
+
 	return $chunks;
 }
 
@@ -57,7 +57,7 @@ function qs_helper_chunks_process( $post ) {
 	 * @param WP_Post $post The post object being used.
 	 */
 	$sep = apply_filters( 'qs_helper_chunk_separator', $sep, $post );
-	
+
 	// Get the chunks
 	$post->chunks = get_content_chunks( $post->post_content, $sep );
 
