@@ -1,0 +1,44 @@
+.wpedit-link {
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  *zoom: 1;
+  *display: inline; }
+
+.wpedit-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  padding: 0 8px;
+  color: #fff !important;
+  background: #222;
+  font: 400 13px/32px "Open Sans", sans-serif !important;
+  line-height: 1em;
+  text-decoration: none;
+  -webkit-font-smoothing: subpixel-antialiased; }
+  .wpedit-link:hover {
+    background: #333 !important; }
+    .wpedit-link:hover, .wpedit-link:hover:before {
+      color: #45bbe6 !important; }
+  .wpedit-link:before {
+    content: '\f464';
+    float: left;
+    font: 400 20px/1 dashicons !important;
+    color: #999 !important;
+    position: relative;
+    top: 2px;
+    speak: none;
+    padding: 4px 0;
+    margin-right: 6px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale; }
+  .wpedit-link.static {
+    position: static;
+    float: left; }
+    .wpedit-link.static.right {
+      float: right; }
+    .wpedit-link.static.below {
+      margin-top: 16px; }
+    .wpedit-link.static.above {
+      margin-bottom: 16px; }
