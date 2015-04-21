@@ -481,6 +481,26 @@ class Form {
 	}
 
 	/**
+	 * Build a hidden field.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param array  $settings The settings to use in creating the field.
+	 * @param mixed  $value    The value to fill the field with.
+	 *
+	 * @return string The HTML for the field.
+	 */
+	public static function build_hidden( $settings, $value ) {
+		// Load the value attribute with the field value
+		$settings['value'] = $value;
+
+		// Build the <input>
+		$html = Tools::build_tag( 'input', $settings );
+
+		return $html;
+	}
+
+	/**
 	 * Build a textarea field.
 	 *
 	 * @since 1.0.0
@@ -698,7 +718,7 @@ class Form {
 	/**
 	 * Build a checkbox field.
 	 *
-	 * @since 1.10.0 Updated handling of default wrapper format.
+	 * @since 1.10.0 Updated handling of default wrapper format, added use of build_hidden.
 	 * @since 1.8.0  Fixed dummy field to have a 0 value, not null.
 	 * @since 1.4.2  Added $dummy argument and printing of dummy input for null value.
 	 * @since 1.4.1  Added modified default value for $wrapper.
@@ -727,11 +747,9 @@ class Form {
 		// Build the dummy <input> if enabled
 		$hidden = '';
 		if ( $dummy ) {
-			$hidden = Tools::build_tag( 'input', array(
-				'type' => 'hidden',
+			$hidden = static::build_hidden( array(
 				'name' => $settings['name'],
-				'value' => 0,
-			) );
+			), null );
 		}
 
 		// Build the actual <input>
@@ -760,7 +778,7 @@ class Form {
 	/**
 	 * Build a checklist or radio list.
 	 *
-	 * @since 1.10.0 Updated handling of default wrapper format.
+	 * @since 1.10.0 Updated handling of default wrapper format, added use of build_hidden.
 	 * @since 1.6.0  Added checked_first support.
 	 * @since 1.5.0  Added %id-fieldset id.
 	 * @since 1.4.2  Added dummy input for null value.
@@ -856,11 +874,9 @@ class Form {
 		}
 
 		// Build a dummy <input>
-		$hidden = Tools::build_tag( 'input', array(
-			'type' => 'hidden',
+		$hidden = static::build_hidden( array(
 			'name' => $settings['name'],
-			'value' => null,
-		) );
+		), null );
 
 		// Optionally wrap the fieldset
 		$html = static::maybe_wrap_field( $hidden . $list, $settings );
