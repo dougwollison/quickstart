@@ -1,0 +1,54 @@
+@import 'utilities';
+
+.wpedit-link{
+	@extend %inline-block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 10;
+	padding: 0 8px;
+	color: #fff !important;
+	background: #222;
+	font: 400 13px/32px "Open Sans", sans-serif !important;
+	line-height: 1em;
+	text-decoration: none;
+	-webkit-font-smoothing: subpixel-antialiased;
+
+	&:hover{
+		background: #333 !important;
+
+		&, &:before{
+			color: #45bbe6 !important;
+		}
+	}
+
+	&:before{
+		content: '\f464';
+		float: left;
+		font: 400 20px/1 dashicons !important;
+		color: #999 !important;
+		position: relative;
+		top: 2px;
+		speak: none;
+		padding: 4px 0;
+		margin-right: 6px;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	&.static{
+		position: static;
+		float: left;
+
+		&.right{
+			float: right;
+		}
+
+		&.below{
+			margin-top: 16px;
+		}
+		&.above{
+			margin-bottom: 16px;
+		}
+	}
+}
