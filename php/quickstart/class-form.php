@@ -502,6 +502,9 @@ class Form {
 	 * @return string The HTML for the field.
 	 */
 	public static function build_hidden( $settings, $value ) {
+		// Ensure the type is set in case this is called directly
+		$settings['type'] = 'hidden';
+
 		// Load the value attribute with the field value
 		$settings['value'] = $value;
 
