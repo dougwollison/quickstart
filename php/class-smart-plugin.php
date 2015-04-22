@@ -67,17 +67,23 @@ abstract class Smart_Plugin{
 	/**
 	 * Save a callback for the requested method
 	 *
-	 * @since 1.8.0 Now supports passing a custom hook to attach the callback to,
-	 *              also supports multiple hooks for the same callback setup.
+	 * @since 1.10.0 Now supports saving as just a callback without hooking, storing $hook
+	 *               in the callbacks list.
+	 * @since 1.8.0  Now supports passing a custom hook to attach the callback to,
+	 *               also supports multiple hooks for the same callback setup.
 	 * @since 1.0.0
 	 *
-	 * @param string       $method The name of the method to setup the hook for.
-	 * @param array        $args   The arguments for the method.
-	 * @param string|array $hook   Optional The hook to attach this to (defaults
-	 *                             to init or any hook registered for the method).
+	 * @param string $method The name of the method to setup the hook for.
+	 * @param array  $args   The arguments for the method.
+	 * @param mixed  $hook   Optional The hook to attach this to (defaults
+	 *                       to init or any hook registered for the method).
+	 *                       Pass false skip hook setup.
+	 *
+	 * @return array $callback The callback array that was created.
 	 */
 	protected function save_callback( $method, $args, $hook = null ) {
-		if ( ! method_exists( $this, "_$method" ) ) {
+		if ( ! method_exists( $this, $method )
+		  && ! method_exists( $this, "_$method" ) ) {
 			return;
 		}
 
@@ -93,25 +99,34 @@ abstract class Smart_Plugin{
 		++$this->callback_counts;
 		$id = $this->callback_counts;
 
-		$this->callbacks[ $id ] = array( $method, $args );
+		$callback = array( $this, "cb$id" );
 
-		// Get the name, priority and number of args for the hook,
-		// based on the hook plus default arguments if needed.
-		list( $tags, $priority, $accepted_args ) = (array) $hook + array( 'init', 10, 0 );
+		// Check if a hook is specified, add it
+		if ( $hook !== false ) {
+			// Ensure the hook is in the proper form (name, priority, arguments)
+			$hook = (array) $hook + array( 'init', 10, 0 );
 
-		// Multiple tag names may be used, treat as array and loop
-		$tags = (array) $tags;
-		foreach ( $tags as $tag ) {
-			// Register the hook for this tag
-			add_filter( $tag, array( $this, "cb$id" ), $priority, $accepted_args );
+			// Get the hook details
+			list( $tags, $priority, $accepted_args ) = $hook;
+
+			// Multiple tag names may be used, treat as array and loop
+			$tags = (array) $tags;
+			foreach ( $tags as $tag ) {
+				// Register the hook for this tag
+				add_filter( $tag, $callback, $priority, $accepted_args );
+			}
 		}
 
-		return $id;
+		// Save the callback information
+		$this->callbacks[ $id ] = array( $method, $args, $hook );
+
+		return $callback;
 	}
 
 	/**
 	 * Load the requested callback and apply it.
 	 *
+	 * @since 1.10.0 Now checks hook data before merging arguments
 	 * @since 1.0.0
 	 *
 	 * @param string $id    The ID of the callback to load.
@@ -124,13 +139,24 @@ abstract class Smart_Plugin{
 		}
 
 		// Fetch the method name and saved arguments
-		list( $method, $args ) = $this->callbacks[ $id ];
+		list( $method, $args, $hook ) = $this->callbacks[ $id ];
 
-		// Append the saved arguments to the passed arguments
-		$args = array_merge( $_args, $args );
+		// Make sure the method exists, including _-prefixed version
+		if ( ! method_exists( $this, $method ) ) {
+			$method = "_$method";
+			if ( ! method_exists( $this, $method ) ) {
+				return;
+			}
+		}
+
+		// Prepend the arguments list with the ones passed now
+		// ONLY if the accepted arguments value isn't 0
+		if ( is_array( $hook ) && $hook[2] > 0 ) {
+			$args = array_merge( $_args, $args );
+		}
 
 		// Apply the method with the saved arguments
-		return call_user_func_array( array( $this, "_$method" ), $args );
+		return call_user_func_array( array( $this, $method ), $args );
 	}
 
 	// =========================
@@ -167,9 +193,7 @@ abstract class Smart_Plugin{
 	/**
 	 * Static version of the method overloader.
 	 *
-	 * @since 1.0.0
-	 *
-	 * @see SmartPlugin::__call()
+	 * @see SmartPlugin::__call() for details and change log.
 	 */
 	public static function __callStatic( $method, $args ) {
 		/**
@@ -189,13 +213,11 @@ abstract class Smart_Plugin{
 	/**
 	 * Save a callback for the requested method.
 	 *
-	 * @since 1.8.0 SmartPlugin::save_callback() changes.
-	 * @since 1.0.0
-	 *
-	 * @see SmartPlugin::save_callback()
+	 * @see SmartPlugin::save_callback() for details and change log.
 	 */
 	protected static function save_static_callback( $method, $args, $hook = null ) {
-		if ( ! method_exists( get_called_class(), "_$method" ) ) {
+		if ( ! method_exists( get_called_class(), $method )
+		  && ! method_exists( get_called_class(), "_$method" ) ) {
 			return;
 		}
 
@@ -211,28 +233,34 @@ abstract class Smart_Plugin{
 		++static::$static_callback_counts;
 		$id = static::$static_callback_counts;
 
-		static::$static_callbacks[ $id ] = array( $method, $args );
+		$callback = array( get_called_class(), "cb$id" );
 
-		// Get the name, priority and number of args for the hook,
-		// based on the hook plus default arguments if needed.
-		list( $tags, $priority, $accepted_args ) = (array) $hook + array( 'init', 10, 0 );
+		// Check if a hook is specified, add it
+		if ( $hook !== false ) {
+			// Ensure the hook is in the proper form (name, priority, arguments)
+			$hook = (array) $hook + array( 'init', 10, 0 );
 
-		// Multiple tag names may be used, treat as array and loop
-		$tags = (array) $tags;
-		foreach ( $tags as $tag ) {
-			// Register the hook for this tag
-			add_filter( $tag, array( get_called_class(), "cb$id" ), $priority, $accepted_args );
+			// Get the hook details
+			list( $tags, $priority, $accepted_args ) = $hook;
+
+			// Multiple tag names may be used, treat as array and loop
+			$tags = (array) $tags;
+			foreach ( $tags as $tag ) {
+				// Register the hook for this tag
+				add_filter( $tag, $callback, $priority, $accepted_args );
+			}
 		}
 
-		return $id;
+		// Save the callback information
+		static::$static_callbacks[ $id ] = array( $method, $args, $hook );
+
+		return $callback;
 	}
 
 	/**
 	 * Load the requested callback and apply it.
 	 *
-	 * @since 1.0.0
-	 *
-	 * @see SmartPlugin::load_callback()
+	 * @see SmartPlugin::load_callback() for details and change log.
 	 */
 	protected static function load_static_callback( $id, $_args ) {
 		// First, make sure the callback exists, abort if not
@@ -241,12 +269,23 @@ abstract class Smart_Plugin{
 		}
 
 		// Fetch the method name and saved arguments
-		list( $method, $args ) = static::$static_callbacks[ $id ];
+		list( $method, $args, $hook ) = static::$static_callbacks[ $id ];
 
-		// Append the saved arguments to the passed arguments
-		$args = array_merge( $_args, $args );
+		// Make sure the method exists, including _-prefixed version
+		if ( ! method_exists( get_called_class(), $method ) ) {
+			$method = "_$method";
+			if ( ! method_exists( get_called_class(), $method ) ) {
+				return;
+			}
+		}
+
+		// Prepend the arguments list with the ones passed now
+		// ONLY if the accepted arguments value isn't 0
+		if ( is_array( $hook ) && $hook[2] > 0 ) {
+			$args = array_merge( $_args, $args );
+		}
 
 		// Apply the method with the saved arguments
-		return call_user_func_array( array( get_called_class(), "_$method" ), $args );
+		return call_user_func_array( array( get_called_class(), $method ), $args );
 	}
 }
