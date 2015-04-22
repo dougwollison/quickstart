@@ -44,10 +44,10 @@ class Setup extends \Smart_Plugin {
 		'register_post_types'    => array( 'init', 10, 0 ),
 		'register_taxonomy'      => array( 'init', 10, 0 ),
 		'register_taxonomies'    => array( 'init', 10, 0 ),
-		
+
 		// Theme Hooks
 		'run_theme_setups'       => array( 'after_setup_theme', 10, 0 ),
-		
+
 		// Admin Hooks
 		'edit_columns'           => array( 'admin_init', 10, 0 ),
 		'do_columns'             => array( 'admin_init', 10, 0 ),
@@ -569,7 +569,7 @@ class Setup extends \Smart_Plugin {
 		if ( isset( $args['post_type'] ) ) {
 			csv_array_ref( $args['post_type'] );
 		}
-		
+
 		// Register the taxonomy if it doesn't exist
 		if ( ! taxonomy_exists( $taxonomy ) ) {
 			// Setup the labels if needed
@@ -581,46 +581,46 @@ class Setup extends \Smart_Plugin {
 				'add_or_remove_items' => 'Add or remove %p',
 				'choose_from_most_used' => 'Choose from most used %p',
 			) );
-	
+
 			// Default arguments for the taxonomy
 			$defaults = array(
 				'hierarchical' => true,
 				'show_admin_column' => true,
 			);
-	
+
 			// Prep $defaults
 			$this->prep_defaults( 'taxonomy', $defaults );
-	
+
 			// Parse the arguments with the defaults
 			$args = wp_parse_args( $args, $defaults );
-	
+
 			// Check for the "static" option, set it up
 			$static = false;
 			if ( isset( $args['static'] ) && $args['static'] ) {
 				$static = true;
-	
+
 				// Disable the default meta box
 				$args['meta_box_cb'] = false;
-	
+
 				$multiple = false;
 				// Default the "multiple" flag to false
 				if ( isset( $args['multiple'] ) ) {
 					$multiple = $args['multiple'];
 					unset( $args['multiple'] );
 				}
-	
+
 				// Remove the static argument before saving
 				unset( $args['static'] );
 			}
-	
+
 			// Now, register the post type
 			register_taxonomy( $taxonomy, $args['post_type'], $args );
-	
+
 			// Proceed with post-registration stuff, provided it was successfully registered.
 			if ( ! ( $taxonomy_obj = get_taxonomy( $taxonomy ) ) ) {
 				return;
 			}
-	
+
 			// Now that it's registered, fetch the resulting show_ui argument,
 			// and add the taxonomy_filter hooks if true
 			if ( $taxonomy_obj->show_ui ){
@@ -677,14 +677,14 @@ class Setup extends \Smart_Plugin {
 				wp_insert_term( $term, $taxonomy, $t_args );
 			}
 		}
-		
+
 		// Check if any meta fields were defined, set them up if so
 		if ( isset( $args['meta_fields'] ) ) {
 			// Ensure the term meta helper is loaded
 			Tools::load_helpers( 'term_meta' );
-			
+
 			$fields = $args['meta_fields'];
-			
+
 			$this->save_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
 			$this->save_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
 		}
@@ -1092,7 +1092,7 @@ class Setup extends \Smart_Plugin {
 	// =========================
 	// !Term Meta Field Setups
 	// =========================
-	
+
 	/**
 	 * Build and print out a term meta field row.
 	 *
@@ -1105,7 +1105,7 @@ class Setup extends \Smart_Plugin {
 	protected function _build_term_meta_field( $term, $field, $args ) {
 		Tools::build_field_row( $field, $args, $term, 'term' );
 	}
-	
+
 	/**
 	 * Build and print a series of term meta fields.
 	 *
@@ -1120,7 +1120,7 @@ class Setup extends \Smart_Plugin {
 			$this->_build_term_meta_field( $term, $field, $args );
 		}
 	}
-	
+
 	/**
 	 * Save the data for a term meta field.
 	 *
@@ -1133,23 +1133,23 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function _save_term_meta_field( $term_id, $field, $args, $_checked = false ) {
 		$post_key = $meta_key = $field;
-		
+
 		// Check if an explicit $_POST key is set
 		if ( isset( $args['post_key'] ) ) {
 			$post_key = $args['post_key'];
 		}
-		
+
 		// Check if an explicit meta key is set
 		if ( isset( $args['meta_key'] ) ) {
 			$meta_key = $args['meta_key'];
 		}
-		
+
 		// Save the field if it's been passed
 		if ( isset( $_POST[ $post_key ] ) ) {
 			update_term_meta( $term_id, $meta_key, $_POST[ $post_key ] );
 		}
 	}
-	
+
 	/**
 	 * Save multiple term meta fields.
 	 *
@@ -1163,7 +1163,7 @@ class Setup extends \Smart_Plugin {
 		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-tag_' . $term_id ) ) {
 			return;
 		}
-		
+
 		foreach ( $fields as $field => $args ) {
 			make_associative( $field, $args );
 			$this->_save_term_meta_field( $term_id, $field, $args, true );
@@ -1173,7 +1173,7 @@ class Setup extends \Smart_Plugin {
 	// =========================
 	// !User Meta Field Setups
 	// =========================
-	
+
 	/**
 	 * Setup the hooks for adding/saving user meta fields.
 	 *
@@ -1186,20 +1186,20 @@ class Setup extends \Smart_Plugin {
 		if ( ! is_admin() ) {
 			return;
 		}
-		
+
 		$user_id = isset( $_REQUEST['user_id'] ) ? $_REQUEST['user_id'] : null;
-		
+
 		if ( ( defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE === true )
 		|| ( wp_get_current_user()->ID == $user_id ) ) {
 			$save_hook = 'personal_options_update';
 		} else {
 			$save_hook = 'edit_user_profile_update';
 		}
-			
+
 		$this->save_callback( 'build_user_meta_fields', array( $fields ), array( 'personal_options', 10, 1 ) );
 		$this->save_callback( 'save_user_meta_fields', array( $fields ), array( $save_hook, 10, 1 ) );
 	}
-	
+
 	/**
 	 * Build and print out a user meta field row.
 	 *
@@ -1212,7 +1212,7 @@ class Setup extends \Smart_Plugin {
 	protected function _build_user_meta_field( $user, $field, $args ) {
 		Tools::build_field_row( $field, $args, $user, 'user' );
 	}
-	
+
 	/**
 	 * Build and print a series of user meta fields.
 	 *
@@ -1227,7 +1227,7 @@ class Setup extends \Smart_Plugin {
 			$this->_build_user_meta_field( $user, $field, $args );
 		}
 	}
-	
+
 	/**
 	 * Save the data for a user meta field.
 	 *
@@ -1240,23 +1240,23 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function _save_user_meta_field( $user_id, $field, $args, $_checked = false ) {
 		$post_key = $meta_key = $field;
-		
+
 		// Check if an explicit $_POST key is set
 		if ( isset( $args['post_key'] ) ) {
 			$post_key = $args['post_key'];
 		}
-		
+
 		// Check if an explicit meta key is set
 		if ( isset( $args['meta_key'] ) ) {
 			$meta_key = $args['meta_key'];
 		}
-		
+
 		// Save the field if it's been passed
 		if ( isset( $_POST[ $post_key ] ) ) {
 			update_user_meta( $user_id, $meta_key, $_POST[ $post_key ] );
 		}
 	}
-	
+
 	/**
 	 * Save multiple user meta fields.
 	 *
@@ -1270,7 +1270,7 @@ class Setup extends \Smart_Plugin {
 		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-user_' . $user_id ) ) {
 			return;
 		}
-		
+
 		foreach ( $fields as $field => $args ) {
 			make_associative( $field, $args );
 			$this->_save_user_meta_field( $user_id, $field, $args, true );
@@ -2090,9 +2090,10 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup an order manager for certain post types.
 	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.8.0 Allowed passing of just the post_type list instead of args.
-	 * @since 1.6.0 Added check if enqueues were already handled.
+	 * @since 1.10.0 Now supports term order, 'post_type' argument moved to 'objects'
+	 * @since 1.9.0  Now protected.
+	 * @since 1.8.0  Allowed passing of just the post_type list instead of args.
+	 * @since 1.6.0  Added check if enqueues were already handled.
 	 * @since 1.0.0
 	 *
 	 * @param array $args A list of options for the order manager.
@@ -2103,17 +2104,22 @@ class Setup extends \Smart_Plugin {
 			return;
 		}
 
-		// If $args looks like it could be the list of post types, restructure
+		// If $args looks like it could be the list of objects, restructure
 		if ( is_string( $args ) || ( is_array( $args ) && ! empty( $args ) && ! is_assoc( $args ) ) ) {
-			$args = array( 'post_type' => $args );
+			$args = array( 'objects' => $args );
 		}
 
-		// If no post type is specified, default to page
-		if ( ! isset( $args['post_type'] ) ) {
-			$args['post_type'] = 'page';
+		// Backwards compatability; rename post_type arg to object
+		if ( isset( $args['post_type'] ) ) {
+			$args['objects'] = $args['post_type'];
 		}
 
-		$post_types = csv_array( $args['post_type'] );
+		// If no object(s) are specified, default to page
+		if ( ! isset( $args['objects'] ) ) {
+			$args['objects'] = 'page';
+		}
+
+		$objects = csv_array( $args['objects'] );
 
 		// Use the provided save callback if provided
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
@@ -2124,6 +2130,14 @@ class Setup extends \Smart_Plugin {
 		}
 
 		add_action( 'admin_init', $callback );
+
+		// Check if any of the objects are taxonomies, load term_meta helper if so
+		foreach ( $objects as $object ) {
+			if ( is_taxonomy( $object ) ) {
+				Tools::load_helpers( 'term_meta' );
+				break;
+			}
+		}
 
 		// Enqueue the necessary scripts if not already
 		if ( is_admin() && ( ! defined( 'QS_ORDER_ENQUEUED' ) || ! QS_ORDER_ENQUEUED ) ) {
@@ -2139,47 +2153,74 @@ class Setup extends \Smart_Plugin {
 			define( 'QS_ORDER_ENQUEUED', true );
 		}
 
-		$this->order_manager_pages( $post_types );
+		$this->order_manager_pages( $objects );
 	}
-	
+
 	/**
 	 * Register the order manager admin pages for the post types.
 	 *
+	 * @since 1.10.0 Reworked to support term order
 	 * @since 1.9.0
 	 *
-	 * @param array $post_types The list of post types to add the page for.
+	 * @param array $objects The list of post types and taxonomies to add the page for.
 	 */
-	protected function _order_manager_pages( $post_types ) {
-		// Setup the admin pages for each post type
-		foreach ( $post_types as $post_type ) {
-			$this->setup_page( "$post_type-order", array(
-				'title'      => sprintf( __( '%s Order' ), make_legible( $post_type ) ),
-				'capability' => get_post_type_object( $post_type )->cap->edit_posts,
-				'callback'   => array( __NAMESPACE__ . '\Callbacks', 'menu_order_admin_page' ),
-			), $post_type );
+	protected function _order_manager_pages( $objects ) {
+		// Setup the admin pages for each post type or taxonomy
+		foreach ( $objects as $object ) {
+			if ( taxonomy_exists( $object ) ) {
+				// This is a taxonomy, get the associated post types
+				$post_types = get_taxonomy( $object )->object_type;
+
+				// On the off chance there's also a post type with the same slug,
+				// append it to the $post_types array.
+				if ( post_type_exists( $object ) ) {
+					$post_types[] = $object;
+				}
+			} else {
+				$post_types = array( $object );
+			}
+
+			foreach ( $post_types as $post_type ) {
+				$this->setup_page( "$object-order", array(
+					'title'      => sprintf( __( '%s Order' ), make_legible( $object ) ),
+					'capability' => get_post_type_object( $post_type )->cap->edit_posts,
+					'callback'   => array( __NAMESPACE__ . '\Callbacks', 'menu_order_admin_page' ),
+				), $post_type );
+			}
 		}
 	}
 
 	/**
 	 * Default save callback for order manager.
 	 *
-	 * @since 1.9.0 Now protected, renamed to be auto-hooked.
+	 * @since 1.10.0 Reworked to support term order
+	 * @since 1.9.0  Now protected, renamed to be auto-hooked.
 	 * @since 1.0.0
 	 */
 	protected function _order_manager_save() {
 		global $wpdb;
 		if ( isset( $_POST['_qsnonce'] ) && wp_verify_nonce( $_POST['_qsnonce'], 'manage_menu_order' ) ) {
+			$object_type = $_POST['object_type']; // post_type or taxonomy
+			$object_slug = $_POST['object_slug']; // a post type or taxonomy slug
+
 			// Loop through the list of posts and update
 			foreach ( $_POST['menu_order'] as $order => $id ) {
 				// Get the parent
 				$parent = $_POST['parent'][ $id ];
 
-				// Update the post
-				wp_update_post( array(
-					'ID'          => $id,
-					'menu_order'  => $order,
-					'post_parent' => $parent,
-				) );
+				// Update the object
+				if ( $object_type == 'taxonomy' ) {
+					wp_update_term( $id, $object_slug, array(
+						'parent' => $parent,
+					) );
+					update_term_meta( $id, 'menu_order', $order );
+				} else {
+					wp_update_post( array(
+						'ID'          => $id,
+						'menu_order'  => $order,
+						'post_parent' => $parent,
+					) );
+				}
 			}
 
 			// Redirect back to the refering page
@@ -2229,7 +2270,7 @@ class Setup extends \Smart_Plugin {
 			$this->index_page_link();
 		}
 	}
-	
+
 	/**
 	 * Register the index page settings for the post types.
 	 *
@@ -2275,7 +2316,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function _index_page_query( $query, $post_types ) {
 		$qv =& $query->query_vars;
-		
+
 		$index_pages = array();
 		foreach( $post_types as $post_type ) {
 			$index_pages[ $post_type ] = get_index( $post_type );
@@ -2336,7 +2377,7 @@ class Setup extends \Smart_Plugin {
 
 		// Get the queried post type
 		$post_type = get_query_var( 'post_type' );
-		
+
 		// Get the index for this post type, update the title if found
 		if ( $index_page = get_index( $post_type ) ) {
 			$title[0] = get_the_title( $index_page );
