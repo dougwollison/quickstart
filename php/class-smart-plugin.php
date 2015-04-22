@@ -33,7 +33,7 @@ abstract class Smart_Plugin{
 	protected $callback_counts = 0;
 
 	/**
-	 * A list of internal methods and their hooks names.
+	 * A list of internal methods and their hook details.
 	 *
 	 * @since 1.0.0
 	 * @access protected
@@ -182,7 +182,7 @@ abstract class Smart_Plugin{
 	protected static $static_callback_counts = 0;
 
 	/**
-	 * A list of internal methods and their hooks names (static version).
+	 * A list of internal methods and their hook details (static version).
 	 *
 	 * @since 1.0.0
 	 * @access protected
