@@ -1353,11 +1353,14 @@ class Form {
 
 		// Handle any QuickTags settings if present
 		if ( isset( $settings['quicktags'] ) ) {
+			// Make sure it's an array
+			csv_array_ref( $settings['quicktags'] );
+			
 			Tools::do_quicktags( $settings['quicktags'], $settings['id'] );
 
 			// Also format into proper from
 			$settings['quicktags'] = array(
-				'buttons' => $settings['quicktags'],
+				'buttons' => implode( ',', $settings['quicktags'] ),
 			);
 		}
 
