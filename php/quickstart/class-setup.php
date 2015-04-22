@@ -357,6 +357,7 @@ class Setup extends \Smart_Plugin {
 			'pages'      => array(), // Admin pages
 			'features'   => array(), // Custom QuickStart features
 			'columns'    => array(), // Custom manager columns
+			'user_meta'  => array(), // Custom user meta fields
 		), $configs );
 
 		// Make sure supports is an array
@@ -682,8 +683,10 @@ class Setup extends \Smart_Plugin {
 			// Ensure the term meta helper is loaded
 			Tools::load_helpers( 'term_meta' );
 			
-			$this->save_callback( 'build_term_meta_fields', $args['meta_fields'], "{$taxonomy}_edit_form_field" );
-			$this->save_callback( 'save_term_meta_fields', $args['meta_fields'], "edited_{$taxonomy}" );
+			$fields = $args['meta_fields'];
+			
+			$this->save_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
+			$this->save_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
 		}
 	}
 
@@ -1096,11 +1099,10 @@ class Setup extends \Smart_Plugin {
 	 * @since 1.10.0
 	 *
 	 * @param object $term     The term being edited. (skip when saving)
-	 * @param string $taxonomy The taxonomy of the term. (skip when saving)
 	 * @param string $field    The id/name meta field to build.
 	 * @param array  $args     The arguments for the field.
 	 */
-	protected function _build_term_meta_field( $term, $taxonomy, $field, $args ) {
+	protected function _build_term_meta_field( $term, $field, $args ) {
 		Tools::build_field_row( $field, $args, $term, 'term' );
 	}
 	
@@ -1110,12 +1112,12 @@ class Setup extends \Smart_Plugin {
 	 * @since 1.10.0
 	 *
 	 * @param object $term     The term being edited. (skip when saving)
-	 * @param string $taxonomy The taxonomy of the term. (skip when saving)
 	 * @param array  $fields   The fields to register.
 	 */
-	protected function _build_term_meta_fields( $term, $taxonomy, $fields ) {
+	protected function _build_term_meta_fields( $term, $fields ) {
 		foreach ( $fields as $field => $args ) {
-			$this->_build_term_meta_field( $term, $taxonomy, $field, $args );
+			make_associative( $field, $args );
+			$this->_build_term_meta_field( $term, $field, $args );
 		}
 	}
 	
@@ -1124,7 +1126,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @since 1.10.0
 	 *
-	 * @param object $term     The term being edited. (skip when saving)
+	 * @param object $term_id  The term being edited. (skip when saving)
 	 * @param string $field    The id/name meta field to build.
 	 * @param array  $args     The arguments for the field.
 	 * @param bool   $_checked Wether or not a check has been taken care of.
@@ -1163,7 +1165,115 @@ class Setup extends \Smart_Plugin {
 		}
 		
 		foreach ( $fields as $field => $args ) {
-			$this->_save_term_meta_field( $term_id, $fields, true );
+			make_associative( $field, $args );
+			$this->_save_term_meta_field( $term_id, $field, $args, true );
+		}
+	}
+
+	// =========================
+	// !User Meta Field Setups
+	// =========================
+	
+	/**
+	 * Setup the hooks for adding/saving user meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param array $fields The fields to build/save.
+	 */
+	protected function setup_usermeta( $fields ) {
+		// Do nothing if not in the admin
+		if ( ! is_admin() ) {
+			return;
+		}
+		
+		$user_id = isset( $_REQUEST['user_id'] ) ? $_REQUEST['user_id'] : null;
+		
+		if ( ( defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE === true )
+		|| ( wp_get_current_user()->ID == $user_id ) ) {
+			$save_hook = 'personal_options_update';
+		} else {
+			$save_hook = 'edit_user_profile_update';
+		}
+			
+		$this->save_callback( 'build_user_meta_fields', array( $fields ), array( 'personal_options', 10, 1 ) );
+		$this->save_callback( 'save_user_meta_fields', array( $fields ), array( $save_hook, 10, 1 ) );
+	}
+	
+	/**
+	 * Build and print out a user meta field row.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $user  The user being edited. (skip when saving)
+	 * @param string $field The id/name meta field to build.
+	 * @param array  $args  The arguments for the field.
+	 */
+	protected function _build_user_meta_field( $user, $field, $args ) {
+		Tools::build_field_row( $field, $args, $user, 'user' );
+	}
+	
+	/**
+	 * Build and print a series of user meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $user   The user being edited. (skip when saving)
+	 * @param array  $fields The fields to register.
+	 */
+	protected function _build_user_meta_fields( $user, $fields ) {
+		foreach ( $fields as $field => $args ) {
+			make_associative( $field, $args );
+			$this->_build_user_meta_field( $user, $field, $args );
+		}
+	}
+	
+	/**
+	 * Save the data for a user meta field.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $user_id  The user being edited. (skip when saving)
+	 * @param string $field    The id/name meta field to build.
+	 * @param array  $args     The arguments for the field.
+	 * @param bool   $_checked Wether or not a check has been taken care of.
+	 */
+	protected function _save_user_meta_field( $user_id, $field, $args, $_checked = false ) {
+		$post_key = $meta_key = $field;
+		
+		// Check if an explicit $_POST key is set
+		if ( isset( $args['post_key'] ) ) {
+			$post_key = $args['post_key'];
+		}
+		
+		// Check if an explicit meta key is set
+		if ( isset( $args['meta_key'] ) ) {
+			$meta_key = $args['meta_key'];
+		}
+		
+		// Save the field if it's been passed
+		if ( isset( $_POST[ $post_key ] ) ) {
+			update_user_meta( $user_id, $meta_key, $_POST[ $post_key ] );
+		}
+	}
+	
+	/**
+	 * Save multiple user meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $user_id The user being saved. (skip when saving)
+	 * @param array  $fields  The fields to register.
+	 */
+	protected function _save_user_meta_fields( $user_id, $fields ) {
+		// Check that there's a nonce and that it validates.
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-user_' . $user_id ) ) {
+			return;
+		}
+		
+		foreach ( $fields as $field => $args ) {
+			make_associative( $field, $args );
+			$this->_save_user_meta_field( $user_id, $field, $args, true );
 		}
 	}
 
@@ -1297,6 +1407,7 @@ class Setup extends \Smart_Plugin {
 		$this->setup_pages( $configs['pages'] ); // Will run now and setup various hooks
 		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
 		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
+		$this->setup_usermeta( $configs['user_meta'] ); // Will run now and setup various hooks
 	}
 
 	// =========================

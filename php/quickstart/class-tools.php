@@ -329,6 +329,10 @@ class Tools extends \Smart_Plugin {
 			 * @param string  $source The source type for the data.
 			 */
 			$fields = call_user_func( $args['get_fields'], $data, $args, $id, $source );
+		} elseif ( is_callable( $args ) ) {
+			$callback = $args;
+		} else {
+			$fields = array( $id => $args );
 		}
 		
 		if ( $callback ) {
@@ -358,7 +362,7 @@ class Tools extends \Smart_Plugin {
 			}
 			
 			// Build the fields
-			Form::build_fields( $fields, $data, $source, $wrap );
+			Form::build_fields( $fields, $data, $source, true, $wrap );
 		}
 	}
 
@@ -423,9 +427,9 @@ class Tools extends \Smart_Plugin {
 	 */
 	public static function build_field_row( $field, $args, $data, $source ) {
 		$default_args = array(
-			'id'              => 'qs_field_' . static::make_id( $field ),
-			'name'            => $field,
-			'title'           => static::make_label( $field ),
+			'id'    => 'qs_field_' . Form::make_id( $field ),
+			'name'  => $field,
+			'title' => Form::make_label( $field ),
 		);
 
 		// Parse the passed args with the defaults
@@ -443,7 +447,7 @@ class Tools extends \Smart_Plugin {
 				}
 			echo '</th>';
 			echo '<td>';
-				static::do_fields_or_callback( 'field_row', $setting, $args, $data, $source, false );
+				static::do_fields_or_callback( 'field_row', $field, $args, $data, $source, false );
 			echo '</td>';
 		echo '</tr>';
 	}
