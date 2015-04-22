@@ -1952,12 +1952,6 @@ class Setup extends \Smart_Plugin {
 			if ( taxonomy_exists( $object ) ) {
 				// This is a taxonomy, get the associated post types
 				$post_types = get_taxonomy( $object )->object_type;
-
-				// On the off chance there's also a post type with the same slug,
-				// append it to the $post_types array.
-				if ( post_type_exists( $object ) ) {
-					$post_types[] = $object;
-				}
 			} else {
 				$post_types = array( $object );
 			}
