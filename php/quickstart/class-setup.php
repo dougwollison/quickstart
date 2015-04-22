@@ -1492,7 +1492,6 @@ class Setup extends \Smart_Plugin {
 			'title'      => make_legible( $page ),
 			'slug'       => $page,
 			'capability' => 'manage_options',
-			'callback'   => array( __NAMESPACE__ . '\Callbacks', 'default_admin_page' ),
 			'icon'       => '',
 			'position'   => null,
 		);
@@ -1517,6 +1516,12 @@ class Setup extends \Smart_Plugin {
 		$levels = array( 'object', 'utility' );
 		if ( ! in_array( $args['type'], $levels ) ) {
 			$args['type'] == 'menu';
+		}
+
+		// Set the default callback if none is set
+		if ( ! isset( $args['callback'] ) ) {
+			// Setup the default_admin_page callback, passing the $page id
+			$args['callback'] = Callbacks::save_static_callback( 'default_admin_page', array( $page ), false );
 		}
 
 		// Extract $args
