@@ -345,8 +345,9 @@ class Form {
 			$settings['wrapper_class'] = '';
 		}
 
-		// Add the default qs-field, qs-field-$field_id, and $type classes
-		$settings['wrapper_class'] .= implode( ' ', array(
+		// Updated the wrapper_class, adding qs-field, qs-field-$field_id, and $type classes
+		$settings['wrapper_class'] = implode( ' ', array(
+			$settings['wrapper_class'],
 			'qs-field',
 			'qs-field-' . $field_id,
 			$settings['type'],
