@@ -49,16 +49,16 @@ class Callbacks extends \Smart_Plugin {
 	 * @since 1.6.0  Fixed use of nested/hierarchical aspect, added quicksort buttons.
 	 * @since 1.4.0  Added use of $nested option.
 	 * @since 1.0.0
+	 *
+	 * @param string $object_type The type of the object this is for (post_type or taxonomy).
+	 * @param string $object_name The objects name.
 	 */
-	public static function menu_order_admin_page() {
+	public static function menu_order_admin_page( $object_type, $object_name ) {
 		global $wpdb;
-		$object_slug = preg_replace( '/-order$/', '', $_GET['page'] );
-		if ( taxonomy_exists( $object_slug ) ) {
-			$object_type = 'taxonomy';
-			$object = get_taxonomy( $object_slug );
+		if ( $object_type == 'taxonomy' ) {
+			$object = get_taxonomy( $object_name );
 		} else {
-			$object_type = 'post_type';
-			$object = get_post_type_object( $object_slug );
+			$object = get_post_type_object( $object_name );
 		}
 
 		// Identify the list method to use
@@ -71,7 +71,7 @@ class Callbacks extends \Smart_Plugin {
 
 			<form method="post" action="edit.php">
 				<input type="hidden" name="object_type" value="<?php echo $object_type?>" />
-				<input type="hidden" name="object_slug" value="<?php echo $object_slug?>" />
+				<input type="hidden" name="object_name" value="<?php echo $object_name?>" />
 				<?php wp_nonce_field( 'manage_menu_order', '_qsnonce' )?>
 				<div class="qs-order-manager <?php if ( $object->hierarchical ) echo 'qs-nested'?>">
 					<?php self::$method( $object )?>

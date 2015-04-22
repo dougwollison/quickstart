@@ -1956,8 +1956,10 @@ class Setup extends \Smart_Plugin {
 		foreach ( $objects as $object ) {
 			if ( taxonomy_exists( $object ) ) {
 				// This is a taxonomy, get the associated post types
+				$type = 'taxonomy';
 				$post_types = get_taxonomy( $object )->object_type;
 			} else {
+				$type = 'post_type';
 				$post_types = array( $object );
 			}
 
@@ -1965,7 +1967,7 @@ class Setup extends \Smart_Plugin {
 				$this->setup_page( "$object-order", array(
 					'title'      => sprintf( __( '%s Order' ), make_legible( $object ) ),
 					'capability' => get_post_type_object( $post_type )->cap->edit_posts,
-					'callback'   => array( __NAMESPACE__ . '\Callbacks', 'menu_order_admin_page' ),
+					'callback'   => Callbacks::save_static_callback( 'menu_order_admin_page', array( $type, $object ), false ),
 				), $post_type );
 			}
 		}
