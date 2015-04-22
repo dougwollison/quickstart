@@ -369,7 +369,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Actually build a meta_box, either calling the callback or running the build_fields Form method.
 	 *
-	 * @since 1.10.0 Added use of do_fields_or_callback().
+	 * @since 1.10.0 Moved bulk of logic to do_fields_or_callback().
 	 * @since 1.8.0  Fixed callback checking to check callback, fields AND field values.
 	 *               Also added preprocessing of fields for meta box specific purposes.
 	 * @since 1.6.0  Added use of get_fields option.
@@ -378,13 +378,19 @@ class Tools extends \Smart_Plugin {
 	 * @since 1.0.0
 	 * @uses Form::build_fields()
 	 *
-	 * @param object $post    The post object to be sent when called via add_meta_box.
-	 * @param array  $metabox The settings for the metabox, including callback args.
+	 * @param object $post The post object to be sent when called via add_meta_box.
+	 * @param array  $args The settings for the metabox, including callback args.
 	 */
-	public static function build_meta_box( $post, $metabox ) {
-		// Extract $args
-		$id = $metabox['args']['id'];
-		$args = $metabox['args']['args'];
+	public static function build_meta_box( $post, $args ) {
+		// Extract $args depending on structure
+		if ( isset( $args['args'] ) ) {
+			// Passed via add_meta_box callback
+			$id = $args['args']['id'];
+			$args = $args['args']['args'];
+		} else {
+			// Passed manually
+			$id = $args['id'];
+		}
 
 		// Print nonce field
 		wp_nonce_field( $id, "_qsnonce-$id" );
@@ -398,7 +404,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Build a settings fieldset, either calling the callback of running the build_fields Form method.
 	 *
-	 * @since 1.10.0 Reworked $args, added use of do_fields_or_callback().
+	 * @since 1.10.0 Reworked $args, Moved bulk of logic to do_fields_or_callback().
 	 * @since 1.8.0
 	 * @uses Form::build_fields()
 	 *
