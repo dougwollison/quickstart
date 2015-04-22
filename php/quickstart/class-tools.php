@@ -99,7 +99,7 @@ class Tools extends \Smart_Plugin {
 		if ( is_null( $accepted ) ) {
 			$accepted = static::$accepted_attrs;
 		}
-		
+
 		// Add 'type' to accepted attributes list if INPUT
 		if ( $tag == 'input' ) {
 			$accepted[] = 'type';
@@ -172,7 +172,7 @@ class Tools extends \Smart_Plugin {
 				'wpedit',
 			);
 		}
-		
+
 		csv_array_ref( $helpers );
 		foreach ( $helpers as $helper ) {
 			$constant = 'QS_LOADED_' . strtoupper( $helper );
@@ -286,7 +286,7 @@ class Tools extends \Smart_Plugin {
 
 		return true;
 	}
-	
+
 	/**
 	 * Print the fields via Form or custom callback.
 	 *
@@ -334,7 +334,7 @@ class Tools extends \Smart_Plugin {
 		} else {
 			$fields = array( $id => $args );
 		}
-		
+
 		if ( $callback ) {
 			/**
 			 * Build the HTML of the metabox.
@@ -360,7 +360,7 @@ class Tools extends \Smart_Plugin {
 					}
 				}
 			}
-			
+
 			// Build the fields
 			Form::build_fields( $fields, $data, $source, true, $wrap );
 		}
@@ -420,7 +420,7 @@ class Tools extends \Smart_Plugin {
 			static::do_fields_or_callback( 'field_row', $setting, $args, null, 'option', false );
 		echo '</div>';
 	}
-	
+
 	/**
 	 * Build a field row for a form table.
 	 *
@@ -440,7 +440,7 @@ class Tools extends \Smart_Plugin {
 
 		// Parse the passed args with the defaults
 		$args = wp_parse_args( $args, $default_args );
-		
+
 		echo '<tr class="form-field qs-form-field-row" id="' . $source . '-' . $field . '-wrap">';
 			echo '<th scope="row">';
 				// Print the row title as needed
@@ -503,19 +503,19 @@ class Tools extends \Smart_Plugin {
 		if ( is_null( $api_key ) && defined( 'GOOGLE_API_SERVER_KEY' ) ) {
 			$api_key = GOOGLE_API_SERVER_KEY;
 		}
-		
+
 		// Build the URL to query
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query( array(
 			'address' => str_replace( "\n", ' ', $value ),
 			'key' => $api_key,
 		) );
-		
+
 		// Get the JSON data, and parse, update if successful
 		if ( ( $result = file_get_contents( $url ) )
 		&& ( $result = json_decode( $result, true ) ) ) {
 			return $result['results'][0]['geometry']['location'];
 		}
-		
+
 		return false;
 	}
 
@@ -1036,7 +1036,7 @@ class Tools extends \Smart_Plugin {
 	 */
 	protected static function _relabel_posts_menu( $singular, $plural, $menuname ) {
 		global $menu, $submenu;
-		
+
 		$menu[5][0] = $menuname;
 		str_replace_in_array(
 			array( __( 'Posts' ), __( 'Post' ) ),
