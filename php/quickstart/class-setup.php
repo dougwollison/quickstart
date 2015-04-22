@@ -88,83 +88,48 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Processes configuration options and sets up necessary hooks/callbacks.
 	 *
-	 * @since 1.9.2 Added jquery-ui-sortable dependency for qs-helpers script.
-	 * @since 1.9.0 Moving register_pages() to new run_admin_setups().
-	 * @since 1.8.0 Added quick-enqueue handling.
-	 * @since 1.4.0 Added helpers css/js backend enqueue.
-	 * @since 1.1.0 Added tinymce key; mce is deprecated.
+	 * @since 1.10.0
+	 * @since 1.9.2  Added jquery-ui-sortable dependency for qs-helpers script.
+	 * @since 1.9.0  Moving register_pages() to new run_admin_setups().
+	 * @since 1.8.0  Added quick-enqueue handling.
+	 * @since 1.4.0  Added helpers css/js backend enqueue.
+	 * @since 1.1.0  Added tinymce key; mce is deprecated.
 	 * @since 1.0.0
 	 *
 	 * @param array $configs  The theme configuration options.
 	 * @param array $defaults Optional The default values.
 	 */
 	public function __construct( array $configs, $defaults = array() ) {
+		// Set default entries for the configuration array
+		$configs = array_merge( array(
+			// Content stuff
+			'post_types'    => array(), // Custom post types
+			'taxonomies'    => array(), // Custom taxonomies
+			'meta_boxes'    => array(), // Meta boxes
+
+			// Theme stuff
+			'supports'      => array(), // Theme supports
+
+			// Admin stuff
+			'settings'      => array(), // Admin settings
+			'pages'         => array(), // Admin pages
+			'features'      => array(), // Custom QuickStart features
+			'columns'       => array(), // Custom manager columns
+			'user_meta'     => array(), // Custom user meta fields
+
+			// Miscellaneous stuff
+			'hide'          => null,    // Default things to hide/disable
+			'helpers'       => null,    // QuickStart helpers to load
+			'relabel_posts' => null,    // Rename the Posts post type
+			'shortcodes'    => null,    // Custom shortcodes to register
+			'enqueue'       => array(), // Styles/scripts to eneuque
+		), $configs );
+
 		// Store the configuration array
 		$this->configs = $configs;
 
 		// Merge default_args with passed defaults
 		$this->defaults = wp_parse_args( $defaults, $this->defaults );
-
-		foreach ( $configs as $key => $value ) {
-			// Proceed simple options based on what $key is
-			switch ( $key ) {
-				case 'hide':
-					// Hide certain aspects of the backend
-					Tools::hide( $value );
-				break;
-				case 'shortcodes':
-					// Register the passed shortcodes
-					Tools::register_shortcodes( $value );
-				break;
-				case 'relabel_posts':
-					// Relabel Posts to the desired string(s)
-					Tools::relabel_posts( $value );
-				break;
-				case 'helpers':
-					// Load the requested helper files
-					Tools::load_helpers( $value );
-				break;
-				case 'enqueue':
-					// Enqueue frontend scripts/styles if set
-					if ( isset( $value['frontend'] ) ) {
-						Tools::frontend_enqueue( $value['frontend'] );
-					}
-					// Enqueue backend scripts/styles if set
-					if ( isset( $value['backend'] ) ) {
-						Tools::backend_enqueue( $value['backend'] );
-					}
-				break;
-				case 'css':
-				case 'js':
-					// Process quick enqueue scripts/styles for the frontend
-					Tools::quick_frontend_enqueue( $key, $value );
-				break;
-				case 'admin_css':
-				case 'admin_js':
-					// Process quick enqueue scripts/styles for the backend
-					$key = str_replace( 'admin_', '', $key );
-					Tools::quick_backend_enqueue( $key, $value );
-				break;
-				case 'tinymce':
-				case 'mce':
-					// Enable buttons if set
-					if ( isset( $value['buttons'] ) ) {
-						$this->add_mce_buttons( $value['buttons'] );
-					}
-					// Register plugins if set
-					if ( isset( $value['plugins'])){
-						$this->register_mce_plugins( $value['plugins'] );
-					}
-					// Register custom styles if set
-					if ( isset( $value['styles'] ) ) {
-						$this->register_mce_styles( $value['styles'] );
-					}
-				break;
-				case 'settings':
-					$this->register_settings( $value );
-				break;
-			}
-		}
 
 		// Run the content setups
 		$this->run_content_setups();
@@ -174,6 +139,9 @@ class Setup extends \Smart_Plugin {
 
 		// Run the admin setups
 		$this->run_admin_setups();
+
+		// Run the miscellaneous setups
+		$this->run_misc_setups();
 
 		// Enqueue the general css/js if not already
 		if ( is_admin() && ( ! defined( 'QS_HELPERS_ENQUEUED' ) || ! QS_HELPERS_ENQUEUED ) ) {
@@ -349,17 +317,6 @@ class Setup extends \Smart_Plugin {
 		// Load the configurations array
 		$configs = &$this->configs;
 
-		$configs = array_merge( array(
-			'post_types' => array(),
-			'taxonomies' => array(),
-			'meta_boxes' => array(),
-			'supports'   => array(), // Theme supports
-			'pages'      => array(), // Admin pages
-			'features'   => array(), // Custom QuickStart features
-			'columns'    => array(), // Custom manager columns
-			'user_meta'  => array(), // Custom user meta fields
-		), $configs );
-
 		// Make sure supports is an array
 		csv_array_ref( $configs['supports'] );
 
@@ -477,7 +434,7 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Post Type Setups
+	// !- Post Type Setups
 	// =========================
 
 	/**
@@ -548,7 +505,7 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Taxonomy Setups
+	// !- Taxonomy Setups
 	// =========================
 
 	/**
@@ -708,7 +665,88 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Meta Box Setups
+	// !-- Term Meta Field Setups
+	// =========================
+
+	/**
+	 * Build and print out a term meta field row.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $term     The term being edited. (skip when saving)
+	 * @param string $field    The id/name meta field to build.
+	 * @param array  $args     The arguments for the field.
+	 */
+	protected function _build_term_meta_field( $term, $field, $args ) {
+		Tools::build_field_row( $field, $args, $term, 'term' );
+	}
+
+	/**
+	 * Build and print a series of term meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $term     The term being edited. (skip when saving)
+	 * @param array  $fields   The fields to register.
+	 */
+	protected function _build_term_meta_fields( $term, $fields ) {
+		foreach ( $fields as $field => $args ) {
+			make_associative( $field, $args );
+			$this->_build_term_meta_field( $term, $field, $args );
+		}
+	}
+
+	/**
+	 * Save the data for a term meta field.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $term_id  The term being edited. (skip when saving)
+	 * @param string $field    The id/name meta field to build.
+	 * @param array  $args     The arguments for the field.
+	 * @param bool   $_checked Wether or not a check has been taken care of.
+	 */
+	protected function _save_term_meta_field( $term_id, $field, $args, $_checked = false ) {
+		$post_key = $meta_key = $field;
+
+		// Check if an explicit $_POST key is set
+		if ( isset( $args['post_key'] ) ) {
+			$post_key = $args['post_key'];
+		}
+
+		// Check if an explicit meta key is set
+		if ( isset( $args['meta_key'] ) ) {
+			$meta_key = $args['meta_key'];
+		}
+
+		// Save the field if it's been passed
+		if ( isset( $_POST[ $post_key ] ) ) {
+			update_term_meta( $term_id, $meta_key, $_POST[ $post_key ] );
+		}
+	}
+
+	/**
+	 * Save multiple term meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $term_id The term being saved. (skip when saving)
+	 * @param array  $fields  The fields to register.
+	 */
+	protected function _save_term_meta_fields( $term_id, $fields ) {
+		// Check that there's a nonce and that it validates.
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-tag_' . $term_id ) ) {
+			return;
+		}
+
+		foreach ( $fields as $field => $args ) {
+			make_associative( $field, $args );
+			$this->_save_term_meta_field( $term_id, $field, $args, true );
+		}
+	}
+
+	// =========================
+	// !- Meta Box Setups
 	// =========================
 
 	/**
@@ -1090,194 +1128,6 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Term Meta Field Setups
-	// =========================
-
-	/**
-	 * Build and print out a term meta field row.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param object $term     The term being edited. (skip when saving)
-	 * @param string $field    The id/name meta field to build.
-	 * @param array  $args     The arguments for the field.
-	 */
-	protected function _build_term_meta_field( $term, $field, $args ) {
-		Tools::build_field_row( $field, $args, $term, 'term' );
-	}
-
-	/**
-	 * Build and print a series of term meta fields.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param object $term     The term being edited. (skip when saving)
-	 * @param array  $fields   The fields to register.
-	 */
-	protected function _build_term_meta_fields( $term, $fields ) {
-		foreach ( $fields as $field => $args ) {
-			make_associative( $field, $args );
-			$this->_build_term_meta_field( $term, $field, $args );
-		}
-	}
-
-	/**
-	 * Save the data for a term meta field.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param object $term_id  The term being edited. (skip when saving)
-	 * @param string $field    The id/name meta field to build.
-	 * @param array  $args     The arguments for the field.
-	 * @param bool   $_checked Wether or not a check has been taken care of.
-	 */
-	protected function _save_term_meta_field( $term_id, $field, $args, $_checked = false ) {
-		$post_key = $meta_key = $field;
-
-		// Check if an explicit $_POST key is set
-		if ( isset( $args['post_key'] ) ) {
-			$post_key = $args['post_key'];
-		}
-
-		// Check if an explicit meta key is set
-		if ( isset( $args['meta_key'] ) ) {
-			$meta_key = $args['meta_key'];
-		}
-
-		// Save the field if it's been passed
-		if ( isset( $_POST[ $post_key ] ) ) {
-			update_term_meta( $term_id, $meta_key, $_POST[ $post_key ] );
-		}
-	}
-
-	/**
-	 * Save multiple term meta fields.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param object $term_id The term being saved. (skip when saving)
-	 * @param array  $fields  The fields to register.
-	 */
-	protected function _save_term_meta_fields( $term_id, $fields ) {
-		// Check that there's a nonce and that it validates.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-tag_' . $term_id ) ) {
-			return;
-		}
-
-		foreach ( $fields as $field => $args ) {
-			make_associative( $field, $args );
-			$this->_save_term_meta_field( $term_id, $field, $args, true );
-		}
-	}
-
-	// =========================
-	// !User Meta Field Setups
-	// =========================
-
-	/**
-	 * Setup the hooks for adding/saving user meta fields.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param array $fields The fields to build/save.
-	 */
-	protected function setup_usermeta( $fields ) {
-		// Do nothing if not in the admin
-		if ( ! is_admin() ) {
-			return;
-		}
-
-		$user_id = isset( $_REQUEST['user_id'] ) ? $_REQUEST['user_id'] : null;
-
-		if ( ( defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE === true )
-		|| ( wp_get_current_user()->ID == $user_id ) ) {
-			$save_hook = 'personal_options_update';
-		} else {
-			$save_hook = 'edit_user_profile_update';
-		}
-
-		$this->save_callback( 'build_user_meta_fields', array( $fields ), array( 'personal_options', 10, 1 ) );
-		$this->save_callback( 'save_user_meta_fields', array( $fields ), array( $save_hook, 10, 1 ) );
-	}
-
-	/**
-	 * Build and print out a user meta field row.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param object $user  The user being edited. (skip when saving)
-	 * @param string $field The id/name meta field to build.
-	 * @param array  $args  The arguments for the field.
-	 */
-	protected function _build_user_meta_field( $user, $field, $args ) {
-		Tools::build_field_row( $field, $args, $user, 'user' );
-	}
-
-	/**
-	 * Build and print a series of user meta fields.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param object $user   The user being edited. (skip when saving)
-	 * @param array  $fields The fields to register.
-	 */
-	protected function _build_user_meta_fields( $user, $fields ) {
-		foreach ( $fields as $field => $args ) {
-			make_associative( $field, $args );
-			$this->_build_user_meta_field( $user, $field, $args );
-		}
-	}
-
-	/**
-	 * Save the data for a user meta field.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param object $user_id  The user being edited. (skip when saving)
-	 * @param string $field    The id/name meta field to build.
-	 * @param array  $args     The arguments for the field.
-	 * @param bool   $_checked Wether or not a check has been taken care of.
-	 */
-	protected function _save_user_meta_field( $user_id, $field, $args, $_checked = false ) {
-		$post_key = $meta_key = $field;
-
-		// Check if an explicit $_POST key is set
-		if ( isset( $args['post_key'] ) ) {
-			$post_key = $args['post_key'];
-		}
-
-		// Check if an explicit meta key is set
-		if ( isset( $args['meta_key'] ) ) {
-			$meta_key = $args['meta_key'];
-		}
-
-		// Save the field if it's been passed
-		if ( isset( $_POST[ $post_key ] ) ) {
-			update_user_meta( $user_id, $meta_key, $_POST[ $post_key ] );
-		}
-	}
-
-	/**
-	 * Save multiple user meta fields.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param object $user_id The user being saved. (skip when saving)
-	 * @param array  $fields  The fields to register.
-	 */
-	protected function _save_user_meta_fields( $user_id, $fields ) {
-		// Check that there's a nonce and that it validates.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-user_' . $user_id ) ) {
-			return;
-		}
-
-		foreach ( $fields as $field => $args ) {
-			make_associative( $field, $args );
-			$this->_save_user_meta_field( $user_id, $field, $args, true );
-		}
-	}
-
-	// =========================
 	// !Theme Setups
 	// =========================
 
@@ -1404,344 +1254,16 @@ class Setup extends \Smart_Plugin {
 		// Load the configuration array
 		$configs = &$this->configs;
 
+		$this->register_settings( $configs['settings'] ); // Will run during admin_init
+
 		$this->setup_pages( $configs['pages'] ); // Will run now and setup various hooks
 		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
-		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
 		$this->setup_usermeta( $configs['user_meta'] ); // Will run now and setup various hooks
+		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
 	}
 
 	// =========================
-	// !Column Setups
-	// =========================
-
-	/**
-	 * Setup the requested columns for the post type.
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.8.0
-	 *
-	 * @param string $post_type The slug of the post type to setup for.
-	 * @param array  $columnset The list of columns to use/register.
-	 */
-	protected function setup_columnset( $post_type, $columnset ) {
-		switch ( $post_type ) {
-			case 'page':
-				$filter_hook = 'manage_pages_columns';
-				$action_hook = 'manage_pages_custom_column';
-				break;
-			case 'post':
-				$filter_hook = 'manage_posts_columns';
-				$action_hook = 'manage_posts_custom_column';
-				break;
-			default:
-				$filter_hook = 'manage_' . $post_type . '_posts_columns';
-				$action_hook = 'manage_' . $post_type . '_posts_custom_column';
-				break;
-		}
-
-		// Create the hook settings and arguments list
-		$filter_hook = array( $filter_hook, 10, 1 );
-		$action_hook = array( $action_hook, 10, 2 );
-		$args = array( $columnset );
-
-		// Save the callbacks
-		$this->save_callback( 'edit_columns', $args, $filter_hook );
-		$this->save_callback( 'do_columns', $args, $action_hook );
-	}
-
-	/**
-	 * Sets up the requested columns for each post type.
-	 *
-	 * Simply loops through and calls Setup::_setup_columnset().
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.8.0
-	 *
-	 * @param array $feature The list of features to register.
-	 */
-	protected function setup_columns( array $columns ) {
-		foreach ( $columns as $post_type => $columnset ) {
-			$this->setup_columnset( $post_type, $columnset );
-		}
-	}
-
-	/**
-	 * Edit the list of columns using the passed columnset.
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.8.0
-	 *
-	 * @param array $old_columns The current columns to edit (skip when saving).
-	 * @param array $new_columns The list of desired columns.
-	 *
-	 * @return array The updated columns list.
-	 */
-	protected function _edit_columns( $old_columns, $new_columns ) {
-		$columns = array();
-
-		// Go through the columns, and add/modify as needed
-		foreach ( $new_columns as $column_id => $args ) {
-			// Handle non-associative entries
-			if ( is_int( $column_id ) ) {
-				$column_id = $args;
-				$args = array();
-			}
-
-			if ( isset( $old_columns[ $column_id ] ) ) { // Use the existing column and edit the title if set
-				// Old value
-				$title = $old_columns[ $column_id ];
-
-				if ( $args ) {
-					// Replace the title if set
-					if ( is_array( $args ) && isset( $args['title'] ) ){
-						$title = $args['title'];
-					} elseif ( is_string( $args ) ) {
-						$title = $args;
-					}
-				}
-
-				$columns[ $column_id ] = $title;
-			} elseif ( is_array( $args ) ) { // Add a new column, but only if it has arguments
-				// Default title is legible version of id
-				$title = make_legible( $id );
-
-				if ( isset( $args['title'] ) ) {
-					$title = $args['title'];
-				}
-
-				$columns[ $column_id ] = $title;
-			}
-		}
-
-		// Return the modified columns
-		return $columns;
-	}
-
-	/**
-	 * Do whatever output is needed for the current column.
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.8.0
-	 *
-	 * @param array $column_id The current column to handle (skip when saving).
-	 * @param int   $post_id   The ID of the current post (skip when saving).
-	 * @param array $columns   The custom columns to work with.
-	 *
-	 * @return array The updated columns list.
-	 */
-	protected function _do_columns( $column_id, $post_id, $columns ) {
-		// Get the arguments for the current column
-		if ( isset( $columns[ $column_id ] ) ) {
-			$args = $columns[ $column_id ];
-		} else{
-			// Nothing to do
-			return;
-		}
-
-		// Skip non-associative and arg-less entries
-		if ( is_int( $column_id ) || empty( $args ) || ! is_array( $args ) ) return;
-
-		// First, check for an all-purpose output callback
-		if ( isset( $args['output'] ) && is_callable( $args['output'] ) ) {
-			/**
-			 * Output the content for the column
-			 *
-			 * @since 1.8.0
-			 *
-			 * @param int    $post_id The id of the post to output for.
-			 * @param string $column_id The id of the column to output for.
-			 */
-			call_user_func( $args['output'], $post_id, $column_id );
-		} elseif ( $args['meta_key'] ) {
-			// Output the meta_value for this posts meta_key
-			echo get_post_meta( $post_id, $args['meta_key'], true );
-		} elseif ( $args['post_field'] ) {
-			// Output the post_filed for this post
-			echo get_post( $post_id )->{ $args['meta_key'] };
-		}
-
-		// No output otherwise
-	}
-
-	// =========================
-	// !MCE Setups
-	// =========================
-
-	/**
-	 * Add buttons for MCE.
-	 *
-	 * This simply adds them; there must be associated JavaScript to display them.
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.0.0
-	 *
-	 * @param array        $buttons        The currently enabled buttons. (skip when saving)
-	 * @param array|string $buttons_to_add A list of buttons to enable.
-	 * @param int          $position       Optional An exact position to inser the button.
-	 */
-	protected function _add_mce_buttons( $buttons, $buttons_to_add, $position = null ) {
-		csv_array_ref( $buttons_to_add );
-
-		// Go through each button and remove them if they are already present;
-		// We'll be re-adding them in the new desired position.
-		foreach ( $buttons_to_add as $button ) {
-			if ( ( $i = array_search( $button, $buttons ) ) && false !== $i ) {
-				unset( $buttons[ $i ] );
-			}
-		}
-
-		if ( is_int( $position ) ) {
-			// Insert at desired position
-			array_splice( $buttons, $position, 0, $buttons_to_add );
-		} else {
-			// Just append to the end
-			$buttons = array_merge( $buttons, $buttons_to_add );
-		}
-
-		return $buttons;
-	}
-
-	/**
-	 * Add buttons for MCE (specifically the second row).
-	 *
-	 * @see Setup::_enable_mce_buttons()
-	 */
-	protected function _add_mce_buttons_2( $buttons, $buttons_to_add, $position = null ) {
-		return $this->_add_mce_buttons( $buttons, $buttons_to_add, $position );
-	}
-
-	/**
-	 * Add buttons for MCE (specifically the third row).
-	 *
-	 * @see Setup::_enable_mce_buttons()
-	 */
-	protected function _add_mce_buttons_3( $buttons, $buttons_to_add, $position = null ) {
-		return $this->_add_mce_buttons( $buttons, $buttons_to_add, $position );
-	}
-
-	/**
-	 * Add a plugin to the MCE plugins list.
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.0.0
-	 *
-	 * @param array  $plugins The current list of plugins. (skip when saving)
-	 * @param string $plugin  The slug/key of the plugin to add.
-	 * @param string $src     The URL to the javascript file for the plugin.
-	 *
-	 * @return $plugins The modified plugins array.
-	 */
-	protected function _add_mce_plugin( $plugins, $plugin, $src ) {
-		$plugins[ $plugin ] = $src;
-		return $plugins;
-	}
-
-	/**
-	 * Register an MCE Plugin/Button
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.2.0 Removed separator before each button.
-	 * @since 1.0.0
-	 *
-	 * @param string $plugin The slug of the MCE plugin to be registered.
-	 * @param string $src    The URL of the plugin.
-	 * @param string $button Optional the ID of the button to be added to the toolbar.
-	 * @param int    $row    Optional the row number of the toolbar (1, 2, or 3) to add the button to.
-	 */
-	protected function register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
-		// Skip if the current use can't edit posts/pages
-		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
-			return;
-		}
-
-		// Only bother if rich editing is true
-		if ( get_user_option( 'rich_editing' ) == 'true' ) {
-			if ( $button ) {
-				// If $button is literal true, make it the same as the plugin slug
-				if ( true == $button ) {
-					$button = $plugin;
-				}
-
-				// Add the button to the appropriate row
-				$method = 'add_mce_buttons' . ( $row > 1 ? "_$row" : '' );
-				$this->$method( $button );
-			}
-
-			$this->add_mce_plugin( $plugin, $src );
-		}
-	}
-
-	/**
-	 * Register multiple MCE Plugins/Buttons.
-	 *
-	 * @since 1.9.0 Now protected. Updated argument handling to use.
-	 * @since 1.2.0 Revised $args logic and flexibility.
-	 * @since 1.0.0
-	 *
-	 * @param array $plugins The list of MCE plugins to be registered.
-	 */
-	protected function register_mce_plugins( $plugins ) {
-		if ( is_array( $plugins ) ) {
-			foreach( $plugins as $plugin => $args ) {
-				$src = $button = $row = null;
-
-				// $args can be a source string or an arguments array
-				if ( is_array( $args ) ) {
-					extract( get_array_values( $args, 'src', 'button', 'row' ) );
-				} else {
-					$button = true; // By default, any plugin will have a button by the same name
-					$src = $args;
-				}
-
-				// Default value for row
-				if ( ! $row ) $row = 1;
-
-				$this->register_mce_plugin( $plugin, $src, $button, $row );
-			}
-		}
-	}
-
-	/**
-	 * Helper; add style formats to the MCE settings.
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.0.0
-	 *
-	 * @param array $settings The TinyMCE settings array to alter. (skip when saving)
-	 * @param array $styles   An array of styles to register.
-	 */
-	protected function _add_mce_style_formats( $settings, $styles ) {
-		$style_formats = array();
-
-		if ( isset( $settings['style_formats'] ) ) {
-			$style_formats = json_decode( $settings['style_formats'] );
-		}
-
-		$style_formats = array_merge( $style_formats, $styles );
-
-		$settings['style_formats'] = json_encode( $style_formats );
-
-		return $settings;
-	}
-
-	/**
-	 * Register custom styles for MCE.
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.0.0
-	 *
-	 * @param array $styles An array of styles to register.
-	 */
-	protected function register_mce_styles( $styles ) {
-		// Add the styleselect item to the second row of buttons.
-		$this->add_mce_buttons_2( 'styleselect', 1 );
-
-		// Actually add the styles
-		$this->add_mce_style_formats( $styles );
-	}
-
-	// =========================
-	// !Settings Setups
+	// !- Settings Setups
 	// =========================
 
 	/**
@@ -1860,7 +1382,7 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Menu Pages Setups
+	// !- Menu Pages Setups
 	// =========================
 
 	/**
@@ -2036,7 +1558,267 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Feature Setups
+	// !- Column Setups
+	// =========================
+
+	/**
+	 * Setup the requested columns for the post type.
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.8.0
+	 *
+	 * @param string $post_type The slug of the post type to setup for.
+	 * @param array  $columnset The list of columns to use/register.
+	 */
+	protected function setup_columnset( $post_type, $columnset ) {
+		switch ( $post_type ) {
+			case 'page':
+				$filter_hook = 'manage_pages_columns';
+				$action_hook = 'manage_pages_custom_column';
+				break;
+			case 'post':
+				$filter_hook = 'manage_posts_columns';
+				$action_hook = 'manage_posts_custom_column';
+				break;
+			default:
+				$filter_hook = 'manage_' . $post_type . '_posts_columns';
+				$action_hook = 'manage_' . $post_type . '_posts_custom_column';
+				break;
+		}
+
+		// Create the hook settings and arguments list
+		$filter_hook = array( $filter_hook, 10, 1 );
+		$action_hook = array( $action_hook, 10, 2 );
+		$args = array( $columnset );
+
+		// Save the callbacks
+		$this->save_callback( 'edit_columns', $args, $filter_hook );
+		$this->save_callback( 'do_columns', $args, $action_hook );
+	}
+
+	/**
+	 * Sets up the requested columns for each post type.
+	 *
+	 * Simply loops through and calls Setup::_setup_columnset().
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.8.0
+	 *
+	 * @param array $feature The list of features to register.
+	 */
+	protected function setup_columns( array $columns ) {
+		foreach ( $columns as $post_type => $columnset ) {
+			$this->setup_columnset( $post_type, $columnset );
+		}
+	}
+
+	/**
+	 * Edit the list of columns using the passed columnset.
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.8.0
+	 *
+	 * @param array $old_columns The current columns to edit (skip when saving).
+	 * @param array $new_columns The list of desired columns.
+	 *
+	 * @return array The updated columns list.
+	 */
+	protected function _edit_columns( $old_columns, $new_columns ) {
+		$columns = array();
+
+		// Go through the columns, and add/modify as needed
+		foreach ( $new_columns as $column_id => $args ) {
+			// Handle non-associative entries
+			if ( is_int( $column_id ) ) {
+				$column_id = $args;
+				$args = array();
+			}
+
+			if ( isset( $old_columns[ $column_id ] ) ) { // Use the existing column and edit the title if set
+				// Old value
+				$title = $old_columns[ $column_id ];
+
+				if ( $args ) {
+					// Replace the title if set
+					if ( is_array( $args ) && isset( $args['title'] ) ){
+						$title = $args['title'];
+					} elseif ( is_string( $args ) ) {
+						$title = $args;
+					}
+				}
+
+				$columns[ $column_id ] = $title;
+			} elseif ( is_array( $args ) ) { // Add a new column, but only if it has arguments
+				// Default title is legible version of id
+				$title = make_legible( $id );
+
+				if ( isset( $args['title'] ) ) {
+					$title = $args['title'];
+				}
+
+				$columns[ $column_id ] = $title;
+			}
+		}
+
+		// Return the modified columns
+		return $columns;
+	}
+
+	/**
+	 * Do whatever output is needed for the current column.
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.8.0
+	 *
+	 * @param array $column_id The current column to handle (skip when saving).
+	 * @param int   $post_id   The ID of the current post (skip when saving).
+	 * @param array $columns   The custom columns to work with.
+	 *
+	 * @return array The updated columns list.
+	 */
+	protected function _do_columns( $column_id, $post_id, $columns ) {
+		// Get the arguments for the current column
+		if ( isset( $columns[ $column_id ] ) ) {
+			$args = $columns[ $column_id ];
+		} else{
+			// Nothing to do
+			return;
+		}
+
+		// Skip non-associative and arg-less entries
+		if ( is_int( $column_id ) || empty( $args ) || ! is_array( $args ) ) return;
+
+		// First, check for an all-purpose output callback
+		if ( isset( $args['output'] ) && is_callable( $args['output'] ) ) {
+			/**
+			 * Output the content for the column
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param int    $post_id The id of the post to output for.
+			 * @param string $column_id The id of the column to output for.
+			 */
+			call_user_func( $args['output'], $post_id, $column_id );
+		} elseif ( $args['meta_key'] ) {
+			// Output the meta_value for this posts meta_key
+			echo get_post_meta( $post_id, $args['meta_key'], true );
+		} elseif ( $args['post_field'] ) {
+			// Output the post_filed for this post
+			echo get_post( $post_id )->{ $args['meta_key'] };
+		}
+
+		// No output otherwise
+	}
+
+	// =========================
+	// !- User Meta Field Setups
+	// =========================
+
+	/**
+	 * Setup the hooks for adding/saving user meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param array $fields The fields to build/save.
+	 */
+	protected function setup_usermeta( $fields ) {
+		// Do nothing if not in the admin
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		$user_id = isset( $_REQUEST['user_id'] ) ? $_REQUEST['user_id'] : null;
+
+		if ( ( defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE === true )
+		|| ( wp_get_current_user()->ID == $user_id ) ) {
+			$save_hook = 'personal_options_update';
+		} else {
+			$save_hook = 'edit_user_profile_update';
+		}
+
+		$this->save_callback( 'build_user_meta_fields', array( $fields ), array( 'personal_options', 10, 1 ) );
+		$this->save_callback( 'save_user_meta_fields', array( $fields ), array( $save_hook, 10, 1 ) );
+	}
+
+	/**
+	 * Build and print out a user meta field row.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $user  The user being edited. (skip when saving)
+	 * @param string $field The id/name meta field to build.
+	 * @param array  $args  The arguments for the field.
+	 */
+	protected function _build_user_meta_field( $user, $field, $args ) {
+		Tools::build_field_row( $field, $args, $user, 'user' );
+	}
+
+	/**
+	 * Build and print a series of user meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $user   The user being edited. (skip when saving)
+	 * @param array  $fields The fields to register.
+	 */
+	protected function _build_user_meta_fields( $user, $fields ) {
+		foreach ( $fields as $field => $args ) {
+			make_associative( $field, $args );
+			$this->_build_user_meta_field( $user, $field, $args );
+		}
+	}
+
+	/**
+	 * Save the data for a user meta field.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $user_id  The user being edited. (skip when saving)
+	 * @param string $field    The id/name meta field to build.
+	 * @param array  $args     The arguments for the field.
+	 * @param bool   $_checked Wether or not a check has been taken care of.
+	 */
+	protected function _save_user_meta_field( $user_id, $field, $args, $_checked = false ) {
+		$post_key = $meta_key = $field;
+
+		// Check if an explicit $_POST key is set
+		if ( isset( $args['post_key'] ) ) {
+			$post_key = $args['post_key'];
+		}
+
+		// Check if an explicit meta key is set
+		if ( isset( $args['meta_key'] ) ) {
+			$meta_key = $args['meta_key'];
+		}
+
+		// Save the field if it's been passed
+		if ( isset( $_POST[ $post_key ] ) ) {
+			update_user_meta( $user_id, $meta_key, $_POST[ $post_key ] );
+		}
+	}
+
+	/**
+	 * Save multiple user meta fields.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param object $user_id The user being saved. (skip when saving)
+	 * @param array  $fields  The fields to register.
+	 */
+	protected function _save_user_meta_fields( $user_id, $fields ) {
+		// Check that there's a nonce and that it validates.
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-user_' . $user_id ) ) {
+			return;
+		}
+
+		foreach ( $fields as $field => $args ) {
+			make_associative( $field, $args );
+			$this->_save_user_meta_field( $user_id, $field, $args, true );
+		}
+	}
+
+	// =========================
+	// !- Feature Setups
 	// =========================
 
 	/**
@@ -2084,7 +1866,7 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Feature: Order Manager
+	// !-- Feature: Order Manager
 	// =========================
 
 	/**
@@ -2230,7 +2012,7 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Feature: Custom Index Pages
+	// !-- Feature: Custom Index Pages
 	// =========================
 
 	/**
@@ -2387,7 +2169,7 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
-	// !Feature: Parent Filtering
+	// !-- Feature: Parent Filtering
 	// =========================
 
 	/**
@@ -2467,5 +2249,256 @@ class Setup extends \Smart_Plugin {
 				echo walk_page_dropdown_tree( $query->posts, 0, $request );
 			echo '</select>';
 		}
+	}
+
+	// =========================
+	// !Miscellaneous Setups
+	// =========================
+
+	/**
+	 * Proccess various miscellaneous setups
+	 *
+	 * @since 1.10.0
+	 */
+	protected function run_misc_setups() {
+		// Load the configuration array
+		$configs = &$this->configs;
+
+		// Handle any simple Tool configs if set
+		if ( isset( $configs['hide'] ) ) {
+			Tools::hide( $configs['hide'] );
+		}
+		if ( isset( $configs['helpers'] ) ) {
+			Tools::load_helpers( $configs['helpers'] );
+		}
+		if ( isset( $configs['relabel_posts'] ) ) {
+			Tools::relabel_posts( $configs['relabel_posts'] );
+		}
+		if ( isset( $configs['shortcodes'] ) ) {
+			Tools::register_shortcodes( $configs['shortcodes'] );
+		}
+
+		// Handle the enqueues if set
+		if ( $enqueue = $configs['enqueue'] ) {
+			// Enqueue frontend scripts/styles if set
+			if ( isset( $enqueue['frontend'] ) ) {
+				Tools::frontend_enqueue( $enqueue['frontend'] );
+			}
+			// Enqueue backend scripts/styles if set
+			if ( isset( $enqueue['backend'] ) ) {
+				Tools::backend_enqueue( $enqueue['backend'] );
+			}
+		}
+
+		// Run through the config and handle them based on $key
+		// This is for sets of multiple configs sharing the same handling methods
+		foreach ( $configs as $key => $value ) {
+			switch ( $key ) {
+				case 'css':
+				case 'js':
+					// Process quick enqueue scripts/styles for the frontend
+					Tools::quick_frontend_enqueue( $key, $value );
+				break;
+				case 'admin_css':
+				case 'admin_js':
+					// Process quick enqueue scripts/styles for the backend
+					$key = str_replace( 'admin_', '', $key );
+					Tools::quick_backend_enqueue( $key, $value );
+				break;
+				case 'tinymce':
+					// Deprecated, use MCE
+				case 'mce':
+					// Enable buttons if set
+					if ( isset( $value['buttons'] ) ) {
+						$this->add_mce_buttons( $value['buttons'] );
+					}
+					// Register plugins if set
+					if ( isset( $value['plugins'])){
+						$this->register_mce_plugins( $value['plugins'] );
+					}
+					// Register custom styles if set
+					if ( isset( $value['styles'] ) ) {
+						$this->register_mce_styles( $value['styles'] );
+					}
+				break;
+			}
+		}
+	}
+
+	// =========================
+	// !- MCE Setups
+	// =========================
+
+	/**
+	 * Add buttons for MCE.
+	 *
+	 * This simply adds them; there must be associated JavaScript to display them.
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.0.0
+	 *
+	 * @param array        $buttons        The currently enabled buttons. (skip when saving)
+	 * @param array|string $buttons_to_add A list of buttons to enable.
+	 * @param int          $position       Optional An exact position to inser the button.
+	 */
+	protected function _add_mce_buttons( $buttons, $buttons_to_add, $position = null ) {
+		csv_array_ref( $buttons_to_add );
+
+		// Go through each button and remove them if they are already present;
+		// We'll be re-adding them in the new desired position.
+		foreach ( $buttons_to_add as $button ) {
+			if ( ( $i = array_search( $button, $buttons ) ) && false !== $i ) {
+				unset( $buttons[ $i ] );
+			}
+		}
+
+		if ( is_int( $position ) ) {
+			// Insert at desired position
+			array_splice( $buttons, $position, 0, $buttons_to_add );
+		} else {
+			// Just append to the end
+			$buttons = array_merge( $buttons, $buttons_to_add );
+		}
+
+		return $buttons;
+	}
+
+	/**
+	 * Add buttons for MCE (specifically the second row).
+	 *
+	 * @see Setup::_enable_mce_buttons()
+	 */
+	protected function _add_mce_buttons_2( $buttons, $buttons_to_add, $position = null ) {
+		return $this->_add_mce_buttons( $buttons, $buttons_to_add, $position );
+	}
+
+	/**
+	 * Add buttons for MCE (specifically the third row).
+	 *
+	 * @see Setup::_enable_mce_buttons()
+	 */
+	protected function _add_mce_buttons_3( $buttons, $buttons_to_add, $position = null ) {
+		return $this->_add_mce_buttons( $buttons, $buttons_to_add, $position );
+	}
+
+	/**
+	 * Add a plugin to the MCE plugins list.
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.0.0
+	 *
+	 * @param array  $plugins The current list of plugins. (skip when saving)
+	 * @param string $plugin  The slug/key of the plugin to add.
+	 * @param string $src     The URL to the javascript file for the plugin.
+	 *
+	 * @return $plugins The modified plugins array.
+	 */
+	protected function _add_mce_plugin( $plugins, $plugin, $src ) {
+		$plugins[ $plugin ] = $src;
+		return $plugins;
+	}
+
+	/**
+	 * Register an MCE Plugin/Button
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.2.0 Removed separator before each button.
+	 * @since 1.0.0
+	 *
+	 * @param string $plugin The slug of the MCE plugin to be registered.
+	 * @param string $src    The URL of the plugin.
+	 * @param string $button Optional the ID of the button to be added to the toolbar.
+	 * @param int    $row    Optional the row number of the toolbar (1, 2, or 3) to add the button to.
+	 */
+	protected function register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
+		// Skip if the current use can't edit posts/pages
+		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+
+		// Only bother if rich editing is true
+		if ( get_user_option( 'rich_editing' ) == 'true' ) {
+			if ( $button ) {
+				// If $button is literal true, make it the same as the plugin slug
+				if ( true == $button ) {
+					$button = $plugin;
+				}
+
+				// Add the button to the appropriate row
+				$method = 'add_mce_buttons' . ( $row > 1 ? "_$row" : '' );
+				$this->$method( $button );
+			}
+
+			$this->add_mce_plugin( $plugin, $src );
+		}
+	}
+
+	/**
+	 * Register multiple MCE Plugins/Buttons.
+	 *
+	 * @since 1.9.0 Now protected. Updated argument handling to use.
+	 * @since 1.2.0 Revised $args logic and flexibility.
+	 * @since 1.0.0
+	 *
+	 * @param array $plugins The list of MCE plugins to be registered.
+	 */
+	protected function register_mce_plugins( $plugins ) {
+		if ( is_array( $plugins ) ) {
+			foreach( $plugins as $plugin => $args ) {
+				$src = $button = $row = null;
+
+				// $args can be a source string or an arguments array
+				if ( is_array( $args ) ) {
+					extract( get_array_values( $args, 'src', 'button', 'row' ) );
+				} else {
+					$button = true; // By default, any plugin will have a button by the same name
+					$src = $args;
+				}
+
+				// Default value for row
+				if ( ! $row ) $row = 1;
+
+				$this->register_mce_plugin( $plugin, $src, $button, $row );
+			}
+		}
+	}
+
+	/**
+	 * Helper; add style formats to the MCE settings.
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.0.0
+	 *
+	 * @param array $settings The TinyMCE settings array to alter. (skip when saving)
+	 * @param array $styles   An array of styles to register.
+	 */
+	protected function _add_mce_style_formats( $settings, $styles ) {
+		$style_formats = array();
+
+		if ( isset( $settings['style_formats'] ) ) {
+			$style_formats = json_decode( $settings['style_formats'] );
+		}
+
+		$style_formats = array_merge( $style_formats, $styles );
+
+		$settings['style_formats'] = json_encode( $style_formats );
+
+		return $settings;
+	}
+
+	/**
+	 * Register custom styles for MCE.
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.0.0
+	 *
+	 * @param array $styles An array of styles to register.
+	 */
+	protected function register_mce_styles( $styles ) {
+		// Add the styleselect item to the second row of buttons.
+		$this->add_mce_buttons_2( 'styleselect', 1 );
+
+		// Actually add the styles
+		$this->add_mce_style_formats( $styles );
 	}
 }
