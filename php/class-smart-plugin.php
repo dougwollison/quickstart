@@ -28,8 +28,7 @@ abstract class Smart_Plugin{
 	 * @param array  $args   The arguments for the method.
 	 * @param mixed  $hook   Optional The hook to attach this to (defaults
 	 *                       to init or any hook registered for the method).
-	 *                       Pass integer to skip hook setup, but specify accepted args.
-	 *                       Pass false skip hook setup altogether.
+	 *                       Pass integer to skip hook setup (specifies accepted args).
 	 * @param array &$list   The callbacks list to use (passed by reference).
 	 * @param int   &$count  The callback counter to use (passed by reference).
 	 * @param array  $hooks  The method hooks list to use.
