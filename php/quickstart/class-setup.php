@@ -1521,7 +1521,7 @@ class Setup extends \Smart_Plugin {
 		// Set the default callback if none is set
 		if ( ! isset( $args['callback'] ) ) {
 			// Setup the default_admin_page callback, passing the $page id
-			$args['callback'] = Callbacks::save_static_callback( 'default_admin_page', array( $page ), false );
+			$args['callback'] = Callbacks::save_static_callback( 'default_admin_page', array( $page ), 0 );
 		}
 
 		// Extract $args
@@ -1967,7 +1967,7 @@ class Setup extends \Smart_Plugin {
 				$this->setup_page( "$object-order", array(
 					'title'      => sprintf( __( '%s Order' ), make_legible( $object ) ),
 					'capability' => get_post_type_object( $post_type )->cap->edit_posts,
-					'callback'   => Callbacks::save_static_callback( 'menu_order_admin_page', array( $type, $object ), false ),
+					'callback'   => Callbacks::save_static_callback( 'menu_order_admin_page', array( $type, $object ), 0 ),
 				), $post_type );
 			}
 		}
