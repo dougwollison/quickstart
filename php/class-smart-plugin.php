@@ -33,7 +33,7 @@ abstract class Smart_Plugin{
 	 * @param array &$list   The callbacks list to use (passed by reference).
 	 * @param int   &$count  The callback counter to use (passed by reference).
 	 * @param array  $hooks  The method hooks list to use.
-	 * @param object $object Either $this for instanciated or get_called_class() for static.
+	 * @param object $object Either $this for instantiated or get_called_class() for static.
 	 *
 	 * @return array $callback The callback array that was created.
 	 */
@@ -92,7 +92,7 @@ abstract class Smart_Plugin{
 	 * @param string $id     The ID of the callback to load.
 	 * @param array  $_args  The additional arguments passed to the method.
 	 * @param array  $list   The callbacks list to use.
-	 * @param object $object Either $this for instanciated or get_called_class() for static.
+	 * @param object $object Either $this for instantiated or get_called_class() for static.
 	 *
 	 * @return array $callback The callback array that was created.
 	 */
