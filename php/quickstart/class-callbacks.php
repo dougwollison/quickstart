@@ -6,29 +6,24 @@ namespace QuickStart;
  *
  * @package QuickStart
  * @subpackage Callbacks
+ *
+ * @since 1.10.0 Now extends Smart_Plugin
  * @since 1.0.0
  */
 
-class Callbacks {
+class Callbacks extends \Smart_Plugin {
 	/**
 	 * Default admin page callback.
 	 *
 	 * This will server for most admin pages; uses the WordPress Settings API
 	 * to print out any fields registered.
 	 *
+	 * @since 1.10.0 Added $page callback argument.
 	 * @since 1.0.0
+	 *
+	 * @param string $page The page slug.
 	 */
-	public static function default_admin_page() {
-		$screen = get_current_screen();
-
-		if ( preg_match( '/^.+?_page_(.+)$/', $screen->id, $matches ) ) {
-			// Submenu page
-			$page = $matches[1];
-		} else {
-			// Top level page
-			$page = str_replace( 'toplevel_page_', '', $screen->id );
-		}
-
+	public static function default_admin_page( $page ) {
 		?>
 		<div class="wrap">
 			<h2><?php echo get_admin_page_title(); ?></h2>
