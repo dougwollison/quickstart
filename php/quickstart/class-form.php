@@ -316,8 +316,16 @@ class Form {
 				return $term->term_id;
 			}, (array) $post_terms );
 
+			// Get the query args for get_terms
+			if ( isset( $settings['term_query'] ) ) {
+				$term_query = $settings['term_query'];
+			} else {
+				// Default to just show empty terms
+				$term_query = array( 'hide_empty' => 0 );
+			}
+
 			// Get the available terms for the values list
-			$tax_terms = get_terms( $settings['taxonomy'], 'hide_empty=0' );
+			$tax_terms = get_terms( $settings['taxonomy'], $term_query );
 			$settings['values'] = simplify_object_array( $tax_terms, 'term_id', 'name' );
 		} else {
 			// Otherwise, use the built in get_value method
@@ -1355,7 +1363,7 @@ class Form {
 		if ( isset( $settings['quicktags'] ) ) {
 			// Make sure it's an array
 			csv_array_ref( $settings['quicktags'] );
-			
+
 			Tools::do_quicktags( $settings['quicktags'], $settings['id'] );
 
 			// Also format into proper from
