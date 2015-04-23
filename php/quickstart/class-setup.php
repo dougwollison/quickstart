@@ -1957,15 +1957,17 @@ class Setup extends \Smart_Plugin {
 			if ( taxonomy_exists( $object ) ) {
 				// This is a taxonomy, get the associated post types
 				$type = 'taxonomy';
-				$post_types = get_taxonomy( $object )->object_type;
+				$the_object = get_taxonomy( $object );
+				$post_types = $the_object->object_type;
 			} else {
 				$type = 'post_type';
+				$the_object = get_post_type_object( $object );
 				$post_types = array( $object );
 			}
 
 			foreach ( $post_types as $post_type ) {
 				$this->setup_page( "$object-order", array(
-					'title'      => sprintf( __( '%s Order' ), make_legible( $object ) ),
+					'title'      => sprintf( __( '%s Order' ), $the_object->labels->singular_name ),
 					'capability' => get_post_type_object( $post_type )->cap->edit_posts,
 					'callback'   => Callbacks::save_static_callback( 'menu_order_admin_page', array( $type, $object ), 0 ),
 				), $post_type );
