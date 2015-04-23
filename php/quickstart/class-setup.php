@@ -586,7 +586,7 @@ class Setup extends \Smart_Plugin {
 
 			// Finish setting up the static taxonomy meta box if needed
 			if ( $static ) {
-				$this->register_meta_box( "$taxonomy-terms", array(
+				$meta_box_args = array(
 					'title'     => ( $multiple ? $taxonomy_obj->labels->name : $taxonomy_obj->labels->singular_name ),
 					'post_type' => $taxonomy_obj->object_type,
 					'context'   => 'side',
@@ -596,7 +596,14 @@ class Setup extends \Smart_Plugin {
 					'class'     => 'widefat static-terms',
 					'null'      => '&mdash; None &mdash;',
 					'taxonomy'  => $taxonomy,
-				) );
+				);
+
+				// Add term_query if metabox_term_query arg is set
+				if ( isset( $args['meta_box_term_query'] ) ) {
+					$meta_box_args['term_query'] = $args['meta_box_term_query'];
+				}
+
+				$this->register_meta_box( "$taxonomy-terms", $meta_box_args );
 			}
 		} else {
 			// Existing taxonomy, check if any additional post types should be attached to it.
