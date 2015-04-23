@@ -6,7 +6,7 @@
  * @subpackage Term_Meta
  * @since 1.10.0
  */
- 
+
 // Register the new termmeta table
 global $wpdb;
 $wpdb->tables[] = 'termmeta';
@@ -22,7 +22,7 @@ define( 'QS_TERMMETA_VERSION', '1.0' );
  */
 function qs_helper_termmeta_installtable() {
 	global $wpdb;
-	
+
 	// Skip if the version number is up to date and logged
 	if ( get_option( 'qs_termmeta_version' ) === QS_TERMMETA_VERSION ) {
 		return;
@@ -49,7 +49,7 @@ function qs_helper_termmeta_installtable() {
 
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	dbDelta( $sql );
-	
+
 	// Log the version number for updating and checking
 	update_option( 'qs_termmeta_version', QS_TERMMETA_VERSION );
 }
@@ -64,7 +64,7 @@ add_action( 'plugins_loaded', 'qs_helper_termmeta_installtable' );
  */
 function qs_helper_termmeta_deleteterm( $term_id ) {
 	global $wpdb;
-	
+
 	$wpdb->delete( $wpdb->termmeta, array(
 		'term_id' => $term_id,
 	) );
@@ -142,3 +142,36 @@ function get_term_meta( $term_id, $key = '', $single = false ) {
 function update_term_meta( $term_id, $meta_key, $meta_value, $prev_value = '' ) {
 	return update_metadata( 'term', $term_id, $meta_key, $meta_value, $prev_value );
 }
+
+/**
+ * Filters the term query clauses so as to support ordering by meta values
+ *
+ * @since 1.10.0
+ *
+ * @param array $clauses    The clauses for the SQL.
+ * @param array $taxonomies The taxonomies requested when get_terms was called.
+ * @param array $args       The arguments passed to get_terms.
+ *
+ * @return array The modified clauses.
+ */
+function term_meta_orderby_clauses( $clauses, $taxonomies, $args ) {
+	global $wpdb;
+
+	// Check if the request was to order by a meta value and that the key is specified.
+	if ( in_array( $args['orderby'], array( 'meta_value', 'meta_value_num' ) ) && isset( $args['meta_key'] ) ) {
+		// Update the JOIN clause to include the term meta table
+		$clauses['join'] .= " LEFT JOIN $wpdb->termmeta AS tm ON t.term_id = tm.term_id";
+
+		// Update the WHERE clause
+		$clauses['where'] .= $wpdb->prepare( " AND tm.meta_key = '%s'", $args['meta_key'] );
+
+		// Replace the ORDER BY clause, converting to integer if needed
+		$clauses['orderby'] = "ORDER BY tm.meta_value";
+		if ( $args['orderby'] == 'meta_value_num' ) {
+			$clauses['orderby'] .= '+0';
+		}
+	}
+
+	return $clauses;
+}
+add_filter( 'terms_clauses', 'term_meta_orderby_clauses', 10, 3 );
