@@ -321,7 +321,7 @@ class Form {
 				$term_query = $settings['term_query'];
 			} else {
 				// Default to just show empty terms
-				$term_query = array( 'hide_empty' => 0 );
+				$term_query = array( 'hide_empty' => false );
 			}
 
 			// Get the available terms for the values list
