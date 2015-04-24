@@ -129,6 +129,28 @@ abstract class Smart_Plugin{
 		// Apply the method with the saved arguments
 		return call_user_func_array( array( $object, $method ), $args );
 	}
+	
+	/**
+	 * Public facing version of _save_callback() and _save_static_callback()
+	 *
+	 * Should reliably auto detect context needed.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param string $method The method to setup a hook for.
+	 * @param array  $args   The custom arguments to save for the hook.
+	 * @param mixed  $hook   Optional The hook details, or number of
+	 *                       arguments if just saving a callback.
+	 */
+	public function setup_callback( $method, $args, $hook = 0 ) {
+		if ( isset( $this ) && get_class( $this ) === get_called_class() ) {
+			// Instance context
+			return $this->_save_callback( $method, $args, $hook );
+		} else {
+			// Static context
+			return static::_save_static_callback( $method, $args, $hook );
+		}
+	}
 
 	// =========================
 	// !Instantiated Version
@@ -168,20 +190,20 @@ abstract class Smart_Plugin{
 		 * Abort if neither.
 		 */
 		if ( method_exists( $this, "_$method" ) ) {
-			return $this->save_callback( $method, $args );
+			return $this->_save_callback( $method, $args );
 		} elseif ( preg_match( '/^cb(\d+)/', $method, $matches ) ) {
-			return $this->load_callback( $matches[1], $args );
+			return $this->_load_callback( $matches[1], $args );
 		} else {
 			return;
 		}
 	}
 
 	/**
-	 * Save a callback for the requested method
+	 * Save a callback for the requested method.
 	 *
 	 * @see Smart_Plugin::_do_save_callback()
 	 */
-	protected function save_callback( $method, $args, $hook = null ) {
+	protected function _save_callback( $method, $args, $hook = null ) {
 		return static::_do_save_callback( $method, $args, $hook, $this->callbacks, $this->callback_count, $this );
 	}
 
@@ -190,7 +212,7 @@ abstract class Smart_Plugin{
 	 *
 	 * @see Smart_Plugin::_do_load_callback()
 	 */
-	protected function load_callback( $id, $_args ) {
+	protected function _load_callback( $id, $_args ) {
 		return static::_do_load_callback( $id, $_args, $this->callbacks, $this );
 	}
 
@@ -218,15 +240,6 @@ abstract class Smart_Plugin{
 	protected static $static_callback_count = 0;
 
 	/**
-	 * A list of internal methods and their hooks names (static version).
-	 *
-	 * @since 1.0.0
-	 * @access protected
-	 * @var array
-	 */
-	protected static $static_method_hooks = array();
-
-	/**
 	 * Static version of the method overloader.
 	 *
 	 * @see SmartPlugin::__call() for details and change log.
@@ -238,9 +251,9 @@ abstract class Smart_Plugin{
 		 * Abort if neither.
 		 */
 		if ( method_exists( get_called_class(), "_$method" ) ) {
-			return static::save_static_callback( $method, $args );
+			return static::_save_static_callback( $method, $args );
 		} elseif ( preg_match( '/^cb(\d+)/', $method, $matches ) ) {
-			return static::load_static_callback( $matches[1], $args );
+			return static::_load_static_callback( $matches[1], $args );
 		} else {
 			return;
 		}
@@ -251,7 +264,7 @@ abstract class Smart_Plugin{
 	 *
 	 * @see SmartPlugin::do_save_callback() for details and change log.
 	 */
-	protected static function save_static_callback( $method, $args, $hook = null ) {
+	protected static function _save_static_callback( $method, $args, $hook = null ) {
 		return static::_do_save_callback( $method, $args, $hook, static::$static_callbacks, static::$static_callback_count, get_called_class() );
 	}
 
@@ -260,7 +273,7 @@ abstract class Smart_Plugin{
 	 *
 	 * @see SmartPlugin::do_load_callback() for details and change log.
 	 */
-	protected static function load_static_callback( $id, $_args ) {
+	protected static function _load_static_callback( $id, $_args ) {
 		return static::_do_load_callback( $id, $_args, static::$static_callbacks, get_called_class() );
 	}
 }
