@@ -649,8 +649,8 @@ class Setup extends \Smart_Plugin {
 
 			$fields = $args['meta_fields'];
 
-			$this->save_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
-			$this->save_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
+			$this->setup_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
+			$this->setup_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
 		}
 	}
 
@@ -1471,6 +1471,12 @@ class Setup extends \Smart_Plugin {
 		// Run through each section, add them, and register the settings for them
 		if ( isset( $args['sections'] ) ) {
 			foreach ( $args['sections'] as $id => $section ) {
+				// Default title and callback to null
+				$section = array_merge( array (
+					'title' => null,
+					'callback' => null,
+				), $section );
+				
 				add_settings_section( $id, $section['title'], $section['callback'], $page );
 				if ( isset( $section['fields'] ) ) {
 					$this->_register_settings( $section['fields'], $id, $page );
@@ -1528,7 +1534,7 @@ class Setup extends \Smart_Plugin {
 		// Set the default callback if none is set
 		if ( ! isset( $args['callback'] ) ) {
 			// Setup the default_admin_page callback, passing the $page id
-			$args['callback'] = Callbacks::save_static_callback( 'default_admin_page', array( $page ), 0 );
+			$args['callback'] = Callbacks::save_static_callback( 'default_admin_page', array( $page ) );
 		}
 
 		// Extract $args
@@ -1604,8 +1610,8 @@ class Setup extends \Smart_Plugin {
 		$args = array( $columnset );
 
 		// Save the callbacks
-		$this->save_callback( 'edit_columns', $args, $filter_hook );
-		$this->save_callback( 'do_columns', $args, $action_hook );
+		$this->setup_callback( 'edit_columns', $args, $filter_hook );
+		$this->setup_callback( 'do_columns', $args, $action_hook );
 	}
 
 	/**
@@ -1923,8 +1929,6 @@ class Setup extends \Smart_Plugin {
 			$this->order_manager_save();
 		}
 
-		add_action( 'admin_init', $callback );
-
 		// Check if any of the objects are taxonomies, load term_meta helper if so
 		foreach ( $objects as $object ) {
 			if ( is_taxonomy( $object ) ) {
@@ -1976,7 +1980,7 @@ class Setup extends \Smart_Plugin {
 				$this->setup_page( "$object-order", array(
 					'title'      => sprintf( __( '%s Order' ), $the_object->labels->singular_name ),
 					'capability' => get_post_type_object( $post_type )->cap->edit_posts,
-					'callback'   => Callbacks::save_static_callback( 'menu_order_admin_page', array( $type, $object ), 0 ),
+					'callback'   => Callbacks::save_static_callback( 'menu_order_admin_page', array( $type, $object ) ),
 				), $post_type );
 			}
 		}
