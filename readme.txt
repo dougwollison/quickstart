@@ -2,7 +2,7 @@
 Contributors: dougwollison
 Tags: development, function, utility, utilities, framework, code, coding
 Requires at least: 4.0
-Tested up to: 4.1.1
+Tested up to: 4.2.0
 Stable tag: 1.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -24,7 +24,7 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
 = 1.9.2 =
-Bug fixes; relabel_posts issues, added jquery-ui-sortable dependency for qs-helpers.js, fixed arguments list for Templat::ga_code().
+Bug fixes; relabel_posts issues, added jquery-ui-sortable dependency for qs-helpers.js, fixed arguments list for Template::ga_code().
 
 = 1.9.1 =
 Minor bug fix to get_index(), added qs_helper_is_index_page filter.
