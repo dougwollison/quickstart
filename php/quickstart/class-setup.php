@@ -649,8 +649,8 @@ class Setup extends \Smart_Plugin {
 
 			$fields = $args['meta_fields'];
 
-			$this->setup_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
-			$this->setup_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
+			$this->save_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
+			$this->save_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
 		}
 	}
 
@@ -1610,8 +1610,8 @@ class Setup extends \Smart_Plugin {
 		$args = array( $columnset );
 
 		// Save the callbacks
-		$this->setup_callback( 'edit_columns', $args, $filter_hook );
-		$this->setup_callback( 'do_columns', $args, $action_hook );
+		$this->save_callback( 'edit_columns', $args, $filter_hook );
+		$this->save_callback( 'do_columns', $args, $action_hook );
 	}
 
 	/**
