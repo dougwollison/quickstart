@@ -57,6 +57,7 @@ class Setup extends \Smart_Plugin {
 		'order_manager_pages'    => array( 'init', 10, 0 ),
 		'order_manager_save'     => array( 'admin_init', 10, 0 ),
 		'index_page_settings'    => array( 'init', 10, 0 ),
+		'index_page_post_states' => array( 'display_post_states', 10, 2 ),
 		'index_page_query'       => array( 'parse_query', 0, 1 ),
 		'index_page_link'        => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
@@ -2057,8 +2058,9 @@ class Setup extends \Smart_Plugin {
 
 		// Setup settings or hooks depending on where we are
 		if ( is_admin() ) {
-			// Register the settings
+			// Register the settings and post states
 			$this->index_page_settings( $post_types );
+			$this->index_page_post_states( $post_types );
 		} else {
 			// Add the query/title/link hooks on the frontend
 			$this->index_page_query( $post_types );
@@ -2098,6 +2100,36 @@ class Setup extends \Smart_Plugin {
 				}
 			), 'default', 'reading' );
 		}
+	}
+	
+	/**
+	 * Filter the post states to flag a page as a custom index page.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param array  $post_states The list of post states. (skip when saving)
+	 * @param object $post        The post in question. (skip when saving)
+	 * @param array  $post_types  The list of post types for this feature.
+	 *
+	 * @return array The filter post states.
+	 */
+	protected function _index_page_post_states( $post_states, $post, $post_types ) {
+		// Check if the post is the archive page for any post type
+		foreach ( $post_types as $post_type ) {
+			// Make sure the post type is registered
+			if ( ! post_type_exists( $post_type ) ) {
+				continue;
+			}
+			
+			// Get the index for this post type, if it matches,
+			// add the "POST_TYPE Page" state
+			if ( get_index( $post_type ) == $post->ID ) {
+				$post_type = get_post_type_object( $post_type );
+				$post_states[] = sprintf( '%s Page', $post_type->label );
+			}
+		}
+		
+		return $post_states;
 	}
 
 	/**
