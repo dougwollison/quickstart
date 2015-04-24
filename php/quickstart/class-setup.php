@@ -11,24 +11,6 @@ namespace QuickStart;
 
 class Setup extends \Smart_Plugin {
 	/**
-	 * The configuration array.
-	 *
-	 * @since 1.0.0
-	 * @access protected
-	 * @var array
-	 */
-	protected $config = array();
-
-	/**
-	 * The defaults array.
-	 *
-	 * @since 1.0.0
-	 * @access protected
-	 * @var array
-	 */
-	protected $defaults = array();
-
-	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
 	 * @since 1.9.0 Fixed run_theme_setups hook, added init hooks for explicitness.
@@ -38,7 +20,7 @@ class Setup extends \Smart_Plugin {
 	 * @access protected
 	 * @var array
 	 */
-	protected $method_hooks = array(
+	protected static $method_hooks = array(
 		// Content Hooks
 		'register_post_type'     => array( 'init', 10, 0 ),
 		'register_post_types'    => array( 'init', 10, 0 ),
@@ -80,6 +62,24 @@ class Setup extends \Smart_Plugin {
 		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
 		'parent_filtering_input' => array( 'restrict_manage_posts', 10, 0 ),
 	);
+
+	/**
+	 * The configuration array.
+	 *
+	 * @since 1.0.0
+	 * @access protected
+	 * @var array
+	 */
+	protected $config = array();
+
+	/**
+	 * The defaults array.
+	 *
+	 * @since 1.0.0
+	 * @access protected
+	 * @var array
+	 */
+	protected $defaults = array();
 
 	// =========================
 	// !Main Setup Function

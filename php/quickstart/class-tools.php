@@ -19,7 +19,7 @@ class Tools extends \Smart_Plugin {
 	 * @access protected
 	 * @var array
 	 */
-	protected static $static_method_hooks = array(
+	protected static $method_hooks = array(
 		'relabel_posts_object'     => array( 'init', 10, 0 ),
 		'relabel_posts_menu'       => array( 'admin_menu', 10, 0 ),
 		'fix_shortcodes'           => array( 'the_content', 10, 1 ),
