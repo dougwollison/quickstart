@@ -21,6 +21,11 @@ define( 'QS_TERMMETA_VERSION', '1.0' );
  * @since 1.10.0
  */
 function qs_helper_termmeta_installtable() {
+	// Don't bother if not in the admin
+	if ( ! is_admin() ) {
+		return;
+	}
+	
 	global $wpdb;
 
 	// Skip if the version number is up to date and logged
