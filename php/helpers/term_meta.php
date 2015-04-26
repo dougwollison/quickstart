@@ -53,7 +53,15 @@ function qs_helper_termmeta_installtable() {
 	// Log the version number for updating and checking
 	update_option( 'qs_termmeta_version', QS_TERMMETA_VERSION );
 }
-add_action( 'plugins_loaded', 'qs_helper_termmeta_installtable' );
+
+// Add install hook at most immediate point
+if ( did_action( 'plugins_loaded' ) ) {
+	// Was loaded by a theme
+	add_action( 'after_setup_theme', 'qs_helper_termmeta_installtable' );
+} else {
+	// Was loaded by a plugin
+	add_action( 'plugins_loaded', 'qs_helper_termmeta_installtable' );
+}
 
 /**
  * Deletes all meta data tied to the term being deleted.
