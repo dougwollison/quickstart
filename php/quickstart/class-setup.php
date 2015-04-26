@@ -1930,9 +1930,9 @@ class Setup extends \Smart_Plugin {
 			$this->order_manager_save();
 		}
 
-		// Check if any of the objects are taxonomies, load term_meta helper if so
+		// Check if any of the objects are taxonomies (registered or configured), load term_meta helper if so
 		foreach ( $objects as $object ) {
-			if ( is_taxonomy( $object ) ) {
+			if ( is_taxonomy( $object ) || isset( $this->configs['taxonomies'][ $object ] ) ) {
 				Tools::load_helpers( 'term_meta' );
 				break;
 			}
