@@ -77,6 +77,7 @@ function _process_n_form( $string, $rules ) {
 /**
  * Convert a string to plural form... or at least try to.
  *
+ * @since 1.10.0 Added condition for words like series
  * @since 1.6.0 Fixed missing e on ch/x/s-es
  * @since 1.0.0
  *
@@ -87,7 +88,7 @@ function _process_n_form( $string, $rules ) {
 function pluralize( $string ) {
 	// The find/replace rules, ordered most specialised to most generic
 	$plurals = array(
- 		array( '/([^aeiou])ies$/', 'ies' ), // series => series
+ 		array( '/([^aeiou])ies$/', '$1ies' ), // series => series
  		array( '/erson$/', 'eople' ), // person => people
  		array( '/man$/', 'men' ), // woman => women
 		array( '/(fe?)$/i', '$1ves' ), // half => halves, knife > knives
@@ -102,6 +103,7 @@ function pluralize( $string ) {
 /**
  * Convert a string to singular form... or at least try to.
  *
+ * @since 1.10.0 Added condition for words like series
  * @since 1.0.0
  *
  * @param string $string The string that is to be converted to singular form.
@@ -111,6 +113,7 @@ function pluralize( $string ) {
 function singularize( $string ) {
 	// The find/replace rules, ordered most specialised to most generic
 	$singulars = array(
+ 		array( '/([^aeiou])ies$/', '$1ies' ), // series => series
  		array( '/eople$/', 'erson' ), // people => person
  		array( '/men$/', 'man' ), // women => woman
 		array( '/ives$/i', 'ife' ), // knives => knife
