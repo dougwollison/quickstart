@@ -58,7 +58,7 @@ window.QS = window.QS || {};
 	});
 })( jQuery );
 
-jQuery(function($){
+jQuery(function( $ ) {
 	function randStr() {
 		return Math.round(Math.random() * 100000000).toString(36);
 	}

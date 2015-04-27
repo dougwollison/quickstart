@@ -19,9 +19,9 @@ window.QS = window.QS || {};
 	 */
 	function ucwords( str ) {
 		return ( str + '' )
-	    .replace( /^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function( $1 ) {
-	    	return $1.toUpperCase();
-	    });
+		.replace( /^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function( $1 ) {
+			return $1.toUpperCase();
+		});
 	}
 
 	/**
@@ -54,7 +54,7 @@ window.QS = window.QS || {};
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param  wp.media frame The frame workflow.
+		 * @param wp.media frame The frame workflow.
 		 *
 		 * @return object The first attachment selected.
 		 */
@@ -385,7 +385,7 @@ window.QS = window.QS || {};
 							var attachments = media.attachments();
 
 							// Loop vars
-							var items = [], img;
+							var items = [];
 
 							// Empty the preview box
 							plugin.$preview.empty();
@@ -404,10 +404,10 @@ window.QS = window.QS || {};
 								}
 
 								// Create a new image with the thumbnail URL
-								img = $( '<img src="' + src + '">' );
+								var $img = $( '<img src="' + src + '">' );
 
 								// Add the new image to the preview
-								plugin.$preview.append( img );
+								plugin.$preview.append( $img );
 							});
 
 							// Update the input with the id list
@@ -457,11 +457,11 @@ window.QS = window.QS || {};
 								plugin.$preview.empty();
 
 								if ( attachment.type == 'image' ) {
-									// Attachment is an image, set the img.src to thumbnail...
-									if ( typeof attachment.sizes.thumbnail !== 'undefined'  ) {
-										img.src = attachment.sizes.thumbnail.url;
+									// Attachment is an image, set the img.src to medium size...
+									if ( typeof attachment.sizes.medium !== 'undefined'  ) {
+										img.src = attachment.sizes.medium.url;
 									} else {
-										// ...Or full size if no thumbnail is set
+										// ...Or full size if no medium version is set
 										img.src = attachment.sizes.full.url;
 									}
 								} else {
