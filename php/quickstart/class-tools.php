@@ -817,6 +817,9 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Remove Comments from menus, dashboard, editor, etc.
 	 *
+	 * Also enforces comments being disabled.
+	 *
+	 * @since 1.10.0 Added comments_open filter.
 	 * @since 1.0.0
 	 */
 	public static function hide_comments() {
@@ -828,6 +831,10 @@ class Tools extends \Smart_Plugin {
 				}
 			}
 		} );
+
+		// Ensure comments_open and pings_open returns false
+		add_filter( 'comments_open', '__return_false', 999 );
+		add_filter( 'pings_open', '__return_false', 999 );
 
 		// Remove edit comments and discussion options from admin menu
 		add_action( 'admin_menu', function() {
