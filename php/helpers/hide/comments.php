@@ -10,7 +10,8 @@
 // Remove comment and trackback support from all post_types with it
 function qs_helper_hide_comments_support() {
 	foreach ( get_post_types() as $post_type ) {
-		remove_post_type_support( $post_type, array( 'comments', 'trackbacks' ) );
+		remove_post_type_support( $post_type, 'comments' );
+		remove_post_type_support( $post_type, 'trackbacks' );
 	}
 }
 add_action( 'init', 'qs_helper_hide_comments_support' );
