@@ -151,7 +151,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Load the requested helper files.
 	 *
-	 * @sicne 1.10.0 Added option to load all helpers.
+	 * @sicne 1.10.0 Added option to load all helpers, also sanitize helper name.
 	 * @since 1.7.1  Added use of constants to flag which helpers have been loaded.
 	 * @since 1.0.0
 	 *
@@ -175,7 +175,7 @@ class Tools extends \Smart_Plugin {
 
 		csv_array_ref( $helpers );
 		foreach ( $helpers as $helper ) {
-			$constant = 'QS_LOADED_' . strtoupper( $helper );
+			$constant = 'QS_LOADED_' . strtoupper( sanitize_title( $helper ) );
 			if ( defined( $constant ) ) {
 				continue;
 			}
@@ -185,6 +185,23 @@ class Tools extends \Smart_Plugin {
 				require_once( $file );
 			}
 		}
+	}
+
+	/**
+	 * Call the appropriate hide_[object] method(s).
+	 *
+	 * @since 1.10.0 Hide methods now separate helpers, reworked handling to match.
+	 * @since 1.0.0
+	 *
+	 * @param mixed $objects An object name, comma separated string, or array of objects to disable.
+	 */
+	public static function hide( $objects ) {
+		csv_array_ref( $objects );
+		$helpers = array();
+		foreach ( $objects as $object ) {
+			$helpers[] = "hide/$object";
+		}
+		static::load_helpers( $helpers );
 	}
 
 	/**
@@ -733,239 +750,6 @@ class Tools extends \Smart_Plugin {
 				add_shortcode( $tag, $callback );
 			}
 		}
-	}
-
-	// =========================
-	// !Hide Methods
-	// =========================
-
-	/**
-	 * Call the appropriate hide_[object] method(s).
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param mixed $objects An object name, comma separated string, or array of objects to disable.
-	 */
-	public static function hide( $objects ) {
-		csv_array_ref( $objects );
-		foreach ( $objects as $object ) {
-			$method = "hide_$object";
-			if ( method_exists( __CLASS__, $method ) ) {
-				static::$method();
-			}
-		}
-	}
-
-	/**
-	 * Remove Posts from menus and dashboard.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function hide_posts() {
-		// Remove Posts from admin menu
-		add_action( 'admin_menu', function() {
-			remove_menu_page( 'edit.php' );
-		} );
-
-		// Remove Posts from admin bar
-		add_action( 'admin_bar_menu', function() {
-			global $wp_admin_bar;
-			$wp_admin_bar->remove_menu( 'new-post', 'new-content' );
-		}, 300 );
-
-		// Remove Posts from favorite actions
-		add_filter( 'favorite_actions', function( $actions ) {
-			unset( $actions['edit-posts.php'] );
-			return $actions;
-		} );
-
-		// Remove Recent Posts widget
-		add_action( 'widgets_init', function() {
-			unregister_widget( 'WP_Widget_Recent_Posts' );
-		} );
-	}
-
-	/**
-	 * Remove Pages from menus and dashboard.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function hide_pages() {
-		// Remove Pages from admin menu
-		add_action( 'admin_menu', function() {
-			remove_menu_page( 'edit.php?post_type=page' );
-		} );
-
-		// Remove Pages from admin bar
-		add_action( 'admin_bar_menu', function() {
-			global $wp_admin_bar;
-			$wp_admin_bar->remove_menu( 'new-page', 'new-content' );
-		}, 300 );
-
-		// Remove Pages from favorite actions
-		add_filter( 'favorite_actions', function( $actions ) {
-			unset( $actions['edit-posts.php?post_type=page'] );
-			return $actions;
-		} );
-
-		// Remove Pages widget
-		add_action( 'widgets_init', function() {
-			unregister_widget( 'WP_Widget_Pages' );
-		} );
-	}
-
-	/**
-	 * Remove Comments from menus, dashboard, editor, etc.
-	 *
-	 * Also enforces comments being disabled.
-	 *
-	 * @since 1.10.0 Added comments_open filter.
-	 * @since 1.0.0
-	 */
-	public static function hide_comments() {
-		// Remove Comment support from all post_types with it
-		add_action( 'init', function() {
-			foreach ( get_post_types( array( 'public' => true, '_builtin' => true ) ) as $post_type ) {
-				if ( post_type_supports( $post_type, 'comments' ) ) {
-					remove_post_type_support( $post_type, 'comments' );
-				}
-			}
-		} );
-
-		// Ensure comments_open and pings_open returns false
-		add_filter( 'comments_open', '__return_false', 999 );
-		add_filter( 'pings_open', '__return_false', 999 );
-
-		// Remove edit comments and discussion options from admin menu
-		add_action( 'admin_menu', function() {
-			remove_menu_page( 'edit-comments.php' );
-			remove_submenu_page( 'options-general.php', 'options-discussion.php' );
-		} );
-
-		// Remove Comments from admin bar
-		add_action( 'admin_bar_menu', function() {
-			global $wp_admin_bar;
-			$wp_admin_bar->remove_menu( 'comments' );
-		}, 300 );
-
-		// Remove Comments meta box from dashboard
-		add_action( 'wp_dashboard_setup', function() {
-			remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
-		} );
-
-		// Remove Comments/Trackback meta boxes from post editor
-		add_action( 'admin_init', function() {
-			remove_meta_box( 'trackbacksdiv',    'post', 'normal' );
-			remove_meta_box( 'commentstatusdiv', 'post', 'normal' );
-			remove_meta_box( 'commentsdiv',      'post', 'normal' );
-			remove_meta_box( 'trackbacksdiv',    'page', 'normal' );
-			remove_meta_box( 'commentstatusdiv', 'page', 'normal' );
-			remove_meta_box( 'commentsdiv',      'page', 'normal' );
-		} );
-
-		// Remove Comments column from Posts/Pages editor
-		$removeCommentsColumn = function( $defaults ) {
-			unset( $defaults["comments"] );
-			return $defaults;
-		};
-		add_filter( 'manage_posts_columns', $removeCommentsColumn );
-		add_filter( 'manage_pages_columns', $removeCommentsColumn );
-
-		// Remove Recent Comments widget
-		add_action( 'widgets_init', function() {
-			unregister_widget( 'WP_Widget_Recent_Comments' );
-		} );
-
-		// Remove Comments from favorite actions
-		add_filter( 'favorite_actions', function( $actions ) {
-			unset( $actions['edit-comments.php'] );
-			return $actions;
-		} );
-
-		// Make comments number always return 0
-		add_action( 'get_comments_number', function() {
-			return 0;
-		} );
-
-		// Edit $wp_query to clear comment related data
-		add_action( 'comments_template', function() {
-			global $wp_query;
-			$wp_query->comments = array();
-			$wp_query->comments_by_type = array();
-			$wp_query->comment_count = 0;
-			$wp_query->post->comment_count = 0;
-			$wp_query->post->comment_status = 'closed';
-			$wp_query->queried_object->comment_count = 0;
-			$wp_query->queried_object->comment_status = 'closed';
-		} );
-	}
-
-	/**
-	 * Remove Links from menus and dashboard.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function hide_links() {
-		// Remove Links from admin menu
-		add_action( 'admin_menu', function() {
-			remove_menu_page( 'link-manager.php' );
-		} );
-
-		// Remove Links from admin bar
-		add_action( 'admin_bar_menu', function() {
-			global $wp_admin_bar;
-			$wp_admin_bar->remove_menu( 'new-link', 'new-content' );
-		}, 300 );
-
-		// Remove Links from favorite actions
-		add_filter( 'favorite_actions', function( $actions ) {
-			unset( $actions['link-add.php'] );
-			return $actions;
-		} );
-
-		// Remove Links widget
-		add_action( 'widgets_init', function() {
-			unregister_widget( 'WP_Widget_Links' );
-		} );
-	}
-
-	/**
-	 * Remove the wp_head garbage.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function hide_wp_head() {
-		// links for adjacent posts
-		remove_action( 'wp_head', 'adjacent_posts_rel_link_wp_head', 10, 0 );
-		// category feeds
-		remove_action( 'wp_head', 'feed_links_extra', 3 );
-		// post and comment feeds
-		remove_action( 'wp_head', 'feed_links', 2 );
-		// index link
-		remove_action( 'wp_head', 'index_rel_link' );
-		// previous link
-		remove_action( 'wp_head', 'parent_post_rel_link', 10, 0 );
-		remove_action( 'wp_head', 'rel_canonical', 10, 1 );
-		// EditURI link
-		remove_action( 'wp_head', 'rsd_link' );
-		// start link
-		remove_action( 'wp_head', 'start_post_rel_link', 10, 0 );
-		// windows live writer
-		remove_action( 'wp_head', 'wlwmanifest_link' );
-		// WP version
-		remove_action( 'wp_head', 'wp_generator' );
-		// links for adjacent posts
-		remove_action( 'wp_head', 'wp_shortlink_wp_head', 10, 0 );
-
-		// remove WP version from css/js
-		$remove_ver = function( $src ) {
-			if ( strpos( $src, 'ver=' ) ) {
-				$src = remove_query_arg( 'ver', $src );
-			}
-			return $src;
-		};
-		add_filter( 'style_loader_src', $remove_ver, 9999 );
-		add_filter( 'script_loader_src', $remove_ver, 9999 );
 	}
 
 	// =========================
