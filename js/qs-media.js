@@ -560,11 +560,6 @@ window.QS = window.QS || {};
 				plugin.gallery = plugin.$input.val();
 			}
 
-			// If in single mode and no value is set, hide the clear button
-			if ( ! is_multi && plugin.$input.val() === '' ) {
-				plugin.$elm.find( '.qs-clear' ).hide();
-			}
-
 			// Call appropriate setup function
 			var func = is_gallery ? 'gallery' : 'insert';
 			plugin.frame = media[ func ]( plugin, true );

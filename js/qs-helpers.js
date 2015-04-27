@@ -91,8 +91,8 @@ jQuery(function($){
 				var $preview = $parent.find( '.qs-preview' );
 				$preview.html( $preview.attr( 'title' ) );
 				$parent.find( '.qs-value' ).val( '' );
-				// And hide this button
-				$( this ).hide();
+				// And update the parent's value-* class
+				$parent.removeClass( 'value-filled' ).addClass( 'value-empty' );
 			} else if ( $parent.hasClass( 'gallery' ) ) {
 				// Empty the gallery preview and input value
 				$parent.find( '.qs-preview' ).animate({
@@ -141,7 +141,7 @@ jQuery(function($){
 	// Repeater setup
 	$( '.qs-repeater' ).each(function() {
 		var $repeater = $( this );
-		
+
 		// Get the container and template (make sure to grab closest decendants)
 		var $container = $repeater.find( '.qs-container' ).eq(0);
 		var $template = $repeater.find( '.qs-template' ).eq(0);
