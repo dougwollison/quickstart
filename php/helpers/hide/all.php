@@ -11,13 +11,13 @@
 require( __DIR__ . 'comments.php' );
 
 // Hide links
-require( __DIR__ . 'comments.php' );
+require( __DIR__ . 'links.php' );
 
 // Hide pages
-require( __DIR__ . 'comments.php' );
+require( __DIR__ . 'pages.php' );
 
 // Hide posts
-require( __DIR__ . 'comments.php' );
+require( __DIR__ . 'posts.php' );
 
 // Hide wp_head stuff
-require( __DIR__ . 'comments.php' );
+require( __DIR__ . 'wp_head.php' );
