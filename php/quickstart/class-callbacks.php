@@ -168,6 +168,14 @@ class Callbacks extends \Smart_Plugin {
 			'parent' => $parent,
 		) );
 
+		// If no terms are found, try without meta ordering
+		if ( ! $terms ) {
+			$terms = get_terms( $taxonomy->name, array(
+				'hide_empty' => false,
+				'parent' => $parent,
+			) );
+		}
+
 		// Print the term list
 		if ( $terms ) : ?>
 		<ol>
