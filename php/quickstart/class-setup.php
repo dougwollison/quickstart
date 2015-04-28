@@ -1905,11 +1905,6 @@ class Setup extends \Smart_Plugin {
 	 * @param array $args A list of options for the order manager.
 	 */
 	protected function setup_order_manager( $args ) {
-		// Don't bother if not on the admin side.
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		// If $args looks like it could be the list of objects, restructure
 		if ( is_string( $args ) || ( is_array( $args ) && ! empty( $args ) && ! is_assoc( $args ) ) ) {
 			$args = array( 'objects' => $args );
@@ -1927,20 +1922,25 @@ class Setup extends \Smart_Plugin {
 
 		$objects = csv_array( $args['objects'] );
 
-		// Use the provided save callback if provided
-		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
-			add_action( 'admin_init', $args['save'] );
-		} else {
-			// Otherwise, use the built in one
-			$this->order_manager_save();
-		}
-
 		// Check if any of the objects are taxonomies (registered or configured), load term_meta helper if so
 		foreach ( $objects as $object ) {
 			if ( is_taxonomy( $object ) || isset( $this->configs['taxonomies'][ $object ] ) ) {
 				Tools::load_helpers( 'term_meta' );
 				break;
 			}
+		}
+
+		// Don't proceed with hooks if not on the admin side.
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Use the provided save callback if provided
+		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
+			add_action( 'admin_init', $args['save'] );
+		} else {
+			// Otherwise, use the built in one
+			$this->order_manager_save();
 		}
 
 		// Enqueue the necessary scripts if not already
