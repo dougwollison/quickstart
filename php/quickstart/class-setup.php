@@ -428,6 +428,14 @@ class Setup extends \Smart_Plugin {
 			}
 		}
 
+		// Loop through each taxonomy, check if meta_fields are being used and load term_meta helper if so
+		foreach ( $configs['taxonomies'] as $taxonomy => $tx_args ) {
+			if ( isset( $tx_args['meta_fields'] ) ) {
+				// Ensure the term meta helper is loaded
+				Tools::load_helpers( 'term_meta' );
+			}
+		}
+
 		// Run the content setups
 		$this->register_post_types( $configs['post_types'] ); // Will run during "init"
 		$this->register_taxonomies( $configs['taxonomies'] ); // Will run during "init"
@@ -645,9 +653,6 @@ class Setup extends \Smart_Plugin {
 
 		// Check if any meta fields were defined, set them up if so
 		if ( isset( $args['meta_fields'] ) ) {
-			// Ensure the term meta helper is loaded
-			Tools::load_helpers( 'term_meta' );
-
 			$fields = $args['meta_fields'];
 
 			$this->setup_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
