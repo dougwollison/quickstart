@@ -7,6 +7,10 @@
  * @since 1.10.0
  */
 
+// =========================
+// !Setup & Hooks
+// =========================
+
 // Register the new termmeta table
 global $wpdb;
 $wpdb->tables[] = 'termmeta';
@@ -25,7 +29,7 @@ function qs_helper_termmeta_installtable() {
 	if ( ! is_admin() ) {
 		return;
 	}
-	
+
 	global $wpdb;
 
 	// Skip if the version number is up to date and logged
@@ -69,6 +73,64 @@ if ( did_action( 'plugins_loaded' ) ) {
 }
 
 /**
+ * Filters the term query clauses to add support for basic filtering and ordering by meta data.
+ *
+ * @since 1.10.0
+ *
+ * @param array $clauses    The clauses for the SQL.
+ * @param array $taxonomies The taxonomies requested when get_terms was called.
+ * @param array $args       The arguments passed to get_terms.
+ *
+ * @return array The modified clauses.
+ */
+function qs_helper_termmeta_clauses( $clauses, $taxonomies, $args ) {
+	global $wpdb;
+
+	// Check if meta key is set, add additional WHERE clause
+	if ( isset( $args['meta_key'] ) ) {
+		// Update the JOIN clause to include the term meta table
+		$clauses['join'] .= " LEFT JOIN $wpdb->termmeta AS tm ON t.term_id = tm.term_id";
+
+		// Update the WHERE clause to match entries with the meta
+		$clauses['where'] .= $wpdb->prepare( " AND tm.meta_key = %s", $args['meta_key'] );
+
+		// Check if there was a request to filter by meta_value
+		if ( isset( $args['meta_value'] ) || isset( $args['meta_value_num'] ) ) {
+			// Get the compare operator (must be a valid A/B operator)
+			if ( isset( $args['meta_compare'] )
+			  && in_array( $args['meta_compare'], array( '=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE' ) ) ) {
+				$compare = $args['meta_compare'];
+			} else {
+				// Default to equals
+				$compare = '=';
+			}
+
+			// Determine handling of field and value
+			$field = 'tm.meta_value';
+			$value = '%s';
+			if ( isset( $args['meta_value_num'] ) ) {
+				$field .= '+0';
+				$value = '%d';
+			}
+
+			$clauses['where'] .= $wpdb->prepare( " AND $field $compare $value", $args['meta_value'] );
+		}
+
+		// Check if the request was to order by a meta value
+		if ( in_array( $args['orderby'], array( 'meta_value', 'meta_value_num' ) ) ) {
+			// Replace the ORDER BY clause, converting to integer if needed
+			$clauses['orderby'] = "ORDER BY tm.meta_value";
+			if ( $args['orderby'] == 'meta_value_num' ) {
+				$clauses['orderby'] .= '+0';
+			}
+		}
+	}
+
+	return $clauses;
+}
+add_filter( 'terms_clauses', 'qs_helper_termmeta_clauses', 10, 3 );
+
+/**
  * Deletes all meta data tied to the term being deleted.
  *
  * @since 1.10.0
@@ -83,6 +145,10 @@ function qs_helper_termmeta_deleteterm( $term_id ) {
 	) );
 }
 add_action( 'delete_term', 'qs_helper_termmeta_deleteterm' );
+
+// =========================
+// !Utilities
+// =========================
 
 /**
  * Add meta data field to a term.
@@ -155,36 +221,3 @@ function get_term_meta( $term_id, $key = '', $single = false ) {
 function update_term_meta( $term_id, $meta_key, $meta_value, $prev_value = '' ) {
 	return update_metadata( 'term', $term_id, $meta_key, $meta_value, $prev_value );
 }
-
-/**
- * Filters the term query clauses so as to support ordering by meta values
- *
- * @since 1.10.0
- *
- * @param array $clauses    The clauses for the SQL.
- * @param array $taxonomies The taxonomies requested when get_terms was called.
- * @param array $args       The arguments passed to get_terms.
- *
- * @return array The modified clauses.
- */
-function term_meta_orderby_clauses( $clauses, $taxonomies, $args ) {
-	global $wpdb;
-
-	// Check if the request was to order by a meta value and that the key is specified.
-	if ( in_array( $args['orderby'], array( 'meta_value', 'meta_value_num' ) ) && isset( $args['meta_key'] ) ) {
-		// Update the JOIN clause to include the term meta table
-		$clauses['join'] .= " LEFT JOIN $wpdb->termmeta AS tm ON t.term_id = tm.term_id";
-
-		// Update the WHERE clause
-		$clauses['where'] .= $wpdb->prepare( " AND tm.meta_key = '%s'", $args['meta_key'] );
-
-		// Replace the ORDER BY clause, converting to integer if needed
-		$clauses['orderby'] = "ORDER BY tm.meta_value";
-		if ( $args['orderby'] == 'meta_value_num' ) {
-			$clauses['orderby'] .= '+0';
-		}
-	}
-
-	return $clauses;
-}
-add_filter( 'terms_clauses', 'term_meta_orderby_clauses', 10, 3 );
