@@ -156,6 +156,7 @@ abstract class Smart_Plugin{
 	/**
 	 * Method overloader; handle hook setup/callback for the true method.
 	 *
+	 * @since 1.10.0 Added setup_callback pseudo method handling.
 	 * @since 1.0.0
 	 *
 	 * @param string $name The name of the method being called.
@@ -163,11 +164,14 @@ abstract class Smart_Plugin{
 	 */
 	public function __call( $method, $args ) {
 		/**
-		 * Check if the method name is a real method,
+		 * Check if the method name is setup_callback,
+		 * or a real method,
 		 * or a callback alias.
-		 * Abort if neither.
+		 * Abort if none of the above.
 		 */
-		if ( method_exists( $this, "_$method" ) ) {
+		if ( $method == 'setup_callback' ) {
+			return call_user_func_array( array( $this, 'save_callback' ), $args );
+		} elseif ( method_exists( $this, "_$method" ) ) {
 			return $this->save_callback( $method, $args );
 		} elseif ( preg_match( '/^cb(\d+)/', $method, $matches ) ) {
 			return $this->load_callback( $matches[1], $args );
@@ -224,11 +228,14 @@ abstract class Smart_Plugin{
 	 */
 	public static function __callStatic( $method, $args ) {
 		/**
-		 * Check if the method name is a real method,
+		 * Check if the method name is setup_callback,
+		 * or a real method,
 		 * or a callback alias.
-		 * Abort if neither.
+		 * Abort if none of the above.
 		 */
-		if ( method_exists( get_called_class(), "_$method" ) ) {
+		if ( $method == 'setup_callback' ) {
+			return call_user_func_array( array( get_called_class(), 'save_static_callback' ), $args );
+		} elseif ( method_exists( get_called_class(), "_$method" ) ) {
 			return static::save_static_callback( $method, $args );
 		} elseif ( preg_match( '/^cb(\d+)/', $method, $matches ) ) {
 			return static::load_static_callback( $matches[1], $args );
