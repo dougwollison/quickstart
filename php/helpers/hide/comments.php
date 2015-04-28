@@ -47,15 +47,15 @@ function qs_helper_hide_comments_dashboard() {
 }
 add_action( 'wp_dashboard_setup', 'qs_helper_hide_comments_dashboard' );
 
-// Remove Recent Pages widget
-function qs_helper_hide_comments_widget() {
-	unregister_widget( 'WP_Widget_Recent_Comments' );
-}
-add_action( 'widgets_init', 'qs_helper_hide_comments_widget' );
-
 // Remove Pages from favorite actions
 function qs_helper_hide_comments_favorite( $actions ) {
 	unset( $actions['edit-comments.php'] );
 	return $actions;
 }
 add_filter( 'favorite_actions', 'qs_helper_hide_comments_favorite' );
+
+// Remove Recent Pages widget
+function qs_helper_hide_comments_widget() {
+	unregister_widget( 'WP_Widget_Recent_Comments' );
+}
+add_action( 'widgets_init', 'qs_helper_hide_comments_widget' );
