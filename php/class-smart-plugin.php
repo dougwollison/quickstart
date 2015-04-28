@@ -185,7 +185,7 @@ abstract class Smart_Plugin{
 	 *
 	 * @see Smart_Plugin::_do_save_callback()
 	 */
-	public function save_callback( $method, $args, $hook = null ) {
+	protected function save_callback( $method, $args, $hook = null ) {
 		return static::_do_save_callback( $method, $args, $hook, $this->callbacks, $this->callback_count, $this );
 	}
 
@@ -194,7 +194,7 @@ abstract class Smart_Plugin{
 	 *
 	 * @see Smart_Plugin::_do_load_callback()
 	 */
-	public function load_callback( $id, $_args ) {
+	protected function load_callback( $id, $_args ) {
 		return static::_do_load_callback( $id, $_args, $this->callbacks, $this );
 	}
 
@@ -249,7 +249,7 @@ abstract class Smart_Plugin{
 	 *
 	 * @see SmartPlugin::do_save_callback() for details and change log.
 	 */
-	public static function save_static_callback( $method, $args, $hook = null ) {
+	protected static function save_static_callback( $method, $args, $hook = null ) {
 		return static::_do_save_callback( $method, $args, $hook, static::$static_callbacks, static::$static_callback_count, get_called_class() );
 	}
 
@@ -258,7 +258,7 @@ abstract class Smart_Plugin{
 	 *
 	 * @see SmartPlugin::do_load_callback() for details and change log.
 	 */
-	public static function load_static_callback( $id, $_args ) {
+	protected static function load_static_callback( $id, $_args ) {
 		return static::_do_load_callback( $id, $_args, static::$static_callbacks, get_called_class() );
 	}
 }
