@@ -650,8 +650,8 @@ class Setup extends \Smart_Plugin {
 
 			$fields = $args['meta_fields'];
 
-			$this->save_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
-			$this->save_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
+			$this->setup_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
+			$this->setup_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
 		}
 	}
 
@@ -1477,7 +1477,7 @@ class Setup extends \Smart_Plugin {
 					'title' => null,
 					'callback' => null,
 				), $section );
-				
+
 				add_settings_section( $id, $section['title'], $section['callback'], $page );
 				if ( isset( $section['fields'] ) ) {
 					$this->_register_settings( $section['fields'], $id, $page );
@@ -1535,7 +1535,7 @@ class Setup extends \Smart_Plugin {
 		// Set the default callback if none is set
 		if ( ! isset( $args['callback'] ) ) {
 			// Setup the default_admin_page callback, passing the $page id
-			$args['callback'] = Callbacks::save_static_callback( 'default_admin_page', array( $page ) );
+			$args['callback'] = Callbacks::setup_callback( 'default_admin_page', array( $page ) );
 		}
 
 		// Extract $args
@@ -1611,8 +1611,8 @@ class Setup extends \Smart_Plugin {
 		$args = array( $columnset );
 
 		// Save the callbacks
-		$this->save_callback( 'edit_columns', $args, $filter_hook );
-		$this->save_callback( 'do_columns', $args, $action_hook );
+		$this->setup_callback( 'edit_columns', $args, $filter_hook );
+		$this->setup_callback( 'do_columns', $args, $action_hook );
 	}
 
 	/**
@@ -1755,8 +1755,8 @@ class Setup extends \Smart_Plugin {
 			$save_hook = 'edit_user_profile_update';
 		}
 
-		$this->save_callback( 'build_user_meta_fields', array( $fields ), array( 'personal_options', 10, 1 ) );
-		$this->save_callback( 'save_user_meta_fields', array( $fields ), array( $save_hook, 10, 1 ) );
+		$this->setup_callback( 'build_user_meta_fields', array( $fields ), array( 'personal_options', 10, 1 ) );
+		$this->setup_callback( 'save_user_meta_fields', array( $fields ), array( $save_hook, 10, 1 ) );
 	}
 
 	/**
@@ -1981,7 +1981,7 @@ class Setup extends \Smart_Plugin {
 				$this->setup_page( "$object-order", array(
 					'title'      => sprintf( __( '%s Order' ), $the_object->labels->singular_name ),
 					'capability' => get_post_type_object( $post_type )->cap->edit_posts,
-					'callback'   => Callbacks::save_static_callback( 'menu_order_admin_page', array( $type, $object ) ),
+					'callback'   => Callbacks::setup_callback( 'menu_order_admin_page', array( $type, $object ) ),
 				), $post_type );
 			}
 		}
@@ -2101,7 +2101,7 @@ class Setup extends \Smart_Plugin {
 			), 'default', 'reading' );
 		}
 	}
-	
+
 	/**
 	 * Filter the post states to flag a page as a custom index page.
 	 *
@@ -2120,7 +2120,7 @@ class Setup extends \Smart_Plugin {
 			if ( ! post_type_exists( $post_type ) ) {
 				continue;
 			}
-			
+
 			// Get the index for this post type, if it matches,
 			// add the "POST_TYPE Page" state
 			if ( get_index( $post_type ) == $post->ID ) {
@@ -2128,7 +2128,7 @@ class Setup extends \Smart_Plugin {
 				$post_states[] = sprintf( '%s Page', $post_type->label );
 			}
 		}
-		
+
 		return $post_states;
 	}
 
