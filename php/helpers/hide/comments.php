@@ -7,6 +7,17 @@
 * @since 1.10.0
 */
 
+// Ensure comments_open and pings_open returns false
+add_filter( 'comments_open', '__return_false', 999 );
+add_filter( 'pings_open', '__return_false', 999 );
+
+// Change default comment/ping status to closed if not already
+function qs_helper_hide_comments_status() {
+	return 'closed';
+}
+add_filter( 'pre_option_default_comment_status', 'qs_helper_hide_comments_status', 999 );
+add_filter( 'pre_option_default_ping_status', 'qs_helper_hide_comments_status', 999 );
+
 // Remove comment and trackback support from all post_types with it
 function qs_helper_hide_comments_support() {
 	foreach ( get_post_types() as $post_type ) {
@@ -15,10 +26,6 @@ function qs_helper_hide_comments_support() {
 	}
 }
 add_action( 'init', 'qs_helper_hide_comments_support' );
-
-// Ensure comments_open and pings_open returns false
-add_filter( 'comments_open', '__return_false', 999 );
-add_filter( 'pings_open', '__return_false', 999 );
 
 // Remove edit comments and discussion options from admin menu
 function qs_helper_hide_comments_adminmenu() {
