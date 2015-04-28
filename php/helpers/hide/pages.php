@@ -1,11 +1,11 @@
 <?php
 /**
-* Hide Helper - Comments: Disable pages UI.
-*
-* @package QuickStart
-* @subpackage Hide
-* @since 1.10.0
-*/
+ * Hide Helper - Comments: Disable pages UI.
+ *
+ * @package QuickStart
+ * @subpackage Hide
+ * @since 1.10.0
+ */
 
 // Remove Pages from admin menu
 function qs_helper_hide_pages_adminmenu() {

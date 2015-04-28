@@ -1,11 +1,11 @@
 <?php
 /**
-* Hide Helper - Comments: Disable posts UI.
-*
-* @package QuickStart
-* @subpackage Hide
-* @since 1.10.0
-*/
+ * Hide Helper - Comments: Disable posts UI.
+ *
+ * @package QuickStart
+ * @subpackage Hide
+ * @since 1.10.0
+ */
 
 // Remove Posts from admin menu
 function qs_helper_hide_posts_adminmenu() {
