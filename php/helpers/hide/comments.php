@@ -1,31 +1,11 @@
 <?php
 /**
-* Hide Helper - Comments: Disable comments functionality and UI.
-*
-* @package QuickStart
-* @subpackage Hide
-* @since 1.10.0
-*/
-
-// Ensure comments_open and pings_open returns false
-add_filter( 'comments_open', '__return_false', 999 );
-add_filter( 'pings_open', '__return_false', 999 );
-
-// Change default comment/ping status to closed if not already
-function qs_helper_hide_comments_status() {
-	return 'closed';
-}
-add_filter( 'pre_option_default_comment_status', 'qs_helper_hide_comments_status', 999 );
-add_filter( 'pre_option_default_ping_status', 'qs_helper_hide_comments_status', 999 );
-
-// Remove comment and trackback support from all post_types with it
-function qs_helper_hide_comments_support() {
-	foreach ( get_post_types() as $post_type ) {
-		remove_post_type_support( $post_type, 'comments' );
-		remove_post_type_support( $post_type, 'trackbacks' );
-	}
-}
-add_action( 'init', 'qs_helper_hide_comments_support' );
+ * Hide Helper - Comments: Disable comments functionality and UI.
+ *
+ * @package QuickStart
+ * @subpackage Hide
+ * @since 1.10.0
+ */
 
 // Remove edit comments and discussion options from admin menu
 function qs_helper_hide_comments_adminmenu() {
@@ -59,3 +39,26 @@ function qs_helper_hide_comments_widget() {
 	unregister_widget( 'WP_Widget_Recent_Comments' );
 }
 add_action( 'widgets_init', 'qs_helper_hide_comments_widget' );
+
+// Ensure comments_open and pings_open returns false
+add_filter( 'comments_open', '__return_false', 999 );
+add_filter( 'pings_open', '__return_false', 999 );
+
+// Also disable XML-RPC
+add_filter( 'xmlrpc_enabled', '__return_false' );
+
+// Change default comment/ping status to closed if not already
+function qs_helper_hide_comments_status() {
+	return 'closed';
+}
+add_filter( 'pre_option_default_comment_status', 'qs_helper_hide_comments_status', 999 );
+add_filter( 'pre_option_default_ping_status', 'qs_helper_hide_comments_status', 999 );
+
+// Remove comment and trackback support from all post_types with it
+function qs_helper_hide_comments_support() {
+	foreach ( get_post_types() as $post_type ) {
+		remove_post_type_support( $post_type, 'comments' );
+		remove_post_type_support( $post_type, 'trackbacks' );
+	}
+}
+add_action( 'init', 'qs_helper_hide_comments_support' );
