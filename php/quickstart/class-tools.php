@@ -213,7 +213,7 @@ class Tools extends \Smart_Plugin {
 	 * @param array $attachment Optional An array of data for the attachment to be written to wp_posts.
 	 */
 	public static function upload( $file, $attachment = array() ) {
-		$file = wp_handle_upload( $file, array( 'test_for m' => false ) );
+		$file = wp_handle_upload( $file, array( 'test_form' => false ) );
 
 		if ( isset( $file['error'] ) ) {
 			wp_die( $file['error'], __( 'Image Upload Error' ) );
