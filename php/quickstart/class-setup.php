@@ -2381,10 +2381,89 @@ class Setup extends \Smart_Plugin {
 	// =========================
 
 	/**
+	 * Setup a button for MCE.
+	 *
+	 * Will setup the add_mce_button callback for the correct row/position.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param string $button The button to add.
+	 * @param array  $args   The arguments for the button (e.g. row, position).
+	 */
+	protected function setup_mce_button( $button, $args ) {
+		// Default row and position
+		$row = 1;
+		$position = null;
+
+		if ( is_int( $args ) ) {
+			// Row number specified
+			$row = $args;
+		} elseif ( is_array( $args ) && ! empty( $args ) ) {
+			if ( isset( $args['row'] ) ) {
+				$row = $args['row'];
+			}
+			if ( isset( $args['position'] ) ) {
+				$position = $args['position'];
+			}
+		}
+
+		// Add the button to the proper hook
+		$hook = $row > 1 ? "mce_buttons_$row" : 'mce_buttons';
+		$this->setup_callback( 'add_mce_button', array( $button, $position ), array( $hook, 10, 1 ) );
+	}
+
+	/**
+	 * Setup buttons for MCE.
+	 *
+	 * Will setup add_mce_button callbacks for the correct row and position.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param array|string $buttons A list of buttons to enable, with optional row and position values.
+	 */
+	protected function setup_mce_buttons( $buttons ) {
+		csv_array_ref( $buttons );
+
+		// Loop through each button and add it
+		foreach ( $buttons as $button => $args ) {
+			make_associative( $button, $args );
+
+			$this->setup_mce_button( $button, $args );
+		}
+	}
+
+	/**
+	 * Add a button for MCE.
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param array  $buttons       The currently enabled buttons. (skip when saving)
+	 * @param string $button_to_add A list of buttons to enable.
+	 * @param int    $position      Optional An exact position to insert the button.
+	 */
+	protected function add_mce_button( $buttons, $button_to_add, $position ) {
+		// Remove the button if already present; We'll be inserting it in the new position
+		if ( ( $i = array_search( $button_to_add, $buttons ) ) && false !== $i ) {
+			unset( $buttons[ $i ] );
+		}
+
+		if ( is_int( $position ) ) {
+			// Insert at desired position
+			array_splice( $buttons, $position, 0, $button_to_add );
+		} else {
+			// Just append to the end
+			$buttons[] = $button_to_add;
+		}
+
+		return $buttons;
+	}
+
+	/**
 	 * Add buttons for MCE.
 	 *
 	 * This simply adds them; there must be associated JavaScript to display them.
 	 *
+	 * @deprecated 1.11 Use setup_mce_buttons instead.
 	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
@@ -2476,8 +2555,7 @@ class Setup extends \Smart_Plugin {
 				}
 
 				// Add the button to the appropriate row
-				$method = 'add_mce_buttons' . ( $row > 1 ? "_$row" : '' );
-				$this->$method( $button );
+				$this->setup_mce_button( $button, array( 'row' => $row ) );
 			}
 
 			$this->add_mce_plugin( $plugin, $src );
@@ -2547,7 +2625,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function register_mce_styles( $styles ) {
 		// Add the styleselect item to the second row of buttons.
-		$this->add_mce_buttons_2( 'styleselect', 1 );
+		$this->setup_mce_button( 'styleselect', array( 'row' => 2, 'position' => 1 ) );
 
 		// Actually add the styles
 		$this->add_mce_style_formats( $styles );
