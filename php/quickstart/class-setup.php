@@ -2385,7 +2385,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Will setup the add_mce_button callback for the correct row/position.
 	 *
-	 * @since 1.10.0
+	 * @since 1.11.0
 	 *
 	 * @param string $button The button to add.
 	 * @param array  $args   The arguments for the button (e.g. row, position).
@@ -2417,7 +2417,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Will setup add_mce_button callbacks for the correct row and position.
 	 *
-	 * @since 1.10.0
+	 * @since 1.11.0
 	 *
 	 * @param array|string $buttons A list of buttons to enable, with optional row and position values.
 	 */
@@ -2435,7 +2435,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Add a button for MCE.
 	 *
-	 * @since 1.10.0
+	 * @since 1.11.0
 	 *
 	 * @param array  $buttons       The currently enabled buttons. (skip when saving)
 	 * @param string $button_to_add A list of buttons to enable.
@@ -2618,7 +2618,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register custom styles for MCE.
 	 *
-	 * @since 1.9.0 Now protected.
+	 * @since 1.11.0 Added use of setup_mce_button
+	 * @since 1.9.0  Now protected.
 	 * @since 1.0.0
 	 *
 	 * @param array $styles An array of styles to register.
