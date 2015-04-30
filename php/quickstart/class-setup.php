@@ -653,10 +653,7 @@ class Setup extends \Smart_Plugin {
 
 		// Check if any meta fields were defined, set them up if so
 		if ( isset( $args['meta_fields'] ) ) {
-			$fields = $args['meta_fields'];
-
-			$this->setup_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
-			$this->setup_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
+			$this->setup_termmeta( $args['meta_fields'], $taxonomy );
 		}
 	}
 
@@ -680,6 +677,24 @@ class Setup extends \Smart_Plugin {
 	// =========================
 	// !-- Term Meta Field Setups
 	// =========================
+
+	/**
+	 * Setup the hooks for adding/saving user meta fields.
+	 *
+	 * @since 1.10.1
+	 *
+	 * @param array  $fields   The fields to build/save.
+	 * @param string $taxonomy The taxonomy to hook into.
+	 */
+	protected function setup_termmeta( $fields, $taxonomy ) {
+		// Do nothing if not in the admin
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		$this->setup_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
+		$this->setup_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
+	}
 
 	/**
 	 * Build and print out a term meta field row.
