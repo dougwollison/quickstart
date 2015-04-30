@@ -21,7 +21,7 @@ function get_content_chunks( $content, $separator ) {
 	// Escape the separator to make sure it works in a regex
 	$separator_quoted = preg_quote( $separator, '/' );
 
-	// Move closing tags after a more tag to before it, prevents broken code
+	// Move closing tags after a separator to before it, prevents broken code
 	$content = preg_replace( '/(' . $separator_quoted . ')((?:\s*<\/\w+>\s*)+)/', '$2$1', $content );
 
 	// Create the chunks
