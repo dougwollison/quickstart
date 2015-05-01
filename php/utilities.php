@@ -8,7 +8,6 @@
  * @since 1.9.0 Removed fill_array(), now using native array_pad() instead.
  * @since 1.0.0
  */
-
 /**
  * Check if currently doing AJAX.
  *
@@ -21,13 +20,25 @@ function is_ajax() {
 }
 
 /**
+ * Check if on the login page.
+ *
+ * @since 1.10.1
+ *
+ * @return bool Wether or not we're on the login page
+ */
+function is_login() {
+	global $pagenow;
+	return in_array( $pagenow, array( 'wp-login.php', 'wp-register.php' ) );
+}
+
+/**
  * Check if on the front end of the site.
  *
  * Will return true if not in the admin or otherwise doing a non-admin AJAX request.
  *
  * @since 1.10.1
  *
- * @return bool Wether or not we're doing ajax.
+ * @return bool Wether or not we're on the frontend.
  */
 function is_frontend() {
 	if ( is_ajax() ) {
