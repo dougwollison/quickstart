@@ -2138,7 +2138,7 @@ class Setup extends \Smart_Plugin {
 			$this->index_page_post_states( $post_types );
 		}
 		if ( is_frontend() ) {
-			// Add the request/query/title/link hooks on the frontend/ajax end
+			// Add the request/query/title/link hooks on the frontend
 			$this->index_page_request( $post_types );
 			$this->index_page_query();
 			$this->index_page_title_part();
