@@ -58,6 +58,7 @@ class Setup extends \Smart_Plugin {
 		'order_manager_save'     => array( 'admin_init', 10, 0 ),
 		'index_page_settings'    => array( 'init', 10, 0 ),
 		'index_page_post_states' => array( 'display_post_states', 10, 2 ),
+		'index_page_request'     => array( 'parse_request', 0, 1 ),
 		'index_page_query'       => array( 'parse_query', 0, 1 ),
 		'index_page_link'        => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
@@ -513,15 +514,15 @@ class Setup extends \Smart_Plugin {
 			// Add the custom rewrites
 			Tools::add_rewrites( array(
 				// Add day archive (and pagination)
-				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/page/?([0-9]{1 => })/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]',
+				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/page/?([0-9]+)/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]',
 				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]',
 
 				// Add month archive (and pagination)
-				$slug . '/([0-9]{4})/([0-9]{2})/page/?([0-9]{1 => })/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]',
+				$slug . '/([0-9]{4})/([0-9]{2})/page/?([0-9]+)/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]',
 				$slug . '/([0-9]{4})/([0-9]{2})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]',
 
 				// Add year archive (and pagination)
-				$slug . '/([0-9]{4})/page/?([0-9]{1 => })/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&paged=$matches[2]',
+				$slug . '/([0-9]{4})/page/?([0-9]+)/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&paged=$matches[2]',
 				$slug . '/([0-9]{4})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]',
 			) );
 		}
@@ -2105,9 +2106,11 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup index page setting/hook for certain post types.
 	 *
-	 * @since 1.9.0 Now protected, dropped $index_pages array creation.
-	 * @since 1.8.0 Restructured to use a hooks once for all post_types,
-	 *				Also allowed passing of just the post_type list instead of args.
+	 * @since 1.10.1 Split index_page_query into index_page_request/query,
+	 *               Added setup of rewrite rules for day/month/year archives.
+	 * @since 1.9.0  Now protected, dropped $index_pages array creation.
+	 * @since 1.8.0  Restructured to use a hooks once for all post_types,
+	 *				 Also allowed passing of just the post_type list instead of args.
 	 * @since 1.6.0
 	 *
 	 * @param array $args A list of options for the custom indexes.
@@ -2134,16 +2137,28 @@ class Setup extends \Smart_Plugin {
 			$this->index_page_settings( $post_types );
 			$this->index_page_post_states( $post_types );
 		} else {
-			// Add the query/title/link hooks on the frontend
-			$this->index_page_query( $post_types );
+			// Add the request/query/title/link hooks on the frontend
+			$this->index_page_request( $post_types );
+			$this->index_page_query();
 			$this->index_page_title_part();
 			$this->index_page_link();
 		}
+
+		// Add day/month/year rewrites so they'll work with the index page slugs
+		Tools::add_rewrites( array(
+			'([^/]+)/([0-9]{4})/([0-9]{2})/([0-9]{2})/page/?([0-9]+)/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&monthnum=$matches[3]&day=$matches[4]&paged=$matches[5]',
+			'([^/]+)/([0-9]{4})/([0-9]{2})/([0-9]{2})/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&monthnum=$matches[3]&day=$matches[4]',
+			'([^/]+)/([0-9]{4})/([0-9]{2})/page/?([0-9]+)/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&monthnum=$matches[3]&paged=$matches[4]',
+			'([^/]+)/([0-9]{4})/([0-9]{2})/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&monthnum=$matches[3]',
+			'([^/]+)/([0-9]{4})/page/?([0-9]+)/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&paged=$matches[3]',
+			'([^/]+)/([0-9]{4})/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]',
+		) );
 	}
 
 	/**
 	 * Register the index page settings for the post types.
 	 *
+	 * @since 1.10.1 Added check for has_archive support.
 	 * @since 1.9.0
 	 *
 	 * @param array $post_types The list of post types.
@@ -2151,8 +2166,8 @@ class Setup extends \Smart_Plugin {
 	protected function _index_page_settings( $post_types ) {
 		// Register a setting for each post type
 		foreach ( $post_types as $post_type ) {
-			// Make sure the post type is registered
-			if ( ! post_type_exists( $post_type ) ) {
+			// Make sure the post type is registered and supports archives
+			if ( ! post_type_exists( $post_type ) || get_post_type_object( $post_type )->has_archive ) {
 				continue;
 			}
 
@@ -2207,16 +2222,15 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Check if the page is a custom post type's index page.
 	 *
-	 * @since 1.9.0 Modified to create $index_pages from $post_types.
-	 * @since 1.8.0 Restructured to handle all post_types at once.
-	 * @since 1.6.0
+	 * @since 1.10.1
 	 *
-	 * @param WP_Query $query       The query object (skip when saving).
-	 * @param array    $post_types The list of post types.
+	 * @param WP    $request    The request object (skip when saving).
+	 * @param array $post_types The list of post types.
 	 */
-	protected function _index_page_query( $query, $post_types ) {
-		$qv =& $query->query_vars;
+	protected function _index_page_request( $request, $post_types ) {
+		$qv =& $request->query_vars;
 
+		// Build an index of the index pages
 		$index_pages = array();
 		foreach( $post_types as $post_type ) {
 			$index_pages[ $post_type ] = get_index( $post_type );
@@ -2224,20 +2238,42 @@ class Setup extends \Smart_Plugin {
 
 		// Make sure this is a page
 		if ( '' != $qv['pagename'] ) {
+			// Get the page
+			$page = get_page_by_path( $qv['pagename'] );
+
 			// Check if this page is a post type index page
-			$post_type = array_search( $query->queried_object_id, $index_pages );
+			$post_type = array_search( $page->ID, $index_pages );
+
 			if ( $post_type !== false ) {
-				$post_type_obj = get_post_type_object( $post_type );
-				if ( ! empty( $post_type_obj->has_archive ) ) {
-					$qv['post_type']             = $post_type;
-					$qv['name']                  = '';
-					$qv['pagename']              = '';
-					$query->is_page              = false;
-					$query->is_singular          = false;
-					$query->is_archive           = true;
-					$query->is_post_type_archive = true;
-				}
+				// Modify the request to be a post type archive instead
+				$qv['post_type'] = $post_type;
+
+				// Make sure these are unset
+				unset( $qv['pagename'] );
+				unset( $qv['page'] );
+				unset( $qv['name'] );
 			}
+		}
+	}
+
+	/**
+	 * Check if it's a post type archive and setups the queried object.
+	 *
+	 * @since 1.10.1 Moved majority of logic to index_page_request, now just handles queried object.
+	 * @since 1.9.0 Modified to create $index_pages from $post_types.
+	 * @since 1.8.0 Restructured to handle all post_types at once.
+	 * @since 1.6.0
+	 *
+	 * @param WP_Query $query The query object (skip when saving).
+	 */
+	protected function _index_page_query( $query ) {
+		$qv =& $query->query_vars;
+
+		if ( is_post_type_archive()
+		  && isset( $qv['post_type'] ) && '' != $qv['post_type']
+		  && $index_page = get_index( $qv['post_type'], 'object' ) ) {
+			$query->queried_object = $index_page;
+			$query->queried_obejct_id = $index_page->ID;
 		}
 	}
 
