@@ -571,7 +571,7 @@ class Setup extends \Smart_Plugin {
 
 		// Get the post_type, preload, meta_fields, and meta_box_term_query arguments,
 		// And remove them so they aren't saved to the taxonomy
-		$post_type = $preload = $meta_fields = $meta_box_term_query array();
+		$post_type = $preload = $meta_fields = $meta_box_term_query = array();
 		if ( isset( $args['post_type'] ) ) {
 			$post_type = csv_array( $args['post_type'] );
 			unset( $args['post_type'] );
