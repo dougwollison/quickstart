@@ -352,6 +352,7 @@ class Setup extends \Smart_Plugin {
 						unset( $pt_args['taxonomies'][ $taxonomy ] );
 					}
 				}
+				unset( $pt_args['taxonomies'] );
 			}
 
 			// Check for meta boxes to register for the post type
@@ -381,6 +382,7 @@ class Setup extends \Smart_Plugin {
 					//and remove from this post type
 					unset( $pt_args['meta_boxes'][ $meta_box ] );
 				}
+				unset( $pt_args['meta_boxes'] );
 			}
 
 			// Check for pages to register under this post type
@@ -399,6 +401,7 @@ class Setup extends \Smart_Plugin {
 					//and remove from this post type
 					unset( $pt_args['pages'][ $page ] );
 				}
+				unset( $pt_args['pages'] );
 			}
 
 			// Check for features to register for the post type
@@ -419,12 +422,14 @@ class Setup extends \Smart_Plugin {
 					//and remove from this post type
 					unset( $pt_args['features'][ $feature ] );
 				}
+				unset( $pt_args['features'] );
 			}
 
 			// Check for columns to register for the post type
 			if ( isset( $pt_args['columns'] ) ) {
 				// Add this column for this post type to the columns section of $config
 				$configs['columns'][ $post_type ] = $pt_args['columns'];
+				unset( $pt_args['columns'] );
 			}
 		}
 
@@ -449,9 +454,10 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested post_type.
 	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.6.0 Modified handling of save_post callback to Tools::post_type_save().
-	 * @since 1.2.0 Added use of save argument for general save_post callback.
+	 * @since 1.10.1 Added day/month/year rewrites to post types with has_archive support.
+	 * @since 1.9.0  Now protected.
+	 * @since 1.6.0  Modified handling of save_post callback to Tools::post_type_save().
+	 * @since 1.2.0  Added use of save argument for general save_post callback.
 	 * @since 1.0.0
 	 *
 	 * @param string $post_type The slug of the post type to register.
@@ -487,12 +493,37 @@ class Setup extends \Smart_Plugin {
 		// If a save hook is passed, register it
 		if ( isset( $args['save'] ) ) {
 			Tools::post_type_save( $post_type, $args['save'] );
+			unset( $args['save'] );
 		}
 
-		// Now that it's registered, fetch the resulting show_in_menu argument,
+		// Get the registered post type
+		$post_type_obj = get_post_type_object( $post_type );
+
+		// Check the show_in_menu argument,
 		// and add the post_type_count hook if true
-		if ( get_post_type_object( $post_type )->show_in_menu ) {
+		if ( $post_type_obj->show_in_menu ) {
 			Tools::post_type_count( $post_type );
+		}
+
+		// Check the has_archive argument,
+		// setup day/month/year archive rewrites if true
+		if ( $post_type_obj->has_archive ) {
+			$slug = $post_type_obj->rewrite['slug'];
+
+			// Add the custom rewrites
+			Tools::add_rewrites( array(
+				// Add day archive (and pagination)
+				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/page/?([0-9]{1 => })/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]',
+				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]',
+
+				// Add month archive (and pagination)
+				$slug . '/([0-9]{4})/([0-9]{2})/page/?([0-9]{1 => })/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]',
+				$slug . '/([0-9]{4})/([0-9]{2})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]',
+
+				// Add year archive (and pagination)
+				$slug . '/([0-9]{4})/page/?([0-9]{1 => })/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&paged=$matches[2]',
+				$slug . '/([0-9]{4})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]',
+			) );
 		}
 	}
 
@@ -520,11 +551,12 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested taxonomy.
 	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.8.0 Added enforcement of array for for post_type value.
-	 * @since 1.6.0 Updated static replacement meta box title based on $multiple.
-	 * @since 1.5.0 Added "static" option handling (custom taxonomy meta box).
-	 * @since 1.3.1 Removed Tools::taxonomy_count call.
+	 * @since 1.10.1 Prevent non-taxonomy args from being passed to register_taxonomy.
+	 * @since 1.9.0  Now protected.
+	 * @since 1.8.0  Added enforcement of array for for post_type value.
+	 * @since 1.6.0  Updated static replacement meta box title based on $multiple.
+	 * @since 1.5.0  Added "static" option handling (custom taxonomy meta box).
+	 * @since 1.3.1  Removed Tools::taxonomy_count call.
 	 * @since 1.0.0
 	 *
 	 * @param string $taxonomy The slug of the taxonomy to register.
@@ -534,6 +566,26 @@ class Setup extends \Smart_Plugin {
 		// Ensure post_type is in array form if set.
 		if ( isset( $args['post_type'] ) ) {
 			csv_array_ref( $args['post_type'] );
+		}
+
+		// Get the post_type, preload, meta_fields, and meta_box_term_query arguments,
+		// And remove them so they aren't saved to the taxonomy
+		$post_type = $preload = $meta_fields = $meta_box_term_query array();
+		if ( isset( $args['post_type'] ) ) {
+			$post_type = csv_array( $args['post_type'] );
+			unset( $args['post_type'] );
+		}
+		if ( isset( $args['preload'] ) ) {
+			$preload = $args['preload'];
+			unset( $args['preload'] );
+		}
+		if ( isset( $args['meta_fields'] ) ) {
+			$meta_fields = $args['meta_fields'];
+			unset( $args['meta_fields'] );
+		}
+		if ( isset( $args['meta_box_term_query'] ) ) {
+			$meta_box_term_query = $args['meta_box_term_query'];
+			unset( $args['meta_box_term_query'] );
 		}
 
 		// Register the taxonomy if it doesn't exist
@@ -580,7 +632,7 @@ class Setup extends \Smart_Plugin {
 			}
 
 			// Now, register the post type
-			register_taxonomy( $taxonomy, $args['post_type'], $args );
+			register_taxonomy( $taxonomy, $post_type, $args );
 
 			// Proceed with post-registration stuff, provided it was successfully registered.
 			if ( ! ( $taxonomy_obj = get_taxonomy( $taxonomy ) ) ) {
@@ -608,8 +660,8 @@ class Setup extends \Smart_Plugin {
 				);
 
 				// Add term_query if metabox_term_query arg is set
-				if ( isset( $args['meta_box_term_query'] ) ) {
-					$meta_box_args['term_query'] = $args['meta_box_term_query'];
+				if ( $meta_box_term_query ) {
+					$meta_box_args['term_query'] = $meta_box_term_query;
 				}
 
 				$this->register_meta_box( "$taxonomy-terms", $meta_box_args );
@@ -624,10 +676,10 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Now that it's registered, see if there are preloaded terms to add
-		if ( isset( $args['preload'] ) && is_array( $args['preload'] ) ) {
-			$is_assoc = is_assoc( $args['preload'] );
+		if ( $preload && is_array( $preload ) ) {
+			$is_assoc = is_assoc( $preload );
 
-			foreach ( $args['preload'] as $term => $t_args ) {
+			foreach ( $preload as $term => $t_args ) {
 				// Check if the term was added numerically on it's own
 				if ( ! $is_assoc ) {
 					$term = $t_args;
@@ -652,8 +704,8 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Check if any meta fields were defined, set them up if so
-		if ( isset( $args['meta_fields'] ) ) {
-			$this->setup_termmeta( $args['meta_fields'], $taxonomy );
+		if ( $meta_fields ) {
+			$this->setup_termmeta( $meta_fields, $taxonomy );
 		}
 	}
 
