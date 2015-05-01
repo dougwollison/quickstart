@@ -10,12 +10,15 @@
 /**
  * Get the ID or full post object of the index page.
  *
- * @since 1.9.1 Fixed handling for running on single posts.
- * @since 1.8.0 Added qs_helpers_get_index filter hook.
+ * @since 1.10.1 Added post type exists and has_archive check.
+ * @since 1.9.1  Fixed handling for running on single posts.
+ * @since 1.8.0  Added qs_helpers_get_index filter hook.
  * @since 1.6.0
  *
  * @param string $post_type Optional The post type to get the index page for.
  * @param string $return    Optional What to return ('id' or 'object').
+ *
+ * @return bool|int|object The desired return value or NULL on failure.
  */
 function get_index( $post_type = null, $return = 'id' ) {
 	// If no post type specified, determine it.
@@ -49,6 +52,11 @@ function get_index( $post_type = null, $return = 'id' ) {
 			return get_index( $post_type, $return );
 		}
 	} else {
+		// Return false if post type doesn't exist or doesn't support archives
+		if ( ! post_type_exists( $post_type ) || get_post_type_object( $post_type )->has_archive ) {
+			return null;
+		}
+
 		// Get the index page for this post type
 		if ( $post_type != 'post' ) {
 			$index = get_option( "page_for_{$post_type}_posts", 0 );
@@ -155,4 +163,90 @@ function is_index_page( $post_id = null, $match_post_type = null ) {
 	}
 
 	return false;
+}
+
+/**
+ * Return the date archive URL fo the post type.
+ *
+ * @since 1.10.1
+ *
+ * @param string $post_type The post type for the link.
+ * @param int    $year      The year for the link. Pass '' for current year.
+ * @param int    $month     Optional The month for the link. Pass '' for current month.
+ * @param int    $day       Optional The day for the link. Pass '' for current day.
+ *
+ * @return string The daily archive URL.
+ */
+function get_post_type_date_link( $post_type, $year = '', $month = false, $day = false ) {
+	global $wp_rewrite;
+
+	$base = untrailingslashit( get_post_type_archive_link( $post_type ) );
+
+	if ( $year === '' ) {
+		$year = gmdate( 'Y', current_time( 'timestamp' ) );
+	}
+	if ( $month === '' ) {
+		$month = gmdate( 'm', current_time( 'timestamp' ) );
+	}
+	if ( $day === '' ) {
+		$day = gmdate( 'j', current_time( 'timestamp' ) );
+	}
+
+	if ( $day ) {
+		$datelink = $wp_rewrite->get_day_permastruct();
+		if ( !empty($datelink) ) {
+			$datelink = str_replace( '%year%', $year, $datelink );
+			$datelink = str_replace( '%monthnum%', zeroise( intval( $month ), 2 ), $datelink );
+			$datelink = str_replace( '%day%', zeroise( intval( $day ), 2 ), $datelink );
+			$datelink = user_trailingslashit( $datelink, 'day' );
+		} else {
+			$datelink = '?m=' . $year . zeroise( $month, 2 ) . zeroise( $day, 2 );
+		}
+	} elseif ( $month ) {
+		$datelink = $wp_rewrite->get_month_permastruct();
+		if ( !empty($datelink) ) {
+			$datelink = str_replace( '%year%', $year, $datelink );
+			$datelink = str_replace( '%monthnum%', zeroise( intval( $month ), 2 ), $datelink );
+			$datelink = user_trailingslashit( $datelink, 'month' );
+		} else {
+			$datelink = '?m=' . $year . zeroise( $month, 2 );
+		}
+	} else {
+		$datelink = $wp_rewrite->get_year_permastruct();
+		if ( ! empty( $datelink ) ) {
+			$datelink = str_replace( '%year%', $year, $datelink );
+			$datelink = user_trailingslashit( $datelink, 'year' );
+		} else {
+			$datelink = '?m=' . $year;
+		}
+	}
+
+	return $base . $datelink;
+}
+
+/**
+ * Return the yearly archive URL for the post type.
+ *
+ * @see get_post_type_date_link()
+ */
+function get_post_type_year_link( $post_type, $year = '' ) {
+	return get_post_type_date_link( $post_type, $year );
+}
+
+/**
+ * Return the monthly archive URL for the post type.
+ *
+ * @see get_post_type_date_link()
+ */
+function get_post_type_month_link( $post_type, $year = '', $month = '' ) {
+	return get_post_type_date_link( $post_type, $year, $month );
+}
+
+/**
+ * Return the daily archive URL for the post type.
+ *
+ * @see get_post_type_date_link()
+ */
+function get_post_type_day_link( $post_type, $year = '', $month = '', $day = '' ) {
+	return get_post_type_date_link( $post_type, $year, $month, $day );
 }
