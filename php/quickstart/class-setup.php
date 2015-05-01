@@ -741,7 +741,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function setup_termmeta( $fields, $taxonomy ) {
 		// Do nothing if not in the admin
-		if ( ! is_admin() ) {
+		if ( is_frontend() ) {
 			return;
 		}
 
@@ -1815,7 +1815,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function setup_usermeta( $fields ) {
 		// Do nothing if not in the admin
-		if ( ! is_admin() ) {
+		if ( is_frontend() ) {
 			return;
 		}
 
@@ -1999,7 +1999,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Don't proceed with hooks if not on the admin side.
-		if ( ! is_admin() ) {
+		if ( is_frontend() ) {
 			return;
 		}
 
@@ -2131,13 +2131,14 @@ class Setup extends \Smart_Plugin {
 		// Make sure the index helper is loaded
 		Tools::load_helpers( 'index' );
 
-		// Setup settings or hooks depending on where we are
+		// Setup appropriate hooks depending on where we are
 		if ( is_admin() ) {
 			// Register the settings and post states
 			$this->index_page_settings( $post_types );
 			$this->index_page_post_states( $post_types );
-		} else {
-			// Add the request/query/title/link hooks on the frontend
+		}
+		if ( is_frontend() ) {
+			// Add the request/query/title/link hooks on the frontend/ajax end
 			$this->index_page_request( $post_types );
 			$this->index_page_query();
 			$this->index_page_title_part();
@@ -2336,7 +2337,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function setup_parent_filtering( $args ) {
 		// Don't bother if not on the admin side.
-		if ( ! is_admin() ) {
+		if ( is_frontend() ) {
 			return;
 		}
 
