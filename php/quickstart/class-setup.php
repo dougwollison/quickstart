@@ -2167,7 +2167,7 @@ class Setup extends \Smart_Plugin {
 		// Register a setting for each post type
 		foreach ( $post_types as $post_type ) {
 			// Make sure the post type is registered and supports archives
-			if ( ! post_type_exists( $post_type ) || get_post_type_object( $post_type )->has_archive ) {
+			if ( ! post_type_exists( $post_type ) || ! get_post_type_object( $post_type )->has_archive ) {
 				continue;
 			}
 

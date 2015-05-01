@@ -53,7 +53,7 @@ function get_index( $post_type = null, $return = 'id' ) {
 		}
 	} else {
 		// Return false if post type doesn't exist or doesn't support archives
-		if ( ! post_type_exists( $post_type ) || get_post_type_object( $post_type )->has_archive ) {
+		if ( ! post_type_exists( $post_type ) || ! get_post_type_object( $post_type )->has_archive ) {
 			return null;
 		}
 
