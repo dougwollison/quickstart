@@ -8,6 +8,7 @@
  * @since 1.9.0 Removed fill_array(), now using native array_pad() instead.
  * @since 1.0.0
  */
+
 /**
  * Check if currently doing AJAX.
  *
