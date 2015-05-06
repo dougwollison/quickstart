@@ -3,7 +3,7 @@ Contributors: dougwollison
 Tags: development, function, utility, utilities, framework, code, coding
 Requires at least: 4.0
 Tested up to: 4.2.1
-Stable tag: 1.10.0
+Stable tag: 1.10.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,9 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 == Changelog ==
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
+
+= 1.10.1 =
+Improvements to index page feature, including date archive link utilities and custom rewrites (via new add_rewrites tool method). Also added is_login, is_ajax and is_frontend utilities, reworked MCE button registration, and fixed bug with Tools::upload().
 
 = 1.10.0 =
 Added term meta data support, along with custom fields for terms (as well as users); as such, the order manager feature now works for posts and terms. New wpedit helper now available, for inserting "Edit This" buttons onto the front end. Also added specialized handling of "hidden" input type, blanket "all" option available for load_helpers, and hide_comments now forcibly disables comments, pings, and XML RPC. Numerous bug fixes, internal structure enhancements, and some additional utilities have been added as well.
