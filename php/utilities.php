@@ -46,7 +46,7 @@ function is_frontend() {
 		// Check if the referrer is from the admin
 		return strpos( $_SERVER['HTTP_REFERER'], admin_url() ) !== 0;
 	} else {
-		return ! is_admin();
+		return ! is_admin() && ! is_login();
 	}
 }
 
