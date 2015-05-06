@@ -671,7 +671,7 @@ class Form {
 
 		// Build the options
 		$options = '';
-		if ( $label = $settings['none_option'] ) {
+		if ( ! emtpy( $settings['none_option'] ) ) {
 			$options .= '<option value="0">' . $settings['none_option'] . '</option>';
 		}
 		$options .= walk_page_dropdown_tree( $pages, 0, $args );
