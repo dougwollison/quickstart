@@ -33,6 +33,7 @@ function get_content_chunks( $content, $separator ) {
 /**
  * Adds new property to $post object with chopped up version of the post.
  *
+ * @since 1.11.0 Added check to prevent processing multiple times for the same object.
  * @since 1.10.0 Renamed. Moved chunk creation to separate utility function.
  * @since 1.8.0  Added filtering hook for the separator string used.
  * @since 1.0.0
@@ -40,8 +41,8 @@ function get_content_chunks( $content, $separator ) {
  * @param object $post The post to be chopped up.
  */
 function qs_helper_chunks_process( $post ) {
-	// Just in case, make sure $post is even an object
-	if ( ! is_object( $post ) ) {
+	// Abort if $post isn't an object or if the chunks have already been handled
+	if ( ! is_object( $post ) || property_exists( $post, 'chunks' ) ) {
 		return;
 	}
 
