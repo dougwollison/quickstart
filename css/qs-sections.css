@@ -1,0 +1,15 @@
+#qs_sections-repeater .qs-item {
+  position: relative; }
+#qs_sections-repeater .qs-item-fields {
+  margin: 4px 70px 4px 50px; }
+#qs_sections-repeater .qs-delete,
+#qs_sections-repeater .qs-edit-section {
+  position: absolute;
+  top: 9px; }
+#qs_sections-repeater .qs-delete {
+  right: 48px;
+  margin: 0;
+  width: 65px; }
+#qs_sections-repeater .qs-edit-section {
+  left: 0;
+  width: 45px; }

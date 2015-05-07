@@ -63,6 +63,7 @@ class Setup extends \Smart_Plugin {
 		'index_page_link'        => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
 		'parent_filtering_input' => array( 'restrict_manage_posts', 10, 0 ),
+		'section_manager_ajax'   => array( 'wp_ajax_qs-new_section', 10, 0 ),
 	);
 
 	/**
@@ -2404,6 +2405,105 @@ class Setup extends \Smart_Plugin {
 				echo walk_page_dropdown_tree( $query->posts, 0, $request );
 			echo '</select>';
 		}
+	}
+
+	// =========================
+	// !-- Feature: Sections Manager
+	// =========================
+
+	/**
+	 * Setup section management for the desired post types.
+	 *
+	 * @since 1.11.0
+	 *
+	 * @param array $args A list of options for the parent filter.
+	 */
+	protected function setup_section_manager( $args ) {
+		// Ensure the sections helper is loaded
+		Tools::load_helpers( 'sections' );
+
+		// If $args looks like it could be the list of post types, restructure
+		if ( is_string( $args ) || ( is_array( $args ) && ! empty( $args ) && ! is_assoc( $args ) ) ) {
+			$args = array( 'post_type' => $args );
+		}
+
+		// Default post type to page if not set
+		if ( ! isset( $args['post_type'] ) ) {
+			$post_types = 'page';
+		}
+
+		// Default arguments for the section post type
+		$post_type_args = array(
+			'singular'     => 'Section',
+			'supports'     => array('title', 'editor', 'revisions'),
+			'hierarchical' => true,
+			'public'       => false,
+			'show_ui'      => true,
+			'show_in_menu' => false,
+		);
+
+		// Overwrite with passed post type args if set
+		if ( isset( $args['post_type_args'] ) ) {
+			$post_type_args = wp_parse_args( $args['post_type_args'], $post_type_args );
+		}
+
+		// Register the section post type
+		$this->register_post_type( 'qs_section', $post_type_args );
+
+		// Wrap it up here if we're only on the frontend
+		if ( is_frontend() ) {
+			return;
+		}
+
+		// Default arguments for the section meta box
+		$meta_box_args = array(
+			'title'       => 'Manage Sections',
+			'post_type'   => $post_types,
+			'type'        => 'repeater',
+			'label'       => 'Add Section',
+			'name'        => 'qs_sections',
+			'data_name'   => '_qs_section',
+			'save_single' => false,
+			'template'    => array(
+				'label'       => 'Section',
+				'type'        => 'postselect',
+				'post_type'   => 'qs_section',
+				'sort_column' => 'post_title',
+				'class'       => 'widefat',
+			),
+		);
+
+		// Overwrite with passed meta box args if set
+		if ( isset( $args['meta_box_args'] ) ) {
+			$meta_box_args = wp_parse_args( $args['meta_box_args'], $meta_box_args );
+		}
+
+		// Register the section manager meta box
+		$this->register_meta_box( 'qs-section_manager', $meta_box_args );
+
+		// Setup the ajax callback
+		$this->section_manager_ajax();
+	}
+
+	/**
+	 * Handle the AJAX request for creating a new section.
+	 *
+	 * @since 1.11.0
+	 */
+	protected function _section_manager_ajax() {
+		$title = $_GET['title'];
+
+		// Inser the new section
+		$id = wp_insert_post( array(
+			'post_type' => 'qs_section',
+			'post_status' => 'draft',
+			'post_title' => $title,
+			'post_name' => sanitize_title( $title ),
+		) );
+
+		// Print out the resulting ID
+		echo $id;
+		exit;
 	}
 
 	// =========================

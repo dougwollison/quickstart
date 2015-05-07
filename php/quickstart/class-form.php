@@ -622,6 +622,7 @@ class Form {
 	/**
 	 * Build a hierarchical post select field.
 	 *
+	 * @since 1.11.0 The sort_column argument is now overwritable.
 	 * @since 1.10.0
 	 *
 	 * @see Form::build_generic()
@@ -633,6 +634,7 @@ class Form {
 			'post_status' => 'publish,private,draft',
 			'exclude' => null,
 			'none_option' => '&mdash; None &mdash;',
+			'sort_column' => 'menu_order, post_title',
 		);
 
 		// Parse the passed settings with the defaults
@@ -663,11 +665,11 @@ class Form {
 			'post_type'        => $settings['post_type'],
 			'post_status'      => $settings['post_status'],
 			'exclude_tree'     => $settings['exclude'],
-			'sort_column'      => 'menu_order, post_title',
+			'sort_column'      => $settings['sort_column'],
 		);
 
 		// Query the pages
-		$pages = get_pages( $args );
+		$pages = get_posts( $args );
 
 		// Build the options
 		$options = '';
