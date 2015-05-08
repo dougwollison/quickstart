@@ -1355,12 +1355,13 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register and build a setting.
 	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.8.0 Added use of Tools::build_settings_field().
-	 * @since 1.7.1 Added use of Setup::maybe_load_media_manager().
-	 * @since 1.4.0 Added 'source' to build_fields $args.
-	 * @since 1.3.0 Added 'wrap' to build_fields $args.
-	 * @since 1.1.0 Dropped stupid $args['fields'] processing.
+	 * @since 1.11.0 Now accepts callback and callback_args options.
+	 * @since 1.9.0  Now protected.
+	 * @since 1.8.0  Added use of Tools::build_settings_field().
+	 * @since 1.7.1  Added use of Setup::maybe_load_media_manager().
+	 * @since 1.4.0  Added 'source' to build_fields $args.
+	 * @since 1.3.0  Added 'wrap' to build_fields $args.
+	 * @since 1.1.0  Dropped stupid $args['fields'] processing.
 	 * @since 1.0.0
 	 *
 	 * @param string       $setting The id of the setting to register.
@@ -1389,36 +1390,56 @@ class Setup extends \Smart_Plugin {
 
 		// Parse the arguments with the defaults
 		$args = wp_parse_args( $args, $default_args );
-
-		// Build the $fields array based on provided data
-		if ( isset( $args['field'] ) ) {
-			// A single field is provided, the name of the setting is also the name of the field
-
-			// Default the wrap_with_label argument to false if applicable
-			if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
-				// Auto set wrap_with_label to false if not present already
-				$args['field']['wrap_with_label'] = false;
+		
+		// Default callback is the build_settings_field tool.
+		$callback = array( __NAMESPACE__ . '\Tools', 'build_settings_field' );
+		
+		if ( isset( $args['callback'] ) ) {
+			// Override the callback with the passed one
+			$callback = $args['callback'];
+			
+			// Empty array for the callback args unless ones were passed
+			$callback_args = array();
+			if ( isset( $args['callback_args'] ) ) {
+				$callback_args = $args['callback_args'];
+			}
+		} else {
+			// Build the $fields array based on provided data
+			if ( isset( $args['field'] ) ) {
+				// A single field is provided, the name of the setting is also the name of the field
+	
+				// Default the wrap_with_label argument to false if applicable
+				if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
+					// Auto set wrap_with_label to false if not present already
+					$args['field']['wrap_with_label'] = false;
+				}
+	
+				// Create a fields entry
+				$args['fields'] = array(
+					$setting => $args['field'],
+				);
+			} elseif ( ! isset( $args['fields'] ) ) {
+				// Assume $args is the literal arguments for the field,
+				// create a fields entry, default wrap_with_label to false
+	
+				if ( ! isset( $args['wrap_with_label'] ) ) {
+					$args['wrap_with_label'] = false;
+				}
+	
+				$args['fields'] = array(
+					$setting => $args,
+				);
 			}
 
-			// Create a fields entry
-			$args['fields'] = array(
-				$setting => $args['field'],
-			);
-		} elseif ( ! isset( $args['fields'] ) ) {
-			// Assume $args is the literal arguments for the field,
-			// create a fields entry, default wrap_with_label to false
-
-			if ( ! isset( $args['wrap_with_label'] ) ) {
-				$args['wrap_with_label'] = false;
-			}
-
-			$args['fields'] = array(
-				$setting => $args,
+			// Check if media_manager helper needs to be loaded
+			self::maybe_load_media_manager( $args['fields'] );
+			
+			// arguments for build_settings_field
+			$callback_args = array(
+				'setting' => $setting,
+				'args' => $args,
 			);
 		}
-
-		// Check if media_manager helper needs to be loaded
-		self::maybe_load_media_manager( $args['fields'] );
 
 		// Register the setting
 		register_setting( $page, $setting, $args['sanitize'] );
@@ -1427,13 +1448,10 @@ class Setup extends \Smart_Plugin {
 		add_settings_field(
 			$setting,
 			'<label for="' . $setting . '">' . $args['title'] . '</label>',
-			array( __NAMESPACE__ . '\Tools', 'build_settings_field' ),
+			$callback,
 			$page,
 			$section,
-			array( // arguments for build_settings_field
-				'setting' => $setting,
-				'args' => $args,
-			)
+			$callback_args
 		);
 	}
 
