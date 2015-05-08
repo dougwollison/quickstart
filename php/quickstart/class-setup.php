@@ -735,12 +735,16 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the hooks for adding/saving user meta fields.
 	 *
+	 * @since 1.11.0 Made sure term_meta helper is loaded.
 	 * @since 1.10.1
 	 *
 	 * @param array  $fields   The fields to build/save.
 	 * @param string $taxonomy The taxonomy to hook into.
 	 */
 	protected function setup_termmeta( $fields, $taxonomy ) {
+		// Make sure term_meta helper is loaded
+		Tools::load_helpers( 'term_meta' );
+			
 		// Do nothing if not in the admin
 		if ( is_frontend() ) {
 			return;
