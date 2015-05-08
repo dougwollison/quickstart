@@ -1585,22 +1585,22 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the settings for this page.
 	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.3.3 Fixed submenu registration for custom post types.
-	 * @since 1.3.0 Reworked processing, now supports passing a file and no callback/function.
-	 * @since 1.2.0 Moved child page registration to Setup::register_page().
-	 * @since 1.1.0 'submenus' is now 'children'.
+	 * @since 1.11.0 Dropped 'slug' argument support; unnecessary.
+	 * @since 1.9.0  Now protected.
+	 * @since 1.3.3  Fixed submenu registration for custom post types.
+	 * @since 1.3.0  Reworked processing, now supports passing a file and no callback/function.
+	 * @since 1.2.0  Moved child page registration to Setup::register_page().
+	 * @since 1.1.0  'submenus' is now 'children'.
 	 * @since 1.0.0
 	 *
-	 * @param string $setting The id of the page to register.
-	 * @param array  $args    The page configuration.
-	 * @param string $parent  Optional The parent the page belongs to.
+	 * @param string $page   The slug of the page to register.
+	 * @param array  $args   The page configuration.
+	 * @param string $parent Optional The parent the page belongs to.
 	 */
 	protected function _add_page_to_menu( $page, $args, $parent = null ) {
 		$default_args = array(
 			'type'       => 'menu',
 			'title'      => make_legible( $page ),
-			'slug'       => $page,
 			'capability' => 'manage_options',
 			'icon'       => '',
 			'position'   => null,
@@ -1641,7 +1641,7 @@ class Setup extends \Smart_Plugin {
 		if ( empty( $parent ) ) {
 			// Top level page, call add_{type}_page
 			$function = 'add_' . $type . '_page';
-			$func_args = array( $page_title, $menu_title, $capability, $slug, $callback, $icon );
+			$func_args = array( $page_title, $menu_title, $capability, $page, $callback, $icon );
 
 			// Add $position for add_menu_page
 			if ( $type == 'menu' ) {
@@ -1652,7 +1652,7 @@ class Setup extends \Smart_Plugin {
 			$builtin = array( 'dashboard', 'posts', 'media', 'links', 'pages', 'comments', 'theme', 'plugins', 'users', 'management', 'options' );
 			if ( in_array( $parent, $builtin ) ) {
 				$function = 'add_' . $parent . '_page';
-				$func_args = array( $page_title, $menu_title, $capability, $slug, $callback );
+				$func_args = array( $page_title, $menu_title, $capability, $page, $callback );
 			} else {
 				$function = 'add_submenu_page';
 
@@ -1664,7 +1664,7 @@ class Setup extends \Smart_Plugin {
 					}
 				}
 
-				$func_args = array( $parent, $page_title, $menu_title, $capability, $slug, $callback );
+				$func_args = array( $parent, $page_title, $menu_title, $capability, $page, $callback );
 			}
 		}
 
