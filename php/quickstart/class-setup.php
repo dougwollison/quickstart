@@ -1730,7 +1730,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Edit the list of columns using the passed columnset.
 	 *
-	 * @since 1.9.0 Now protected.
+	 * @since 1.11.0 Updated to use make_associative
+	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param array $old_columns The current columns to edit (skip when saving).
@@ -1744,10 +1745,7 @@ class Setup extends \Smart_Plugin {
 		// Go through the columns, and add/modify as needed
 		foreach ( $new_columns as $column_id => $args ) {
 			// Handle non-associative entries
-			if ( is_int( $column_id ) ) {
-				$column_id = $args;
-				$args = array();
-			}
+			make_associative( $column_id, $args );
 
 			if ( isset( $old_columns[ $column_id ] ) ) { // Use the existing column and edit the title if set
 				// Old value
