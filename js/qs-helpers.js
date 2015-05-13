@@ -91,6 +91,7 @@ jQuery(function( $ ) {
 				var $preview = $parent.find( '.qs-preview' );
 				$preview.html( $preview.attr( 'title' ) );
 				$parent.find( '.qs-value' ).val( '' );
+				
 				// And update the parent's value-* class
 				$parent.removeClass( 'value-filled' ).addClass( 'value-empty' );
 			} else if ( $parent.hasClass( 'gallery' ) ) {
@@ -111,6 +112,9 @@ jQuery(function( $ ) {
 					$( this ).remove();
 				});
 			}
+
+			// Trigger the media-changed event
+			$parent.trigger( 'qs:media-changed' );
 		} else {
 			// Remove all items by triggering their delete buttons
 			$parent.find( '.qs-item .qs-delete' ).click();

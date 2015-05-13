@@ -341,6 +341,13 @@ window.QS = window.QS || {};
 			// Check for gallery mode
 			var is_gallery = $elm.hasClass( 'gallery' );
 
+			// Check for preload option
+			var do_preload = $elm.data('preload');
+				// Default to true if not set
+				if ( do_preload === null || do_preload === '' ) {
+					do_preload = true;
+				}
+
 			// Get display mode
 			var show = $elm.data( 'show' );
 
@@ -415,6 +422,9 @@ window.QS = window.QS || {};
 
 							// Ensure the empty class is removed and the filled class added
 							plugin.$elm.removeClass( 'value-empty' ).addClass( 'value-filled' );
+
+							// Trigger the media-changed event
+							plugin.$elm.trigger( 'qs:media-changed' );
 						}
 					}
 				});
@@ -435,8 +445,8 @@ window.QS = window.QS || {};
 					// Events
 					events:     {
 						open: function() {
-							if ( is_multi ) {
-								// Don't preload if it's for multiple items
+							if ( is_multi || ! do_preload ) {
+								// Don't preload if it's for multiple items or disabled
 								return;
 							}
 
@@ -526,6 +536,9 @@ window.QS = window.QS || {};
 									$item.trigger( 'qs:media-added' );
 								});
 							}
+
+							// Trigger the media-changed event
+							plugin.$elm.trigger( 'qs:media-changed' );
 						}
 					}
 				});
@@ -555,8 +568,9 @@ window.QS = window.QS || {};
 				plugin.$template = $( plugin.$template.html() );
 			}
 
-			// If gallery mode and no gallery is defined, use the input's value
-			if ( is_gallery && plugin.gallery === undefined ) {
+			// If gallery mode, no gallery is defined, and do_preload is true
+			// use the input's value
+			if ( is_gallery && do_preload && plugin.gallery === undefined ) {
 				plugin.gallery = plugin.$input.val();
 			}
 
