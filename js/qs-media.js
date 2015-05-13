@@ -307,6 +307,7 @@ window.QS = window.QS || {};
 	 *
 	 * Replaces addFile, editGallery, and setImage.
 	 *
+	 * @since 1.11.0 Added media-changed events and do_preload option.
 	 * @since 1.10.0 Now uses value-(filled|empty) classes.
 	 * @since 1.8.0
 	 *
