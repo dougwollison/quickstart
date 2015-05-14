@@ -10,6 +10,9 @@ namespace QuickStart;
  */
 
 class Setup extends \Smart_Plugin {
+	// Include internal utilities
+	use Utilities;
+
 	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
@@ -307,7 +310,7 @@ class Setup extends \Smart_Plugin {
 	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined.
 	 * within a post_type configuration.
 	 *
-	 * @since 1.11.0 Added use of Tools::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.9.0  Now protected, no longer accepts external $configs argument.
 	 *				 Also added handling of pages passed in the post type.
 	 *				 Also moved setup_features and setup_columns to new run_admin_setups().
@@ -329,7 +332,7 @@ class Setup extends \Smart_Plugin {
 			make_associative( $post_type, $pt_args );
 
 			// Handle any shorthand in this post type
-			Tools::handle_shorthand( 'post_type', $meta_box, $args );
+			static::handle_shorthand( 'post_type', $meta_box, $args );
 
 			// Make sure supports is an array
 			csv_array_ref( $pt_args['supports'] );
@@ -348,7 +351,7 @@ class Setup extends \Smart_Plugin {
 					make_associative( $taxonomy, $tx_args );
 
 					// Handle any shorthand in this taxonomy
-					Tools::handle_shorthand( 'taxonomy', $taxonomy, $args );
+					static::handle_shorthand( 'taxonomy', $taxonomy, $args );
 
 					// Check if the taxonomy is registered yet
 					if ( ! taxonomy_exists( $taxonomy ) ) {
@@ -371,7 +374,7 @@ class Setup extends \Smart_Plugin {
 					make_associative( $meta_box, $mb_args );
 
 					// Handle any shorthand in this meta box
-					Tools::handle_shorthand( 'meta_box', $taxonomy, $args );
+					static::handle_shorthand( 'meta_box', $taxonomy, $args );
 
 					// Check if the arguments are a callable, restructure to proper form
 					if ( is_callable( $mb_args ) ) {
@@ -466,7 +469,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested post_type.
 	 *
-	 * @since 1.11.0 Added use of Tools::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.10.1 Added day/month/year rewrites to post types with has_archive support.
 	 * @since 1.9.0  Now protected.
 	 * @since 1.6.0  Modified handling of save_post callback to Tools::post_type_save().
@@ -478,7 +481,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function _register_post_type( $post_type, array $args = array() ) {
 		// Handle any shorthand in this post type
-		Tools::handle_shorthand( 'post_type', $post_type, $args );
+		static::handle_shorthand( 'post_type', $post_type, $args );
 
 		// Make sure the post type doesn't already exist
 		if ( post_type_exists( $post_type ) ) {
@@ -567,7 +570,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested taxonomy.
 	 *
-	 * @since 1.11.0 Added use of Tools::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.10.1 Prevent non-taxonomy args from being passed to register_taxonomy.
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added enforcement of array for for post_type value.
@@ -581,7 +584,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function _register_taxonomy( $taxonomy, array $args = array() ) {
 		// Handle any shorthand in this taxonomy
-		Tools::handle_shorthand( 'taxonomy', $taxonomy, $args );
+		static::handle_shorthand( 'taxonomy', $taxonomy, $args );
 
 		// Ensure post_type is in array form if set.
 		if ( isset( $args['post_type'] ) ) {
@@ -754,7 +757,7 @@ class Setup extends \Smart_Plugin {
 	 * Setup the hooks for adding/saving user meta fields.
 	 *
 	 * @since 1.11.0 Made sure term_meta helper is loaded,
-	 *               Added use of Tools::handle_shorthand().
+	 *               Added use of static::handle_shorthand().
 	 * @since 1.10.1
 	 *
 	 * @param array  $fields   The fields to build/save.
@@ -770,7 +773,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Handle any shorthand in the fields
-		Tools::handle_shorthand( 'field', $fields );
+		static::handle_shorthand( 'field', $fields );
 
 		$this->setup_callback( 'build_term_meta_fields', array( $fields ), array( "{$taxonomy}_edit_form_fields", 10, 1 ) );
 		$this->setup_callback( 'save_term_meta_fields', array( $fields ), array( "edited_{$taxonomy}", 10, 1 ) );
@@ -860,7 +863,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
-	 * @since 1.11.0 Added use of Tools::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added use of register_meta() for sanitizing and protection,
 	 *               also added handling of condition setting, modified single
@@ -876,7 +879,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function register_meta_box( $meta_box, array $args = array() ) {
 		// Handle any shorthand in this meta box
-		Tools::handle_shorthand( 'meta_box', $meta_box, $args );
+		static::handle_shorthand( 'meta_box', $meta_box, $args );
 
 		if ( empty( $args ) ) {
 			// Empty array; make dumb meta box
@@ -963,7 +966,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Handle any shorthand in the fields
-		Tools::handle_shorthand( 'field', $args['fields'] );
+		static::handle_shorthand( 'field', $args['fields'] );
 
 		// Check if media_manager helper needs to be loaded
 		self::maybe_load_media_manager( $args['fields'] );
@@ -1025,7 +1028,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the save hook for the meta box.
 	 *
-	 * @since 1.11.0 Added use of Tools::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.10.0 Added use of Tools::maybe_prefix_post_field when handling post_field values.
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added use of "save_single" option and support for foo[bar] style fields,
@@ -1097,7 +1100,7 @@ class Setup extends \Smart_Plugin {
 			}
 
 			// Handle any shorthand in the fields
-			Tools::handle_shorthand( 'field', $fields );
+			static::handle_shorthand( 'field', $fields );
 
 			// Keep track of completed fields
 			$saved_fields = array();
@@ -1389,7 +1392,7 @@ class Setup extends \Smart_Plugin {
 	 * Register and build a setting.
 	 *
 	 * @since 1.11.0 Now accepts callback and callback_args options,
-	 *               Added use of Tools::handle_shorthand().
+	 *               Added use of static::handle_shorthand().
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added use of Tools::build_settings_field().
 	 * @since 1.7.1  Added use of Setup::maybe_load_media_manager().
@@ -1466,7 +1469,7 @@ class Setup extends \Smart_Plugin {
 			}
 
 			// Handle any shorthand in the fields
-			Tools::handle_shorthand( 'field', $args['fields'] );
+			static::handle_shorthand( 'field', $args['fields'] );
 
 			// Check if media_manager helper needs to be loaded
 			self::maybe_load_media_manager( $args['fields'] );
@@ -1574,7 +1577,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the settings for this page.
 	 *
-	 * @since 1.11.0 Added use of Tools::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.9.0  Now protected.
 	 * @since 1.6.0  Allow registering just settings, no fields, in name => sanitize format.
 	 * @since 1.3.0  Reordered so bare fields go before sections.
@@ -1602,7 +1605,7 @@ class Setup extends \Smart_Plugin {
 			add_settings_section( 'default', null, null, $page );
 
 			// Handle any shorthand in the fields
-			Tools::handle_shorthand( 'field', $args['fields'] );
+			static::handle_shorthand( 'field', $args['fields'] );
 
 			$this->_register_settings( $args['fields'], 'default', $page );
 		}
@@ -1872,7 +1875,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the hooks for adding/saving user meta fields.
 	 *
-	 * @since 1.11.0 Added use of Tools::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.10.0
 	 *
 	 * @param array $fields The fields to build/save.
@@ -1893,7 +1896,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Handle any shorthand in the fields
-		Tools::handle_shorthand( 'field', $fields );
+		static::handle_shorthand( 'field', $fields );
 
 		$this->setup_callback( 'build_user_meta_fields', array( $fields ), array( 'personal_options', 10, 1 ) );
 		$this->setup_callback( 'save_user_meta_fields', array( $fields ), array( $save_hook, 10, 1 ) );
