@@ -23,7 +23,7 @@ trait _Utilities {
 	 * @param string &$name    The name (by reference) of the thing to examine shorthand for (pass array to run through each one).
 	 * @param array  &$args    The arugments (by reference) for the thing to examine (skip if passing $name as array).
 	 */
-	public static function handle_shorthand( $context, &$name, &$args = array() ) {
+	protected static function handle_shorthand( $context, &$name, &$args = array() ) {
 		// If $name is an array, loop through the entries and handle individually
 		if ( is_array( $name ) ) {
 			$entries = array();
