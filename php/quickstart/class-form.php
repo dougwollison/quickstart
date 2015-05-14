@@ -201,7 +201,8 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
-	 * @since 1.10.0 Added use of Tools::maybe_prefix_post_field when handling post_field values.
+	 * @since 1.11.0 Added use of Tools::handle_shorthand().
+	 * @since 1.10.0 Added use of Tools::maybe_prefix_post_field() when handling post_field values.
 	 *				 Also added/tweaked default input/wrapper classes/id values.
 	 *               Dropped use of absent $wrapper argument in function calls.
 	 * @since 1.8.0  Added use of "save_single" option, "default" value option,
@@ -225,6 +226,9 @@ class Form {
 	 * @return string The HTML for the field.
 	 */
 	public static function build_field( $field, $settings = array(), $data = null, $source = 'raw', $wrap = true ) {
+		// Handle any shorthand
+		Tools::handle_shorthand( 'field', $field, $settings );
+
 		// Check if $settings is a callback, call and return it's result if so
 		if ( is_callable( $settings ) ) {
 			// Get the value
