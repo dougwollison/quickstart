@@ -10,7 +10,7 @@ namespace QuickStart;
  * @since 1.11.0
  */
 
-trait Utilities {
+trait _Utilities {
 	/**
 	 * Examine the field name and settings and hanlde any recognized shorthand found.
 	 *

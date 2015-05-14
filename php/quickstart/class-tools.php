@@ -13,7 +13,7 @@ namespace QuickStart;
 
 class Tools extends \Smart_Plugin {
 	// Include internal utilities
-	use Utilities;
+	use _Utilities;
 
 	/**
 	 * A list of internal methods and their hooks configurations.

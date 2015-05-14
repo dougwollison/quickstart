@@ -35,8 +35,16 @@ spl_autoload_register( function( $class ) {
 	// Get just the class
 	$class = $class_parts[0];
 
+	// Prefix should be class...
+	$prefix = 'class';
+	// ...But if the name begins with an underscore it's a trait
+	if ( strpos( $class, '_' ) === 0 ) {
+		$prefix = 'trait';
+		$class = substr( $class, 1 ); // remove the underscore
+	}
+
 	// Reformat to wordpress standards
-	$file = 'class-' . strtolower( str_replace( '_', '-', $class ) ) . '.php';
+	$file = $prefix . '-' . strtolower( str_replace( '_', '-', $class ) ) . '.php';
 
 	// If a namespace exists, prepend it
 	if ( isset( $class_parts[1] ) ) {
