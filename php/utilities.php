@@ -3,7 +3,7 @@
  * QuickStart External Utility Functions
  *
  * @package QuickStart
- * @subpackage Utilities
+ * @subpackage Functions
  *
  * @since 1.9.0 Removed fill_array(), now using native array_pad() instead.
  * @since 1.0.0
