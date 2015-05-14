@@ -35,6 +35,9 @@ trait _Utilities {
 			$name = $entries;
 			// Done.
 			return;
+		} elseif ( ! is_array( $args ) ) {
+			// Not an arugments list, abort
+			return;
 		}
 
 		// Abort if it appears this has already been handled
