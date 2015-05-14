@@ -40,6 +40,7 @@ class Tools extends \Smart_Plugin {
 		'print_extra_editor_below' => array( 'edit_form_after_editor', 10, 1 ),
 		'add_query_var'            => array( 'query_vars', 10, 1 ),
 		'add_rewrites'             => array( 'init', 10, 0 ),
+		'register_widget'          => array( 'widgets_init', 10, 0 ),
 	);
 
 	/**
@@ -1277,6 +1278,85 @@ class Tools extends \Smart_Plugin {
 	public static function _add_rewrites( $rewrites ) {
 		foreach ( $rewrites as $pattern => $rewrite ) {
 			add_rewrite_rule( $pattern, $rewrite, 'top' );
+		}
+	}
+	
+	/**
+	 * Register a widget.
+	 *
+	 * @since 1.11.0
+	 * 
+	 * @param string $name The name of the widget class.
+	 */
+	public static function _register_widget( $name ) {
+		register_widget( $name );
+	}
+	
+	/**
+	 * Load a widget's PHP file and register it.
+	 * 
+	 * @since 1.11.0
+	 * 
+	 * @param string $file The path to the PHP file.
+	 * @param string $name Optional The name of the widget class. (Defaults to filename)
+	 */
+	public static function setup_widget( $file, $name = null ) {
+		// Abort if file isn't found
+		if ( ! file_exists( $file ) ) {
+			return;
+		}
+		
+		// Load the file
+		require_once( $file );
+		
+		// Get the name based on $file if $name isn't passed
+		if ( is_null( $name ) ) {
+			$name = pathinfo( $file, PATHINFO_FILENAME );
+		}
+		
+		// Abort if the class still doesn't exist
+		if ( ! class_exists( $name ) ) {
+			return;
+		}
+		
+		// Register the widget
+		static::register_widget( $name );
+	}
+	
+	/**
+	 * Register multiple widgets under a shared directory.
+	 * 
+	 * If $wp_naming is true, it will convert the names to the expected filenames
+	 * according to WordPress naming conventions (e.g. My_Widget = class-my-widget).
+	 * 
+	 * @since 1.11.0
+	 * 
+	 * @param array  $widgets     An array of widget names.
+	 * @param string $path        The directory to look in for the widget PHP files.
+	 * @param bool   $wp_naming   Optional File uses WordPress naming convention.
+	 * @param string $prefix      Optional A prefix for all the class/file names.
+	 * @param bool   $prefix_file Optional Apply $prefix to filename as well.
+	 */
+	public static function setup_widgets( $widgets, $path, $wp_naming = false, $prefix = null, $prefix_file = false ) {
+		// Loop through each widget, prefix/process name, and setup
+		foreach ( $widgets as $name ) {
+			// Use $name for the filename, with/without prefix
+			if ( $prefix_file ) {
+				$file = $prefix . $name;
+			} else {
+				$file = $name;
+			}
+			
+			if ( $wp_naming ) {
+				// WordPress naming convention; lowercase hyphenated with class- prefix
+				$file = 'class-' . str_replace( '_', '-', strtolower( $file ) );
+			}
+			
+			// Ensure $path has trailing slash
+			trailingslashit( $path );
+			
+			// Setup the widget, adding $prefix to $name
+			static::setup_widget( $path . $file . '.php', $prefix . $name );
 		}
 	}
 }
