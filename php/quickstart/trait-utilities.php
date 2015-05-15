@@ -103,8 +103,14 @@ trait _Utilities {
 		if ( preg_match( "/$regex/", $name, $matches ) ) {
 			// Update $name
 			$name = $matches['name'];
+			unset( $matches['name'] );
 
 			foreach ( $matches as $group => $match ) {
+				if ( is_int( $group ) ) {
+					// Not a named group, skip it
+					continue;
+				}
+
 				// Remove the prefix prefix character
 				$match = substr( $match, 1 );
 
@@ -151,8 +157,9 @@ trait _Utilities {
 		// Next, handle any special $arg values
 
 		// Handle field type shorthand
-		if ( $context == 'field' && isset( $args['type'] ) ) {
-			static::handle_shorthand( 'field_type', $args['type'], $args );
+		if ( $context == 'field' && isset( $args['type'] ) && $type = $args['type'] ) {
+			static::handle_shorthand( 'field_type', $type, $args );
+			$args['type'] = $type;
 		}
 		// More argument shorthand supports to come...
 
