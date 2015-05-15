@@ -545,6 +545,14 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_textarea( $settings, $value, $data = null, $source = null ) {
+		// Handle the _type_option if set; only accepted option is used to sepcify rows and columns in *x* format
+		if ( isset( $settings['_type_options'] ) && preg_match( '/^(\d+)(?:x(\d+))?$/', $settings['_type_options'][0], $matches ) ) {
+			$settings['rows'] = $matches[1];
+			if ( isset( $matches[2] ) ) {
+				$settings['cols'] = $matches[2];
+			}
+		}
+
 		// Build the <input>
 		$input = Tools::build_tag( 'textarea', $settings, $value );
 
@@ -565,6 +573,11 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_select( $settings, $value, $data = null, $source = null ) {
+		// Handle the _type_options if set; only accepted value is used to specify the multiple flag
+		if ( isset( $settings['_type_options'] ) && $settings['_type_options'][0] == 'multiple' ) {
+			$settings['multiple'] = true;
+		}
+
 		$options = '';
 
 		// Ensure a values setting has been passed
@@ -831,6 +844,11 @@ class Form {
 			throw new Exception( 'Checklist/radiolist fieldsets MUST have a values parameter.' );
 		}
 
+		// Handle the _type_options if set; only accepted value is used to specify the checked_first flag
+		if ( isset( $settings['_type_options'] ) && $settings['_type_options'][0] == 'checked_first' ) {
+			$settings['checked_first'] = true;
+		}
+
 		// If no value exists, and there is a default value set, use it.
 		if ( is_null( $value ) && isset( $settings['default'] ) ) {
 			$value = $settings['default'];
@@ -956,6 +974,20 @@ class Form {
 	 * @see Form::build_generic()
 	 */
 	public static function build_media( $settings, $value, $data = null, $source = null ) {
+		// Handle the _type_option if set; used to specify the mode or media
+		if ( isset( $settings['_type_options'] ) && $options = $settings['_type_options'] ) {
+			// Loop through options and handle according to value
+			foreach ( $options as $option ) {
+				if ( in_array( $option, array( 'gallery', 'multiple', 'quicksort' ) ) ) {
+					// Matches a flag, update $settings
+					$settings[ $option ] = true;
+				} else {
+					// Assume media setting value
+					$settings['media'] = $option;
+				}
+			}
+		}
+
 		// Get the field name
 		$field_name = $settings['name'];
 

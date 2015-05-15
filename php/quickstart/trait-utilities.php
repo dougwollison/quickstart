@@ -85,7 +85,7 @@ trait _Utilities {
 				break;
 
 			case 'field_type':
-				$groups['_type_option'] = '\.[\w\-]+'; // Unique field option after period
+				$groups['type_option'] = '(?:\.\!?[^\.]+)+'; // Unique field options after and separated by periods
 				// Example: 'type' => "media.gallery"
 		}
 
@@ -146,6 +146,9 @@ trait _Utilities {
 							$args[ $flag ] = $value;
 						}
 						break;
+
+					case 'type_option':
+						$args['_type_options'] = explode( '.', $value );
 
 					default:
 						// Update the matching $group entry in $args
