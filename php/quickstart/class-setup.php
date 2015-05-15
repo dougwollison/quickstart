@@ -143,8 +143,10 @@ class Setup extends \Smart_Plugin {
 		// Run the theme setups
 		$this->run_theme_setups();
 
-		// Run the admin setups
-		$this->run_admin_setups();
+		// Run the admin setups, ONLY if in the backend
+		if ( ! is_frontend() ) {
+			$this->run_admin_setups();
+		}
 
 		// Run the miscellaneous setups
 		$this->run_misc_setups();
@@ -307,10 +309,12 @@ class Setup extends \Smart_Plugin {
 	// =========================
 
 	/**
-	 * Proccess the content setups; extracting any taxonomies/meta_boxes defined.
-	 * within a post_type configuration.
+	 * Proccess the content setups; extracting any local setups defined
+	 * within each post_type configuration.
 	 *
-	 * @since 1.11.0 Added use of static::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand(),
+	 *               Moved meta box registration to run_admin_setups(), added conditions
+	 *               To no process meta boxes, pages or columns unless in the admin.
 	 * @since 1.9.0  Now protected, no longer accepts external $configs argument.
 	 *				 Also added handling of pages passed in the post type.
 	 *				 Also moved setup_features and setup_columns to new run_admin_setups().
@@ -367,6 +371,32 @@ class Setup extends \Smart_Plugin {
 				unset( $pt_args['taxonomies'] );
 			}
 
+			// Check for features to register for the post type
+			if ( isset( $pt_args['features'] ) ) {
+				csv_array_ref( $pt_args['features'] );
+				foreach ( $pt_args['features'] as $feature => $ft_args ) {
+					// Fix if dumb feature was passed (numerically, not associatively)
+					make_associative( $feature, $ft_args );
+
+					// Add this post type to the post_types argument to this feature
+					$ft_args['post_type'] = array( $post_type );
+
+					// Add this feauture to features list
+					$configs['features'][] = array(
+						'id' => $feature,
+						'args' => $ft_args,
+					);
+					//and remove from this post type
+					unset( $pt_args['features'][ $feature ] );
+				}
+				unset( $pt_args['features'] );
+			}
+
+			// Stop here if not in the admin
+			if ( is_frontend() ) {
+				continue;
+			}
+
 			// Check for meta boxes to register for the post type
 			if ( isset( $pt_args['meta_boxes'] ) ) {
 				foreach ( $pt_args['meta_boxes'] as $meta_box => $mb_args ) {
@@ -419,27 +449,6 @@ class Setup extends \Smart_Plugin {
 				unset( $pt_args['pages'] );
 			}
 
-			// Check for features to register for the post type
-			if ( isset( $pt_args['features'] ) ) {
-				csv_array_ref( $pt_args['features'] );
-				foreach ( $pt_args['features'] as $feature => $ft_args ) {
-					// Fix if dumb feature was passed (numerically, not associatively)
-					make_associative( $feature, $ft_args );
-
-					// Add this post type to the post_types argument to this feature
-					$ft_args['post_type'] = array( $post_type );
-
-					// Add this feauture to features list
-					$configs['features'][] = array(
-						'id' => $feature,
-						'args' => $ft_args,
-					);
-					//and remove from this post type
-					unset( $pt_args['features'][ $feature ] );
-				}
-				unset( $pt_args['features'] );
-			}
-
 			// Check for columns to register for the post type
 			if ( isset( $pt_args['columns'] ) ) {
 				// Add this column for this post type to the columns section of $config
@@ -459,7 +468,6 @@ class Setup extends \Smart_Plugin {
 		// Run the content setups
 		$this->register_post_types( $configs['post_types'] ); // Will run during "init"
 		$this->register_taxonomies( $configs['taxonomies'] ); // Will run during "init"
-		$this->register_meta_boxes( $configs['meta_boxes'] ); // Will run now and setup various hooks
 	}
 
 	// =========================
@@ -1368,8 +1376,9 @@ class Setup extends \Smart_Plugin {
 	// =========================
 
 	/**
-	 * Proccess the admin setups; registering pages, features, and columns.
+	 * Proccess the admin setups; settings, meta boxes, admin pages, columns, user meta.
 	 *
+	 * @since 1.11.0 Moved metabox registration here.
 	 * @since 1.9.0
 	 */
 	protected function run_admin_setups() {
@@ -1378,10 +1387,11 @@ class Setup extends \Smart_Plugin {
 
 		$this->register_settings( $configs['settings'] ); // Will run during admin_init
 
+		$this->register_meta_boxes( $configs['meta_boxes'] ); // Will run now and setup various hooks
+
 		$this->setup_pages( $configs['pages'] ); // Will run now and setup various hooks
 		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
 		$this->setup_usermeta( $configs['user_meta'] ); // Will run now and setup various hooks
-		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
 	}
 
 	// =========================
@@ -1980,6 +1990,83 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
+	// !Miscellaneous Setups
+	// =========================
+
+	/**
+	 * Proccess various miscellaneous setups, including features
+	 *
+	 * @since 1.11.0 Moved features setup to here.
+	 * @since 1.10.0
+	 */
+	protected function run_misc_setups() {
+		// Load the configuration array
+		$configs = &$this->configs;
+
+		$this->setup_features( $configs['features'] ); // Will run now and setup various hooks
+
+		// Handle any simple Tool configs if set
+		if ( isset( $configs['hide'] ) ) {
+			Tools::hide( $configs['hide'] );
+		}
+		if ( isset( $configs['helpers'] ) ) {
+			Tools::load_helpers( $configs['helpers'] );
+		}
+		if ( isset( $configs['relabel_posts'] ) ) {
+			Tools::relabel_posts( $configs['relabel_posts'] );
+		}
+		if ( isset( $configs['shortcodes'] ) ) {
+			Tools::register_shortcodes( $configs['shortcodes'] );
+		}
+
+		// Handle the enqueues if set
+		if ( $enqueue = $configs['enqueue'] ) {
+			// Enqueue frontend scripts/styles if set
+			if ( isset( $enqueue['frontend'] ) ) {
+				Tools::frontend_enqueue( $enqueue['frontend'] );
+			}
+			// Enqueue backend scripts/styles if set
+			if ( isset( $enqueue['backend'] ) ) {
+				Tools::backend_enqueue( $enqueue['backend'] );
+			}
+		}
+
+		// Run through the config and handle them based on $key
+		// This is for sets of multiple configs sharing the same handling methods
+		foreach ( $configs as $key => $value ) {
+			switch ( $key ) {
+				case 'css':
+				case 'js':
+					// Process quick enqueue scripts/styles for the frontend
+					Tools::quick_frontend_enqueue( $key, $value );
+				break;
+				case 'admin_css':
+				case 'admin_js':
+					// Process quick enqueue scripts/styles for the backend
+					$key = str_replace( 'admin_', '', $key );
+					Tools::quick_backend_enqueue( $key, $value );
+				break;
+				case 'tinymce':
+					// Deprecated, use MCE
+				case 'mce':
+					// Enable buttons if set
+					if ( isset( $value['buttons'] ) ) {
+						$this->add_mce_buttons( $value['buttons'] );
+					}
+					// Register plugins if set
+					if ( isset( $value['plugins'])){
+						$this->register_mce_plugins( $value['plugins'] );
+					}
+					// Register custom styles if set
+					if ( isset( $value['styles'] ) ) {
+						$this->register_mce_styles( $value['styles'] );
+					}
+				break;
+			}
+		}
+	}
+
+	// =========================
 	// !- Feature Setups
 	// =========================
 
@@ -2573,80 +2660,6 @@ class Setup extends \Smart_Plugin {
 		// Print out the resulting ID
 		echo $id;
 		exit;
-	}
-
-	// =========================
-	// !Miscellaneous Setups
-	// =========================
-
-	/**
-	 * Proccess various miscellaneous setups
-	 *
-	 * @since 1.10.0
-	 */
-	protected function run_misc_setups() {
-		// Load the configuration array
-		$configs = &$this->configs;
-
-		// Handle any simple Tool configs if set
-		if ( isset( $configs['hide'] ) ) {
-			Tools::hide( $configs['hide'] );
-		}
-		if ( isset( $configs['helpers'] ) ) {
-			Tools::load_helpers( $configs['helpers'] );
-		}
-		if ( isset( $configs['relabel_posts'] ) ) {
-			Tools::relabel_posts( $configs['relabel_posts'] );
-		}
-		if ( isset( $configs['shortcodes'] ) ) {
-			Tools::register_shortcodes( $configs['shortcodes'] );
-		}
-
-		// Handle the enqueues if set
-		if ( $enqueue = $configs['enqueue'] ) {
-			// Enqueue frontend scripts/styles if set
-			if ( isset( $enqueue['frontend'] ) ) {
-				Tools::frontend_enqueue( $enqueue['frontend'] );
-			}
-			// Enqueue backend scripts/styles if set
-			if ( isset( $enqueue['backend'] ) ) {
-				Tools::backend_enqueue( $enqueue['backend'] );
-			}
-		}
-
-		// Run through the config and handle them based on $key
-		// This is for sets of multiple configs sharing the same handling methods
-		foreach ( $configs as $key => $value ) {
-			switch ( $key ) {
-				case 'css':
-				case 'js':
-					// Process quick enqueue scripts/styles for the frontend
-					Tools::quick_frontend_enqueue( $key, $value );
-				break;
-				case 'admin_css':
-				case 'admin_js':
-					// Process quick enqueue scripts/styles for the backend
-					$key = str_replace( 'admin_', '', $key );
-					Tools::quick_backend_enqueue( $key, $value );
-				break;
-				case 'tinymce':
-					// Deprecated, use MCE
-				case 'mce':
-					// Enable buttons if set
-					if ( isset( $value['buttons'] ) ) {
-						$this->add_mce_buttons( $value['buttons'] );
-					}
-					// Register plugins if set
-					if ( isset( $value['plugins'])){
-						$this->register_mce_plugins( $value['plugins'] );
-					}
-					// Register custom styles if set
-					if ( isset( $value['styles'] ) ) {
-						$this->register_mce_styles( $value['styles'] );
-					}
-				break;
-			}
-		}
 	}
 
 	// =========================
