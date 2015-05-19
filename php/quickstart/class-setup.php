@@ -865,6 +865,284 @@ class Setup extends \Smart_Plugin {
 	}
 
 	// =========================
+	// !Theme Setups
+	// =========================
+
+	/**
+	 * Proccess the theme setups; registering the various features and supports.
+	 *
+	 * @since 1.9.0 Now protected, no longer accepts external $configs argument.
+	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
+	 * @since 1.0.0
+	 */
+	protected function _run_theme_setups() {
+		// Load the configuration array
+		$configs = &$this->configs;
+
+		// Theme supports
+		if ( isset( $configs['supports'] ) ) {
+			csv_array_ref( $configs['supports'] );
+			foreach ( $configs['supports'] as $key => $value ) {
+				make_associative( $key, $value );
+				// Pass just $key or $key & $value depending on $value
+				if ( empty( $value ) ) {
+					add_theme_support( $key );
+				} else {
+					add_theme_support( $key, $value );
+				}
+			}
+		}
+
+		// Custom image sizes(s)
+		if ( isset( $configs['image_sizes'] ) ) {
+			foreach( $configs['image_sizes'] as $name => $specs ) {
+				list( $width, $height, $crop ) = $specs + array( 0, 0, false );
+				add_image_size( $name, $width, $height, $crop );
+			}
+		}
+
+		// Editor style(s)
+		if ( isset( $configs['editor_style'] ) ) {
+			add_editor_style( $configs['editor_style'] );
+		}
+
+		// Navigation menus
+		if ( isset( $configs['nav_menus'] ) ) {
+			register_nav_menus( $configs['nav_menus'] );
+		}
+
+		// Sidebars
+		if ( isset( $configs['sidebars'] ) ) {
+			$defaults = null;
+
+			// Prep defaults, if present
+			if ( isset( $this->defaults['sidebar'] ) ) {
+				$defaults = $this->defaults['sidebar'];
+				$find = '/.*<(\w+).*>.*/';
+				$replace = '$1';
+
+				if ( isset( $defaults['before_widget'] ) && ! isset( $defaults['after_widget'] ) ) {
+					$defaults['after_widget'] = '</' . preg_replace( $find, $replace, $defaults['before_widget'] ) . '>';
+				}
+				if ( isset( $defaults['before_title'] ) && ! isset( $defaults['after_title'] ) ) {
+					$defaults['after_title'] = '</' . preg_replace( $find, $replace, $defaults['before_title'] ) . '>';
+				}
+			}
+
+			foreach ( $configs['sidebars'] as $id => $args ) {
+				make_associative( $id, $args );
+
+				// If just a string is passed for $args,
+				// assume it's to be the name of the sidebar
+				if ( is_string( $args ) ) {
+					$args = array(
+						'name' => $args,
+					);
+				}
+				// If no args are passed,
+				// Auto create name from $id
+				elseif ( is_array( $args ) && empty( $args ) ) {
+					$args = array(
+						'name' => make_legible( $id ),
+					);
+				}
+
+				$args['id'] = $id;
+
+				// Process args with defaults, it present
+				if ( $defaults ) {
+					// Set default before_widget if default exists
+					if ( ! isset( $args['before_widget'] ) && isset( $defaults['before_widget'] ) ) {
+						$args['before_widget'] = $defaults['before_widget'];
+					}
+
+					// Set default before_title if default exists
+					if ( ! isset( $args['before_title'] ) && isset( $defaults['before_title'] ) ) {
+						$args['before_title'] = $defaults['before_title'];
+					}
+
+					// Auto set after_widget if not set but before_widget is
+					if ( isset( $args['before_widget'] ) && ! isset( $args['after_widget'] ) ) {
+						$args['after_widget'] = $defaults['after_widget'];
+					}
+
+					// Auto set after_title if not set but before_title is
+					if ( isset( $args['before_title'] ) && ! isset( $args['after_title'] ) ) {
+						$args['after_title'] = $defaults['after_title'];
+					}
+				}
+
+				// Finally, register the sidebar
+				register_sidebar( $args );
+			}
+		}
+	}
+
+	// =========================
+	// !Admin Setups
+	// =========================
+
+	/**
+	 * Proccess the admin setups; settings, meta boxes, admin pages, columns, user meta.
+	 *
+	 * @since 1.11.0 Moved metabox registration here.
+	 * @since 1.9.0
+	 */
+	protected function run_admin_setups() {
+		// Load the configuration array
+		$configs = &$this->configs;
+
+		$this->register_settings( $configs['settings'] ); // Will run during admin_init
+
+		$this->register_meta_boxes( $configs['meta_boxes'] ); // Will run now and setup various hooks
+
+		$this->setup_pages( $configs['pages'] ); // Will run now and setup various hooks
+		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
+		$this->setup_usermeta( $configs['user_meta'] ); // Will run now and setup various hooks
+	}
+
+	// =========================
+	// !- Settings Setups
+	// =========================
+
+	/**
+	 * Register and build a setting.
+	 *
+	 * @since 1.11.0 Now accepts callback and callback_args options,
+	 *               Added use of static::handle_shorthand().
+	 * @since 1.9.0  Now protected.
+	 * @since 1.8.0  Added use of Tools::build_settings_field().
+	 * @since 1.7.1  Added use of Setup::maybe_load_media_manager().
+	 * @since 1.4.0  Added 'source' to build_fields $args.
+	 * @since 1.3.0  Added 'wrap' to build_fields $args.
+	 * @since 1.1.0  Dropped stupid $args['fields'] processing.
+	 * @since 1.0.0
+	 *
+	 * @param string       $setting The id of the setting to register.
+	 * @param array|string $args    Optional The setting configuration (string accepted for name or html).
+	 * @param string       $group   Optional The id of the group this setting belongs to.
+	 * @param string       $page    Optional The id of the page this setting belongs to.
+	 */
+	protected function _register_setting( $setting, $args = null, $section = null, $page = null ) {
+		make_associative( $setting, $args );
+
+		// Default arguments
+		$default_args = array(
+			'title'    => make_legible( $setting ),
+			'sanitize' => null,
+		);
+
+		// Default $section to 'default'
+		if ( is_null( $section ) ) {
+			$section = 'default';
+		}
+
+		// Default $page to 'general'
+		if ( is_null( $page ) ) {
+			$page = 'general';
+		}
+
+		// Parse the arguments with the defaults
+		$args = wp_parse_args( $args, $default_args );
+
+		// Default callback is the build_settings_field tool.
+		$callback = array( __NAMESPACE__ . '\Tools', 'build_settings_field' );
+
+		if ( isset( $args['callback'] ) ) {
+			// Override the callback with the passed one
+			$callback = $args['callback'];
+
+			// Empty array for the callback args unless ones were passed
+			$callback_args = array();
+			if ( isset( $args['callback_args'] ) ) {
+				$callback_args = $args['callback_args'];
+			}
+		} else {
+			// Build the $fields array based on provided data
+			if ( isset( $args['field'] ) ) {
+				// A single field is provided, the name of the setting is also the name of the field
+
+				// Default the wrap_with_label argument to false if applicable
+				if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
+					// Auto set wrap_with_label to false if not present already
+					$args['field']['wrap_with_label'] = false;
+				}
+
+				// Create a fields entry
+				$args['fields'] = array(
+					$setting => $args['field'],
+				);
+			} elseif ( ! isset( $args['fields'] ) ) {
+				// Assume $args is the literal arguments for the field,
+				// create a fields entry, default wrap_with_label to false
+
+				if ( ! isset( $args['wrap_with_label'] ) ) {
+					$args['wrap_with_label'] = false;
+				}
+
+				$args['fields'] = array(
+					$setting => $args,
+				);
+			}
+
+			// Handle any shorthand in the fields
+			static::handle_shorthand( 'field', $args['fields'] );
+
+			// Check if media_manager helper needs to be loaded
+			self::maybe_load_media_manager( $args['fields'] );
+
+			// arguments for build_settings_field
+			$callback_args = array(
+				'setting' => $setting,
+				'args' => $args,
+			);
+		}
+
+		// Register the setting
+		register_setting( $page, $setting, $args['sanitize'] );
+
+		// Add the field
+		add_settings_field(
+			$setting,
+			'<label for="' . $setting . '">' . $args['title'] . '</label>',
+			$callback,
+			$page,
+			$section,
+			$callback_args
+		);
+	}
+
+	/**
+	 * Register multiple settings.
+	 *
+	 * @since 1.9.0 Now protected.
+	 * @since 1.0.0
+	 * @uses Setup::register_setting()
+	 *
+	 * @param array  $settings An array of settings to register.
+	 * @param string $group    Optional The id of the group this setting belongs to.
+	 * @param string $page     Optional The id of the page this setting belongs to.
+	 */
+	protected function _register_settings( $settings, $section = null, $page = null ) {
+		// If page is provided, rebuild $settings to be in $page => $settings format
+		if ( $page ) {
+			$settings = array(
+				$page => $settings,
+			);
+		}
+
+		// $settings should now be in page => settings format
+
+		if ( is_array( $settings ) ) {
+			foreach ( $settings as $page => $_settings ) {
+				foreach ( $_settings as $id => $setting ) {
+					$this->_register_setting( $id, $setting, $section, $page );
+				}
+			}
+		}
+	}
+
+	// =========================
 	// !- Meta Box Setups
 	// =========================
 
@@ -1254,284 +1532,6 @@ class Setup extends \Smart_Plugin {
 					'args' => $args,
 				)
 			);
-		}
-	}
-
-	// =========================
-	// !Theme Setups
-	// =========================
-
-	/**
-	 * Proccess the theme setups; registering the various features and supports.
-	 *
-	 * @since 1.9.0 Now protected, no longer accepts external $configs argument.
-	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
-	 * @since 1.0.0
-	 */
-	protected function _run_theme_setups() {
-		// Load the configuration array
-		$configs = &$this->configs;
-
-		// Theme supports
-		if ( isset( $configs['supports'] ) ) {
-			csv_array_ref( $configs['supports'] );
-			foreach ( $configs['supports'] as $key => $value ) {
-				make_associative( $key, $value );
-				// Pass just $key or $key & $value depending on $value
-				if ( empty( $value ) ) {
-					add_theme_support( $key );
-				} else {
-					add_theme_support( $key, $value );
-				}
-			}
-		}
-
-		// Custom image sizes(s)
-		if ( isset( $configs['image_sizes'] ) ) {
-			foreach( $configs['image_sizes'] as $name => $specs ) {
-				list( $width, $height, $crop ) = $specs + array( 0, 0, false );
-				add_image_size( $name, $width, $height, $crop );
-			}
-		}
-
-		// Editor style(s)
-		if ( isset( $configs['editor_style'] ) ) {
-			add_editor_style( $configs['editor_style'] );
-		}
-
-		// Navigation menus
-		if ( isset( $configs['nav_menus'] ) ) {
-			register_nav_menus( $configs['nav_menus'] );
-		}
-
-		// Sidebars
-		if ( isset( $configs['sidebars'] ) ) {
-			$defaults = null;
-
-			// Prep defaults, if present
-			if ( isset( $this->defaults['sidebar'] ) ) {
-				$defaults = $this->defaults['sidebar'];
-				$find = '/.*<(\w+).*>.*/';
-				$replace = '$1';
-
-				if ( isset( $defaults['before_widget'] ) && ! isset( $defaults['after_widget'] ) ) {
-					$defaults['after_widget'] = '</' . preg_replace( $find, $replace, $defaults['before_widget'] ) . '>';
-				}
-				if ( isset( $defaults['before_title'] ) && ! isset( $defaults['after_title'] ) ) {
-					$defaults['after_title'] = '</' . preg_replace( $find, $replace, $defaults['before_title'] ) . '>';
-				}
-			}
-
-			foreach ( $configs['sidebars'] as $id => $args ) {
-				make_associative( $id, $args );
-
-				// If just a string is passed for $args,
-				// assume it's to be the name of the sidebar
-				if ( is_string( $args ) ) {
-					$args = array(
-						'name' => $args,
-					);
-				}
-				// If no args are passed,
-				// Auto create name from $id
-				elseif ( is_array( $args ) && empty( $args ) ) {
-					$args = array(
-						'name' => make_legible( $id ),
-					);
-				}
-
-				$args['id'] = $id;
-
-				// Process args with defaults, it present
-				if ( $defaults ) {
-					// Set default before_widget if default exists
-					if ( ! isset( $args['before_widget'] ) && isset( $defaults['before_widget'] ) ) {
-						$args['before_widget'] = $defaults['before_widget'];
-					}
-
-					// Set default before_title if default exists
-					if ( ! isset( $args['before_title'] ) && isset( $defaults['before_title'] ) ) {
-						$args['before_title'] = $defaults['before_title'];
-					}
-
-					// Auto set after_widget if not set but before_widget is
-					if ( isset( $args['before_widget'] ) && ! isset( $args['after_widget'] ) ) {
-						$args['after_widget'] = $defaults['after_widget'];
-					}
-
-					// Auto set after_title if not set but before_title is
-					if ( isset( $args['before_title'] ) && ! isset( $args['after_title'] ) ) {
-						$args['after_title'] = $defaults['after_title'];
-					}
-				}
-
-				// Finally, register the sidebar
-				register_sidebar( $args );
-			}
-		}
-	}
-
-	// =========================
-	// !Admin Setups
-	// =========================
-
-	/**
-	 * Proccess the admin setups; settings, meta boxes, admin pages, columns, user meta.
-	 *
-	 * @since 1.11.0 Moved metabox registration here.
-	 * @since 1.9.0
-	 */
-	protected function run_admin_setups() {
-		// Load the configuration array
-		$configs = &$this->configs;
-
-		$this->register_settings( $configs['settings'] ); // Will run during admin_init
-
-		$this->register_meta_boxes( $configs['meta_boxes'] ); // Will run now and setup various hooks
-
-		$this->setup_pages( $configs['pages'] ); // Will run now and setup various hooks
-		$this->setup_columns( $configs['columns'] ); // Will run now and setup various hooks
-		$this->setup_usermeta( $configs['user_meta'] ); // Will run now and setup various hooks
-	}
-
-	// =========================
-	// !- Settings Setups
-	// =========================
-
-	/**
-	 * Register and build a setting.
-	 *
-	 * @since 1.11.0 Now accepts callback and callback_args options,
-	 *               Added use of static::handle_shorthand().
-	 * @since 1.9.0  Now protected.
-	 * @since 1.8.0  Added use of Tools::build_settings_field().
-	 * @since 1.7.1  Added use of Setup::maybe_load_media_manager().
-	 * @since 1.4.0  Added 'source' to build_fields $args.
-	 * @since 1.3.0  Added 'wrap' to build_fields $args.
-	 * @since 1.1.0  Dropped stupid $args['fields'] processing.
-	 * @since 1.0.0
-	 *
-	 * @param string       $setting The id of the setting to register.
-	 * @param array|string $args    Optional The setting configuration (string accepted for name or html).
-	 * @param string       $group   Optional The id of the group this setting belongs to.
-	 * @param string       $page    Optional The id of the page this setting belongs to.
-	 */
-	protected function _register_setting( $setting, $args = null, $section = null, $page = null ) {
-		make_associative( $setting, $args );
-
-		// Default arguments
-		$default_args = array(
-			'title'    => make_legible( $setting ),
-			'sanitize' => null,
-		);
-
-		// Default $section to 'default'
-		if ( is_null( $section ) ) {
-			$section = 'default';
-		}
-
-		// Default $page to 'general'
-		if ( is_null( $page ) ) {
-			$page = 'general';
-		}
-
-		// Parse the arguments with the defaults
-		$args = wp_parse_args( $args, $default_args );
-
-		// Default callback is the build_settings_field tool.
-		$callback = array( __NAMESPACE__ . '\Tools', 'build_settings_field' );
-
-		if ( isset( $args['callback'] ) ) {
-			// Override the callback with the passed one
-			$callback = $args['callback'];
-
-			// Empty array for the callback args unless ones were passed
-			$callback_args = array();
-			if ( isset( $args['callback_args'] ) ) {
-				$callback_args = $args['callback_args'];
-			}
-		} else {
-			// Build the $fields array based on provided data
-			if ( isset( $args['field'] ) ) {
-				// A single field is provided, the name of the setting is also the name of the field
-
-				// Default the wrap_with_label argument to false if applicable
-				if ( ! is_callable( $args['field'] ) && is_array( $args['field'] ) && ! isset( $args['field']['wrap_with_label'] ) ) {
-					// Auto set wrap_with_label to false if not present already
-					$args['field']['wrap_with_label'] = false;
-				}
-
-				// Create a fields entry
-				$args['fields'] = array(
-					$setting => $args['field'],
-				);
-			} elseif ( ! isset( $args['fields'] ) ) {
-				// Assume $args is the literal arguments for the field,
-				// create a fields entry, default wrap_with_label to false
-
-				if ( ! isset( $args['wrap_with_label'] ) ) {
-					$args['wrap_with_label'] = false;
-				}
-
-				$args['fields'] = array(
-					$setting => $args,
-				);
-			}
-
-			// Handle any shorthand in the fields
-			static::handle_shorthand( 'field', $args['fields'] );
-
-			// Check if media_manager helper needs to be loaded
-			self::maybe_load_media_manager( $args['fields'] );
-
-			// arguments for build_settings_field
-			$callback_args = array(
-				'setting' => $setting,
-				'args' => $args,
-			);
-		}
-
-		// Register the setting
-		register_setting( $page, $setting, $args['sanitize'] );
-
-		// Add the field
-		add_settings_field(
-			$setting,
-			'<label for="' . $setting . '">' . $args['title'] . '</label>',
-			$callback,
-			$page,
-			$section,
-			$callback_args
-		);
-	}
-
-	/**
-	 * Register multiple settings.
-	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.0.0
-	 * @uses Setup::register_setting()
-	 *
-	 * @param array  $settings An array of settings to register.
-	 * @param string $group    Optional The id of the group this setting belongs to.
-	 * @param string $page     Optional The id of the page this setting belongs to.
-	 */
-	protected function _register_settings( $settings, $section = null, $page = null ) {
-		// If page is provided, rebuild $settings to be in $page => $settings format
-		if ( $page ) {
-			$settings = array(
-				$page => $settings,
-			);
-		}
-
-		// $settings should now be in page => settings format
-
-		if ( is_array( $settings ) ) {
-			foreach ( $settings as $page => $_settings ) {
-				foreach ( $_settings as $id => $setting ) {
-					$this->_register_setting( $id, $setting, $section, $page );
-				}
-			}
 		}
 	}
 
