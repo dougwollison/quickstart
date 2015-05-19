@@ -692,21 +692,23 @@ class Form {
 		$pages = get_posts( $args );
 
 		// Build the options
-		$options = '';
+		$options = array();
 		if ( ! empty( $settings['none_option'] ) ) {
-			$options .= '<option value="0">' . $settings['none_option'] . '</option>';
+			$options[0] = $settings['none_option'];
 		}
-		$options .= walk_page_dropdown_tree( $pages, 0, $args );
+		// Get the HTML options from walk_page_dropdown_tree(), but parse into an array
+		preg_match_all( '#<option .*?value="(\d+)".*?>(.+?)</option>#', walk_page_dropdown_tree( $pages, 0, $args ), $matches );
+		foreach ( $matches[1] as $i => $id ) {
+			$options[ $id ] = $matches[2][ $i ];
+		}
 
-		// Build the <select>
-		$input = Tools::build_tag( 'select', $settings, $options );
+		$settings['values'] = $options;
 
 		// Update the wrapper_class so to include the select class
 		$settings['wrapper_class'] .= ' select';
 
-		$html = static::maybe_wrap_field( $input, $settings );
-
-		return $html;
+		// Pass it over to build_select
+		return static::build_select( $settings, $value, $data, $source );
 	}
 
 	/**
