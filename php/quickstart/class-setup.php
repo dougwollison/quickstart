@@ -2200,7 +2200,7 @@ class Setup extends \Smart_Plugin {
 			foreach ( $post_types as $post_type ) {
 				$this->setup_page( "$object-order", array(
 					'title'      => sprintf( __( '%s Order' ), $the_object->labels->singular_name ),
-					'capability' => get_post_type_object( $post_type )->cap->edit_posts,
+					'capability' => $the_object->cap->edit_posts,
 					'callback'   => Callbacks::setup_callback( 'menu_order_admin_page', array( $type, $object ) ),
 				), $post_type );
 			}
