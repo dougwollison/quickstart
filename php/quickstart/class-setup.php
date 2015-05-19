@@ -2191,16 +2191,18 @@ class Setup extends \Smart_Plugin {
 				$type = 'taxonomy';
 				$the_object = get_taxonomy( $object );
 				$post_types = $the_object->object_type;
+				$capability = $the_object->cap->edit_terms;
 			} else {
 				$type = 'post_type';
 				$the_object = get_post_type_object( $object );
 				$post_types = array( $object );
+				$capability = $the_object->cap->edit_posts;
 			}
 
 			foreach ( $post_types as $post_type ) {
 				$this->setup_page( "$object-order", array(
 					'title'      => sprintf( __( '%s Order' ), $the_object->labels->singular_name ),
-					'capability' => $the_object->cap->edit_posts,
+					'capability' => $capability,
 					'callback'   => Callbacks::setup_callback( 'menu_order_admin_page', array( $type, $object ) ),
 				), $post_type );
 			}
