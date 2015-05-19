@@ -148,7 +148,7 @@ trait _Utilities {
 						break;
 
 					case 'type_option':
-						$args['_type_options'] = explode( '.', $value );
+						$args['_type_options'] = explode( '.', $match );
 
 					default:
 						// Update the matching $group entry in $args
