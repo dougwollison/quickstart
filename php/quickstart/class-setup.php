@@ -1734,27 +1734,17 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the requested columns for the post type.
 	 *
-	 * @since 1.9.0 Now protected.
+	 * @sicne 1.11.0 Revized hook names, now just uses manage_{$post_type}_posts_columns.
+	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param string $post_type The slug of the post type to setup for.
 	 * @param array  $columnset The list of columns to use/register.
 	 */
 	protected function setup_columnset( $post_type, $columnset ) {
-		switch ( $post_type ) {
-			case 'page':
-				$filter_hook = 'manage_pages_columns';
-				$action_hook = 'manage_pages_custom_column';
-				break;
-			case 'post':
-				$filter_hook = 'manage_posts_columns';
-				$action_hook = 'manage_posts_custom_column';
-				break;
-			default:
-				$filter_hook = 'manage_' . $post_type . '_posts_columns';
-				$action_hook = 'manage_' . $post_type . '_posts_custom_column';
-				break;
-		}
+		// Build the filter/action hook names
+		$filter_hook = 'manage_' . $post_type . '_posts_columns';
+		$action_hook = 'manage_' . $post_type . '_posts_custom_column';
 
 		// Create the hook settings and arguments list
 		$filter_hook = array( $filter_hook, 10, 1 );
