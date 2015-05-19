@@ -212,12 +212,20 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Take care of uploading and inserting an attachment.
 	 *
+	 * @since 1.11.0 Added detection/loading of wp_handle_upload().
 	 * @since 1.0.0
 	 *
 	 * @param array $file The desired entry in $_FILES.
 	 * @param array $attachment Optional An array of data for the attachment to be written to wp_posts.
 	 */
 	public static function upload( $file, $attachment = array() ) {
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		}
+		if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		}
+
 		$file = wp_handle_upload( $file, array( 'test_form' => false ) );
 
 		if ( isset( $file['error'] ) ) {
