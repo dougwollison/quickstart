@@ -202,6 +202,127 @@ class Form {
 	}
 
 	/**
+	 * Get a list of objects for use in a fields 'values' setting.
+	 *
+	 * @since 1.11.0
+	 *
+	 * @param string $object_type The type of object to get.
+	 * @param array  $settings    The settings to use in creating the field.
+	 * @param mixed  $value       The value to fill the field with.
+	 * @param mixed  $data        The original source of the data.
+	 * @param string $source      The data source's type.
+	 *
+	 * @return array The list of objects in ID => Name format.
+	 */
+	protected static function get_objects_list( $object_type, $settings, $value, $data = null, $source = null ) {
+		$values = array();
+
+		switch ( $object_type ) {
+			case 'post':
+				// Handle the _type_options if set; one of the values could be the post type
+				if ( isset( $settings['_type_options'] ) ) {
+					// Loop through all options and see if one is a post type
+					foreach ( $settings['_type_options'] as $option ) {
+						if ( post_type_exists( $option ) ) {
+							$settings['post_type'] = $option;
+						}
+					}
+				}
+
+				// Default Settings
+				$default_settings = array(
+					'post_type' => null,
+					'post_status' => 'publish,private,draft',
+					'exclude' => null,
+					'none_option' => '&mdash; None &mdash;',
+					'sort_column' => 'menu_order, post_title',
+				);
+
+				// Parse the passed settings with the defaults
+				$settings = wp_parse_args( $settings, $default_settings );
+
+				if ( is_null( $settings['post_type'] ) ) {
+					// Determine default post type
+					if ( $data && $source == 'post' ) {
+						// Default to this posts post type
+						$settings['post_type'] = $data->post_type;
+					} else {
+						// Default to page
+						$settings['post_type'] = 'page';
+					}
+				}
+
+				// If it's for a post and no exclude is passed, set it to the post ID
+				if ( is_null( $settings['exclude'] ) && $data && $source == 'post' ) {
+					$settings['exclude'] = $data->ID;
+				}
+
+				// Create the arguments for wp_dropdown_pages()
+				$args = array(
+					'selected'         => $value,
+					'post_type'        => $settings['post_type'],
+					'post_status'      => $settings['post_status'],
+					'post__not_in'     => $settings['exclude'],
+					'sort_column'      => $settings['sort_column'],
+				);
+
+				// Query the pages
+				$pages = get_posts( $args );
+
+				// Build the options
+				$options = array();
+				if ( ! empty( $settings['none_option'] ) ) {
+					$options[0] = $settings['none_option'];
+				}
+				// Get the HTML options from walk_page_dropdown_tree(), but parse into an array
+				preg_match_all( '#<option .*?value="(\d+)".*?>(.+?)</option>#', walk_page_dropdown_tree( $pages, 0, $args ), $matches );
+				foreach ( $matches[1] as $i => $id ) {
+					$options[ $id ] = $matches[2][ $i ];
+				}
+
+				$values = $options;
+
+				break;
+
+			case 'menu':
+				// Get the menus
+				$menus = wp_get_nav_menus();
+
+				// Convert it to a values array and update $settings
+				$values = simplify_object_array( $menus, 'term_id', 'name' );
+
+				break;
+
+			case 'template':
+				// Default Settings
+				$default_settings = array(
+					'default' => 'default',
+					'default_name' => 'Default Template',
+				);
+
+				// Parse the passed settings with the defaults
+				$settings = wp_parse_args( $settings, $default_settings );
+
+				// Build the options list array
+				$options = array( $settings['default'] => $settings['default_name'] );
+
+				// Get the temlates, sort them
+				$templates = get_page_templates();
+				ksort( $templates );
+
+				// Flip it into a proper values list
+				$templates = array_flip( $templates );
+
+				// Merge with default option and update $settings
+				$values = array_merge( $options, $templates );
+
+				break;
+		}
+
+		return $values;
+	}
+
+	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
 	 * @since 1.11.0 Added use of static::handle_shorthand().
@@ -640,133 +761,56 @@ class Form {
 	}
 
 	/**
+	 * Build an post/menu/template select field.
+	 *
+	 * @since 1.11.0
+	 *
+	 */
+	protected static function build_objectselect( $type, $settings, $value, $data = null, $source = null ) {
+		// Get the values
+		$settings['values'] = static::get_objects_list( $type, $settings, $value, $data, $source );
+
+		// Update the wrapper_class so to include the select class
+		$settings['wrapper_class'] .= ' select';
+
+		// Pass it over to build_select
+		return static::build_select( $settings, $value, $data, $source );
+	}
+
+	/**
 	 * Build a hierarchical post select field.
 	 *
-	 * @since 1.11.0 The sort_column argument is now overwritable.
+	 * @since 1.11.0 Made alias of build_objectselect
 	 * @since 1.10.0
 	 *
 	 * @see Form::build_generic()
 	 */
 	public static function build_postselect( $settings, $value, $data = null, $source = null ) {
-		// Default Settings
-		$default_settings = array(
-			'post_type' => null,
-			'post_status' => 'publish,private,draft',
-			'exclude' => null,
-			'none_option' => '&mdash; None &mdash;',
-			'sort_column' => 'menu_order, post_title',
-		);
-
-		// Parse the passed settings with the defaults
-		$settings = wp_parse_args( $settings, $default_settings );
-
-		if ( is_null( $settings['post_type'] ) ) {
-			// Determine default post type
-			if ( $data && $source == 'post' ) {
-				// Default to this posts post type
-				$settings['post_type'] = $data->post_type;
-			} else {
-				// Default to page
-				$settings['post_type'] = 'page';
-			}
-		}
-
-		if ( is_null( $settings['exclude'] ) ) {
-			// Determine default exclude ID
-			if ( $data && $source == 'post' ) {
-				// Default to this posts post type
-				$settings['exclude'] = $data->ID;
-			}
-		}
-
-		// Create the arguments for wp_dropdown_pages()
-		$args = array(
-			'selected'         => $value,
-			'post_type'        => $settings['post_type'],
-			'post_status'      => $settings['post_status'],
-			'post__not_in'     => $settings['exclude'],
-			'sort_column'      => $settings['sort_column'],
-		);
-
-		// Query the pages
-		$pages = get_posts( $args );
-
-		// Build the options
-		$options = array();
-		if ( ! empty( $settings['none_option'] ) ) {
-			$options[0] = $settings['none_option'];
-		}
-		// Get the HTML options from walk_page_dropdown_tree(), but parse into an array
-		preg_match_all( '#<option .*?value="(\d+)".*?>(.+?)</option>#', walk_page_dropdown_tree( $pages, 0, $args ), $matches );
-		foreach ( $matches[1] as $i => $id ) {
-			$options[ $id ] = $matches[2][ $i ];
-		}
-
-		$settings['values'] = $options;
-
-		// Update the wrapper_class so to include the select class
-		$settings['wrapper_class'] .= ' select';
-
-		// Pass it over to build_select
-		return static::build_select( $settings, $value, $data, $source );
-	}
-
-	/**
-	 * Build a template select field.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @see Form::build_generic()
-	 */
-	public static function build_templateselect( $settings, $value, $data = null, $source = null ) {
-		// Default Settings
-		$default_settings = array(
-			'default' => 'default',
-			'default_name' => 'Default Template',
-		);
-
-		// Parse the passed settings with the defaults
-		$settings = wp_parse_args( $settings, $default_settings );
-
-		// Build the options list array
-		$options = array( $settings['default'] => $settings['default_name'] );
-
-		// Get the temlates, sort them
-		$templates = get_page_templates();
-		ksort( $templates );
-
-		// Flip it into a proper values list
-		$templates = array_flip( $templates );
-
-		// Merge with default option and update $settings
-		$settings['values'] = array_merge( $options, $templates );
-
-		// Update the wrapper_class so to include the select class
-		$settings['wrapper_class'] .= ' select';
-
-		// Pass it over to build_select
-		return static::build_select( $settings, $value, $data, $source );
+		return static::build_objectselect( 'post', $settings, $value, $data, $source );
 	}
 
 	/**
 	 * Build a menu select field.
 	 *
+	 * @since 1.11.0 Made alias of build_objectselect
 	 * @since 1.10.0
 	 *
 	 * @see Form::build_generic()
 	 */
 	public static function build_menuselect( $settings, $value, $data = null, $source = null ) {
-		// Get the menus
-		$menus = wp_get_nav_menus();
+		return static::build_objectselect( 'menu', $settings, $value, $data, $source );
+	}
 
-		// Convert it to a values array and update $settings
-		$settings['values'] = simplify_object_array( $menus, 'term_id', 'name' );
-
-		// Update the wrapper_class so to include the select class
-		$settings['wrapper_class'] .= ' select';
-
-		// Pass it over to build_select
-		return static::build_select( $settings, $value, $data, $source );
+	/**
+	 * Build a template select field.
+	 *
+	 * @since 1.11.0 Made alias of build_objectselect
+	 * @since 1.10.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_templateselect( $settings, $value, $data = null, $source = null ) {
+		return static::build_objectselect( 'template', $settings, $value, $data, $source );
 	}
 
 	/**
@@ -963,6 +1007,76 @@ class Form {
 	 */
 	public static function build_radiolist( $settings, $value, $data = null, $source = null ) {
 		return static::build_inputlist( 'radio', $settings, $value, $data, $source );
+	}
+
+	/**
+	 * Build an post/menu/template checklist or radio list.
+	 *
+	 * @since 1.11.0
+	 *
+	 * @see Form::build_generic()
+	 */
+	protected static function build_objectlist( $type, $settings, $value, $data = null, $source = null ) {
+		// Handle the _type_options if set; only accepted value is used to specify the multiple flag
+		if ( isset( $settings['_type_options'] ) && $settings['_type_options'][0] == 'multiple' ) {
+			$settings['multiple'] = true;
+		}
+
+		// Get the values
+		$settings['values'] = static::get_objects_list( $type, $settings, $value, $data, $source );
+
+		// Radiolist by default, checklist if multiple is true
+		$method = 'radio';
+		$class = 'radiolist';
+		if ( isset( $settings['multiple'] ) && $settings['multiple'] ) {
+			// Update the wrapper_class so to include the checklist class
+			$method = 'checkbox';
+			$class = 'checklist';
+
+			// No need for the None entry in values
+			array_shift( $settings['values'] );
+		}
+
+		$settings['wrapper_class'] .= " $class";
+
+		// Pass it over to build_inputlist
+		return static::build_inputlist( $method, $settings, $value, $data, $source );
+	}
+
+	/**
+	 * Build a hierarchical post select field.
+	 *
+	 * @since 1.11.0 Made alias of build_objectlist
+	 * @since 1.10.0
+	 *
+	 * @see Form::build_objectlist()
+	 */
+	public static function build_postlist( $settings, $value, $data = null, $source = null ) {
+		return static::build_objectlist( 'post', $settings, $value, $data, $source );
+	}
+
+	/**
+	 * Build a menu select field.
+	 *
+	 * @since 1.11.0 Made alias of build_objectlist
+	 * @since 1.10.0
+	 *
+	 * @see Form::build_objectlist()
+	 */
+	public static function build_menulist( $settings, $value, $data = null, $source = null ) {
+		return static::build_objectlist( 'menu', $settings, $value, $data, $source );
+	}
+
+	/**
+	 * Build a template select field.
+	 *
+	 * @since 1.11.0 Made alias of build_objectlist
+	 * @since 1.10.0
+	 *
+	 * @see Form::build_objectlist()
+	 */
+	public static function build_templatelist( $settings, $value, $data = null, $source = null ) {
+		return static::build_objectlist( 'template', $settings, $value, $data, $source );
 	}
 
 	/**
