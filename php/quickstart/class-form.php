@@ -166,6 +166,7 @@ class Form {
 				}
 				$value = get_post_meta( $data, $key, $single );
 				break;
+
 			case 'term':
 				// Get the matching meta value for this term
 				if ( is_object( $data ) ) {
@@ -173,6 +174,7 @@ class Form {
 				}
 				$value = get_term_meta( $data, $key, $single );
 				break;
+
 			case 'user':
 				// Get the matching meta value for this post
 				if ( is_object( $data ) ) {
@@ -180,14 +182,17 @@ class Form {
 				}
 				$value = get_user_meta( $data, $key, $single );
 				break;
+
 			case 'option':
 				// Get the matching option value
 				$value = get_option( $key );
 				break;
+
 			case 'array':
 				// Get the matching entry if present
 				$value = isset( $data[ $key ] ) ? $data[ $key ] : null;
 				break;
+
 			default:
 				// No processing required
 				$value = $data;
@@ -199,6 +204,33 @@ class Form {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Utility function for get_objects_list, for getting posts hierachically.
+	 *
+	 * @since 1.11.0
+	 *
+	 * @param array &$list   The list ove posts to add to (passed by reference).
+	 * @param array  $args   The get_posts arguments.
+	 * @param int    $parent Optional The parent to look under (defaults to 0 to start, pass false to disable hierachy).
+	 * @param int    $level  Optional The current level in the hierarchy (defaults to 0 to start).
+	 *
+	 * @return array The complete list, with labels indented based on level.
+	 */
+	protected static function add_post_hierarchy( &$list, $args, $parent = 0, $level = 0 ) {
+		$args['post_parent'] = $parent;
+
+		// Get and loop through the posts found
+		$posts = get_posts( $args );
+		foreach ( $posts as $post ) {
+			$list[ $post->ID ] = str_repeat( '&nbsp;', $level * 3 ) . apply_filters( 'the_title', $post->post_title );
+
+			// Add any child posts if $parent isn't false
+			if ( $parent !== false ) {
+				static::add_post_hierarchy( $list, $args, $post->ID, $level + 1 );
+			}
+		}
 	}
 
 	/**
@@ -231,11 +263,12 @@ class Form {
 
 				// Default Settings
 				$default_settings = array(
-					'post_type' => null,
-					'post_status' => 'publish,private,draft',
-					'exclude' => null,
+					'post_type'   => null,
+					'post_status' => array( 'publish', 'private', 'draft' ),
+					'exclude'     => 0,
 					'none_option' => '&mdash; None &mdash;',
-					'sort_column' => 'menu_order, post_title',
+					'orderby'     => array( 'menu_order', 'post_title' ),
+					'order'       => 'asc',
 				);
 
 				// Parse the passed settings with the defaults
@@ -259,28 +292,21 @@ class Form {
 
 				// Create the arguments for wp_dropdown_pages()
 				$args = array(
-					'selected'         => $value,
-					'post_type'        => $settings['post_type'],
-					'post_status'      => $settings['post_status'],
-					'post__not_in'     => $settings['exclude'],
-					'sort_column'      => $settings['sort_column'],
+					'post_type'      => $settings['post_type'],
+					'post_status'    => $settings['post_status'],
+					'post__not_in'   => $settings['exclude'],
+					'orderby'        => $settings['orderby'],
+					'order'          => $settings['order'],
+					'posts_per_page' => -1,
 				);
 
-				// Query the pages
-				$pages = get_posts( $args );
-
-				// Build the options
-				$options = array();
+				// Add a none option value if desired
 				if ( ! empty( $settings['none_option'] ) ) {
-					$options[0] = $settings['none_option'];
-				}
-				// Get the HTML options from walk_page_dropdown_tree(), but parse into an array
-				preg_match_all( '#<option .*?value="(\d+)".*?>(.+?)</option>#', walk_page_dropdown_tree( $pages, 0, $args ), $matches );
-				foreach ( $matches[1] as $i => $id ) {
-					$options[ $id ] = $matches[2][ $i ];
+					$values[0] = $settings['none_option'];
 				}
 
-				$values = $options;
+				// Add posts to the values list
+				static::add_post_hierarchy( $values, $args, is_post_type_hierarchical( $settings['post_type'] ) );
 
 				break;
 
