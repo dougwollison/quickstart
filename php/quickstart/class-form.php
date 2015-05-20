@@ -684,7 +684,7 @@ class Form {
 			'selected'         => $value,
 			'post_type'        => $settings['post_type'],
 			'post_status'      => $settings['post_status'],
-			'exclude_tree'     => $settings['exclude'],
+			'post__not_in'     => $settings['exclude'],
 			'sort_column'      => $settings['sort_column'],
 		);
 
