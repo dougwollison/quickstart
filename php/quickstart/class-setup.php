@@ -1206,6 +1206,9 @@ class Setup extends \Smart_Plugin {
 			$args['fields'] = array(
 				$meta_box => $args,
 			);
+
+			// Reset shorthand handling status for the field
+			unset( $args['fields'][ $meta_box ]['__handled_shorthand'] );
 		}
 
 		$defaults = array(
