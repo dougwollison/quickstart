@@ -1445,8 +1445,12 @@ class Form {
 				 */
 				$html .= call_user_func( $template, $item, $i );
 			} elseif ( is_array( $template ) ) {
-				$html .= '<div class="qs-item-fields">';
-				if ( isset( $template['fields'] ) ) {
+				// Detect if multiple fields
+				$multiple = isset( $template['fields'] );
+
+				// Build the fields wrapper; identify it as containing multiple or a single field
+				$html .= sprintf( '<div class="qs-item-fields %s">', $multiple ? 'multiple-fields' : 'single-field' );
+				if ( $multiple ) {
 					// Loop through each field for the template, and build them
 					foreach ( $template['fields'] as $field => $settings ) {
 						make_associative( $field, $settings );
