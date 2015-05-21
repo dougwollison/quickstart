@@ -21,7 +21,7 @@
   line-height: 1.5; }
   .qs-fieldset .qs-field {
     padding-top: 0; }
-  .qs-field.generic .qs-label, .qs-field.textarea .qs-label, .qs-field.select .qs-label {
+  .qs-field.generic .qs-label, .qs-field.textarea .qs-label, .qs-field.select .qs-label, .qs-field.editor .qs-label {
     float: left;
     padding: 5px 0;
     margin: 0 10px 0 0; }
@@ -92,6 +92,16 @@
   display: block; }
 .qs-repeater .qs-delete {
   margin-top: 5px; }
+
+.qs-item-fields.single-field {
+  margin-right: 70px; }
+  .qs-item-fields.single-field .qs-input {
+    display: block;
+    width: 100%; }
+  .qs-item-fields.single-field ~ .qs-delete {
+    position: absolute;
+    top: 0;
+    right: 48px; }
 
 .qs-sort label {
   float: left;
