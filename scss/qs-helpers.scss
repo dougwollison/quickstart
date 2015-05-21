@@ -30,7 +30,8 @@
 
 	&.generic,
 	&.textarea,
-	&.select {
+	&.select,
+	&.editor {
 		.qs-label {
 			float: left;
 			padding: 5px 0;
