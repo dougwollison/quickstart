@@ -100,7 +100,7 @@ trait _Utilities {
 		}
 
 		// Apply the regex to the $name, handle the found groups
-		if ( preg_match( "/$regex/", $name, $matches ) ) {
+		if ( preg_match( "/^$regex$/", $name, $matches ) ) {
 			// Update $name
 			$name = $matches['name'];
 			unset( $matches['name'] );
