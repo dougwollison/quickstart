@@ -1560,12 +1560,15 @@ class Form {
 		}
 
 		// Write the editor container
-		$html = sprintf( '<div class="qs-editor" id="%s-editor">', $name );
+		$input = sprintf( '<div class="qs-editor" id="%s-editor">', $name );
 			ob_start();
 			// Print out the editor
 			wp_editor( $value, $settings['id'], $settings );
-			$html .= ob_get_clean();
-		$html .= '</div>';
+			$input .= ob_get_clean();
+		$input .= '</div>';
+
+		// Wrap the input in the html if needed
+		$html = static::maybe_wrap_field( $input, $settings );
 
 		return $html;
 	}
