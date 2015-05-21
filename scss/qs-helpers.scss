@@ -1,14 +1,14 @@
 @import 'utilities';
 
-.qs-meta-box{
+.qs-meta-box {
 	@extend %clearfix;
 
-	.inputlist{
+	.inputlist {
 		margin-bottom: 0;
 		overflow: auto;
 		max-width: 300px;
 
-		li{
+		li {
 			margin: 0;
 			padding: 5px 0;
 		}
@@ -16,83 +16,83 @@
 }
 
 .qs-field,
-.qs-fieldset{
+.qs-fieldset {
 	margin-top: 10px;
 }
 
-.qs-field{
+.qs-field {
 	@extend %clearfix;
 	line-height: 1.5;
 
-	.qs-fieldset &{
+	.qs-fieldset & {
 		padding-top: 0;
 	}
 
 	&.generic,
 	&.textarea,
-	&.select{
-		.qs-label{
+	&.select {
+		.qs-label {
 			float: left;
 			padding: 5px 0;
 			margin: 0 10px 0 0;
 		}
 	}
 }
-	.qs-label{
+	.qs-label {
 		margin: 0;
 	}
-	.qs-legend{
+	.qs-legend {
 		padding: 0 0 2px;
 		margin: 0 0 5px;
 		border-bottom: 1px solid #eee;
 	}
 
-.qs-fieldset{
-	.inputlist{
+.qs-fieldset {
+	.inputlist {
 		@extend %clearfix;
 		margin: 5px 0 0;
 	}
 
 	// Fields AND Legend Horizontal
-	&.horizontal{
+	&.horizontal {
 		.qs-legend,
 		.qs-field,
-		.inputlist{
+		.inputlist {
 			float: left;
 		}
 
-		.qs-legend{
+		.qs-legend {
 			margin: 0;
 			padding: 0;
 			border: none;
 		}
 
 		.qs-field,
-		.inputlist{
+		.inputlist {
 			margin: 0 5px;
 		}
 	}
 
 	// Fields-only Horizontal
-	.horizontal{
-		.qs-field{
+	.horizontal {
+		.qs-field {
 			float: left;
 			margin: 0 10px 0 0;
 		}
 	}
 }
 
-.qs-container{
+.qs-container {
 	@extend %clearfix;
 	margin: 10px 0 0;
 	border-top: 1px solid #eee;
 }
 
-.qs-sortable{
+.qs-sortable {
 	background: #fff;
 	margin: 10px 0;
 }
-	.qs-item{
+	.qs-item {
 		@extend %clearfix;
 		display: block;
 		background: rgba(#fff, .7);
@@ -101,7 +101,7 @@
 		cursor: move;
 		padding: 5px 48px 5px 0;
 
-		&:before{
+		&:before {
 			content: '\f156';
 			font-family: dashicons;
 			position: absolute;
@@ -113,49 +113,65 @@
 			line-height: 40px;
 		}
 
-		.qs-delete{
+		.qs-delete {
 			float: right;
 		}
 	}
 
-.qs-template{
+.qs-template {
 	display: none;
 }
 
-.qs-repeater{
-	.qs-sortable{
+.qs-repeater {
+	.qs-sortable {
 		padding: 0;
 		margin: 10px 0 0;
 	}
 
-	.qs-field{
+	.qs-field {
 		float: left;
 		margin: 4px 10px 4px 0;
 	}
-		label{
+		label {
 			display: block;
 		}
-		.qs-delete{
+		.qs-delete {
 			margin-top: 5px;
 		}
 }
+	.qs-item-fields {
+		&.single-field {
+			margin-right: 70px;
 
-.qs-sort{
-	label{
+			.qs-input {
+				display: block;
+				width: 100%;
+			}
+
+			~ .qs-delete {
+				position: absolute;
+				top: 0;
+				right: 48px;
+			}
+		}
+	}
+
+.qs-sort {
+	label {
 		float: left;
 		line-height: 28px;
 		padding-right: 10px;
 	}
 }
 
-.qs-map{
+.qs-map {
 	@extend %clearfix;
 
-	.qs-clear{
+	.qs-clear {
 		float: right;
 	}
 }
-	.qs-map-canvas{
+	.qs-map-canvas {
 		width: 100%;
 		height: 500px;
 		margin: 10px 0;
