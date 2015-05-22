@@ -176,6 +176,7 @@ class Template {
 	/**
 	 * Filter the page title. Added via title().
 	 *
+	 * @since 1.11.0 Forgot to global in $paged and $page.
 	 * @since 1.9.0
 	 *
 	 * @param string $title The title to filter.
@@ -185,6 +186,8 @@ class Template {
 	 * @return string The filtered title.
 	 */
 	public static function title_filter( $title, $sep, $side ) {
+		global $paged, $page;
+
 		if ( $side == 'right' ) {
 			$title = $title . get_bloginfo( 'name', 'display' );
 		} else {
@@ -347,7 +350,7 @@ class Template {
 		$account = null;
 		$production = null;
 		$universal = true;
-		
+
 		// If multiple arguments were passed, make that $settings
 		if ( func_num_args() > 1 ) {
 			$settings = func_get_args();
