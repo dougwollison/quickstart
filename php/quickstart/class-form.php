@@ -993,7 +993,7 @@ class Form {
 
 		$items = implode( '', $items );
 
-		$settings['class'][] = 'inputlist';
+		$settings['class'][] = 'inputlist-items';
 
 		// Build the list
 		$list = Tools::build_tag( 'ul', $settings, $items, array( 'class', 'id', 'style', 'title' ) );
