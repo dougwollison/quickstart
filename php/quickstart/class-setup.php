@@ -2195,11 +2195,13 @@ class Setup extends \Smart_Plugin {
 				$the_object = get_taxonomy( $object );
 				$post_types = $the_object->object_type;
 				$capability = $the_object->cap->edit_terms;
-			} else {
+			} elseif ( post_type_exists( $object ) ) {
 				$type = 'post_type';
 				$the_object = get_post_type_object( $object );
 				$post_types = array( $object );
 				$capability = $the_object->cap->edit_posts;
+			} else {
+				continue;
 			}
 
 			foreach ( $post_types as $post_type ) {
@@ -2320,7 +2322,7 @@ class Setup extends \Smart_Plugin {
 		// Register a setting for each post type
 		foreach ( $post_types as $post_type ) {
 			// Make sure the post type is registered and supports archives
-			if ( ! post_type_exists( $post_type ) || ! get_post_type_object( $post_type )->has_archive ) {
+			if ( ! post_type_exists( $post_type )) {
 				continue;
 			}
 
