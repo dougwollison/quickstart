@@ -52,8 +52,8 @@ function get_index( $post_type = null, $return = 'id' ) {
 			return get_index( $post_type, $return );
 		}
 	} else {
-		// Return false if post type doesn't exist or doesn't support archives
-		if ( ! post_type_exists( $post_type ) || ! get_post_type_object( $post_type )->has_archive ) {
+		// Return false if post type doesn't exist, or doesn't have archives (unless it's post)
+		if ( ! post_type_exists( $post_type ) || ( ! get_post_type_object( $post_type )->has_archive && $post_type != 'post' ) ) {
 			return null;
 		}
 
