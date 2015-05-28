@@ -1454,7 +1454,7 @@ class Setup extends \Smart_Plugin {
 
 						// Directly update the entry in the database
 						$wpdb->update( $wpdb->posts, array(
-							$settings['post_field'] => $value,
+							$field => $value,
 						), array(
 							'ID' => $post_id,
 						) );

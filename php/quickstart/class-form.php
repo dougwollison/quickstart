@@ -460,7 +460,7 @@ class Form {
 			// Prefix the field if necessary
 			$field = Tools::maybe_prefix_post_field( $settings['post_field'] );
 
-			$value = $data->{$settings['post_field']};
+			$value = $data->$field;
 		} elseif ( isset( $settings['taxonomy'] ) && $settings['taxonomy'] && $source == 'post' ) {
 			// Alternately, if "taxonomy" is present (and the source is a post), get the matching terms
 
