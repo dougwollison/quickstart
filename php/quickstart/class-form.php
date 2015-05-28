@@ -355,13 +355,13 @@ class Form {
 		 *
 		 * @param array  $values      The array of object values.
 		 * @param string $object_type The type of objects being for the list.
-		 * @param mixed  $data        The source for the value.
 		 * @param array  $settings    The settings for the field.
+		 * @param mixed  $data        The source of the value.
 		 * @param string $source      The type of value source.
 		 *
 		 * @return array The filtered values list.
 		 */
-		$values = apply_filters( 'qs_form_objects_list', $values, $object_type, $data, $settings, $source );
+		$values = apply_filters( 'qs_form_objects_list', $values, $object_type, $settings, $data, $source );
 
 		return $values;
 	}
