@@ -2194,15 +2194,28 @@ class Setup extends \Smart_Plugin {
 				$type = 'taxonomy';
 				$the_object = get_taxonomy( $object );
 				$post_types = $the_object->object_type;
-				$capability = $the_object->cap->edit_terms;
+				$capability = $the_object->cap->manage_terms;
 			} elseif ( post_type_exists( $object ) ) {
 				$type = 'post_type';
 				$the_object = get_post_type_object( $object );
 				$post_types = array( $object );
-				$capability = $the_object->cap->edit_posts;
+				$capability = $the_object->cap->publish_posts;
 			} else {
 				continue;
 			}
+
+			/**
+			 * Filter the capability required to access the order manager page.
+			 *
+			 * @since 1.11.0
+			 *
+			 * @param string $capability The capability required.
+			 * @param string $object     The object this is for.
+			 * @param string $type       The object's type (post_type or taxonomy).
+			 *
+			 * @return string The capability to require.
+			 */
+			$capability = apply_filters( 'qs_setup_ordermanager_capability', $capability, $object, $type );
 
 			foreach ( $post_types as $post_type ) {
 				$this->setup_page( "$object-order", array(
