@@ -265,7 +265,7 @@ class Form {
 				$default_settings = array(
 					'post_type'   => null,
 					'post_status' => array( 'publish', 'private', 'draft' ),
-					'exclude'     => 0,
+					'exclude'     => null,
 					'none_option' => '&mdash; None &mdash;',
 					'orderby'     => array( 'menu_order', 'post_title' ),
 					'order'       => 'asc',
@@ -289,6 +289,9 @@ class Form {
 				if ( is_null( $settings['exclude'] ) && $data && $source == 'post' ) {
 					$settings['exclude'] = $data->ID;
 				}
+
+				// Make sure exclude is an array
+				csv_array_ref( $settings['exclude'] );
 
 				// Create the arguments for wp_dropdown_pages()
 				$args = array(
