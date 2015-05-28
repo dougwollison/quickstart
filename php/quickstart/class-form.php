@@ -308,8 +308,11 @@ class Form {
 					$values[0] = $settings['none_option'];
 				}
 
+				// Set parent to 0 if hierachical, or false to disable it
+				$parent = is_post_type_hierarchical( $settings['post_type'] ) ? 0 : false;
+
 				// Add posts to the values list
-				static::add_post_hierarchy( $values, $args, is_post_type_hierarchical( $settings['post_type'] ) );
+				static::add_post_hierarchy( $values, $args, $parent );
 
 				break;
 
