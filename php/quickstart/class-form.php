@@ -348,6 +348,21 @@ class Form {
 				break;
 		}
 
+		/**
+		 * Filter the values list for the field.
+		 *
+		 * @since 1.11.0
+		 *
+		 * @param array  $values      The array of object values.
+		 * @param string $object_type The type of objects being for the list.
+		 * @param mixed  $data        The source for the value.
+		 * @param array  $settings    The settings for the field.
+		 * @param string $source      The type of value source.
+		 *
+		 * @return array The filtered values list.
+		 */
+		$values = apply_filters( 'qs_form_objects_list', $values, $object_type, $data, $settings, $source );
+
 		return $values;
 	}
 
@@ -449,7 +464,7 @@ class Form {
 			 *
 			 * @since 1.4.2
 			 *
-			 * @param mixed  $source   The source for the value.
+			 * @param mixed  $data     The source for the value.
 			 * @param array  $settings The settings for the field.
 			 * @param string $field    The name of the field being built.
 			 * @param string $source   The type of value source.
