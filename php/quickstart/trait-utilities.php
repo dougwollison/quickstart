@@ -131,6 +131,7 @@ trait _Utilities {
 								$args['priority'] = $value;
 							}
 						}
+						break;
 
 					case 'flags':
 						$flags = explode( '.', $match );
@@ -149,6 +150,7 @@ trait _Utilities {
 
 					case 'type_option':
 						$args['_type_options'] = explode( '.', $match );
+						break;
 
 					default:
 						// Update the matching $group entry in $args
