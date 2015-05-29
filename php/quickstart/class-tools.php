@@ -1124,7 +1124,7 @@ class Tools extends \Smart_Plugin {
 
 		foreach ( $wp_meta_boxes as $post_type => $contexts ) {
 			// Reset $args each round
-			$args = null;
+			$args = array();
 
 			// Skip if this isn't post type isn't desired
 			if ( $post_types && ! in_array( $post_type, $post_types ) ) {
