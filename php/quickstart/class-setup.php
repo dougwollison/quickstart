@@ -2390,6 +2390,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Check if the page is a custom post type's index page.
 	 *
+	 * @since 1.11.0 Added check for get_page_by_path() return value.
 	 * @since 1.10.1
 	 *
 	 * @param WP    $request    The request object (skip when saving).
@@ -2408,6 +2409,11 @@ class Setup extends \Smart_Plugin {
 		if ( '' != $qv['pagename'] ) {
 			// Get the page
 			$page = get_page_by_path( $qv['pagename'] );
+
+			// Abort if no page is found
+			if ( is_null( $page ) ) {
+				return;
+			}
 
 			// Check if this page is a post type index page
 			$post_type = array_search( $page->ID, $index_pages );
