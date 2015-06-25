@@ -458,7 +458,6 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Build a field row for a form table.
 	 *
-	 * @since 1.11.0 Added support for callback as $args.
 	 * @since 1.10.0
 	 *
 	 * @param string $field  The name/id of the field.
@@ -472,15 +471,6 @@ class Tools extends \Smart_Plugin {
 			'name'  => $field,
 			'title' => Form::make_label( $field ),
 		);
-
-		if ( is_callable( $args ) ) {
-			$callback = $args;
-			$args = $default_args;
-			$args['callback'] = $callback;
-		} else {
-			// Parse the passed args with the defaults
-			$args = wp_parse_args( $args, $default_args );
-		}
 
 		echo '<tr class="form-field qs-form-field-row" id="' . $source . '-' . $field . '-wrap">';
 			echo '<th scope="row">';
