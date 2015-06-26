@@ -967,7 +967,7 @@ class Form {
 				'value'           => $val,
 				'label'           => $label,
 				'wrap_with_label' => true,
-				'wrapper_class'   => '',
+				'wrapper_class'   => 'qs-field',
 			);
 
 			if ( $type == 'checkbox' ) {
