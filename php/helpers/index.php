@@ -10,6 +10,7 @@
 /**
  * Get the ID or full post object of the index page.
  *
+ * @since 1.11.0 Fixed test for taxonomies to include tags and categories.
  * @since 1.10.1 Added post type exists and has_archive check.
  * @since 1.9.1  Fixed handling for running on single posts.
  * @since 1.8.0  Added qs_helpers_get_index filter hook.
