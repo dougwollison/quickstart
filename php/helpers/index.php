@@ -35,7 +35,7 @@ function get_index( $post_type = null, $return = 'id' ) {
 			if ( is_post_type_archive() ) {
 				// If it's a post type archive, use the query var
 				$post_type = get_query_var( 'post_type' );
-			} elseif ( is_tax() ) {
+			} elseif ( is_tax() || is_tag() || is_category() ) {
 				// If it's a taxonomy page, assume first object type for the taxonomy
 				$tax = $object->taxonomy;
 				$tax = get_taxonomy( $tax );
