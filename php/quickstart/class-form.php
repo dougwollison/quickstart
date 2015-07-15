@@ -1081,7 +1081,7 @@ class Form {
 			$class = 'checklist';
 
 			// No need for the None entry in values
-			array_shift( $settings['values'] );
+			unset( $settings['values'][0] );
 		}
 
 		$settings['wrapper_class'] .= " $class";
