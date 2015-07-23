@@ -22,8 +22,10 @@ function quickstart_enqueue_wpedit(){
 
 	QuickStart\Tools::enqueue( array(
 		'css' => array(
-			'qs-wpedit-css' => array( plugins_url( '/css/wpedit.css', QS_FILE ) ),
-			'condition' => 'is_user_logged_in',
+			'qs-wpedit-css' => array(
+				'src' => plugins_url( '/css/wpedit.css', QS_FILE ),
+				'condition' => 'is_user_logged_in',
+			),
 		),
 	) );
 }
