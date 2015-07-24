@@ -6,16 +6,19 @@ namespace QuickStart;
  *
  * @package QuickStart
  * @subpackage Setup
+ *
+ * @since 1.11.0 Now extends Smart_Plugin
  * @since 1.0.0
  */
 
-class Template {
+class Template extends \Smart_Plugin {
 	/**
 	 * Print out the start of the header (doctype and head tag)
 	 *
 	 * This basically merges all the above template functions into one call.
 	 * By default only favicon is called, all others must be registered via $features.
 	 *
+	 * @since 1.11.0 Now eneuques all methods for wp_head, with appropriate priorities.
 	 * @since 1.8.0
 	 *
 	 * @param array $features An array of features to call.
@@ -37,6 +40,9 @@ class Template {
 	<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
 
 	<?php
+	// A list of methods that should run at the beginning of wp_head
+	$pre_wp_head = array( 'viewport', 'title', 'favicon' );
+
 	// Call each feature method
 	foreach ( $features as $method => $settings ) {
 		if ( is_int( $method ) ) {
@@ -44,10 +50,13 @@ class Template {
 			$settings = null;
 		}
 
+		// Set priority accordingly
+		$priority = in_array( $method, $pre_wp_head ) ? 0 : 10;
+
 		// Make sure the method exists and that the settings isn't set to FALSE
 		if ( method_exists( get_called_class(), $method ) && $settings !== false ) {
-			call_user_func( array( get_called_class(), $method ), $settings );
-			echo "\n";
+			// Enqueue the method for wp_head()
+			self::setup_callback( $method, array( $settings ), array( 'wp_head', $priority, 0 ) );
 		}
 	}
 	?>
@@ -124,6 +133,7 @@ class Template {
 		}
 
 		echo '<meta name="viewport" content="' . $settings . '">';
+		echo "\n";
 	}
 
 	/**
@@ -171,6 +181,7 @@ class Template {
 		$title = wp_title( $sep, false, $side );
 
 		echo '<title>' . $title . '</title>';
+		echo "\n";
 	}
 
 	/**
@@ -269,7 +280,7 @@ class Template {
 	 * @param string|int|array $settings Optional The stylesheet URL and/or version number
 	 */
 	public static function ie_css( $settings = null ) {
-		$version = 9;
+		$version = 8;
 		$css_url = THEME_URL . '/css/ie.css';
 
 		// If multiple arguments were passed, make that $settings
@@ -289,6 +300,7 @@ class Template {
 		}
 
 		echo '<!--[if lte IE ' . $version . ']><link rel="stylesheet" type="text/css" href="' . $css_url . '" /><![endif]-->';
+		echo "\n";
 	}
 
 	/**
@@ -305,6 +317,7 @@ class Template {
 
 		// Print out within an IE conditional comment
 		echo '<!--[if lt IE 9]><script src="' . $shiv_url . '"></script><![endif]-->';
+		echo "\n";
 	}
 
 	/**
@@ -314,6 +327,7 @@ class Template {
 	 */
 	public static function ajaxurl(){
 		echo '<script>var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
+		echo "\n";
 	}
 
 	/**
@@ -324,6 +338,7 @@ class Template {
 	 */
 	public static function template_url(){
 		echo '<script>var template_url = "' . TEMPLATE_URL . '";</script>';
+		echo "\n";
 	}
 
 	/**
@@ -334,6 +349,7 @@ class Template {
 	 */
 	public static function theme_url(){
 		echo '<script>var theme_url = "' . THEME_URL . '";</script>';
+		echo "\n";
 	}
 
 	/**
