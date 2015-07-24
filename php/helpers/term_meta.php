@@ -75,6 +75,7 @@ if ( did_action( 'plugins_loaded' ) ) {
 /**
  * Filters the term query clauses to add support for basic filtering and ordering by meta data.
  *
+ * @since 1.11.0 Added interal fix for including non-ordered terms on the order manager.
  * @since 1.10.0
  *
  * @param array $clauses    The clauses for the SQL.
@@ -92,7 +93,12 @@ function qs_helper_termmeta_clauses( $clauses, $taxonomies, $args ) {
 		$clauses['join'] .= " LEFT JOIN $wpdb->termmeta AS tm ON t.term_id = tm.term_id";
 
 		// Update the WHERE clause to match entries with the meta
-		$clauses['where'] .= $wpdb->prepare( " AND tm.meta_key = %s", $args['meta_key'] );
+		$clause = " AND tm.meta_key = %s";
+		if ( isset( $args['qs-context'] ) && $args['qs-context'] == 'order-manager' ) {
+			// For the order manager, include terms that have NO meta data set.
+			$clause = " AND ( tm.meta_key = %s OR tm.term_id IS NULL )";
+		}
+		$clauses['where'] .= $wpdb->prepare( $clause, $args['meta_key'] );
 
 		// Check if there was a request to filter by meta_value
 		if ( isset( $args['meta_value'] ) || isset( $args['meta_value_num'] ) ) {
@@ -131,6 +137,18 @@ function qs_helper_termmeta_clauses( $clauses, $taxonomies, $args ) {
 add_filter( 'terms_clauses', 'qs_helper_termmeta_clauses', 10, 3 );
 
 /**
+ * Add default value for menu_order term meta key.
+ *
+ * @since 1.11.0
+ *
+ * @param int $term_id The ID of the term being deleted.
+ */
+function qs_helper_termmeta_insertterm( $term_id ) {
+	add_term_meta( $term_id, 'menu_order', 0, true );
+}
+add_action( 'create_term', 'qs_helper_termmeta_insertterm' );
+
+/**
  * Deletes all meta data tied to the term being deleted.
  *
  * @since 1.10.0
@@ -155,10 +173,10 @@ add_action( 'delete_term', 'qs_helper_termmeta_deleteterm' );
  *
  * @since 1.10.0
  *
- * @param int    $term_id Term ID.
- * @param string $meta_key Metadata name.
+ * @param int    $term_id    Term ID.
+ * @param string $meta_key   Metadata name.
  * @param mixed  $meta_value Metadata value.
- * @param bool   $unique Optional, default is false. Whether the same key should not be added.
+ * @param bool   $unique     Optional, default is false. Whether the same key should not be added.
  *
  * @return int|bool Meta ID on success, false on failure.
  */
@@ -175,8 +193,8 @@ function add_term_meta( $term_id, $meta_key, $meta_value, $unique = false ) {
  *
  * @since 1.10.0
  *
- * @param int    $term_id term ID
- * @param string $meta_key Metadata name.
+ * @param int    $term_id    The term ID
+ * @param string $meta_key   Metadata name.
  * @param mixed  $meta_value Optional. Metadata value.
  *
  * @return bool True on success, false on failure.
@@ -211,8 +229,8 @@ function get_term_meta( $term_id, $key = '', $single = false ) {
  *
  * @since 1.10.0
  *
- * @param int    $term_id Term ID.
- * @param string $meta_key Metadata key.
+ * @param int    $term_id    Term ID.
+ * @param string $meta_key   Metadata key.
  * @param mixed  $meta_value Metadata value.
  * @param mixed  $prev_value Optional. Previous value to check before removing.
  *
