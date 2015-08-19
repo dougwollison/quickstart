@@ -540,16 +540,16 @@ class Setup extends \Smart_Plugin {
 			// Add the custom rewrites
 			Tools::add_rewrites( array(
 				// Add day archive (and pagination)
-				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/page/?([0-9]+)/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]',
-				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]',
+				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/page/?([0-9]+)/?$' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]',
+				$slug . '/([0-9]{4})/([0-9]{2})/([0-9]{2})/?$' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]',
 
 				// Add month archive (and pagination)
-				$slug . '/([0-9]{4})/([0-9]{2})/page/?([0-9]+)/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]',
-				$slug . '/([0-9]{4})/([0-9]{2})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]',
+				$slug . '/([0-9]{4})/([0-9]{2})/page/?([0-9]+)/?$' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]',
+				$slug . '/([0-9]{4})/([0-9]{2})/?$' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&monthnum=$matches[2]',
 
 				// Add year archive (and pagination)
-				$slug . '/([0-9]{4})/page/?([0-9]+)/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&paged=$matches[2]',
-				$slug . '/([0-9]{4})/?' => 'index.php?post_type=' . $post_type . '&year=$matches[1]',
+				$slug . '/([0-9]{4})/page/?([0-9]+)/?$' => 'index.php?post_type=' . $post_type . '&year=$matches[1]&paged=$matches[2]',
+				$slug . '/([0-9]{4})/?$' => 'index.php?post_type=' . $post_type . '&year=$matches[1]',
 			) );
 		}
 	}
@@ -2334,16 +2334,6 @@ class Setup extends \Smart_Plugin {
 			$this->index_page_title_part();
 			$this->index_page_link();
 		}
-
-		// Add day/month/year rewrites so they'll work with the index page slugs
-		Tools::add_rewrites( array(
-			'([^/]+)/([0-9]{4})/([0-9]{2})/([0-9]{2})/page/?([0-9]+)/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&monthnum=$matches[3]&day=$matches[4]&paged=$matches[5]',
-			'([^/]+)/([0-9]{4})/([0-9]{2})/([0-9]{2})/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&monthnum=$matches[3]&day=$matches[4]',
-			'([^/]+)/([0-9]{4})/([0-9]{2})/page/?([0-9]+)/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&monthnum=$matches[3]&paged=$matches[4]',
-			'([^/]+)/([0-9]{4})/([0-9]{2})/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&monthnum=$matches[3]',
-			'([^/]+)/([0-9]{4})/page/?([0-9]+)/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]&paged=$matches[3]',
-			'([^/]+)/([0-9]{4})/?' =>  'index.php?pagename=$matches[1]&year=$matches[2]',
-		) );
 	}
 
 	/**
