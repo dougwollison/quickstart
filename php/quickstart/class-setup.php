@@ -1317,7 +1317,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the save hook for the meta box.
 	 *
-	 * @since 1.11.0 Added use of static::handle_shorthand().
+	 * @since 1.11.0 Added use of static::handle_shorthand(), also added save callback support on individual fields.
 	 * @since 1.10.0 Added use of Tools::maybe_prefix_post_field when handling post_field values.
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added use of "save_single" option and support for foo[bar] style fields,
@@ -1408,6 +1408,21 @@ class Setup extends \Smart_Plugin {
 				// If there are settings to work with, check for specific $post_key and $meta_key names,
 				// as well as an override for $save_single
 				if ( is_array( $settings ) ) {
+					// Save callback for this specific field, run and move on
+					if ( isset( $settings['save'] ) && is_callable( $settings['save'] ) ) {
+						/**
+						 * Desired processing to be done when saving this meta box
+						 *
+						 * @since 1.1.0
+						 *
+						 * @param int    $post_id  The ID of the post being saved.
+						 * @param array  $settings The settings of the field.
+						 * @param string $field    The name/ID of the field.
+						 */
+						call_user_func( $settings['save'], $post_id, $settings, $field );
+						continue;
+					}
+
 					// Overide $post_key with name setting if present
 					if ( isset( $settings['name'] ) ) {
 						$post_key = $settings['name'];
