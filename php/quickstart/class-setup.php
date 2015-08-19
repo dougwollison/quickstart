@@ -1009,6 +1009,7 @@ class Setup extends \Smart_Plugin {
 	 * Register and build a setting.
 	 *
 	 * @since 1.11.0 Now accepts callback and callback_args options,
+	 *               Also accepts callback as the $args themselves,
 	 *               Added use of static::handle_shorthand().
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added use of Tools::build_settings_field().
@@ -1025,6 +1026,13 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function _register_setting( $setting, $args = null, $section = null, $page = null ) {
 		make_associative( $setting, $args );
+
+		// Check for $args as callback
+		if ( is_callable( $args ) ) {
+			$args = array(
+				'field' => $args,
+			);
+		}
 
 		// Default arguments
 		$default_args = array(
