@@ -2296,8 +2296,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup index page setting/hook for certain post types.
 	 *
-	 * @since 1.10.1 Split index_page_query into index_page_request/query,
-	 *               Added setup of rewrite rules for day/month/year archives.
+	 * @since 1.10.1 Split index_page_query into index_page_request/query.
 	 * @since 1.9.0  Now protected, dropped $index_pages array creation.
 	 * @since 1.8.0  Restructured to use a hooks once for all post_types,
 	 *				 Also allowed passing of just the post_type list instead of args.
@@ -2348,7 +2347,7 @@ class Setup extends \Smart_Plugin {
 		// Register a setting for each post type
 		foreach ( $post_types as $post_type ) {
 			// Make sure the post type is registered and supports archives
-			if ( ! post_type_exists( $post_type )) {
+			if ( ! post_type_exists( $post_type ) || ! get_post_type_object( $post_type )->has_archive ) {
 				continue;
 			}
 
@@ -2401,27 +2400,43 @@ class Setup extends \Smart_Plugin {
 	}
 
 	/**
-	 * Check if the page is a custom post type's index page.
+	 * Check if the path matches that of an index page (with optional date/paged arguments).
 	 *
-	 * @since 1.11.0 Added check for get_page_by_path() return value.
+	 * @since 1.11.0 Reworked to reparse requested URL to match an archive.
 	 * @since 1.10.1
 	 *
-	 * @param WP    $request    The request object (skip when saving).
+	 * @param WP    $wp         The request object (skip when saving).
 	 * @param array $post_types The list of post types.
 	 */
 	protected function _index_page_request( $request, $post_types ) {
-		$qv =& $request->query_vars;
+		$qv =& $wp->query_vars;
 
-		// Build an index of the index pages
+		// Abort if a pagename wasn't matched at all
+		if ( ! isset( $qv['pagename'] ) ) {
+			return;
+		}
+
+		// Build an index of the index pages to reference
 		$index_pages = array();
 		foreach( $post_types as $post_type ) {
 			$index_pages[ $post_type ] = get_index( $post_type );
 		}
 
-		// Make sure this is a page
-		if ( '' != $qv['pagename'] ) {
-			// Get the page
-			$page = get_page_by_path( $qv['pagename'] );
+		// Build a RegExp to capture a page with date/paged arguments
+		$pattern =
+			'(.+?)'. // page name/path
+			'(?:/([0-9]{4})'. // optional year...
+				'(?:/([0-9]{2})'. // ...with optional month...
+					'(?:/([0-9]{2}))?'. // ...and optional day
+				')?'.
+			')?'.
+			'(?:/page/([0-9]+))?'. // and optional page number
+		'/?$';
+
+		// Proceed if the pattern checks out
+		if ( preg_match( "#$pattern#", $wp->request, $matches ) ) {
+			// Get the page using match 1 (pagename)
+			$page = get_page_by_path( $matches[1] );
 
 			// Abort if no page is found
 			if ( is_null( $page ) ) {
@@ -2432,8 +2447,9 @@ class Setup extends \Smart_Plugin {
 			$post_type = array_search( $page->ID, $index_pages );
 
 			if ( $post_type !== false ) {
-				// Modify the request to be a post type archive instead
+				// Modify the request into a post type archive instead
 				$qv['post_type'] = $post_type;
+				list( , , $qv['year'], $qv['monthnum'], $qv['day'], $qv['paged'] ) = array_pad( $matches, 6, null );
 
 				// Make sure these are unset
 				unset( $qv['pagename'] );
@@ -2444,7 +2460,7 @@ class Setup extends \Smart_Plugin {
 	}
 
 	/**
-	 * Check if it's a post type archive and setups the queried object.
+	 * Check if it's a post type archive and setup the queried object.
 	 *
 	 * @since 1.10.1 Moved majority of logic to index_page_request, now just handles queried object.
 	 * @since 1.9.0 Modified to create $index_pages from $post_types.
