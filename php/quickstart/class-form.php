@@ -308,11 +308,14 @@ class Form {
 					$values[0] = $settings['none_option'];
 				}
 
-				// Set parent to 0 if hierachical, or false to disable it
-				$parent = is_post_type_hierarchical( $settings['post_type'] ) ? 0 : false;
+				// Default parent value
+                if ( is_null( $settings['parent'] ) ) {
+	                // Set parent to 0 if post type is hierachical, or false to disable it
+					$settings['parent'] = is_post_type_hierarchical( $settings['post_type'] ) ? 0 : false;
+				}
 
 				// Add posts to the values list
-				static::add_post_hierarchy( $values, $args, $parent );
+				static::add_post_hierarchy( $values, $args, $settings['parent'] );
 
 				break;
 
@@ -923,6 +926,7 @@ class Form {
 	/**
 	 * Build a checklist or radio list.
 	 *
+	 * @since 1.11.0 Added "inputlist-item" to item class list.
 	 * @since 1.10.0 Updated handling of default wrapper format, added use of build_hidden.
 	 * @since 1.6.0  Added checked_first support.
 	 * @since 1.5.0  Added %id-fieldset id.
@@ -967,7 +971,7 @@ class Form {
 				'value'           => $val,
 				'label'           => $label,
 				'wrap_with_label' => true,
-				'wrapper_class'   => 'qs-field',
+				'wrapper_class'   => 'qs-field inputlist-item',
 			);
 
 			if ( $type == 'checkbox' ) {
