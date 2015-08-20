@@ -64,6 +64,11 @@ trait _Utilities {
 				// Example: "poster:media=gallery" or "address:textarea.widefat"
 				break;
 
+			case 'field_type':
+				$groups['type_option'] = '(?:\.\!?[^\.]+)+'; // Unique field options after and separated by periods
+				// Example: 'type' => "media.gallery"
+				break;
+
 			case 'meta_box':
 				$groups['location'] = '@[\w\/]+?'; // Metabox context/priority
 				// Example: "mymetabox:advanced" or "mymetabox:side/high"
@@ -83,10 +88,6 @@ trait _Utilities {
 					// Example: "project@25.5#dashicons-art" or "project=title,editor"
 				}
 				break;
-
-			case 'field_type':
-				$groups['type_option'] = '(?:\.\!?[^\.]+)+'; // Unique field options after and separated by periods
-				// Example: 'type' => "media.gallery"
 		}
 
 		// Build the RegEx
