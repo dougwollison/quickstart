@@ -71,7 +71,7 @@ trait _Utilities {
 
 			case 'meta_box':
 				$groups['location'] = '@[\w\/]+?'; // Metabox context/priority
-				// Example: "mymetabox:advanced" or "mymetabox:side/high"
+				// Example: "mymetabox@advanced" or "mymetabox@side/high"
 				break;
 
 			case 'post_type':
