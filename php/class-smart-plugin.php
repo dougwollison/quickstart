@@ -133,7 +133,7 @@ abstract class Smart_Plugin{
 
 	/**
 	 * Remove any and all instances of a callback for the specified method
-	 * (and optional priority).
+	 * (and hook/priority).
 	 *
 	 * @since 1.11.0
 	 *
@@ -145,7 +145,7 @@ abstract class Smart_Plugin{
 	 *
 	 * @return int The number of callbacks removed.
 	 */
-	protected static function _do_remove_callback( $method, $hook, $priority, &$list, $object ) {
+	protected static function _do_drop_callback( $method, $hook, $priority, &$list, $object ) {
 		// Make sure the method exists (check protected underscored version as well)
 		if ( ! method_exists( $object, $method )
 		  && ! method_exists( $object, "_$method" ) ) {
@@ -251,7 +251,7 @@ abstract class Smart_Plugin{
 		if ( $method == 'setup_callback' ) {
 			return call_user_func_array( array( $this, 'save_callback' ), $args );
 		} elseif ( $method == 'remove_callback' ) {
-			return call_user_func_array( array( $this, 'remove_callback' ), $args );
+			return call_user_func_array( array( $this, 'drop_callback' ), $args );
 		} elseif ( method_exists( $this, "_$method" ) ) {
 			return $this->save_callback( $method, $args );
 		} elseif ( preg_match( '/^cb(\d+)/', $method, $matches ) ) {
@@ -282,10 +282,10 @@ abstract class Smart_Plugin{
 	/**
 	 * Find the requested callback and remove it.
 	 *
-	 * @see SmartPlugin::do_remove_callback() for details and change log.
+	 * @see SmartPlugin::do_drop_callback() for details and change log.
 	 */
-	protected function remove_callback( $method, $hook, $priority = null ) {
-		return static::_do_remove_callback( $method, $hook, $priority, $this->callbacks, $this );
+	protected function drop_callback( $method, $hook, $priority = null ) {
+		return static::_do_drop_callback( $method, $hook, $priority, $this->callbacks, $this );
 	}
 
 	// =========================
@@ -326,7 +326,7 @@ abstract class Smart_Plugin{
 		if ( $method == 'setup_callback' ) {
 			return call_user_func_array( array( get_called_class(), 'save_static_callback' ), $args );
 		} elseif ( $method == 'remove_callback' ) {
-			return call_user_func_array( array( get_called_class(), 'remove_static_callback' ), $args );
+			return call_user_func_array( array( get_called_class(), 'drop_static_callback' ), $args );
 		} elseif ( method_exists( get_called_class(), "_$method" ) ) {
 			return static::save_static_callback( $method, $args );
 		} elseif ( preg_match( '/^cb(\d+)/', $method, $matches ) ) {
@@ -357,9 +357,9 @@ abstract class Smart_Plugin{
 	/**
 	 * Find the requested callback and remove it.
 	 *
-	 * @see SmartPlugin::do_remove_callback() for details and change log.
+	 * @see SmartPlugin::do_drop_callback() for details and change log.
 	 */
-	protected static function remove_static_callback( $method, $hook, $priority = null ) {
-		return static::_do_remove_callback( $method, $hook, $priority, static::$static_callbacks, get_called_class() );
+	protected static function drop_static_callback( $method, $hook, $priority = null ) {
+		return static::_do_drop_callback( $method, $hook, $priority, static::$static_callbacks, get_called_class() );
 	}
 }
