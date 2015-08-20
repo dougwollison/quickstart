@@ -2641,6 +2641,7 @@ class Setup extends \Smart_Plugin {
 			'public'       => false,
 			'show_ui'      => true,
 			'show_in_menu' => false,
+			'rewrite'      => false,
 		);
 
 		// Overwrite with passed post type args if set
@@ -2668,9 +2669,11 @@ class Setup extends \Smart_Plugin {
 			'template'    => array(
 				'label'       => 'Section',
 				'type'        => 'postselect',
+				// postselect arguments
 				'post_type'   => 'qs_section',
 				'sort_column' => 'post_title',
 				'class'       => 'widefat',
+				'parent'      => false,
 			),
 		);
 
