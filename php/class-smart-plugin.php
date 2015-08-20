@@ -185,7 +185,8 @@ abstract class Smart_Plugin{
 		foreach( $list as $id => $callback ) {
 			list( $cb_method, $cb_args, $cb_hook ) = $callback;
 
-			// Skip if not the correct method
+			// Skip if not the correct method (after removing any underscore prefix)
+			$cb_method = preg_replace( '/^_/', '', $cb_method );
 			if ( $cb_method != $method ) {
 				continue;
 			}
