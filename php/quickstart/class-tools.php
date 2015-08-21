@@ -106,8 +106,8 @@ class Tools extends \Smart_Plugin {
 			$accepted = static::$accepted_attrs;
 		}
 
-		// Add 'type' to accepted attributes list if INPUT
-		if ( $tag == 'input' ) {
+		// Add 'type' to accepted attributes list if INPUT (provided it's an array of other attributes)
+		if ( $tag == 'input' && $accepted && is_array( $accepted ) ) {
 			$accepted[] = 'type';
 		}
 
