@@ -42,6 +42,7 @@ add_action( 'wp_enqueue_scripts', 'qs_helper_quickedit_enqueue' );
  * Create the HTML for the edit button.
  *
  * @since 1.11.0 Reworked to accept arguments array, including speicifc capability to check for.
+ *               Also renamed from get_edit_link().
  * @since 1.10.0
  *
  * @param array $options The options for the link.
@@ -50,7 +51,7 @@ add_action( 'wp_enqueue_scripts', 'qs_helper_quickedit_enqueue' );
  *      @option string "class"  The class(es) to add to the link.
  *      @option string "cap"    The capability to check for.
  */
-function get_edit_link( $options ) {
+function get_wpedit_link( $options ) {
 	// Default options
 	$defaults = array(
 		'target' => null,
@@ -111,10 +112,12 @@ function get_edit_link( $options ) {
 /**
  * Echo alias of get_edit_link()
  *
- * @see get_edit_link()
+ * @see get_wpedit_link()
+ *
+ * @since 1.11.0 Renamed from the_edit_link()
  */
-function the_edit_link() {
-	echo call_user_func_array( 'get_edit_link', func_get_args() );
+function wpedit_link() {
+	echo call_user_func_array( 'get_wpedit_link', func_get_args() );
 }
 
 /**
@@ -130,3 +133,15 @@ function qs_helper_quickedit_togglebutton( $admin_bar ) {
 	) );
 }
 add_action( 'admin_bar_menu', 'qs_helper_quickedit_togglebutton' );
+
+/**
+ * Aliases for backwards compatability
+ *
+ * @deprecated Will be removed in version 1.12.0
+ */
+function get_edit_link() {
+	return call_user_func_array( 'get_wpedit_link', func_get_args() );
+}
+function the_edit_link() {
+	echo call_user_func_array( 'wpedit_link', func_get_args() );
+}
