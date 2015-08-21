@@ -85,12 +85,13 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Build an HTML tag.
 	 *
+	 * @since 1.11.0 Now accepts an empty array for $accepted so it doesn't whitelist attributes.
 	 * @since 1.10.0 Now adding 'type' to $accepted when doing an INPUT tag.
-	 * @since 1.7.0 Further refined attribute filtering and escaping.
-	 * @since 1.6.2 Added attribute escaping.
-	 * @since 1.6.0 Revised handling of boolean attributes, added $void_elements.
-	 * @since 1.5.0 Moved from Form to Tools class.
-	 * @since 1.4.2 Updated boolean attribute handling.
+	 * @since 1.7.0  Further refined attribute filtering and escaping.
+	 * @since 1.6.2  Added attribute escaping.
+	 * @since 1.6.0  Revised handling of boolean attributes, added $void_elements.
+	 * @since 1.5.0  Moved from Form to Tools class.
+	 * @since 1.4.2  Updated boolean attribute handling.
 	 * @since 1.0.0
 	 *
 	 * @param string $tag      The tag name.
@@ -120,7 +121,7 @@ class Tools extends \Smart_Plugin {
 			}
 
 			// Make sure it's a registerd attribute (or data- attribute)
-			if ( ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) {
+			if ( $accepted && ! in_array( $attr, $accepted ) && strpos( $attr, 'data-' ) !== 0 ) {
 				continue;
 			}
 
