@@ -157,7 +157,8 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Load the requested helper files.
 	 *
-	 * @sicne 1.10.0 Added option to load all helpers, also sanitize helper name.
+	 * @since 1.11.0 Added entries for Sections and Term Meta helpers.
+	 * @since 1.10.0 Added option to load all helpers, also sanitize helper name.
 	 * @since 1.7.1  Added use of constants to flag which helpers have been loaded.
 	 * @since 1.0.0
 	 *
@@ -174,7 +175,9 @@ class Tools extends \Smart_Plugin {
 				'post_chunks',
 				'post_field',
 				'post_meta',
+				'sections'
 				'teaser',
+				'term_meta',
 				'wpedit',
 			);
 		}
