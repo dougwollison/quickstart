@@ -1760,7 +1760,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup the requested columns for the post type.
 	 *
-	 * @sicne 1.11.0 Revized hook names, now just uses manage_{$post_type}_posts_columns.
+	 * @since 1.11.0 Revized hook names, now just uses manage_{$post_type}_posts_columns.
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0
 	 *

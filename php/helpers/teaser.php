@@ -27,7 +27,7 @@ function get_teaser( $length = 50, $post = null, $use_excerpt = false, &$more = 
 		$args = $length;
 		extract( $args );
 	}
-	
+
 	if ( is_null( $post ) ) {
 		global $post;
 	} elseif ( is_int( $post ) ) {

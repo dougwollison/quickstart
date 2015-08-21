@@ -33,7 +33,7 @@ function get_postmeta( $key, $id = null, $single = true ) {
 		global $post;
 		$id = $post->ID;
 	}
-	
+
 	if ( is_null( $id ) ) {
 		global $post;
 		$id = $post->ID;
