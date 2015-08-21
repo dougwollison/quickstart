@@ -2,15 +2,20 @@
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   z-index: 999 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
   padding: 0 8px !important;
-  color: #fff !important;
   background: #222 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+  color: #fff !important;
   font: 400 13px/32px "Open Sans", sans-serif !important;
   line-height: 1em !important;
   text-decoration: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
   -webkit-font-smoothing: subpixel-antialiased !important;
   -webkit-transition: opacity .2s, visibility .2s !important;
   -moz-transition: opacity .2s, visibility .2s !important; }
@@ -27,9 +32,15 @@
     color: #999 !important;
     position: relative !important;
     top: 2px !important;
-    speak: none !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 0 !important;
+    width: auto !important;
+    height: auto !important;
     padding: 4px 0 !important;
-    margin-right: 6px !important;
+    margin: 0 6px 0 0 !important;
+    speak: none !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important; }
   .wpedit-link.right {
@@ -53,6 +64,9 @@
       margin-top: 16px !important; }
     .wpedit-link.static.above {
       margin-bottom: 16px !important; }
-  .wpedit-hide .wpedit-link {
+  .wpedit-hidden .wpedit-link {
     opacity: 0 !important;
     visibility: hidden !important; }
+
+#wp-admin-bar-wpedit-toggle a:before {
+  content: '\f177'; }
