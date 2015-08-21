@@ -21,12 +21,18 @@ function qs_helper_quickedit_enqueue(){
 		return;
 	}
 
-	QuickStart\Tools::enqueue( array(
+	qs_enqueue( array(
 		'css' => array(
-			'qs-wpedit-css' => plugins_url( '/css/wpedit.css', QS_FILE ),
+			'qs-wpedit-css' => array(
+				'src' => plugins_url( '/css/wpedit.css', QS_FILE ),
+				'media' => 'screen',
+			),
 		),
 		'js' => array(
-			'qs-wpedit-js' => plugins_url( '/js/wpedit.js', QS_FILE ),
+			'qs-wpedit-js' => array(
+				'src' => plugins_url( '/js/wpedit.js', QS_FILE ),
+				'in_footer' => true,
+			),
 		),
 	) );
 }
@@ -96,7 +102,7 @@ function get_edit_link( $options ) {
 			'class' => 'wpedit-link ' . $class,
 		) );
 
-		return Tools::build_tag( 'a', $attr, $text, array() );
+		return qs_build_tag( 'a', $attr, $text, array() );
 	}
 
 	return '';
