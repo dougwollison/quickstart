@@ -175,7 +175,7 @@ class Tools extends \Smart_Plugin {
 				'post_chunks',
 				'post_field',
 				'post_meta',
-				'sections'
+				'sections',
 				'teaser',
 				'term_meta',
 				'wpedit',
