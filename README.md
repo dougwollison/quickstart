@@ -60,7 +60,10 @@ Below is a list of helpers currently available:
 - `post_chunks`: adds a hook to split the post content into chunks at each `<!--more-->` tag, as well as functions for accessing and looping through said chunks (`get_chunk`, `the_chunk`, `have_chunks`).
 - `post_field`: utility functions (`get_postfield` and `the_postfield`) for quickly fetching a posts table field for a post.
 - `post_meta`: utility functions (`get_postmeta` and `the_postneta`) for fetching post metadata (aliases to `get_post_meta` but lets you pass the field first, then optionally the post ID, without needing to specify $single = true).
+- `sections`: adds a section manager meta box to pages and/or other post types, allowing you to separate a page into independent components with their own title/content/meta.
 - `teaser`: utility functions (`get_teaser` and `the_teaser`) for creating a teaser of the post (similar to get_excerpt but with more control).
+- `term_meta`: adds meta data support for terms, along with ability to register meta fields on the term edit screen.
+- `wpedit`: template functions (`get_wpedit_link` and `wpedit_link`) for adding buttons to parts of the template that link to relevant screens in the backend (e.g. Edit Menu appearing on a navigation menu).
 
 ## Bare Minimum Information
 
