@@ -91,7 +91,7 @@ jQuery(function( $ ) {
 				var $preview = $parent.find( '.qs-preview' );
 				$preview.html( $preview.attr( 'title' ) );
 				$parent.find( '.qs-value' ).val( '' );
-				
+
 				// And update the parent's value-* class
 				$parent.removeClass( 'value-filled' ).addClass( 'value-empty' );
 			} else if ( $parent.hasClass( 'gallery' ) ) {
@@ -310,9 +310,6 @@ jQuery(function( $ ) {
 							if ( data.status != 'OK' ) {
 								return alert( 'Search for "' + query + '" turned up no results' );
 							}
-
-							// Clear the field
-							$search.val('');
 
 							// Get the coordiates
 							var lat    = data.results[0].geometry.location.lat;
