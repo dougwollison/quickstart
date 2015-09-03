@@ -1197,13 +1197,14 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Add a dropdown for filtering by the custom taxonomy.
 	 *
-	 * @since 1.8.0 New method for checking for appropriate post type; now works for attachments too.
-	 * @since 1.6.0 Now supports hierarchical terms via use of taxonomy_filter_options().
+	 * @since 1.11.0 Now protected.
+	 * @since 1.8.0  New method for checking for appropriate post type; now works for attachments too.
+	 * @since 1.6.0  Now supports hierarchical terms via use of taxonomy_filter_options().
 	 * @since 1.0.0
 	 *
 	 * @param object $taxonomy The taxonomy object to build from.
 	 */
-	public static function _taxonomy_filter( $taxonomy ) {
+	protected static function _taxonomy_filter( $taxonomy ) {
 		$taxonomy = get_taxonomy( $taxonomy );
 		$screen = get_current_screen()->id;
 
@@ -1319,7 +1320,7 @@ class Tools extends \Smart_Plugin {
 	 *
 	 * @param string $name The name of the widget class.
 	 */
-	public static function _register_widget( $name ) {
+	protected static function _register_widget( $name ) {
 		register_widget( $name );
 	}
 
