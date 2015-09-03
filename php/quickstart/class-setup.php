@@ -723,7 +723,7 @@ class Setup extends \Smart_Plugin {
 
 		// Check if any meta fields were defined, set them up if so
 		if ( $meta_fields ) {
-			$this->setup_termmeta( $meta_fields, $taxonomy );
+			$this->setup_termmeta( $taxonomy, $meta_fields );
 		}
 	}
 
@@ -753,12 +753,13 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @since 1.11.0 Made sure term_meta helper is loaded,
 	 *               Added use of static::handle_shorthand().
+	 *               Swapped arguments order. Now public.
 	 * @since 1.10.1
 	 *
-	 * @param array  $fields   The fields to build/save.
 	 * @param string $taxonomy The taxonomy to hook into.
+	 * @param array  $fields   The fields to build/save.
 	 */
-	protected function setup_termmeta( $fields, $taxonomy ) {
+	public function setup_termmeta( $taxonomy, $fields ) {
 		// Make sure term_meta helper is loaded
 		Tools::load_helpers( 'term_meta' );
 
@@ -1145,6 +1146,7 @@ class Setup extends \Smart_Plugin {
 	 * Register the requested meta box.
 	 *
 	 * @since 1.11.0 Added use of static::handle_shorthand().
+	 *               Now public again.
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added use of register_meta() for sanitizing and protection,
 	 *               also added handling of condition setting, modified single
@@ -1158,7 +1160,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments for registration.
 	 */
-	protected function register_meta_box( $meta_box, array $args = array() ) {
+	public function register_meta_box( $meta_box, array $args = array() ) {
 		// Handle any shorthand in this meta box
 		static::handle_shorthand( 'meta_box', $meta_box, $args );
 
@@ -1292,13 +1294,14 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Simply loops through and calls Setup::register_meta_box().
 	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.6.0 Handle meta boxes added numerically via run_content_setups().
+	 * @since 1.11.0 Now public again.
+	 * @since 1.9.0  Now protected.
+	 * @since 1.6.0  Handle meta boxes added numerically via run_content_setups().
 	 * @since 1.0.0
 	 *
 	 * @param array $meta_boxes The list of meta boxes to register.
 	 */
-	protected function register_meta_boxes( array $meta_boxes ) {
+	public function register_meta_boxes( array $meta_boxes ) {
 		foreach ( $meta_boxes as $meta_box => $args ) {
 			if ( ! make_associative( $meta_box, $args ) ) {
 				// Metabox was added numerically, assume id, args format.
@@ -1555,9 +1558,10 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup an admin page, registering settings and adding to the menu.
 	 *
-	 * @since 1.9.0 Now protected. Renamed from register_page().
-	 * @since 1.4.1 Fixed child page registration.
-	 * @since 1.2.0 Added child page registration from other methods.
+	 * @since 1.11.0 Now public again.
+	 * @since 1.9.0  Now protected. Renamed from register_page().
+	 * @since 1.4.1  Fixed child page registration.
+	 * @since 1.2.0  Added child page registration from other methods.
 	 * @since 1.0.0
 	 *
 	 * @uses Setup::register_page_settings()
@@ -1567,7 +1571,7 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $args    The page configuration.
 	 * @param string $parent  Optional The slug of the parent page.
 	 */
-	protected function setup_page( $page, $args, $parent = null ) {
+	public function setup_page( $page, $args, $parent = null ) {
 		// Add settings for the page
 		$this->register_page_settings( $page, $args );
 
@@ -1583,7 +1587,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup multiple pages.
 	 *
-	 * @since 1.9.0 Now protected. Renamed from register_pages().
+	 * @since 1.11.0 Now public again.
+	 * @since 1.9.0  Now protected. Renamed from register_pages().
 	 * @since 1.0.0
 	 *
 	 * @uses Setup::setup_page()
@@ -1591,7 +1596,7 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $settings An array of pages to register.
 	 * @param string $parent   Optional The id of the page these are children of.
 	 */
-	protected function setup_pages( $pages, $parent = null ) {
+	public function setup_pages( $pages, $parent = null ) {
 		foreach ( $pages as $page => $args ) {
 			$this->setup_page( $page, $args, $parent );
 		}
@@ -1748,13 +1753,14 @@ class Setup extends \Smart_Plugin {
 	 * Setup the requested columns for the post type.
 	 *
 	 * @since 1.11.0 Revized hook names, now just uses manage_{$post_type}_posts_columns.
+	 *               Now public again.
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param string $post_type The slug of the post type to setup for.
 	 * @param array  $columnset The list of columns to use/register.
 	 */
-	protected function setup_columnset( $post_type, $columnset ) {
+	public function setup_columnset( $post_type, $columnset ) {
 		// Build the filter/action hook names
 		$filter_hook = 'manage_' . $post_type . '_posts_columns';
 		$action_hook = 'manage_' . $post_type . '_posts_custom_column';
@@ -1774,12 +1780,13 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Simply loops through and calls Setup::_setup_columnset().
 	 *
-	 * @since 1.9.0 Now protected.
+	 * @since 1.11.0 Now public again.
+	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param array $feature The list of features to register.
 	 */
-	protected function setup_columns( array $columns ) {
+	public function setup_columns( array $columns ) {
 		foreach ( $columns as $post_type => $columnset ) {
 			$this->setup_columnset( $post_type, $columnset );
 		}
@@ -1889,11 +1896,12 @@ class Setup extends \Smart_Plugin {
 	 * Setup the hooks for adding/saving user meta fields.
 	 *
 	 * @since 1.11.0 Added use of static::handle_shorthand().
+	 *               Now public again.
 	 * @since 1.10.0
 	 *
 	 * @param array $fields The fields to build/save.
 	 */
-	protected function setup_usermeta( $fields ) {
+	public function setup_usermeta( $fields ) {
 		// Do nothing if not in the admin
 		if ( is_frontend() ) {
 			return;
@@ -2706,12 +2714,12 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Will setup the add_mce_button callback for the correct row/position.
 	 *
-	 * @since 1.11.0
+	 * @since 1.10.1
 	 *
 	 * @param string $button The button to add.
 	 * @param array  $args   The arguments for the button (e.g. row, position).
 	 */
-	protected function setup_mce_button( $button, $args ) {
+	public function setup_mce_button( $button, $args ) {
 		// Default row and position
 		$row = 1;
 		$position = null;
@@ -2738,11 +2746,11 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * Will setup add_mce_button callbacks for the correct row and position.
 	 *
-	 * @since 1.11.0
+	 * @since 1.10.1
 	 *
 	 * @param array|string $buttons A list of buttons to enable, with optional row and position values.
 	 */
-	protected function setup_mce_buttons( $buttons ) {
+	public function setup_mce_buttons( $buttons ) {
 		csv_array_ref( $buttons );
 
 		// Loop through each button and add it
@@ -2756,7 +2764,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Add a button for MCE.
 	 *
-	 * @since 1.11.0
+	 * @since 1.10.1
 	 *
 	 * @param array  $buttons       The currently enabled buttons. (skip when saving)
 	 * @param string $button_to_add A list of buttons to enable.
@@ -2784,7 +2792,8 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * This simply adds them; there must be associated JavaScript to display them.
 	 *
-	 * @deprecated 1.11 Use setup_mce_buttons instead.
+	 * @deprecated 1.10.1 Use setup_mce_buttons instead.
+	 *
 	 * @since 1.9.0 Now protected.
 	 * @since 1.0.0
 	 *
@@ -2852,8 +2861,9 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register an MCE Plugin/Button
 	 *
-	 * @since 1.9.0 Now protected.
-	 * @since 1.2.0 Removed separator before each button.
+	 * @since 1.11.0 Now public again.
+	 * @since 1.9.0  Now protected.
+	 * @since 1.2.0  Removed separator before each button.
 	 * @since 1.0.0
 	 *
 	 * @param string $plugin The slug of the MCE plugin to be registered.
@@ -2861,7 +2871,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $button Optional the ID of the button to be added to the toolbar.
 	 * @param int    $row    Optional the row number of the toolbar (1, 2, or 3) to add the button to.
 	 */
-	protected function register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
+	public function register_mce_plugin( $plugin, $src, $button = true, $row = 1 ) {
 		// Skip if the current use can't edit posts/pages
 		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
 			return;
@@ -2886,13 +2896,14 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register multiple MCE Plugins/Buttons.
 	 *
-	 * @since 1.9.0 Now protected. Updated argument handling to use.
-	 * @since 1.2.0 Revised $args logic and flexibility.
+	 * @since 1.11.0 Now public again.
+	 * @since 1.9.0  Now protected. Updated argument handling to use.
+	 * @since 1.2.0  Revised $args logic and flexibility.
 	 * @since 1.0.0
 	 *
 	 * @param array $plugins The list of MCE plugins to be registered.
 	 */
-	protected function register_mce_plugins( $plugins ) {
+	public function register_mce_plugins( $plugins ) {
 		if ( is_array( $plugins ) ) {
 			foreach( $plugins as $plugin => $args ) {
 				$src = $button = $row = null;
@@ -2939,13 +2950,14 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register custom styles for MCE.
 	 *
-	 * @since 1.11.0 Added use of setup_mce_button
+	 * @since 1.11.0 Now public again.
+	 * @since 1.10.1 Added use of setup_mce_button.
 	 * @since 1.9.0  Now protected.
 	 * @since 1.0.0
 	 *
 	 * @param array $styles An array of styles to register.
 	 */
-	protected function register_mce_styles( $styles ) {
+	public function register_mce_styles( $styles ) {
 		// Add the styleselect item to the second row of buttons.
 		$this->setup_mce_button( 'styleselect', array( 'row' => 2, 'position' => 1 ) );
 
