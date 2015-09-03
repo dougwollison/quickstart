@@ -35,33 +35,6 @@ function qs_helpers_enqueue(){
 
 add_action( 'admin_enqueue_scripts', 'qs_helpers_enqueue' );
 
-/**
- * Enqueues the necessary JavaScript and CSS files for the media manager interfaces.
- *
- * @since 1.11.0 Moved to new General Hooks include.
- * @since 1.10.0 Renamed.
- * @since 1.0.0
- *
- * @uses QuickStart\Tools::enqueue()
- */
-function qs_helper_mediamanager_enqueue(){
-	wp_enqueue_media();
-
-	QuickStart\Tools::enqueue( array(
-		'css' => array(
-			'qs-media-css' => array( plugins_url( '/css/qs-media.css', QS_FILE ), array( 'media-views' ) )
-		),
-		'js' => array(
-			'qs-media-js' => array( plugins_url( '/js/qs-media.js', QS_FILE ), array( 'underscore', 'media-editor' ) )
-		)
-	) );
-}
-
-add_action( 'admin_enqueue_scripts', 'qs_helper_mediamanager_enqueue' );
-
-// Backwards compatability; define flag signaling media manager helper is loaded
-define( 'QS_LOADED_MEDIA_MANAGER', true );
-
 // =========================
 // !AJAX Handlers
 // =========================

@@ -16,10 +16,9 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * A list of internal methods and their hooks configurations are.
 	 *
-	 * @since 1.11.0 Removed maybe_load_media_manager(); now loaded automatically during load.
-	 * @since 1.9.0  Fixed run_theme_setups hook, added init hooks for explicitness.
-	 * @since 1.8.0  Added hooks from Setup/Feature merge.
-	 * @since 1.1.4  Added regster_page_setting(s) entries.
+	 * @since 1.9.0 Fixed run_theme_setups hook, added init hooks for explicitness.
+	 * @since 1.8.0 Added hooks from Setup/Feature merge.
+	 * @since 1.1.4 Added regster_page_setting(s) entries.
 	 * @since 1.0.0
 	 * @access protected
 	 * @var array
@@ -244,6 +243,27 @@ class Setup extends \Smart_Plugin {
 			$labels = apply_filters( 'qs_setup_labels', $labels, $object, $args );
 
 			$args['labels'] = $labels;
+		}
+	}
+
+	/**
+	 * Check a list of fields for types that would require the media_manager helper.
+	 *
+	 * @since 1.8.1 Added 'media' to dependants list.
+	 * @since 1.7.1
+	 *
+	 * @param array $fields The list of fields to check through.
+	 */
+	protected static function maybe_load_media_manager( $fields ) {
+		if ( ! defined( 'QS_LOADED_MEDIA_MANAGER' ) || ! QS_LOADED_MEDIA_MANAGER ) {
+			foreach ( $fields as $field ) {
+				$dependants = array( 'media', 'addfile', 'editgallery', 'setimage' );
+				if ( is_array( $field ) && isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
+					// Make sure the media_manager helper is loaded
+					Tools::load_helpers( 'media_manager' );
+					break;
+				}
+			}
 		}
 	}
 
@@ -978,7 +998,6 @@ class Setup extends \Smart_Plugin {
 	 * @since 1.11.0 Now accepts callback and callback_args options,
 	 *               Also accepts callback as the $args themselves,
 	 *               Added use of static::handle_shorthand().
-	 *               Removed use of Setup::maybe_load_media_manager().
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added use of Tools::build_settings_field().
 	 * @since 1.7.1  Added use of Setup::maybe_load_media_manager().
@@ -1064,6 +1083,9 @@ class Setup extends \Smart_Plugin {
 			// Handle any shorthand in the fields
 			static::handle_shorthand( 'field', $args['fields'] );
 
+			// Check if media_manager helper needs to be loaded
+			self::maybe_load_media_manager( $args['fields'] );
+
 			// arguments for build_settings_field
 			$callback_args = array(
 				'setting' => $setting,
@@ -1123,7 +1145,6 @@ class Setup extends \Smart_Plugin {
 	 * Register the requested meta box.
 	 *
 	 * @since 1.11.0 Added use of static::handle_shorthand().
-	 *               Removed use of Setup::maybe_load_media_manager().
 	 * @since 1.9.0  Now protected.
 	 * @since 1.8.0  Added use of register_meta() for sanitizing and protection,
 	 *               also added handling of condition setting, modified single
@@ -1230,6 +1251,9 @@ class Setup extends \Smart_Plugin {
 
 		// Handle any shorthand in the fields
 		static::handle_shorthand( 'field', $args['fields'] );
+
+		// Check if media_manager helper needs to be loaded
+		self::maybe_load_media_manager( $args['fields'] );
 
 		// Register all meta keys found
 		foreach ( $args['fields'] as $field => $_args ) {

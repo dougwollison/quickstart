@@ -171,6 +171,7 @@ class Tools extends \Smart_Plugin {
 				'attachment',
 				'family',
 				'index',
+				'media_manager',
 				'post_chunks',
 				'post_field',
 				'post_meta',
