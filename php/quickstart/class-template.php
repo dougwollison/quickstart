@@ -100,12 +100,13 @@ class Template extends \Smart_Plugin {
 	/**
 	 * Print out the viewport meta tag.
 	 *
-	 * @since 1.9.0 Added support for passing the content as a string.
+	 * @since 1.11.0 Now protected.
+	 * @since 1.9.0  Added support for passing the content as a string.
 	 * @since 1.8.0
 	 *
 	 * @param array|string $settings Optional An array/string of settings to add/overwrite.
 	 */
-	public static function viewport( $settings = array() ){
+	protected static function viewport( $settings = array() ){
 		if ( empty( $settings ) ) {
 			$settings = (array) $settings;
 		}
@@ -139,14 +140,15 @@ class Template extends \Smart_Plugin {
 	/**
 	 * Print out the title tag.
 	 *
-	 * @since 1.9.0 Restructured to allow passing settings as separate arugments,
-	 *				renamed $seplocation to $side, added detection of passing
-	 *				$side as sole argument, and $filter option.
+	 * @since 1.11.0 Now protected.
+	 * @since 1.9.0  Restructured to allow passing settings as separate arugments,
+	 *				 renamed $seplocation to $side, added detection of passing
+	 *				 $side as sole argument, and $filter option.
 	 * @since 1.8.0
 	 *
 	 * @param string|array $settings Optional The wp_title options like separator and location.
 	 */
-	public static function title( $settings = null ) {
+	protected static function title( $settings = null ) {
 		global $page, $paged;
 
 		$sep = '|';
@@ -188,6 +190,7 @@ class Template extends \Smart_Plugin {
 	 * Filter the page title. Added via title().
 	 *
 	 * @since 1.11.0 Forgot to global in $paged and $page.
+	 *               Now protected.
 	 * @since 1.9.0
 	 *
 	 * @param string $title The title to filter.
@@ -196,7 +199,7 @@ class Template extends \Smart_Plugin {
 	 *
 	 * @return string The filtered title.
 	 */
-	public static function title_filter( $title, $sep, $side ) {
+	protected static function title_filter( $title, $sep, $side ) {
 		global $paged, $page;
 
 		if ( $side == 'right' ) {
@@ -220,13 +223,14 @@ class Template extends \Smart_Plugin {
 	/**
 	 * Print out the favicon link (along with apple icons if passed).
 	 *
-	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
-	 * 				Also added check for if an icon url is set before printing.
+	 * @since 1.11.0 Now protected.
+	 * @since 1.9.0  Restructured to allow passing settings as separate arugments.
+	 * 				 Also added check for if an icon url is set before printing.
 	 * @since 1.8.0
 	 *
 	 * @param string|array $settings Optional The favicon URL or array of favicons.
 	 */
-	public static function favicon( $settings = null ) {
+	protected static function favicon( $settings = null ) {
 		$icon_url = home_url('/favicon.ico');
 		$apple_touch = array();
 		$settings = (array) $settings;
@@ -274,12 +278,13 @@ class Template extends \Smart_Plugin {
 	 * Pass a string for the URL (default is css/ie.css in the theme folder)
 	 * Pass an int for the IE version cap (default to 9)
 	 *
-	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
+	 * @since 1.11.0 Now protected.
+	 * @since 1.9.0  Restructured to allow passing settings as separate arugments.
 	 * @since 1.8.0
 	 *
 	 * @param string|int|array $settings Optional The stylesheet URL and/or version number
 	 */
-	public static function ie_css( $settings = null ) {
+	protected static function ie_css( $settings = null ) {
 		$version = 8;
 		$css_url = THEME_URL . '/css/ie.css';
 
@@ -306,11 +311,12 @@ class Template extends \Smart_Plugin {
 	/**
 	 * Print out the HTML5 shiv, either a provided one or the google one.
 	 *
+	 * @since 1.11.0 Now protected.
 	 * @since 1.8.0
 	 *
 	 * @param string $shiv_url Optional The URL to the shiv file (defaults to google one)
 	 */
-	public static function html5shiv( $shiv_url = null ){
+	protected static function html5shiv( $shiv_url = null ){
 		if ( empty( $shiv_url ) ) {
 			$shiv_url = '//html5shiv.googlecode.com/svn/trunk/html5.js';
 		}
@@ -323,9 +329,10 @@ class Template extends \Smart_Plugin {
 	/**
 	 * Print out the WP AJAX url for javascript.
 	 *
+	 * @since 1.11.0 Now protected.
 	 * @since 1.8.0
 	 */
-	public static function ajaxurl(){
+	protected static function ajaxurl(){
 		echo '<script>var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
 		echo "\n";
 	}
@@ -333,10 +340,11 @@ class Template extends \Smart_Plugin {
 	/**
 	 * Print out the template url for javascript.
 	 *
+	 * @since 1.11.0 Now protected.
 	 * @since 1.10.0 Now uses TEMPLATE_URL constant for value.
 	 * @since 1.8.0
 	 */
-	public static function template_url(){
+	protected static function template_url(){
 		echo '<script>var template_url = "' . TEMPLATE_URL . '";</script>';
 		echo "\n";
 	}
@@ -344,10 +352,11 @@ class Template extends \Smart_Plugin {
 	/**
 	 * Print out the theme url for javascript.
 	 *
+	 * @since 1.11.0 Now protected.
 	 * @since 1.10.0 Now uses THEME_URL constant for value.
 	 * @since 1.9.0
 	 */
-	public static function theme_url(){
+	protected static function theme_url(){
 		echo '<script>var theme_url = "' . THEME_URL . '";</script>';
 		echo "\n";
 	}
@@ -355,14 +364,15 @@ class Template extends \Smart_Plugin {
 	/**
 	 * Print out the Google Analytics gode.
 	 *
-	 * @since 1.9.2 Updated arguments list.
-	 * @since 1.9.0 Restructured to allow passing settings as separate arugments.
-	 * @since 1.8.0 Added ability to pass $account & $production as array for first argument.
+	 * @since 1.11.0 Now protected.
+	 * @since 1.9.2  Updated arguments list.
+	 * @since 1.9.0  Restructured to allow passing settings as separate arugments.
+	 * @since 1.8.0  Added ability to pass $account & $production as array for first argument.
 	 * @since 1.6.2
 	 *
 	 * @param string|array $settings Optional The account number and/or other options
 	 */
-	public static function ga_code( $settings ) {
+	protected static function ga_code( $settings ) {
 		$account = null;
 		$production = null;
 		$universal = true;
