@@ -16,7 +16,7 @@
  * @param array	$default	Optional an associative array of default values to use.
  * @param bool	$global		Optional Wether or not to assign this new instance to the $QuickStart global variable.
  *
- * @return QuickStart $QS The class instance.
+ * @return QuickStart The class instance.
  */
 function QuickStart( $configs, $defaults = array(), $global = false ) {
 	$obj = new QuickStart\Setup( $configs, $defaults );
