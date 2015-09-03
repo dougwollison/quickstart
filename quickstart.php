@@ -23,9 +23,10 @@ define( 'QS_FILE', __FILE__ );
 define( 'QS_DIR', __DIR__ );
 
 // Require includes
-require ( QS_DIR . '/php/aliases.php' );
-require ( QS_DIR . '/php/constants.php' );
-require ( QS_DIR . '/php/utilities.php' );
+require ( QS_DIR . '/php/aliases.php' );   // Aliases for easier external access
+require ( QS_DIR . '/php/constants.php' ); // Handy constants for paths/urls
+require ( QS_DIR . '/php/utilities.php' ); // Publicly accessible utilities
+require ( QS_DIR . '/php/hooks.php' );     // Publicly accessible hooks
 
 // Class autoloader
 spl_autoload_register( function( $class ) {

@@ -171,7 +171,6 @@ class Tools extends \Smart_Plugin {
 				'attachment',
 				'family',
 				'index',
-				'media_manager',
 				'post_chunks',
 				'post_field',
 				'post_meta',
@@ -526,6 +525,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Geocode an address using the Google Geocode JSON API.
 	 *
+	 * @since 1.11.0 Added use
 	 * @since 1.10.0
 	 *
 	 * @param string $address The address string to geocode.
@@ -534,9 +534,22 @@ class Tools extends \Smart_Plugin {
 	 * @return array The gecoded address; latitude and longitude.
 	 */
 	public static function geocode_address( $address = null, $api_key = null ) {
-		// Default to the GOOGLE_API_SERVER_KEY constant if defined
-		if ( is_null( $api_key ) && defined( 'GOOGLE_API_SERVER_KEY' ) ) {
-			$api_key = GOOGLE_API_SERVER_KEY;
+		// Get the API key if not passed.
+		if ( is_null( $api_key ) ) {
+			// Check if GOOGLE_API_SERVER_KEY is defined;
+			$api_key = defined( 'GOOGLE_API_SERVER_KEY' ) ? GOOGLE_API_SERVER_KEY : null;
+
+			/**
+			 * Filter the API key for geocoding requests.
+			 *
+			 * Useful if you have it defined under a different constant
+			 * or want to use your own separate key.
+			 *
+			 * @since 1.11.0
+			 *
+			 * @param string $api_key The API key to filter.
+			 */
+			$api_key = apply_filters( 'qs_helper_geocode_api_key', $api_key );
 		}
 
 		// Build the URL to query
@@ -545,9 +558,10 @@ class Tools extends \Smart_Plugin {
 			'key' => $api_key,
 		) );
 
-		// Get the JSON data, and parse, update if successful
+		// Get the JSON data, and return the first result's location if successful
 		if ( ( $result = file_get_contents( $url ) )
-		&& ( $result = json_decode( $result, true ) ) ) {
+		&& ( $result = json_decode( $result, true ) )
+		&& 'OK' != $result['status'] ) {
 			return $result['results'][0]['geometry']['location'];
 		}
 

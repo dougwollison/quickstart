@@ -299,21 +299,21 @@ jQuery(function( $ ) {
 					var query = $search.val();
 
 					$.ajax({
-						url: 'https://maps.googleapis.com/maps/api/geocode/json',
+						url: ajaxurl,
 						data: {
-							key:     key,
+							action:  'qs_helper_geocode',
 							address: query,
 						},
 						type: 'GET',
 						dataType: 'json',
-						success: function( data ){
-							if ( data.status != 'OK' ) {
+						success: function( data ) {
+							if ( !data ) {
 								return alert( 'Search for "' + query + '" turned up no results' );
 							}
 
 							// Get the coordiates
-							var lat    = data.results[0].geometry.location.lat;
-							var lng    = data.results[0].geometry.location.lng;
+							var lat    = data.lat;
+							var lng    = data.lng;
 							var coords = new google.maps.LatLng( lat, lng );
 
 							// Update the fields
@@ -331,6 +331,9 @@ jQuery(function( $ ) {
 
 							// Fire a marker-placed event, passing the marker object
 							$canvas.trigger( 'qs:marker-placed', [ marker ] );
+						},
+						error: function() {
+							alert( 'Error attempting to geocode "' + query + '"' );
 						}
 					});
 				});

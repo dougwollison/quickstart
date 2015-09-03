@@ -1601,6 +1601,7 @@ class Form {
 	/**
 	 * Build a google map field for setting coordinates.
 	 *
+	 * @since 1.11.0 Removed use of key, will now be geocoding via AJAX.
 	 * @since 1.8.0
 	 *
 	 * @see Form::build_generic()
@@ -1609,9 +1610,9 @@ class Form {
 		// Get the field name
 		$name = $settings['name'];
 
-		// Setup data attributes (default values and api key)
+		// Setup data attributes (default values)
 		$data_atts = array();
-		$usable_atts = array( 'lat', 'lng', 'zoom', 'key' );
+		$usable_atts = array( 'lat', 'lng', 'zoom' );
 		foreach ( $usable_atts as $attr ) {
 			if ( isset( $settings[ $attr ] ) ) {
 				$data_atts[] = 'data-' . $attr . '="' . $settings[ $attr ] . '"';
