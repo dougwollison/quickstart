@@ -61,4 +61,3 @@ function qs_hook_ajax_geocode() {
 }
 
 add_action( 'wp_ajax_qs_helper_geocode', 'qs_hook_ajax_geocode' );
-add_action( 'wp_ajax_nopriv_qs_helper_geocode', 'qs_hook_ajax_geocode' );
