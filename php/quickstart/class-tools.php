@@ -25,6 +25,7 @@ class Tools extends \Smart_Plugin {
 	protected static $method_hooks = array(
 		'relabel_posts_object'     => array( 'init', 10, 0 ),
 		'relabel_posts_menu'       => array( 'admin_menu', 10, 0 ),
+		'reorder_admin_menu'       => array( 'admin_menu', 11, 0 ),
 		'fix_shortcodes'           => array( 'the_content', 10, 1 ),
 		'do_quicktags'             => array( 'admin_print_footer_scripts', 10, 0 ),
 		'disable_quickedit'        => array( 'post_row_actions', 10, 2 ),
@@ -77,6 +78,27 @@ class Tools extends \Smart_Plugin {
 	 * @var array
 	 */
 	public static $void_elements = array( 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr' );
+
+	/**
+	 * A list of built-in admin pages and their slugs.
+	 *
+	 * @since 1.11.0
+	 *
+	 * @access public
+	 * @var array
+	 */
+	protected static $admin_menu_slugs = array(
+		'dashboard'  => 'index.php',
+		'posts'      => 'edit.php',
+		'media'      => 'upload.php',
+		'links'      => 'link-manager.php',
+		'pages'      => 'edit.php?post_type=page',
+		'appearance' => 'themes.php',
+		'plugins'    => 'plugins.php',
+		'users'      => 'users.php',
+		'tools'      => 'tools.php',
+		'settings'   => 'options-general.php',
+	);
 
 	// =========================
 	// !Basic Tools
@@ -867,6 +889,113 @@ class Tools extends \Smart_Plugin {
 			array( $plural, $singular ),
 			$submenu['edit.php']
 		);
+	}
+
+	/**
+	 * Find the corresponding item in the admin menu array.
+	 *
+	 * Looks in the $menu_slug entry (#3), automatically handling post types
+	 * and other keywords to figure out what the slug actually is.
+	 *
+	 * @since 1.11.0
+	 *
+	 * @global array $menu The admin menu items array.
+	 *
+	 * @param string $target The item to search for.
+	 *
+	 * @return int $position The position of the item found.
+	 */
+	protected static function find_menu_item( $target ) {
+		global $menu;
+
+		// Convert into real menu slug if needed
+		if ( post_type_exists( $target ) ) {
+			// Post type, convert to edit.php URL
+			if ( $target == 'post' ) {
+				$target = 'edit.php';
+			} else {
+				$target = 'edit.php?post_type=' . $target;
+			}
+		} elseif ( isset( self::$admin_menu_slugs[ $target ] ) ) {
+			// Built-in page, lookup real slug
+			$target = self::$admin_menu_slugs[ $target ];
+		}
+
+		// Now go through the menu and return the first match
+		foreach ( $menu as $position => $page ) {
+			if ( $page[2] == $target ) {
+				return $position;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Reorder the admin menu withe the specified items first.
+	 *
+	 * @since 1.11.0
+	 *
+	 * @global array $menu The admin menu items array.
+	 *
+	 * @param array  $items   The desired order of the items.
+	 * @param string $section Optional The section your reordering (all, objects, utilities)
+	 */
+	protected static function _reorder_admin_menu( $items, $section = 'all' ) {
+		global $menu;
+
+		switch ( $section ) {
+			case 'objects':
+				$start = 5;
+				$end = 58;
+				break;
+
+			case 'utilities':
+				$start = 60;
+				$end = 98;
+				break;
+
+			default:
+				$start = 0;
+				$end = key( end( $menu ) );
+		}
+
+		// Storage for new and old items
+		$new_menu = array();
+		$old_menu = $menu;
+
+		// Start by adding the items that preceed the block being edited
+		for ( $i = 0; $i < $start; $i++ ) {
+			if ( isset( $menu[ $i ] ) ){
+				$new_menu[ $i ] = $menu[ $i ];
+
+				// Remove from $old_menu
+				unset( $old_menu[ $i ] );
+			}
+		}
+
+		// Now add the specified items in order
+		$n = $start;
+		foreach ( $items as $item ) {
+			if ( $position = self::find_menu_item( $item ) ) {
+				$new_menu[ $n ] = $menu[ $position ];
+
+				// Remove from $old_menu
+				unset( $old_menu[ $position ] );
+
+				$n++;
+			}
+		}
+
+		// Add any remaining items
+		$n = $end;
+		foreach ( $old_menu as $page ) {
+			$new_menu[ $n ] = $page;
+			$n++;
+		}
+
+		// Replace $menu with $new_menu
+		$menu = $new_menu;
 	}
 
 	/**
