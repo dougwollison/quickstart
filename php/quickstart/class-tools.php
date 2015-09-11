@@ -982,9 +982,18 @@ class Tools extends \Smart_Plugin {
 
 				// Remove from $old_menu
 				unset( $old_menu[ $position ] );
-
-				$n++;
+			} elseif ( $item == '-' ) {
+				// Add separator
+				$new_menu[ $n ] = array(
+					'',
+					'read',
+					'separator' . $n,
+					'',
+					'wp-menu-separator'
+				);
 			}
+
+			$n++;
 		}
 
 		// Add any remaining items
