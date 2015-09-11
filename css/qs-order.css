@@ -1,59 +1,46 @@
-/* line 1, ../scss/qs-order.scss */
 .qs-order-manager {
   margin: 0 0 10px 0;
   max-width: 500px; }
-  /* line 5, ../scss/qs-order.scss */
   .qs-order-manager ol {
     margin: 0;
-    border-left: 1px dotted #ccc;
     position: relative; }
-    /* line 10, ../scss/qs-order.scss */
+    .qs-order-manager ol:before {
+      content: '';
+      position: absolute;
+      left: -1px;
+      top: 12px;
+      bottom: 10px;
+      border-left: 1px dotted #ccc; }
     .qs-order-manager ol ol {
       margin-left: 10px; }
-    /* line 14, ../scss/qs-order.scss */
     .qs-order-manager ol:before, .qs-order-manager ol:after {
       content: '';
       position: absolute;
       left: -1px;
       width: 1px;
       background: #f1f1f1; }
-    /* line 23, ../scss/qs-order.scss */
-    .qs-order-manager ol:before {
-      height: 11px;
-      top: 0; }
-    /* line 27, ../scss/qs-order.scss */
-    .qs-order-manager ol:after {
-      height: 10px;
-      bottom: 0; }
-  /* line 32, ../scss/qs-order.scss */
   .qs-order-manager li {
     clear: both;
     list-style: none;
     position: relative;
     line-height: 21px;
     margin: 0; }
-    /* line 39, ../scss/qs-order.scss */
     .qs-order-manager li:before, .qs-order-manager li:after {
       content: ''; }
-    /* line 44, ../scss/qs-order.scss */
     .qs-order-manager li:before {
       position: relative;
       float: left;
       width: 10px;
       border-bottom: 1px dotted #ccc;
       margin: 12px 5px 0 -1px; }
-    /* line 51, ../scss/qs-order.scss */
     .qs-order-manager li li:first-child:before {
       border-left: 1px dotted #ccc;
       height: 12px;
       margin-top: 0; }
-  /* line 57, ../scss/qs-order.scss */
   .qs-order-manager .inner {
     margin-left: 10px;
     border: 1px dotted transparent; }
-    /* line 61, ../scss/qs-order.scss */
     .qs-order-manager .inner:hover {
       border-color: #ccc; }
-  /* line 65, ../scss/qs-order.scss */
   .qs-order-manager .qs-placeholder {
     height: 23px; }
