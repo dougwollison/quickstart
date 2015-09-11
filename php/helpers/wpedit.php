@@ -125,14 +125,16 @@ function wpedit_link() {
  *
  * @since 1.11.0
  */
-function qs_helper_quickedit_togglebutton( $admin_bar ) {
-	$admin_bar->add_node( array(
-		'id'    => 'wpedit-toggle',
-		'title' => 'Hide Edit Buttons',
-		'href'  => '#',
-	) );
+if ( ! is_admin() ) {
+	function qs_helper_quickedit_togglebutton( $admin_bar ) {
+		$admin_bar->add_node( array(
+			'id'    => 'wpedit-toggle',
+			'title' => 'Hide Edit Buttons',
+			'href'  => '#',
+		) );
+	}
+	add_action( 'admin_bar_menu', 'qs_helper_quickedit_togglebutton', 999 );
 }
-add_action( 'admin_bar_menu', 'qs_helper_quickedit_togglebutton' );
 
 /**
  * Aliases for backwards compatability
