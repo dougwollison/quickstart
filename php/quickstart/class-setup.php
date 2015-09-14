@@ -2691,14 +2691,25 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected function _section_manager_ajax() {
 		$title = $_GET['title'];
+		$parent = $_GET['parent'];
 
-		// Inser the new section
+		// Insert the new section
 		$id = wp_insert_post( array(
 			'post_type' => 'qs_section',
 			'post_status' => 'draft',
 			'post_title' => $title,
 			'post_name' => sanitize_title( $title ),
 		) );
+
+		/**
+		 * Fires after a section is created.
+		 *
+		 * @since 1.11.0
+		 *
+		 * @param WP_Post $section The section post object.
+		 * @param int     $parent  The post this section is being added to.
+		 */
+		do_action( 'qs_section_create', get_post( $id ), $parent );
 
 		// Print out the resulting ID
 		echo $id;

@@ -2,6 +2,8 @@
 
 jQuery(function($){
 	if ( $( '#qs_sections-repeater' ).length > 0 ) {
+		var postID = $('#post_ID').val();
+
 		$( 'body' ).on( 'click', '.qs-edit-section', function( e ) {
 			e.preventDefault();
 			var select = $( this ).parents( '.qs-item' ).find( 'select' );
@@ -32,6 +34,7 @@ jQuery(function($){
 				data: {
 					action: 'qs-new_section',
 					title: title,
+					parent: postID
 				},
 				success: function( post ) {
 					if ( '0' === post ) {
