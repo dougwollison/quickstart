@@ -13,9 +13,12 @@
     margin: 0;
     padding: 5px 0; }
 
-.qs-field,
+.qs-meta-box .qs-field, .qs-meta-box
 .qs-fieldset {
   margin-top: 10px; }
+.qs-form-field-row .qs-field, .qs-form-field-row
+.qs-fieldset {
+  margin-bottom: 10px; }
 
 .qs-field {
   line-height: 1.5; }
