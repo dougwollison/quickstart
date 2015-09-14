@@ -17,7 +17,12 @@
 
 .qs-field,
 .qs-fieldset {
-	margin-top: 10px;
+	.qs-meta-box & {
+		margin-top: 10px;
+	}
+	.qs-form-field-row & {
+		margin-bottom: 10px;
+	}
 }
 
 .qs-field {
