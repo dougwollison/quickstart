@@ -2625,7 +2625,7 @@ class Setup extends \Smart_Plugin {
 
 		// Default post type to page if not set
 		if ( ! isset( $args['post_type'] ) ) {
-			$post_types = 'page';
+			$args['post_type'] = 'page';
 		}
 
 		// Default arguments for the section post type
@@ -2655,7 +2655,7 @@ class Setup extends \Smart_Plugin {
 		// Default arguments for the section meta box
 		$meta_box_args = array(
 			'title'       => 'Manage Sections',
-			'post_type'   => $post_types,
+			'post_type'   => $args['post_type'],
 			'type'        => 'repeater',
 			'label'       => 'Add Section',
 			'name'        => 'qs_sections',
