@@ -866,6 +866,7 @@ class Form {
 	/**
 	 * Build a checkbox field.
 	 *
+	 * @since 1.11.0 Added use of 'default' setting for what the dummy input's value should be.
 	 * @since 1.10.0 Updated handling of default wrapper format, added use of build_hidden.
 	 * @since 1.8.0  Fixed dummy field to have a 0 value, not null.
 	 * @since 1.4.2  Added $dummy argument and printing of dummy input for null value.
@@ -882,6 +883,11 @@ class Form {
 			$settings['value'] = 1;
 		}
 
+		// Value for dummy input
+		if ( ! isset( $settings['default'] ) ) {
+			$settings['default'] = null;
+		}
+
 		// Default the wrapper to right sided
 		if ( ! isset( $settings['format'] ) ) {
 			$settings['format'] = array( 'right' );
@@ -896,8 +902,8 @@ class Form {
 		$hidden = '';
 		if ( $dummy ) {
 			$hidden = static::build_hidden( array(
-				'name' => $settings['name'],
-			), null );
+				'name'  => $settings['name'],
+			), $settings['default'] );
 		}
 
 		// Build the actual <input>
