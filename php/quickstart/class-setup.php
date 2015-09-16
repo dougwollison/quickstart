@@ -2291,6 +2291,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Setup index page setting/hook for certain post types.
 	 *
+	 * @since 1.11.0 Removed index_page_query; don't need query object rewriting.
 	 * @since 1.10.1 Split index_page_query into index_page_request/query.
 	 * @since 1.9.0  Now protected, dropped $index_pages array creation.
 	 * @since 1.8.0  Restructured to use a hooks once for all post_types,
@@ -2324,7 +2325,6 @@ class Setup extends \Smart_Plugin {
 		if ( is_frontend() ) {
 			// Add the request/query/title/link hooks on the frontend
 			$this->index_page_request( $post_types );
-			$this->index_page_query();
 			$this->index_page_title_part();
 			$this->index_page_link();
 		}
@@ -2451,27 +2451,6 @@ class Setup extends \Smart_Plugin {
 				unset( $qv['page'] );
 				unset( $qv['name'] );
 			}
-		}
-	}
-
-	/**
-	 * Check if it's a post type archive and setup the queried object.
-	 *
-	 * @since 1.10.1 Moved majority of logic to index_page_request, now just handles queried object.
-	 * @since 1.9.0 Modified to create $index_pages from $post_types.
-	 * @since 1.8.0 Restructured to handle all post_types at once.
-	 * @since 1.6.0
-	 *
-	 * @param WP_Query $query The query object (skip when saving).
-	 */
-	protected function _index_page_query( $query ) {
-		$qv =& $query->query_vars;
-
-		if ( is_post_type_archive()
-		  && isset( $qv['post_type'] ) && '' != $qv['post_type']
-		  && $index_page = get_index( $qv['post_type'], 'object' ) ) {
-			$query->queried_object = $index_page;
-			$query->queried_obejct_id = $index_page->ID;
 		}
 	}
 
