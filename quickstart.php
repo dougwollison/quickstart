@@ -53,7 +53,7 @@ spl_autoload_register( function( $class ) {
 	}
 
 	// Make sure the file exists before loading it
-	if ( file_exists ( plugin_dir_path( __FILE__ ) . 'php/' . $file ) ){
-        include( plugin_dir_path( __FILE__ ) . 'php/' . $file );
+	if ( file_exists ( plugin_dir_path( __FILE__ ) . 'inc/' . $file ) ){
+        include( plugin_dir_path( __FILE__ ) . 'inc/' . $file );
     }
 });
