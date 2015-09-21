@@ -32,6 +32,7 @@ class Setup extends \Smart_Plugin {
 
 		// Theme Hooks
 		'run_theme_setups'       => array( 'after_setup_theme', 10, 0 ),
+		'setup_sidebars'         => array( 'widgets_init', 10, 0 ),
 
 		// Admin Hooks
 		'edit_columns'           => array( 'admin_init', 10, 0 ),
@@ -859,8 +860,9 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Proccess the theme setups; registering the various features and supports.
 	 *
-	 * @since 1.9.0 Now protected, no longer accepts external $configs argument.
-	 * @since 1.1.0 'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
+	 * @since 1.11.0 Sidebar registration moved to separate method to run on widgets_init.
+	 * @since 1.9.0  Now protected, no longer accepts external $configs argument.
+	 * @since 1.1.0  'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
 	 * @since 1.0.0
 	 */
 	protected function _run_theme_setups() {
@@ -898,6 +900,16 @@ class Setup extends \Smart_Plugin {
 		if ( isset( $configs['nav_menus'] ) ) {
 			register_nav_menus( $configs['nav_menus'] );
 		}
+	}
+
+	/**
+	 * Register any sidebars.
+	 *
+	 * @since 1.11.0
+	 */
+	protected function _register_sidebars() {
+		// Load the configuration array
+		$configs = &$this->configs;
 
 		// Sidebars
 		if ( isset( $configs['sidebars'] ) ) {
