@@ -7,12 +7,18 @@
  * @since 1.10.0
  */
 
+// Check for native termmeta support based on presence of termmeta table.
+define('QS_CHECK_TERMMETA_SUPPORT', (bool) $wpdb->termmeta);
+
 // =========================
 // ! Setup & Hooks
 // =========================
 
-// Register the new termmeta table
+// Register the new termmeta table if not already present
 global $wpdb;
+
+if(QS_CHECK_TERMMETA_SUPPORT):
+
 $wpdb->tables[] = 'termmeta';
 $wpdb->termmeta = $wpdb->prefix . 'termmeta';
 
@@ -71,6 +77,8 @@ if ( did_action( 'plugins_loaded' ) ) {
 	// Was loaded by a plugin
 	add_action( 'plugins_loaded', 'qs_helper_termmeta_installtable' );
 }
+
+endif; // QS_CHECK_TERMMETA_SUPPORT
 
 /**
  * Filters the term query clauses to add support for basic filtering and ordering by meta data.
@@ -170,7 +178,7 @@ add_action( 'delete_term', 'qs_helper_termmeta_deleteterm' );
 
 /* ONLY REGISTERED IF TERM META NOT ALREADY SUPPORTED */
 
-if ( ! function_exists( 'add_term_meta' ) ):
+if ( QS_CHECK_TERMMETA_SUPPORT ):
 
 /**
  * Add meta data field to a term.
@@ -187,10 +195,6 @@ if ( ! function_exists( 'add_term_meta' ) ):
 function add_term_meta( $term_id, $meta_key, $meta_value, $unique = false ) {
 	return add_metadata( 'term', $term_id, $meta_key, $meta_value, $unique );
 }
-
-endif;
-
-if ( ! function_exists( 'delete_term_meta' ) ):
 
 /**
  * Remove metadata matching criteria from a term.
@@ -211,10 +215,6 @@ function delete_term_meta( $term_id, $meta_key, $meta_value = '' ) {
 	return delete_metadata( 'term', $term_id, $meta_key, $meta_value );
 }
 
-endif;
-
-if ( ! function_exists( 'get_term_meta' ) ):
-
 /**
  * Retrieve term meta field for a term.
  *
@@ -230,10 +230,6 @@ if ( ! function_exists( 'get_term_meta' ) ):
 function get_term_meta( $term_id, $key = '', $single = false ) {
 	return get_metadata( 'term', $term_id, $key, $single );
 }
-
-endif;
-
-if ( ! function_exists( 'update_term_meta' ) ):
 
 /**
  * Update term meta field based on term ID.
@@ -256,4 +252,4 @@ function update_term_meta( $term_id, $meta_key, $meta_value, $prev_value = '' ) 
 	return update_metadata( 'term', $term_id, $meta_key, $meta_value, $prev_value );
 }
 
-endif;
+endif; // QS_CHECK_TERMMETA_SUPPORT
