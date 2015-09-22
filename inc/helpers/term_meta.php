@@ -6,18 +6,17 @@
  * @subpackage Term_Meta
  * @since 1.10.0
  */
+global $wpdb;
 
 // Check for native termmeta support based on presence of termmeta table.
-define('QS_CHECK_TERMMETA_SUPPORT', (bool) $wpdb->termmeta);
+define('QS_CHECK_TERMMETA_SUPPORT', in_array( 'termmeta', $wpdb->tables ) );
 
 // =========================
 // ! Setup & Hooks
 // =========================
 
 // Register the new termmeta table if not already present
-global $wpdb;
-
-if(QS_CHECK_TERMMETA_SUPPORT):
+if ( ! QS_CHECK_TERMMETA_SUPPORT ) :
 
 $wpdb->tables[] = 'termmeta';
 $wpdb->termmeta = $wpdb->prefix . 'termmeta';
@@ -176,9 +175,8 @@ add_action( 'delete_term', 'qs_helper_termmeta_deleteterm' );
 // ! Utilities
 // =========================
 
-/* ONLY REGISTERED IF TERM META NOT ALREADY SUPPORTED */
-
-if ( QS_CHECK_TERMMETA_SUPPORT ):
+// Add term meta utility functions if not already present
+if ( ! QS_CHECK_TERMMETA_SUPPORT ) :
 
 /**
  * Add meta data field to a term.
