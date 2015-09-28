@@ -6,13 +6,18 @@
  * @subpackage Term_Meta
  * @since 1.10.0
  */
-
-// =========================
-// !Setup & Hooks
-// =========================
-
-// Register the new termmeta table
 global $wpdb;
+
+// Check for native termmeta support based on presence of termmeta table.
+define('QS_CHECK_TERMMETA_SUPPORT', in_array( 'termmeta', $wpdb->tables ) );
+
+// =========================
+// ! Setup & Hooks
+// =========================
+
+// Register the new termmeta table if not already present
+if ( ! QS_CHECK_TERMMETA_SUPPORT ) :
+
 $wpdb->tables[] = 'termmeta';
 $wpdb->termmeta = $wpdb->prefix . 'termmeta';
 
@@ -71,6 +76,8 @@ if ( did_action( 'plugins_loaded' ) ) {
 	// Was loaded by a plugin
 	add_action( 'plugins_loaded', 'qs_helper_termmeta_installtable' );
 }
+
+endif; // QS_CHECK_TERMMETA_SUPPORT
 
 /**
  * Filters the term query clauses to add support for basic filtering and ordering by meta data.
@@ -165,8 +172,11 @@ function qs_helper_termmeta_deleteterm( $term_id ) {
 add_action( 'delete_term', 'qs_helper_termmeta_deleteterm' );
 
 // =========================
-// !Utilities
+// ! Utilities
 // =========================
+
+// Add term meta utility functions if not already present
+if ( ! QS_CHECK_TERMMETA_SUPPORT ) :
 
 /**
  * Add meta data field to a term.
@@ -239,3 +249,5 @@ function get_term_meta( $term_id, $key = '', $single = false ) {
 function update_term_meta( $term_id, $meta_key, $meta_value, $prev_value = '' ) {
 	return update_metadata( 'term', $term_id, $meta_key, $meta_value, $prev_value );
 }
+
+endif; // QS_CHECK_TERMMETA_SUPPORT
