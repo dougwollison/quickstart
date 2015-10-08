@@ -10,6 +10,9 @@
 // Hide comments
 require( __DIR__ . 'comments.php' );
 
+// Hide customizer
+require( __DIR__ . 'customizer.php' );
+
 // Hide links
 require( __DIR__ . 'links.php' );
 

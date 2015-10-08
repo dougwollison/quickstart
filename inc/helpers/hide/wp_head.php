@@ -1,6 +1,6 @@
 <?php
 /**
- * Hide Helper - Comments: Remove all undesirable wp_head stuff.
+ * Hide Helper - WP_Head: Remove all undesirable wp_head stuff.
  *
  * @package QuickStart
  * @subpackage Hide

@@ -1,6 +1,6 @@
 <?php
 /**
- * Hide Helper - Comments: Disable links UI.
+ * Hide Helper - Links: Disable links UI.
  *
  * @package QuickStart
  * @subpackage Hide
