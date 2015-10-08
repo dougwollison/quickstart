@@ -998,8 +998,11 @@ class Tools extends \Smart_Plugin {
 
 		// Add any remaining items
 		$n = $end;
-		foreach ( $old_menu as $page ) {
-			$new_menu[ $n ] = $page;
+		foreach ( $old_menu as $position => $page ) {
+			if ( $position < $end ) {
+				$position = $n;
+			}
+			$new_menu[ $position ] = $page;
 			$n++;
 		}
 
