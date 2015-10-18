@@ -95,6 +95,7 @@ class Form {
 			$settings['description'] = '';
 		}
 
+		$format = null;
 		if ( isset( $settings['wrap_with_label'] ) && $settings['wrap_with_label'] ) {
 			// If format setting exists, overwrite $format with it
 			if ( isset( $settings['format'] ) ) {
@@ -150,6 +151,7 @@ class Form {
 	 * @return mixed The extracted value.
 	 */
 	public static function get_value( $data, $type, $key, $single = true ) {
+		$map = null;
 		if ( preg_match( '/([\w-]+)\[([\w-]+)\](.*)/', $key, $matches ) ) {
 			// Field is an array map, get the actual key...
 			$key = $matches[1];
