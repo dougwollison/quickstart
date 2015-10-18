@@ -24,7 +24,7 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
 = 1.11.0 =
-New Section Manager feature; tie non-public section posts to a page or other post for more flexible content management. Meta boxes, post types, taxonomies, fields and field types now support various shorthand forms for a variety of settings in a single string. Also added widget loading tools and fixed potential bug with post_chunks helper.
+New Section Manager feature; tie non-public section posts to a page or other post for more flexible content management. Meta boxes, post types, taxonomies, fields and field types now support various shorthand forms for a variety of settings in a single string. Also added special select field types, widget loading tools, and the usual tweaks and fixes to the code.
 
 = 1.10.1 =
 Improvements to index page feature, including date archive link utilities and custom rewrites (via new add_rewrites tool method). Also added is_login, is_ajax and is_frontend utilities, reworked MCE button registration, and fixed bug with Tools::upload().
