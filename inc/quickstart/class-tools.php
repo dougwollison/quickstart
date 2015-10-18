@@ -577,14 +577,14 @@ class Tools extends \Smart_Plugin {
 
 		// Build the URL to query
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query( array(
-			'address' => str_replace( "\n", ' ', $value ),
+			'address' => str_replace( "\n", ' ', $address ),
 			'key' => $api_key,
 		) );
 
 		// Get the JSON data, and return the first result's location if successful
 		if ( ( $result = file_get_contents( $url ) )
 		&& ( $result = json_decode( $result, true ) )
-		&& 'OK' != $result['status'] ) {
+		&& 'OK' == $result['status'] ) {
 			return $result['results'][0]['geometry']['location'];
 		}
 
