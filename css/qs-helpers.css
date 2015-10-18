@@ -96,15 +96,17 @@
 .qs-repeater .qs-delete {
   margin-top: 5px; }
 
-.qs-item-fields.single-field {
-  margin-right: 70px; }
-  .qs-item-fields.single-field .qs-input {
-    display: block;
-    width: 100%; }
-  .qs-item-fields.single-field ~ .qs-delete {
-    position: absolute;
-    top: 0;
-    right: 48px; }
+.qs-item-fields {
+  position: relative; }
+  .qs-item-fields.single-field {
+    margin-right: 70px; }
+    .qs-item-fields.single-field .qs-input {
+      display: block;
+      width: 100%; }
+    .qs-item-fields.single-field ~ .qs-delete {
+      position: absolute;
+      top: 0;
+      right: 48px; }
 
 .qs-sort label {
   float: left;
