@@ -497,6 +497,7 @@ class Tools extends \Smart_Plugin {
 			'name'  => $field,
 			'title' => Form::make_label( $field ),
 		);
+		$args = wp_parse_args( $args, $default_args );
 
 		echo '<tr class="form-field qs-form-field-row" id="' . $source . '-' . $field . '-wrap">';
 			echo '<th scope="row">';
@@ -1300,7 +1301,7 @@ class Tools extends \Smart_Plugin {
 			}
 
 			// Now that we found it, modify it's arguments
-			if ( $meta_box ) {
+			if ( $args ) {
 				$args = array_merge( $args, $changes );
 
 				// Update the arguments with the modified ones
