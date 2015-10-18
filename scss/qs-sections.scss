@@ -1,14 +1,21 @@
 #qs_sections-repeater{
 	.qs-item {
 		position: relative;
+		padding-top: 8px;
+		padding-bottom: 8px;
+
+		&:before {
+			height: 45px;
+			line-height: 45px;
+		}
 	}
 		.qs-item-fields{
-			margin: 4px 70px 4px 50px;
+			margin-right: 120px;
 		}
 		.qs-delete,
 		.qs-edit-section {
 			position: absolute;
-			top: 9px;
+			top: 8px;
 		}
 		.qs-delete {
 			right: 48px;
@@ -16,7 +23,7 @@
 			width: 65px;
 		}
 		.qs-edit-section {
-			left: 0;
+			right: 118px;
 			width: 45px;
 		}
 }
