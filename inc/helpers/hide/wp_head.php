@@ -28,6 +28,9 @@ remove_action( 'wp_head', 'wlwmanifest_link' );
 remove_action( 'wp_head', 'wp_generator' );
 // links for adjacent posts
 remove_action( 'wp_head', 'wp_shortlink_wp_head', 10, 0 );
+// emoji stuff
+remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+remove_action( 'wp_print_styles', 'print_emoji_styles' );
 
 // remove WP version from css/js
 function qs_helper_hide_wphead_version( $src ) {
