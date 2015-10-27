@@ -2345,6 +2345,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the index page settings for the post types.
 	 *
+	 * @since 1.11.1 Tweaked field callback to use $option via arguments list.
 	 * @since 1.10.1 Added check for has_archive support.
 	 * @since 1.9.0
 	 *
@@ -2363,13 +2364,14 @@ class Setup extends \Smart_Plugin {
 			// Register the setting on the backend
 			$this->register_setting( $option , array(
 				'title' => sprintf( __( 'Page for %s' ) , get_post_type_object( $post_type )->labels->name ),
-				'field' => function( $value ) use ( $option ) {
+				'field' => function( $value, $option ) {
 					wp_dropdown_pages( array(
 						'name'              => $option,
 						'echo'              => 1,
 						'show_option_none'  => __( '&mdash; Select &mdash;' ),
 						'option_none_value' => '0',
 						'selected'          => $value,
+						'qs-context'        => 'index-page',
 					) );
 				}
 			), 'default', 'reading' );
@@ -2409,13 +2411,14 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Check if the path matches that of an index page (with optional date/paged arguments).
 	 *
+	 * @since 1.11.1 Fixed typo due to variable renaming.
 	 * @since 1.11.0 Reworked to reparse requested URL to match an archive.
 	 * @since 1.10.1
 	 *
 	 * @param WP    $wp         The request object (skip when saving).
 	 * @param array $post_types The list of post types.
 	 */
-	protected function _index_page_request( $request, $post_types ) {
+	protected function _index_page_request( $wp, $post_types ) {
 		$qv =& $wp->query_vars;
 
 		// Abort if a pagename wasn't matched at all
