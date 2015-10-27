@@ -1157,6 +1157,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @sicne 1.11.1 Made sure fields arg was an array before passing through handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 *               Now public again.
 	 * @since 1.9.0  Now protected.
@@ -1263,8 +1264,10 @@ class Setup extends \Smart_Plugin {
 			if ( ! $result ) return;
 		}
 
-		// Handle any shorthand in the fields
-		static::handle_shorthand( 'field', $args['fields'] );
+		// Handle any shorthand in the fields if it's an array
+		if ( is_array( $args['fields'] ) ) {
+			static::handle_shorthand( 'field', $args['fields'] );
+		}
 
 		// Check if media_manager helper needs to be loaded
 		self::maybe_load_media_manager( $args['fields'] );

@@ -17,6 +17,7 @@ trait _Utilities {
 	 * Shorthand syntax differs based on context; typically, $name will have multiple
 	 * kinds of shorthand markers supported, while some options may only use 1 kind.
 	 *
+	 * @since 1.11.1 Added check to make sure $name is a string or array.
 	 * @since 1.11.0
 	 *
 	 * @param string  $context The context to consider when examining shorthand (e.g. field, metabox, post_type).
@@ -24,6 +25,11 @@ trait _Utilities {
 	 * @param array  &$args    The arugments (by reference) for the thing to examine (skip if passing $name as array).
 	 */
 	protected static function handle_shorthand( $context, &$name, &$args = array() ) {
+		// Abort if $name is somehow not a string or array
+		if ( ! is_string( $name ) || ! is_array( $name ) ) {
+			return;
+		}
+
 		// If $name is an array, loop through the entries and handle individually
 		if ( is_array( $name ) ) {
 			$entries = array();
