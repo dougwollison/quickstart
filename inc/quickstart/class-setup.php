@@ -207,21 +207,23 @@ class Setup extends \Smart_Plugin {
 			$menu_name = $args['menu_name'];
 
 			$labels = array(
-				'name'               => _x( $plural, 'post type general name' ),
-				'singular_name'      => _x( $singular, 'post type singular name' ),
-				'menu_name'          => _x( $menu_name, 'post type menu name' ),
-				'add_new'            => _x( 'Add New', $object ),
+				'name'          => _x( $plural, 'post type general name' ),
+				'singular_name' => _x( $singular, 'post type singular name' ),
+				'menu_name'     => _x( $menu_name, 'post type menu name' ),
+				'add_new'       => _x( 'Add New', $object ),
 			);
 
 			$template = wp_parse_args( $template, array(
-				'add_new_item'       => 'Add New %S',
-				'edit_item'          => 'Edit %S',
-				'new_item'           => 'New %S',
-				'view_item'          => 'View %S',
-				'all_items'          => 'All %P',
-				'search_items'       => 'Search %P',
-				'parent_item_colon'  => 'Parent %S:',
-				'not_found'          => 'No %p found.',
+				'add_new_item'          => 'Add New %S',
+				'edit_item'             => 'Edit %S',
+				'new_item'              => 'New %S',
+				'view_item'             => 'View %S',
+				'all_items'             => 'All %P',
+				'search_items'          => 'Search %P',
+				'parent_item_colon'     => 'Parent %S:',
+				'not_found'             => 'No %p found.',
+				'items_list_navigation' => '%P list navigation',
+				'items_list'            => '%P list',
 			) );
 
 			$find = array( '%S', '%P', '%s', '%p' );
@@ -488,6 +490,7 @@ class Setup extends \Smart_Plugin {
 		self::maybe_setup_labels( $post_type, $args, array(
 			'new_item'           => 'New %S',
 			'not_found_in_trash' => 'No %p found in Trash.',
+			'filter_items_list'  => 'Filter %p list',
 		) );
 
 		// Default arguments for the post type

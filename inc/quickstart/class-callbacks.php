@@ -26,7 +26,7 @@ class Callbacks extends \Smart_Plugin {
 	public static function default_admin_page( $page ) {
 		?>
 		<div class="wrap">
-			<h2><?php echo get_admin_page_title(); ?></h2>
+			<h1><?php echo get_admin_page_title(); ?></h1>
 
 			<br>
 
@@ -65,7 +65,7 @@ class Callbacks extends \Smart_Plugin {
 		$method = "menu_order_list_{$object_type}";
 		?>
 		<div class="wrap">
-			<h2><?php echo get_admin_page_title()?></h2>
+			<h1><?php echo get_admin_page_title()?></h1>
 
 			<br>
 
