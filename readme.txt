@@ -23,6 +23,9 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
 
+= 1.11.1 =
+Bug fixes regarding index_page feature, and added some better sanity checks to shorthand processing. Hiding wp_head will now also remove emoji stuff. A few other tweaks for future proofing as well.
+
 = 1.11.0 =
 New Section Manager feature; tie non-public section posts to a page or other post for more flexible content management. Meta boxes, post types, taxonomies, fields and field types now support various shorthand forms for a variety of settings in a single string. Also added special select field types, widget loading tools, and the usual tweaks and fixes to the code.
 
