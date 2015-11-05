@@ -61,3 +61,39 @@ function qs_hook_ajax_geocode() {
 }
 
 add_action( 'wp_ajax_qs_helper_geocode', 'qs_hook_ajax_geocode' );
+
+// =========================
+// ! Update Notice System
+// =========================
+
+/**
+ * Check the public SVN repo for a notice about the new update.
+ *
+ * If a notice is found, it prints out the content inside the update message block.
+ *
+ * @since 1.11.1
+ *
+ * @param array $plugin A list of details about the plugin and the new version.
+ */
+function quickstart_check_update_notice( $plugin ) {
+	// Get the version number that the update is for
+	$version = $plugin['new_version'];
+
+	// Check if there's a notice about the update
+	$transient = "nlingual-update-notice-{$version}";
+	$notice = get_transient( $transient );
+	if ( $notice === false ) {
+		// Hasn't been saved, fetch it from the SVN repo
+		$notice = file_get_contents( "http://plugins.svn.wordpress.org/nlingual/assets/notice-{$version}.txt" ) ?: '';
+
+		// Save the notice
+		set_transient( $transient, $notice, YEAR_IN_SECONDS );
+	}
+
+	// Print out the notice if there is one
+	if ( $notice ) {
+		echo apply_filters( 'the_content', $notice );
+	}
+}
+
+add_action( 'in_plugin_update_message-' . plugin_basename( QS_FILE ), 'quickstart_check_update_notice' );
