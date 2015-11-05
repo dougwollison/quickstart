@@ -200,6 +200,7 @@ class Tools extends \Smart_Plugin {
 				'sections',
 				'teaser',
 				'term_meta',
+				'walkers',
 				'wpedit',
 			);
 		}
