@@ -11,7 +11,7 @@ namespace QuickStart;
 
 class Form {
 	// Include internal utilities
-	use _Utilities;
+	use Utilities;
 
 	/**
 	 * Convert a field name to a valid ID.

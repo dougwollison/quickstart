@@ -11,7 +11,7 @@ namespace QuickStart;
 
 class Setup extends \Smart_Plugin {
 	// Include internal utilities
-	use _Utilities;
+	use Utilities;
 
 	/**
 	 * A list of internal methods and their hooks configurations are.
