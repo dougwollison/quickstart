@@ -25,10 +25,10 @@ class Template extends \Smart_Plugin {
 	 */
 	public static function the_head( array $features = array() ){
 		// Make sure favicon and title features are set
-		if ( ! isset( $features['title'] ) && ! in_array( 'title', $features ) ) {
+		if ( ! isset( $features['title'] ) && ! in_array( 'title', $features, true ) ) {
 			$features[] = 'title';
 		}
-		if ( ! isset( $features['favicon'] ) && ! in_array( 'favicon', $features ) ) {
+		if ( ! isset( $features['favicon'] ) && ! in_array( 'favicon', $features, true ) ) {
 			$features[] = 'favicon';
 		}
 
