@@ -93,6 +93,7 @@ class Tools extends \Smart_Plugin {
 		'media'      => 'upload.php',
 		'links'      => 'link-manager.php',
 		'pages'      => 'edit.php?post_type=page',
+		'comments'   => 'edit-comments.php',
 		'appearance' => 'themes.php',
 		'plugins'    => 'plugins.php',
 		'users'      => 'users.php',
