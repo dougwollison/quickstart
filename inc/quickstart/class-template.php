@@ -13,11 +13,12 @@ namespace QuickStart;
 
 class Template extends \Smart_Plugin {
 	/**
-	 * Print out the start of the header (doctype and head tag)
+	 * Print out the start of the header (doctype and head tag).
 	 *
 	 * This basically merges all the above template functions into one call.
 	 * By default only favicon is called, all others must be registered via $features.
 	 *
+	 * @since 1.11.2 Now handles feature settings for doc_start.
 	 * @since 1.11.0 Now eneuques all methods for wp_head, with appropriate priorities.
 	 * @since 1.8.0
 	 *
@@ -32,8 +33,18 @@ class Template extends \Smart_Plugin {
 			$features[] = 'favicon';
 		}
 
-		// Begin output
-		static::doc_start();
+		// Get any settings for doc_start
+		$doc_start = array();
+		if ( isset( $features['doc_start'] ) ) {
+			$doc_start = $features['doc_start'];
+			// Unset
+			unset( $features['doc_start'] );
+		}
+
+		// Call the document starter unless unwanted
+		if ( $doc_start !== false ) {
+			static::doc_start( $doc_start );
+		}
 		?>
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
@@ -73,28 +84,69 @@ class Template extends \Smart_Plugin {
 	 * Doctype and opening html tag with
 	 * IE conditional comments for classes.
 	 *
-	 * @since 1.9.0 Revised condition for old IE.
-	 * @since 1.1.0 Fixed IE9 tagging.
+	 * @since 1.11.2 Added customizing via $settings argument.
+	 * @since 1.9.0  Revised condition for old IE.
+	 * @since 1.1.0  Fixed IE9 tagging.
 	 * @since 1.0.0
 	 */
-	public static function doc_start() {
-		?><!DOCTYPE html>
-<!--[if lte IE 6]>
-<html id="ie6" class="ie9- ie8- ie7- ie6-" <?php language_attributes(); ?>>
-<![endif]-->
-<!--[if IE 7]>
-<html id="ie7" class="ie9- ie8- ie7-" <?php language_attributes(); ?>>
-<![endif]-->
-<!--[if IE 8]>
-<html id="ie8" class="ie9- ie8-" <?php language_attributes(); ?>>
-<![endif]-->
-<!--[if IE 9]>
-<html id="ie9" class="ie9-" <?php language_attributes(); ?>>
-<![endif]-->
-<!--[if !(lte IE 9) ]><!-->
-<html <?php language_attributes(); ?>>
-<!--<![endif]-->
-<?php
+	public static function doc_start( $settings = array() ) {
+		// Abort if already done
+		if ( did_action( 'qs_template_doc_start' ) ) {
+			return;
+		}
+
+		$min_ie = 6;
+		$max_ie = 9;
+
+		// Ensure settings is an array
+		$settings = (array) $settings;
+
+		// Get the min and max IE version values
+		extract( get_array_values( $settings, 'min_ie', 'max_ie' ) );
+
+		// Print the doctype
+		echo "<!DOCTYPE html>\n";
+
+		// Action hook here for printing any vanity stuff before the <html> tag.
+		do_action( 'qs_template_doc_start' );
+
+		$language_attributes = get_language_attributes();
+
+		// If min/max IE are set, print the conditional tags
+		if ( $min_ie && $max_ie ) {
+			// Build the classes list
+			$versions = array_reverse( range( $min_ie, $max_ie ) );
+			foreach ( $versions as &$v ) {
+				$v = "ie{$v}-";
+			}
+
+			// Merge into a class names value
+			$classes = implode( ' ', $versions );
+
+			// Print the <= conditional tag for $min_ie
+			echo "<!--[if lte IE {$min_ie}]>\n";
+			echo "<html id='ie{$min_ie}' class='{$classes}' {$language_attributes}>\n";
+			echo "<![endif]-->\n";
+
+			// Print the conditional tags for each version
+			for ( $i = $min_ie + 1; $i <= $max_ie; $i++ ) {
+				// Remove the last version from the list, recreate class names
+				array_pop( $versions );
+				$classes = implode( ' ', $versions );
+
+				// Print the = conditional tag for this version of IE
+				echo "<!--[if IE $i]>\n";
+				echo "<html id='ie{$i}' class='{$classes}' {$language_attributes}>\n";
+				echo "<![endif]-->\n";
+			}
+
+			// Print the normal <html> tag
+			echo "<!--[if !(lte IE {$max_ie}) ]><!-->\n";
+			echo "<html {$language_attributes}>\n";
+			echo "<!--<![endif]-->\n";
+		} else {
+			echo "<html {$language_attributes}>\n";
+		}
 	}
 
 	/**
