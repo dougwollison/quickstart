@@ -258,14 +258,22 @@ class Setup extends \Smart_Plugin {
 	 * @param array $fields The list of fields to check through.
 	 */
 	protected static function maybe_load_media_manager( $fields ) {
-		if ( ! defined( 'QS_LOADED_MEDIA_MANAGER' ) || ! QS_LOADED_MEDIA_MANAGER ) {
-			foreach ( $fields as $field ) {
-				$dependants = array( 'media', 'addfile', 'editgallery', 'setimage' );
-				if ( is_array( $field ) && isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
-					// Make sure the media_manager helper is loaded
-					Tools::load_helpers( 'media_manager' );
-					break;
-				}
+		// Skip if media manager already loaded
+		if ( defined( 'QS_LOADED_MEDIA_MANAGER' ) || QS_LOADED_MEDIA_MANAGER ) {
+			return;
+		}
+
+		// Also skip if fields isn't an array
+		if ( ! is_array( $fields ) ) {
+			return;
+		}
+
+		foreach ( $fields as $field ) {
+			$dependants = array( 'media', 'addfile', 'editgallery', 'setimage' );
+			if ( is_array( $field ) && isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
+				// Make sure the media_manager helper is loaded
+				Tools::load_helpers( 'media_manager' );
+				break;
 			}
 		}
 	}
@@ -1160,6 +1168,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @since 1.11.2 Also made sure fields arg was array before passing through maybe_load_media_manager()
+	 *               or looping through to register meta fields.
 	 * @sicne 1.11.1 Made sure fields arg was an array before passing through handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 *               Now public again.
@@ -1270,36 +1280,36 @@ class Setup extends \Smart_Plugin {
 		// Handle any shorthand in the fields if it's an array
 		if ( is_array( $args['fields'] ) ) {
 			static::handle_shorthand( 'field', $args['fields'] );
-		}
 
-		// Check if media_manager helper needs to be loaded
-		self::maybe_load_media_manager( $args['fields'] );
+			// Check if media_manager helper needs to be loaded
+			self::maybe_load_media_manager( $args['fields'] );
 
-		// Register all meta keys found
-		foreach ( $args['fields'] as $field => $_args ) {
-			// Skip if this field is for a post field or taxonomy
-			if ( isset( $_args['post_field'] ) || isset( $_args['taxonomy'] ) ) {
-				continue;
+			// Register all meta keys found
+			foreach ( $args['fields'] as $field => $_args ) {
+				// Skip if this field is for a post field or taxonomy
+				if ( isset( $_args['post_field'] ) || isset( $_args['taxonomy'] ) ) {
+					continue;
+				}
+
+				// By default, the field name is the meta key
+				$meta_key = $field;
+
+				// Attempt to override with name or data_name if set
+				if ( isset( $_args['data_name'] ) ) {
+					$meta_key = $_args['data_name'];
+				} elseif ( isset( $_args['name'] ) ) {
+					$meta_key = $_args['name'];
+				}
+
+				// Get sanitize callback if set
+				$sanitize_callback = null;
+				if ( isset( $_args['sanitize'] ) ) {
+					$sanitize_callback = $_args['sanitize'];
+				}
+
+				// Register the meta (it will automatically be protected)
+				register_meta( 'post', $meta_key, $sanitize_callback, '__return_false' );
 			}
-
-			// By default, the field name is the meta key
-			$meta_key = $field;
-
-			// Attempt to override with name or data_name if set
-			if ( isset( $_args['data_name'] ) ) {
-				$meta_key = $_args['data_name'];
-			} elseif ( isset( $_args['name'] ) ) {
-				$meta_key = $_args['name'];
-			}
-
-			// Get sanitize callback if set
-			$sanitize_callback = null;
-			if ( isset( $_args['sanitize'] ) ) {
-				$sanitize_callback = $_args['sanitize'];
-			}
-
-			// Register the meta (it will automatically be protected)
-			register_meta( 'post', $meta_key, $sanitize_callback, '__return_false' );
 		}
 
 		// Setup the save hook and register the actual meta_box
