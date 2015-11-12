@@ -86,7 +86,6 @@ class Walker_Inline_Nav_Menu extends Walker_Nav_Menu {
 		 * @param int    $depth   Depth of menu item. Used for padding.
 		 */
 		$id = apply_filters( 'nav_menu_item_id', 'menu-item-'. $item->ID, $item, $args, $depth );
-		$id = $id ? ' id="' . esc_attr( $id ) . '"' : '';
 
 		$atts = array();
 		$atts['id']     = ! empty( $id )               ? $id               : '';
