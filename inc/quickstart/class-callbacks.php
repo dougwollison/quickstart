@@ -28,8 +28,6 @@ class Callbacks extends \Smart_Plugin {
 		<div class="wrap">
 			<h1><?php echo get_admin_page_title(); ?></h1>
 
-			<br>
-
 			<form method="post" action="options.php">
 				<?php settings_fields( $page ); ?>
 				<?php do_settings_sections( $page ); ?>
