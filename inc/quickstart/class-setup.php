@@ -32,7 +32,7 @@ class Setup extends \Smart_Plugin {
 
 		// Theme Hooks
 		'run_theme_setups'       => array( 'after_setup_theme', 10, 0 ),
-		'setup_sidebars'         => array( 'widgets_init', 10, 0 ),
+		'register_sidebars'      => array( 'widgets_init', 10, 0 ),
 
 		// Admin Hooks
 		'edit_columns'           => array( 'admin_init', 10, 0 ),
@@ -513,6 +513,11 @@ class Setup extends \Smart_Plugin {
 		// Parse the arguments with the defaults
 		$args = wp_parse_args( $args, $defaults );
 
+		// If icon is present instead of menu_icon, reassing
+		if ( isset( $args['icon'] ) && ! $args['menu_icon'] ) {
+			$args['menu_icon'] = $args['icon'];
+		}
+
 		// Now, register the post type
 		register_post_type( $post_type, $args );
 
@@ -911,6 +916,9 @@ class Setup extends \Smart_Plugin {
 		if ( isset( $configs['nav_menus'] ) ) {
 			register_nav_menus( $configs['nav_menus'] );
 		}
+
+		// Sidebars (handled later)
+		$this->register_sidebars();
 	}
 
 	/**
@@ -1709,6 +1717,11 @@ class Setup extends \Smart_Plugin {
 
 		// Parse the arguments with the defaults
 		$args = wp_parse_args( $args, $default_args );
+
+		// If menu_icon is present instead of icon, reassing
+		if ( isset( $args['menu_icon'] ) && ! $args['icon'] ) {
+			$args['icon'] = $args['menu_icon'];
+		}
 
 		// Set the menu and page titles if not set, based on the title and menu title, respectively
 		if ( ! isset( $args['menu_title'] ) ) {
