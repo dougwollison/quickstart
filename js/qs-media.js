@@ -467,7 +467,7 @@ window.QS = window.QS || {};
 								// Clear the preview
 								plugin.$preview.empty();
 
-								if ( attachment.type == 'image' ) {
+								if ( attachment.type === 'image' ) {
 									// Attachment is an image, set the img.src to medium size...
 									if ( typeof attachment.sizes.medium !== 'undefined'  ) {
 										img.src = attachment.sizes.medium.url;
@@ -488,7 +488,7 @@ window.QS = window.QS || {};
 								plugin.$elm.removeClass( 'value-empty' ).addClass( 'value-filled' );
 							} else {
 								// Loop through attachments and add them to the preview
-								var $item, $preview, $input;
+								var $item, $preview, $input, $img;
 								_.each( attachments, function( attachment ) {
 									// Make a copty of the template item
 									$item = plugin.$template.clone();
@@ -496,15 +496,16 @@ window.QS = window.QS || {};
 									// Get the preview and input elements
 									$preview = $item.find( plugin.preview );
 									$input = $item.find( plugin.input );
+									$img = $preview.find( 'img' );
 
 									// Update preview accordingly
-									if ( $preview.is( 'img' ) && 'image' === attachment.type ) {
-										// Preview is an image, update the source
+									if ( $img.length > 0 && 'image' === attachment.type ) {
+										// Preview has an image, update the source
 										// Use thumbnail or full size if unavailable
 										if ( typeof attachment.sizes.thumbnail !== 'undefined' ) {
-											$preview.attr( 'src', attachment.sizes.thumbnail.url );
+											$img.attr( 'src', attachment.sizes.thumbnail.url );
 										} else {
-											$preview.attr( 'src', attachment.sizes.full.url );
+											$img.attr( 'src', attachment.sizes.full.url );
 										}
 									} else {
 										// Preview should be plain text of the title or filename, update the content
