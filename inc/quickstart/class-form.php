@@ -1167,26 +1167,36 @@ class Form {
 		// Get the field name
 		$field_name = $settings['name'];
 
-		// Determine gallery mode support
-		$is_gallery = isset( $settings['gallery'] ) ? $settings['gallery'] : false;
+		// Determine mode
+		$mode = 'single';
+		if ( isset( $settings['gallery'] ) && $settings['gallery'] ) {
+			$mode = 'gallery';
+		}
+		if ( isset( $settings['multiple'] ) && $settings['multiple'] ) {
+			$mode = 'multiple';
+		}
+		$is_gallery = $mode == 'gallery';
+		$is_multi = $mode == 'multiple';
+		$is_single = $mode == 'single';
 
-		// Determine multiple file support (not the same as gallery)
-		$is_multi = ! $is_gallery && isset( $settings['multiple'] ) && $settings['multiple'];
-
-		// Determine quicksort utility support
+		// Determine quicksort utility support (multiple only)
 		$use_sort = $is_multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
 
 		// Determine media type (defaults to any, or image if gallery)
 		$media_type = isset( $settings['media'] ) ? $settings['media'] : ( $is_gallery ? 'image' : null );
+		$is_image = $media_type == 'image';
 
 		// Determine display mode for text (title, filename, or none, default none for image media)
-		$text_preview = isset( $settings['display'] ) ? $settings['display'] : ( $media_type == 'image' ? false : 'filename' );
+		$text_preview = isset( $settings['display'] ) ? $settings['display'] : ( $is_image ? false : 'filename' );
 
 		// Determine icon support (for multiple, non-image items)
-		$icon_preview = isset( $settings['icon'] ) ? $settings['icon'] : false;
+		$icon_preview = isset( $settings['icon'] ) && ! $is_image ? $settings['icon'] : ! $is_image && $is_single;
 
 		// Determine preview image size (for images only, defaults to thumbnail)
-		$preview_size = isset( $settings['image_size'] ) ? $settings['image_size'] : ( $is_gallery || $is_multi ? 'thumbnail' : 'medium' );
+		$preview_size = isset( $settings['image_size'] ) ? $settings['image_size'] : 'thumbnail';
+		if ( ! in_array( $preview_size, array( 'thumbnail', 'medium', 'large', 'full' ) ) ) {
+			$preview_size = 'thumbnail';
+		}
 
 		// Build the Add/Remove Labels
 		if ( ! isset( $settings['add_label'] ) ) {
@@ -1197,23 +1207,27 @@ class Form {
 		}
 
 		// Setup the classes for the container
-		$classes = array( 'qs-field', 'qs-media', $value ? 'value-filled' : 'value-empty' );
-		if ( $media_type != 'image' ) {
-			$classes[] = 'media-file';
+		$classes = array(
+			'qs-field',
+			'qs-media',
+			'qs-media-' . $mode,
+			'qs-media-value-' . ( $value ? 'filled' : 'empty' ),
+		);
+		if ( ! $is_image ) {
+			$classes[] = 'qs-media-file';
 		}
 		if ( $media_type ) {
-			$classes[] = 'media-' . sanitize_title( $media_type );
+			$classes[] = 'qs-media-' . sanitize_title( $media_type );
 		}
-		if ( $is_gallery ) {
-			$classes[] = 'gallery';
-		} elseif ( $is_multi ) {
-			$classes[] = 'multiple';
-		} else {
-			$classes[] = 'single';
+		if ( $text_preview ) {
+			$classes[] = 'qs-media-preview-text';
+		}
+		if ( $icon_preview ) {
+			$classes[] = 'qs-media-preview-icon';
 		}
 
 		// Begin the markup for this component
-		$html = sprintf( '<div id="%s" class="%s" data-type="%s" data-show="%s" data-icon="%s" data-size="%s" data-mode="%s">', $settings['id'], implode( ' ', $classes ), $media_type, $text_preview, $icon_preview, $preview_size, $is_gallery ? 'gallery' : 'normal' );
+		$html = sprintf( '<div id="%s" class="%s" data-type="%s" data-show="%s" data-icon="%s" data-size="%s" data-mode="%s">', $settings['id'], implode( ' ', $classes ), $media_type, $text_preview, $icon_preview, $preview_size, $mode );
 
 		// Special output for certain conditions
 		if ( $is_gallery ) {
@@ -1285,9 +1299,11 @@ class Form {
 						$preview = get_the_title( $value );
 					}
 
-					$html .= wp_get_attachment_image( $value, 'medium', true, array(
-						'title' => $text_preview,
-					) );
+					if ( $src = wp_get_attachment_image_src( $value, $preview_size, $icon_preview ) ) {
+						$html .= sprintf( '<img src="%s" title="%s" />', $src[0], $preview );
+					} else {
+						$html .= $preview;
+					}
 				} else {
 					$html .= $settings['add_label'];
 				}
@@ -1329,7 +1345,8 @@ class Form {
 		$html .= '<div class="qs-preview">';
 		if ( $attachment_id ) {
 			if ( $media_type == 'image' || $icon_preview ) {
-				$html .= wp_get_attachment_image( $attachment_id, $preview_size, $icon_preview );
+				$src = wp_get_attachment_image_src( $attachment_id, $preview_size, $icon_preview );
+				$html .= sprintf( '<img src="%s" title="%s" class="qs-preview-image" />', $src[0], $preview );
 			}
 			if ( $text_preview ) {
 				$preview = rawurldecode( basename( wp_get_attachment_url( $attachment_id ) ) );
@@ -1340,7 +1357,7 @@ class Form {
 			}
 		} else {
 			if ( $media_type == 'image' || $icon_preview ) {
-				$html .= '<img />';
+				$html .= '<img class="qs-preview-image" />';
 			}
 			if ( $text_preview ) {
 				$html .= '<span class="qs-preview-text"></span>';
@@ -1349,7 +1366,7 @@ class Form {
 		$html .= '</div>';
 
 		// Add delete button and field name brackets if in mulitple mode
-		$html .= '<button type="button" class="button qs-delete">Delete</button>';
+		$html .= '<span type="button" class="button qs-delete">Delete</span>';
 
 		// Add the input field for this item (and append [] to the field name)
 		$html .= sprintf( '<input type="hidden" name="%s[]" value="%s" class="qs-value">', $field_name, $attachment_id );
