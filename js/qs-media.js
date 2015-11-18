@@ -312,9 +312,9 @@ window.QS = window.QS || {};
 	 * @since 1.8.0
 	 *
 	 * @param Event  event The (click) event that triggered this.
-	 * @param string mode  Pass 'initonly' to setup but not open the frame.
+	 * @param string setup Pass 'initonly' to setup but not open the frame.
 	 */
-	QS.setupMedia = function( event, mode ) {
+	QS.setupMedia = function( event, setup ) {
 		var $elm = $( this ), $btn;
 
 		// Cancel the default event trigger
@@ -336,11 +336,10 @@ window.QS = window.QS || {};
 
 		// Check if plugin data already exists, setup if not
 		if ( ! plugin ) {
-			// Check for multiple mode
-			var is_multi = $elm.hasClass( 'multiple' );
-
-			// Check for gallery mode
-			var is_gallery = $elm.hasClass( 'gallery' );
+			// Get the mode
+			var mode = $elm.data( 'mode' ),
+				is_gallery = mode === 'gallery',
+				is_multi = mode === 'multiple';
 
 			// Check for preload option
 			var do_preload = $elm.data('preload');
@@ -349,8 +348,10 @@ window.QS = window.QS || {};
 					do_preload = true;
 				}
 
-			// Get display mode
-			var show = $elm.data( 'show' );
+			// Get display options
+			var text_preview = $elm.data( 'show' ) || false;
+			var icon_preview = $elm.data( 'icon' ) || false;
+			var preview_size = $elm.data( 'size' ) || 'thumbnail';
 
 			// Get media type
 			var mimetype = $elm.data( 'type' );
@@ -375,9 +376,11 @@ window.QS = window.QS || {};
 
 			var defaults = {
 				// Component selectors
-				trigger:    '.qs-button',
-				preview:    '.qs-preview',
-				input:      '.qs-value',
+				trigger: '.qs-button',
+				preview: '.qs-preview',
+				text:    '.qs-preview-text',
+				image:   '.qs-preview-image',
+				input:   '.qs-value',
 			};
 
 			// Extend defaults based on mode
@@ -404,8 +407,10 @@ window.QS = window.QS || {};
 								items.push( attachment.id );
 
 								var src = '';
-								// Use thumbnail or full size if unavailable
-								if ( typeof attachment.sizes.thumbnail !== 'undefined' ) {
+								// Use specified image size if found, falling back to thumbnail and then full
+								if ( typeof attachment.sizes[ preview_size ] !== 'undefined' ) {
+									src = attachment.sizes[ preview_size ].url;
+								} else if ( typeof attachment.sizes.thumbnail !== 'undefined' ) {
 									src = attachment.sizes.thumbnail.url;
 								} else {
 									src = attachment.sizes.full.url;
@@ -422,7 +427,7 @@ window.QS = window.QS || {};
 							plugin.$input.val( items.join( ',' ) );
 
 							// Ensure the empty class is removed and the filled class added
-							plugin.$elm.removeClass( 'value-empty' ).addClass( 'value-filled' );
+							plugin.$elm.removeClass( 'qs-media-value-empty' ).addClass( 'qs-media-value-filled' );
 
 							// Trigger the media-changed event
 							plugin.$elm.trigger( 'qs:media-changed' );
@@ -467,16 +472,20 @@ window.QS = window.QS || {};
 								// Clear the preview
 								plugin.$preview.empty();
 
+								// Use the image or icon preview appropriately
 								if ( attachment.type === 'image' ) {
-									// Attachment is an image, set the img.src to medium size...
-									if ( typeof attachment.sizes.medium !== 'undefined'  ) {
+									// An image, use specified size, falling back to medium, thumbnail, then full
+									if ( typeof attachment.sizes[preview_size] !== 'undefined'  ) {
 										img.src = attachment.sizes.medium.url;
+									} else if ( typeof attachment.sizes.medium !== 'undefined'  ) {
+										img.src = attachment.sizes.medium.url;
+									} else if ( typeof attachment.sizes.thumbnail !== 'undefined'  ) {
+										img.src = attachment.sizes.thumbnail.url;
 									} else {
-										// ...Or full size if no medium version is set
 										img.src = attachment.sizes.full.url;
 									}
 								} else {
-									// Attachment is some kind of file, set img.src to icon
+									// Non-image, use icon
 									img.src = attachment.icon;
 								}
 
@@ -485,36 +494,43 @@ window.QS = window.QS || {};
 								plugin.$input.val( attachment.id );
 
 								// Ensure the empty class is removed and the filled class added
-								plugin.$elm.removeClass( 'value-empty' ).addClass( 'value-filled' );
+								plugin.$elm.removeClass( 'qs-media-value-empty' ).addClass( 'qs-media-value-filled' );
 							} else {
 								// Loop through attachments and add them to the preview
-								var $item, $preview, $input, $img;
 								_.each( attachments, function( attachment ) {
+									var $item, $preview, $input, $text, $image, imageUrl;
+
 									// Make a copty of the template item
 									$item = plugin.$template.clone();
 
 									// Get the preview and input elements
 									$preview = $item.find( plugin.preview );
+									$text = $item.find( plugin.text );
+									$image = $item.find( plugin.image );
 									$input = $item.find( plugin.input );
-									$img = $preview.find( 'img' );
 
-									// Update preview accordingly
-									if ( $img.length > 0 && 'image' === attachment.type ) {
-										// Preview has an image, update the source
-										// Use thumbnail or full size if unavailable
-										if ( typeof attachment.sizes.thumbnail !== 'undefined' ) {
-											$img.attr( 'src', attachment.sizes.thumbnail.url );
+									// Update previews accordingly
+									if ( text_preview ) {
+										if ( text_preview === 'title' ) {
+											$text.text( attachment.title );
 										} else {
-											$img.attr( 'src', attachment.sizes.full.url );
-										}
-									} else {
-										// Preview should be plain text of the title or filename, update the content
-										if ( 'title' === show ) {
-											$preview.html( attachment.title );
-										} else {
-											$preview.html( decodeURI( attachment.filename ) );
+											$text.text( decodeURI( attachment.filename ) );
 										}
 									}
+
+									if ( 'image' === attachment.type ) {
+										if ( typeof attachment.sizes[ preview_size ] !== 'undefined' ) {
+											imageUrl = attachment.sizes[ preview_size ].url;
+										} else if ( typeof attachment.sizes.thumbnail !== 'undefined' ) {
+											imageUrl = attachment.sizes.thumbnail.url;
+										} else {
+											imageUrl = attachment.sizes.full.url;
+										}
+									} else if ( icon_preview ) {
+										imageUrl = attachment.icon;
+									}
+
+									$image.attr( 'src', imageUrl );
 
 									// Make sure the clear button is visible
 									plugin.$container.find('.qs-clear').show();
@@ -532,7 +548,7 @@ window.QS = window.QS || {};
 									$input.val( attachment.id );
 
 									// Add the item to the container, ensure it has the filled and not empty class
-									plugin.$container.append( $item ).removeClass( 'value-empty' ).addClass( 'value-filled' );
+									plugin.$container.append( $item ).removeClass( 'qs-media-value-empty' ).addClass( 'qs-media-value-filled' );
 
 									// Trigger the media-added event
 									$item.trigger( 'qs:media-added' );
@@ -588,7 +604,7 @@ window.QS = window.QS || {};
 		media.frame = plugin.frame;
 
 		// End now if initializing only
-		if ( 'initonly' === mode ) {
+		if ( 'initonly' === setup ) {
 			return;
 		}
 

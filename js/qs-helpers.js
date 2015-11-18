@@ -1,4 +1,4 @@
-/* global alert, _, QS, google */
+/* global alert, _, QS, google, ajaxurl */
 window.QS = window.QS || {};
 
 (function( $ ) {
@@ -80,8 +80,6 @@ jQuery(function( $ ) {
 
 	// Clear items button setup
 	$( 'body' ).on( 'click', '.qs-clear', function() {
-		var $parent = $( this ).parent();
-
 		// Get the parent field or repeater
 		var $parent = $( this ).parents( '.qs-field, .qs-repeater' ).eq( 0 );
 
@@ -93,7 +91,7 @@ jQuery(function( $ ) {
 				$parent.find( '.qs-value' ).val( '' );
 
 				// And update the parent's value-* class
-				$parent.removeClass( 'value-filled' ).addClass( 'value-empty' );
+				$parent.removeClass( 'qs-media-value-filled' ).addClass( 'qs-media-value-empty' );
 			} else if ( $parent.hasClass( 'gallery' ) ) {
 				// Empty the gallery preview and input value
 				$parent.find( '.qs-preview' ).animate({
@@ -229,7 +227,7 @@ jQuery(function( $ ) {
 			var showMarker = false;
 
 			// Check if values are set, use defaults if not
-			if ( lat != '' && lng != '' ) {
+			if ( lat !== '' && lng !== '' ) {
 				showMarker = true;
 				if ( ! zoom ) {
 					zoom = defaultZoom;
@@ -291,9 +289,6 @@ jQuery(function( $ ) {
 
 			// Search feature if present
 			if ( $search.length > 0 ){
-				// We need an API key to use
-				var key = $ui.data( 'key' );
-
 				// Setup the search functionality
 				$ui.find( '.qs-search' ).click(function() {
 					var query = $search.val();
@@ -343,7 +338,7 @@ jQuery(function( $ ) {
 		// Prevent hitting enter while entering a search address
 		// from triggering form submit
 		$( 'form#post' ).keypress(function( e ) {
-			if ( e.which == 13 && $( e.target ).is( 'input.qs-map-search' ) ) {
+			if ( e.which === 13 && $( e.target ).is( 'input.qs-map-search' ) ) {
 				e.preventDefault();
 				// Trigger the search callback instead
 				$( e.target ).parents( '.qs-map-field' ).find( '.qs-search' ).click();
