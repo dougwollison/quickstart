@@ -1,6 +1,11 @@
-.qs-meta-box .qs-media .qs-container {
-  margin-left: -5px;
-  margin-right: -5px; }
+.qs-media {
+  margin: 20px 0; }
+  .qs-media .qs-container {
+    margin-bottom: 0; }
+  .qs-meta-box .qs-media {
+    margin: 0; }
+    .qs-meta-box .qs-media .qs-container {
+      padding: 0; }
 
 .qs-media-single .qs-container {
   margin: 0;
@@ -21,6 +26,15 @@
 .qs-media-preview-icon img {
   margin-right: 1em; }
 
+.qs-media-multiple.qs-media-file .qs-item {
+  padding-left: 10px; }
+  .qs-meta-box .qs-media-multiple.qs-media-file .qs-item {
+    padding-left: 0; }
+
+.qs-media-multiple.qs-media-image .qs-container {
+  padding: 5px; }
+  .qs-meta-box .qs-media-multiple.qs-media-image .qs-container {
+    padding: 0; }
 .qs-media-multiple.qs-media-image .qs-item {
   float: left;
   padding: 0;
@@ -30,6 +44,8 @@
     content: none; }
   .qs-media-multiple.qs-media-image .qs-item:hover .qs-delete {
     opacity: 1; }
+  .qs-meta-box .qs-media-multiple.qs-media-image .qs-item {
+    margin: 10px 10px 0 0; }
 .qs-media-multiple.qs-media-image .qs-preview {
   float: none;
   display: block;
