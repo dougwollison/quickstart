@@ -1,62 +1,62 @@
-.qs-media.gallery .qs-preview {
-  *zoom: 1; }
-  .qs-media.gallery .qs-preview:after {
-    content: "";
-    display: table;
-    clear: both; }
+.qs-meta-box .qs-media .qs-container {
+  margin-left: -5px;
+  margin-right: -5px; }
 
-.qs-media .qs-container {
-  padding: 0;
-  background: transparent; }
-.qs-media.single .qs-container {
+.qs-media-single .qs-container {
   margin: 0;
   border-top: none; }
-.qs-media.single img {
+.qs-media-single img {
   max-width: 100%;
   height: auto;
   width: auto; }
-.qs-media.multiple .qs-preview {
+
+.qs-media-multiple .qs-preview {
   float: left;
   padding: 5px 0;
   margin: 0;
   font-style: italic; }
-  .qs-media.multiple .qs-preview img {
-    vertical-align: middle;
-    margin-right: 1em; }
-.qs-media.multiple.media-image .qs-item {
+  .qs-media-multiple .qs-preview img {
+    vertical-align: middle; }
+
+.qs-media-preview-icon img {
+  margin-right: 1em; }
+
+.qs-media-multiple.qs-media-image .qs-item {
   float: left;
-  width: 156px;
-  padding: 10px 10px 0 0;
+  padding: 0;
+  margin: 5px;
   border: none; }
-  .qs-media.multiple.media-image .qs-item:before {
+  .qs-media-multiple.qs-media-image .qs-item:before {
     content: none; }
-  .qs-media.multiple.media-image .qs-item:hover .qs-delete {
+  .qs-media-multiple.qs-media-image .qs-item:hover .qs-delete {
     opacity: 1; }
-.qs-media.multiple.media-image .qs-preview {
+.qs-media-multiple.qs-media-image .qs-preview {
   float: none;
   display: block;
   padding: 2px;
   border: 1px solid #eee; }
-.qs-media.multiple.media-image .qs-delete {
+.qs-media-multiple.qs-media-image .qs-delete {
   float: none;
   position: absolute;
   bottom: 3px;
   left: 3px;
-  width: 150px;
+  right: 3px;
   border-radius: 0;
   opacity: 0;
+  text-align: center;
   -moz-transition: opacity 0.2s linear;
   -o-transition: opacity 0.2s linear;
   -webkit-transition: opacity 0.2s linear;
   transition: opacity 0.2s linear; }
-.qs-media.gallery img {
+
+.qs-media-gallery img {
   float: left;
   margin: 4px 4px 0 0;
   padding: 2px;
   border: 1px solid #ddd; }
-.qs-media.gallery .qs-preview {
+.qs-media-gallery .qs-preview {
   margin: 6px 0 0;
   padding: 0; }
 
-.value-empty .qs-clear {
+.qs-media-value-empty .qs-clear {
   display: none; }

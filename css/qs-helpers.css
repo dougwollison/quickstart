@@ -1,6 +1,6 @@
-.qs-meta-box, .qs-field, .qs-fieldset .inputlist, .qs-container, .qs-item, .qs-map {
+.qs-meta-box, .qs-field, .qs-fieldset .inputlist, .qs-container, .qs-preview, .qs-item, .qs-map {
   *zoom: 1; }
-  .qs-meta-box:after, .qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-item:after, .qs-map:after {
+  .qs-meta-box:after, .qs-field:after, .qs-fieldset .inputlist:after, .qs-container:after, .qs-preview:after, .qs-item:after, .qs-map:after {
     content: "";
     display: table;
     clear: both; }
@@ -57,6 +57,9 @@
 .qs-container {
   margin: 10px 0 0;
   border-top: 1px solid #eee; }
+
+.qs-preview {
+  position: relative; }
 
 .qs-sortable {
   background: #fff;
