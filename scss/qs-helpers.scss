@@ -93,6 +93,10 @@
 	margin: 10px 0 0;
 	border-top: 1px solid #eee;
 }
+	.qs-preview {
+		@extend %clearfix;
+		position: relative;
+	}
 
 .qs-sortable {
 	background: #fff;
