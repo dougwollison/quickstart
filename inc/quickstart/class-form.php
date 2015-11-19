@@ -937,6 +937,7 @@ class Form {
 	/**
 	 * Build a checklist or radio list.
 	 *
+	 * @since 1.12.0 Added support for numeric_values option.
 	 * @since 1.11.0 Added "inputlist-item" to item class list.
 	 * @since 1.10.0 Updated handling of default wrapper format, added use of build_hidden.
 	 * @since 1.6.0  Added checked_first support.
