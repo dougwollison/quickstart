@@ -937,6 +937,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Reorder the admin menu withe the specified items first.
 	 *
+	 * @since 1.12.0 Fixed handling of adding remaining items.
 	 * @since 1.11.0
 	 *
 	 * @global array $menu The admin menu items array.
@@ -960,7 +961,7 @@ class Tools extends \Smart_Plugin {
 
 			default:
 				$start = 0;
-				$end = key( end( $menu ) );
+				$end = end( array_keys( $menu ) );
 		}
 
 		// Storage for new and old items
@@ -979,7 +980,12 @@ class Tools extends \Smart_Plugin {
 
 		// Now add the specified items in order
 		$n = $start;
-		foreach ( $items as $item ) {
+		$is_assoc = is_assoc( $items );
+		foreach ( $items as $order => $item ) {
+			if ( $is_assoc ) {
+				$n = $order;
+			}
+
 			if ( $position = self::find_menu_item( $item ) ) {
 				$new_menu[ $n ] = $menu[ $position ];
 
