@@ -765,7 +765,10 @@ class Form {
 
 		csv_array_ref( $settings['values'] );
 
-		$is_assoc = is_assoc( $settings['values'] );
+		// Check if numeric values are desired
+		$numeric_values = ( isset( $settings['numeric_values'] ) && $settings['numeric_values'] );
+
+		$is_assoc = is_assoc( $settings['values'] ) || $numeric_values;
 
 		// Add a null option if requested
 		if ( isset( $settings['null'] ) ) {
@@ -781,7 +784,7 @@ class Form {
 			// If $label is an array, handle as an optgroup
 			if ( is_array( $label ) ) {
 				$suboptions = '';
-				$is_sub_assoc = is_assoc( $label );
+				$is_sub_assoc = is_assoc( $label ) || $numeric_values;
 				foreach ( $label as $subval => $sublabel ) {
 					if ( ! $is_sub_assoc ) {
 						$subval = $sublabel;
@@ -960,7 +963,11 @@ class Form {
 		}
 
 		csv_array_ref( $settings['values'] );
-		$is_assoc = is_assoc( $settings['values'] );
+
+		// Check if numeric values are desired
+		$numeric_values = ( isset( $settings['numeric_values'] ) && $settings['numeric_values'] );
+
+		$is_assoc = is_assoc( $settings['values'] ) || $numeric_values;
 
 		$items = array();
 		$i = 0;
