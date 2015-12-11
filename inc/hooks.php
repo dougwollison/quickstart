@@ -80,11 +80,11 @@ function quickstart_check_update_notice( $plugin ) {
 	$version = $plugin['new_version'];
 
 	// Check if there's a notice about the update
-	$transient = "nlingual-update-notice-{$version}";
+	$transient = "quickstart-update-notice-{$version}";
 	$notice = get_transient( $transient );
 	if ( $notice === false ) {
 		// Hasn't been saved, fetch it from the SVN repo
-		$notice = file_get_contents( "http://plugins.svn.wordpress.org/nlingual/assets/notice-{$version}.txt" ) ?: '';
+		$notice = file_get_contents( "http://plugins.svn.wordpress.org/quickstart/assets/notice-{$version}.txt" ) ?: '';
 
 		// Save the notice
 		set_transient( $transient, $notice, YEAR_IN_SECONDS );
