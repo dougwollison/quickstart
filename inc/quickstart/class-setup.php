@@ -1178,8 +1178,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
-	 * @since 1.12.0 Updated to use external handle_shorthand().
-	 * @since 1.11.2 Also made sure fields arg was array before passing through maybe_load_media_manager()
+	 * @since 1.12.0 Updated to use external handle_shorthand(),
+	 *               Also made sure fields arg was array before passing through maybe_load_media_manager()
 	 *               or looping through to register meta fields.
 	 * @sicne 1.11.1 Made sure fields arg was an array before passing through handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand().

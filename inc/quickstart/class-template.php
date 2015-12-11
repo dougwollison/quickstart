@@ -18,7 +18,7 @@ class Template extends \Smart_Plugin {
 	 * This basically merges all the above template functions into one call.
 	 * By default only favicon is called, all others must be registered via $features.
 	 *
-	 * @since 1.11.2 Now handles feature settings for doc_start.
+	 * @since 1.12.0 Now handles feature settings for doc_start.
 	 * @since 1.11.0 Now eneuques all methods for wp_head, with appropriate priorities.
 	 * @since 1.8.0
 	 *
@@ -84,7 +84,7 @@ class Template extends \Smart_Plugin {
 	 * Doctype and opening html tag with
 	 * IE conditional comments for classes.
 	 *
-	 * @since 1.11.2 Added customizing via $settings argument.
+	 * @since 1.12.0 Added customizing via $settings argument.
 	 * @since 1.9.0  Revised condition for old IE.
 	 * @since 1.1.0  Fixed IE9 tagging.
 	 * @since 1.0.0
