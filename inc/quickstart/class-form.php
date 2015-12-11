@@ -1276,7 +1276,7 @@ class Form {
 
 			// Print the template so javascript knows how to add new items
 			$html .= '<template class="qs-template">';
-				$html .= static::build_media_item( null, $field_name, $show );
+				$html .= static::build_media_item( null, $field_name, $show, $icon );
 			$html .= '</template>';
 		} else {
 			// Build a simple version similar to the Featured Image box
