@@ -1149,7 +1149,6 @@ class Form {
 	 *
 	 * Replaces addfile, setimage and editgallery.
 	 *
-	 * @since 1.12.0 Added "image_size" setting support.
 	 * @since 1.10.0 Now uses value-(filled|empty) classes.
 	 * @since 1.8.0
 	 *
@@ -1173,36 +1172,23 @@ class Form {
 		// Get the field name
 		$field_name = $settings['name'];
 
-		// Determine mode
-		$mode = 'single';
-		if ( isset( $settings['gallery'] ) && $settings['gallery'] ) {
-			$mode = 'gallery';
-		}
-		if ( isset( $settings['multiple'] ) && $settings['multiple'] ) {
-			$mode = 'multiple';
-		}
-		$is_gallery = $mode == 'gallery';
-		$is_multi = $mode == 'multiple';
-		$is_single = $mode == 'single';
+		// Determine gallery mode support
+		$is_gallery = isset( $settings['gallery'] ) ? $settings['gallery'] : false;
 
-		// Determine quicksort utility support (multiple only)
+		// Determine multiple file support (not the same as gallery)
+		$is_multi = ! $is_gallery && isset( $settings['multiple'] ) && $settings['multiple'];
+
+		// Determine quicksort utility support
 		$use_sort = $is_multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
 
-		// Determine media type (defaults to any, or image if gallery)
-		$media_type = isset( $settings['media'] ) ? $settings['media'] : ( $is_gallery ? 'image' : null );
-		$is_image = $media_type == 'image';
+		// Determine media type support (defaults to any, or image if gallery)
+		$media = isset( $settings['media'] ) ? $settings['media'] : ( $is_gallery ? 'image' : null );
 
-		// Determine display mode for text (title, filename, or none, default none for image media)
-		$text_preview = isset( $settings['display'] ) ? $settings['display'] : ( $is_image ? false : 'filename' );
+		// Determine display mode for text (title, filename, or none, default none for image type)
+		$show = isset( $settings['display'] ) ? $settings['display'] : ( $media == 'image' ? false : 'filename' );
 
-		// Determine icon support (for multiple, non-image items)
-		$icon_preview = isset( $settings['icon'] ) && ! $is_image ? $settings['icon'] : ! $is_image && $is_single;
-
-		// Determine preview image size (for images only, defaults to thumbnail)
-		$preview_size = isset( $settings['image_size'] ) ? $settings['image_size'] : 'thumbnail';
-		if ( ! in_array( $preview_size, array( 'thumbnail', 'medium', 'large', 'full' ) ) ) {
-			$preview_size = 'thumbnail';
-		}
+		// Determin icon support (for multiple, non-image items)
+		$icon = isset( $settings['icon'] ) ? $settings['icon'] : false;
 
 		// Build the Add/Remove Labels
 		if ( ! isset( $settings['add_label'] ) ) {
@@ -1213,27 +1199,23 @@ class Form {
 		}
 
 		// Setup the classes for the container
-		$classes = array(
-			'qs-field',
-			'qs-media',
-			'qs-media-' . $mode,
-			'qs-media-value-' . ( $value ? 'filled' : 'empty' ),
-		);
-		if ( ! $is_image ) {
-			$classes[] = 'qs-media-file';
+		$classes = array( 'qs-field', 'qs-media', $value ? 'value-filled' : 'value-empty' );
+		if ( $media != 'image' ) {
+			$classes[] = 'media-file';
 		}
-		if ( $media_type ) {
-			$classes[] = 'qs-media-' . sanitize_title( $media_type );
+		if ( $media ) {
+			$classes[] = 'media-' . sanitize_title( $media );
 		}
-		if ( $text_preview ) {
-			$classes[] = 'qs-media-preview-text';
-		}
-		if ( $icon_preview ) {
-			$classes[] = 'qs-media-preview-icon';
+		if ( $is_gallery ) {
+			$classes[] = 'gallery';
+		} elseif ( $is_multi ) {
+			$classes[] = 'multiple';
+		} else {
+			$classes[] = 'single';
 		}
 
 		// Begin the markup for this component
-		$html = sprintf( '<div id="%s" class="%s" data-type="%s" data-show="%s" data-icon="%s" data-size="%s" data-mode="%s">', $settings['id'], implode( ' ', $classes ), $media_type, $text_preview, $icon_preview, $preview_size, $mode );
+		$html = sprintf( '<div id="%s" class="%s" data-type="%s" data-show="%s" data-mode="%s">', $settings['id'], implode( ' ', $classes ), $media, $show, $is_gallery ? 'gallery' : 'normal' );
 
 		// Special output for certain conditions
 		if ( $is_gallery ) {
@@ -1267,7 +1249,7 @@ class Form {
 			$html .= ' <button type="button" class="button qs-clear">' . $settings['remove_label'] . '</button>';
 
 			// Start the preview list container, adding axis setting for non-image media types
-			$html .= sprintf( '<div class="qs-container qs-sortable" %s>', $media_type == 'image' ? '' : 'data-axis="y"' );
+			$html .= sprintf( '<div class="qs-container qs-sortable" %s>', $media == 'image' ? '' : 'data-axis="y"' );
 			// Print the items if present
 			if ( $value ) {
 				// Ensure value is in the form of an array
@@ -1276,7 +1258,7 @@ class Form {
 				// Loop through each image and print an item
 				foreach ( $value as $attachment_id ) {
 					// Add an item for the current file
-					$html .= static::build_media_item( $attachment_id, $field_name, $media_type, $text_preview, $icon_preview, $preview_size );
+					$html .= static::build_media_item( $attachment_id, $field_name, $show, $icon );
 				}
 			}
 			$html .= '</div>';
@@ -1293,7 +1275,7 @@ class Form {
 
 			// Print the template so javascript knows how to add new items
 			$html .= '<template class="qs-template">';
-				$html .= static::build_media_item( null, $field_name, $media_type, $text_preview, $icon_preview, $preview_size );
+				$html .= static::build_media_item( null, $field_name, $show );
 			$html .= '</template>';
 		} else {
 			// Build a simple version similar to the Featured Image box
@@ -1301,15 +1283,13 @@ class Form {
 				$html .= '<a href="#" class="qs-preview qs-button" title="' . $settings['add_label'] . '">';
 				if ( $value ) {
 					$preview = rawurldecode( basename( wp_get_attachment_url( $value ) ) );
-					if ( $text_preview == 'title' ) {
+					if ( $show == 'title' ) {
 						$preview = get_the_title( $value );
 					}
 
-					if ( $src = wp_get_attachment_image_src( $value, $preview_size, $icon_preview ) ) {
-						$html .= sprintf( '<img src="%s" title="%s" />', $src[0], $preview );
-					} else {
-						$html .= $preview;
-					}
+					$html .= wp_get_attachment_image( $value, 'medium', true, array(
+						'title' => $preview,
+					) );
 				} else {
 					$html .= $settings['add_label'];
 				}
@@ -1333,16 +1313,14 @@ class Form {
 	 *
 	 * @since 1.8.0
 	 *
-	 * @param int         $attachment_id The ID of the attachment to use.
-	 * @param string      $field_name    The name of the file adder field.
-	 * @param string      $media_type    What media type this item should be.
-	 * @param string|bool $text_preview  What text to display with the image/icon (title|filename|FALSE).
-	 * @param boolean     $icon_preview  Wether or not to display the icon for non-image files.
-	 * @param boolean     $preview_size  What size to get for the image preview.
+	 * @param int            $attachment_id The ID of the attachment to use.
+	 * @param string         $field_name    The name of the file adder field.
+	 * @param string|boolean $show          What text to display with the image/icon (title|filename|FALSE).
+	 * @param boolean        $icon          Wether or not to display the icon for non-image files.
 	 *
 	 * @return string The markup fo the item.
 	 */
-	protected static function build_media_item( $attachment_id, $field_name, $media_type, $text_preview, $icon_preview, $preview_size ) {
+	protected static function build_media_item( $attachment_id, $field_name, $show, $icon ) {
 		// Setup item for quicksort support
 		$item_name = sanitize_title( basename( wp_get_attachment_url( $attachment_id ) ) );
 		$item_date = get_the_date( 'U', $attachment_id );
@@ -1350,29 +1328,20 @@ class Form {
 
 		$html .= '<div class="qs-preview">';
 		if ( $attachment_id ) {
-			if ( $media_type == 'image' || $icon_preview ) {
-				$src = wp_get_attachment_image_src( $attachment_id, $preview_size, $icon_preview );
-				$html .= sprintf( '<img src="%s" title="%s" class="qs-preview-image" />', $src[0], $preview );
-			}
-			if ( $text_preview ) {
+			$html .= wp_get_attachment_image( $attachment_id, 'thumbnail', $icon );
+
+			if ( $show ) {
 				$preview = rawurldecode( basename( wp_get_attachment_url( $attachment_id ) ) );
-				if ( $text_preview == 'title' ) {
+				if ( $show == 'title' ) {
 					$preview = get_the_title( $attachment_id );
 				}
 				$html .= '<span class="qs-preview-text">' . $preview . '</span>';
-			}
-		} else {
-			if ( $media_type == 'image' || $icon_preview ) {
-				$html .= '<img class="qs-preview-image" />';
-			}
-			if ( $text_preview ) {
-				$html .= '<span class="qs-preview-text"></span>';
 			}
 		}
 		$html .= '</div>';
 
 		// Add delete button and field name brackets if in mulitple mode
-		$html .= '<span type="button" class="button qs-delete">Delete</span>';
+		$html .= '<button type="button" class="button qs-delete">Delete</button>';
 
 		// Add the input field for this item (and append [] to the field name)
 		$html .= sprintf( '<input type="hidden" name="%s[]" value="%s" class="qs-value">', $field_name, $attachment_id );
@@ -1469,6 +1438,7 @@ class Form {
 			$html .= '<template class="qs-template">';
 				$html .= static::build_repeater_item( $settings );
 			$html .= '</template>';
+
 
 			// Write the existing items if present
 			$html .= '<div class="qs-container qs-sortable" data-axis="y">';
