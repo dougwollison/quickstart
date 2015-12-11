@@ -63,6 +63,7 @@ Below is a list of helpers currently available:
 - `sections`: adds a section manager meta box to pages and/or other post types, allowing you to separate a page into independent components with their own title/content/meta.
 - `teaser`: utility functions (`get_teaser` and `the_teaser`) for creating a teaser of the post (similar to get_excerpt but with more control).
 - `term_meta`: adds meta data support for terms, along with ability to register meta fields on the term edit screen.
+- `walkers`: offers a collection of custom walkers for navigation menus.
 - `wpedit`: template functions (`get_wpedit_link` and `wpedit_link`) for adding buttons to parts of the template that link to relevant screens in the backend (e.g. Edit Menu appearing on a navigation menu).
 
 ## Bare Minimum Information
