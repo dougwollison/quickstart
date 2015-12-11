@@ -12,9 +12,6 @@ namespace QuickStart;
  */
 
 class Tools extends \Smart_Plugin {
-	// Include internal utilities
-	use Utilities;
-
 	/**
 	 * A list of internal methods and their hooks configurations.
 	 *
@@ -350,6 +347,7 @@ class Tools extends \Smart_Plugin {
 	 *
 	 * Determines the fields array or callback based on the arguments.
 	 *
+	 * @since 1.12.0 Updated to use external handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.10.0
 	 *
@@ -408,7 +406,7 @@ class Tools extends \Smart_Plugin {
 			call_user_func( $callback, $data, $args, $id, $source );
 		} elseif ( $fields ) {
 			// Handle any shorthand in the fields
-			static::handle_shorthand( 'field', $fields );
+			handle_shorthand( 'field', $fields );
 
 			// First, handle any special processing of the fields
 			foreach ( $fields as $field => &$settings ) {

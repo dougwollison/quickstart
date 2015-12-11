@@ -10,9 +10,6 @@ namespace QuickStart;
  */
 
 class Form {
-	// Include internal utilities
-	use Utilities;
-
 	/**
 	 * Convert a field name to a valid ID.
 	 *
@@ -377,6 +374,7 @@ class Form {
 	/**
 	 * Build a single field, based on the passed configuration data.
 	 *
+	 * @since 1.12.0 Updated to use external handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.10.0 Added use of Tools::maybe_prefix_post_field() when handling post_field values.
 	 *				 Also added/tweaked default input/wrapper classes/id values.
@@ -403,7 +401,7 @@ class Form {
 	 */
 	public static function build_field( $field, $settings = array(), $data = null, $source = 'raw', $wrap = true ) {
 		// Handle any shorthand
-		static::handle_shorthand( 'field', $field, $settings );
+		handle_shorthand( 'field', $field, $settings );
 
 		// Check if $settings is a callback, call and return it's result if so
 		if ( is_callable( $settings ) ) {
