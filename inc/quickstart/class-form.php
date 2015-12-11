@@ -736,9 +736,10 @@ class Form {
 	/**
 	 * Build a select field.
 	 *
-	 * @since 1.8.0 Added support for option groups.
-	 * @since 1.5.0 Add "null" option handling.
-	 * @since 1.4.2 Added [] to field name when multiple is true.
+	 * @since 1.12.0 Added "numeric_values" option handling.
+	 * @since 1.8.0  Added support for option groups.
+	 * @since 1.5.0  Add "null" option handling.
+	 * @since 1.4.2  Added [] to field name when multiple is true.
 	 * @since 1.0.0
 	 *
 	 * @see Form::build_generic()
@@ -935,7 +936,7 @@ class Form {
 	/**
 	 * Build a checklist or radio list.
 	 *
-	 * @since 1.12.0 Added support for numeric_values option.
+	 * @since 1.12.0 Added "numeric_values" option handling.
 	 * @since 1.11.0 Added "inputlist-item" to item class list.
 	 * @since 1.10.0 Updated handling of default wrapper format, added use of build_hidden.
 	 * @since 1.6.0  Added checked_first support.
