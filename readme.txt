@@ -3,7 +3,7 @@ Contributors: dougwollison
 Tags: development, function, utility, utilities, framework, code, coding
 Requires at least: 4.0
 Tested up to: 4.4.0
-Stable tag: 1.12.0
+Stable tag: 1.12.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,9 @@ QuickStart is an ever expanding utility kit of handy functions, callbacks and to
 == Changelog ==
 
 **Details on each release can be found [on the GitHub releases page](https://github.com/dougwollison/quickstart/releases) for this project.**
+
+= 1.12.1 =
+Fixed conflict with WordPress 4.4 (**The functions `get/the_post_thumbnail_url` have been renamed to `get/the_post_attachment_image_url`**).
 
 = 1.12.0 =
 New Walkers helper (WIP collection of custom Walker classes), numeric_values option on select/list fields, various bug fixes and framework tweaks.
