@@ -1197,7 +1197,7 @@ class Setup extends \Smart_Plugin {
 	 * @param string $meta_box The slug of the meta box to register.
 	 * @param array  $args     The arguments for registration.
 	 */
-	public function register_meta_box( $meta_box, array $args = array() ) {
+	public function register_meta_box( $meta_box, $args = array() ) {
 		// Handle any shorthand in this meta box
 		handle_shorthand( 'meta_box', $meta_box, $args );
 
