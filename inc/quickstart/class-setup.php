@@ -1178,6 +1178,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the requested meta box.
 	 *
+	 * @since 1.12.2 Removed type hinting on $args.
 	 * @since 1.12.0 Updated to use external handle_shorthand(),
 	 *               Also made sure fields arg was array before passing through maybe_load_media_manager()
 	 *               or looping through to register meta fields.
