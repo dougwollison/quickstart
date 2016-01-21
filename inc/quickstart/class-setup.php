@@ -1048,6 +1048,12 @@ class Setup extends \Smart_Plugin {
 	protected function _register_setting( $setting, $args = null, $section = null, $page = null ) {
 		make_associative( $setting, $args );
 
+		// Create the setting ID
+		$field_id = Form::make_id( $setting );
+
+		// Strip any array keys from setting name
+		$setting_name = preg_replace( '/^[^\[].*/', '$1', $setting );
+
 		// Check for $args as callback
 		if ( is_callable( $args ) ) {
 			$args = array(
@@ -1122,18 +1128,18 @@ class Setup extends \Smart_Plugin {
 
 			// arguments for build_settings_field
 			$callback_args = array(
-				'setting' => $setting,
+				'field_id' => $field_id,
 				'args' => $args,
 			);
 		}
 
 		// Register the setting
-		register_setting( $page, $setting, $args['sanitize'] );
+		register_setting( $page, $setting_name, $args['sanitize'] );
 
 		// Add the field
 		add_settings_field(
-			$setting,
-			'<label for="' . $setting . '">' . $args['title'] . '</label>',
+			$field_id,
+			'<label for="qs_field_' . $field_id . '">' . $args['title'] . '</label>',
 			$callback,
 			$page,
 			$section,

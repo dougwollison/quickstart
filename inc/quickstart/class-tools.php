@@ -472,12 +472,12 @@ class Tools extends \Smart_Plugin {
 	 */
 	public static function build_settings_field( $args ) {
 		// Extract $args
-		$setting = $args['setting'];
+		$field_id = $args['field_id'];
 		$args = $args['args'];
 
 		// Wrap in container for any specific targeting needed
-		echo '<div class="qs-settings-field" id="' . $setting . '-settings-field">';
-			static::do_fields_or_callback( 'field_row', $setting, $args, null, 'option', false );
+		echo '<div class="qs-settings-field" id="' . $field_id . '-settings-field">';
+			static::do_fields_or_callback( 'field_row', $field_id, $args, null, 'option', false );
 		echo '</div>';
 	}
 
