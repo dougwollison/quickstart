@@ -63,6 +63,7 @@ class Setup extends \Smart_Plugin {
 		'index_page_query'       => array( 'parse_query', 0, 1 ),
 		'index_page_link'        => array( 'post_type_archive_link', 10, 2 ),
 		'index_page_title_part'  => array( 'wp_title_parts', 10, 1 ),
+		'index_page_admin_bar'   => array( 'admin_bar_menu', 85, 1 ),
 		'parent_filtering_input' => array( 'restrict_manage_posts', 10, 0 ),
 		'section_manager_ajax'   => array( 'wp_ajax_qs-new_section', 10, 0 ),
 	);
@@ -2377,10 +2378,11 @@ class Setup extends \Smart_Plugin {
 			$this->index_page_post_states( $post_types );
 		}
 		if ( is_frontend() ) {
-			// Add the request/query/title/link hooks on the frontend
+			// Add the request/title/link/adminbar hooks on the frontend
 			$this->index_page_request( $post_types );
 			$this->index_page_title_part();
 			$this->index_page_link();
+			$this->index_page_admin_bar( $post_types );
 		}
 	}
 
@@ -2554,6 +2556,40 @@ class Setup extends \Smart_Plugin {
 		}
 
 		return $title;
+	}
+
+	/**
+	 * Modify the admin bar to add an edit button for the index page.
+	 *
+	 * @since 1.12.2
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar The admin bar for editing (skip when saving).
+	 * @param array        $post_types   The list of post types supporting index pages.
+	 */
+	protected function _index_page_admin_bar( $wp_admin_bar, $post_types ) {
+		// Abort if not an archive for the supported post types
+		if ( ! is_post_type_archive( $post_types ) ) {
+			return;
+		}
+
+		// Abort if an edit node already exists
+		if ( $wp_admin_bar->get_node( 'edit' ) ) {
+			return;
+		}
+
+		// Get the page post type object
+		$post_type_object = get_post_type_object( 'page' );
+
+		// If an index is found, is editable, and has an edit link, add the edit button.
+		if ( ( $index_page = get_index() )
+		&& current_user_can( 'edit_post', $index_page )
+		&& $edit_post_link = get_edit_post_link( $index_page ) ) {
+			$wp_admin_bar->add_menu( array(
+				'id' => 'edit',
+				'title' => $post_type_object->labels->edit_item,
+				'href' => $edit_post_link
+			) );
+		}
 	}
 
 	// =========================
