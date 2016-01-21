@@ -26,7 +26,7 @@ namespace QuickStart;
  */
 function handle_shorthand( $context, &$name, &$args = array() ) {
 	// Abort if $name is somehow not a string or array
-	if ( ! is_string( $name ) || ! is_array( $name ) ) {
+	if ( ! is_string( $name ) && ! is_array( $name ) ) {
 		return;
 	}
 
