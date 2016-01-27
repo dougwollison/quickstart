@@ -1029,6 +1029,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register and build a setting.
 	 *
+	 * @since 1.13.0 Added support for settings part of an array (e.g. address[country]).
 	 * @since 1.12.0 Updated to use external handle_shorthand().
 	 * @since 1.11.0 Now accepts callback and callback_args options,
 	 *               Also accepts callback as the $args themselves,
