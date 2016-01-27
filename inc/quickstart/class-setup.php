@@ -1664,6 +1664,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the settings for this page.
 	 *
+	 * @sicne 1.13.0 Added filtering of capability for saving settings.
 	 * @since 1.12.0 Updated to use external handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.9.0  Now protected.
@@ -1712,6 +1713,11 @@ class Setup extends \Smart_Plugin {
 					$this->_register_settings( $section['fields'], $id, $page );
 				}
 			}
+		}
+
+		// Setup a filter for the capability required for saving settings.
+		if ( isset( $args['capability'] ) ) {
+			static::setup_callback( '__return_new_value', array( $args['capability'] ), array( "option_page_capability_{$page}", 10, 1 ) );
 		}
 	}
 

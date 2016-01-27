@@ -11,7 +11,7 @@
 
 abstract class Smart_Plugin{
 	// =========================
-	// !Shared Logic
+	// ! Shared Logic
 	// =========================
 
 	/**
@@ -211,7 +211,50 @@ abstract class Smart_Plugin{
 	}
 
 	// =========================
-	// !Instantiated Version
+	// ! Useful Callbacks
+	// =========================
+
+	/**
+	 * Return the stored value.
+	 *
+	 * Useful for replacing a filtered value.
+	 *
+	 * @since 1.13.0
+	 *
+	 * @param mixed $old The value to be replaced.
+	 * @param mixed $new The value to replace with.
+	 *
+	 * @return mixed The value to replace with.
+	 */
+	public static function __return_new_value( $old, $new ) {
+		return $new;
+	}
+
+	/**
+	 * Append a value to an array.
+	 *
+	 * Useful for adding entries to an array.
+	 *
+	 * @since 1.13.0
+	 *
+	 * @param array      $array The array to append to.
+	 * @param mixed      $value The value to append.
+	 * @param int|string $key   Optional The key to assign the value to.
+	 *
+	 * @return mixed The value to replace with.
+	 */
+	public static function __return_with_new_value( $array, $value, $key = null ) {
+		if ( is_null( $key ) ) {
+			$array[] = $value;
+		} else {
+			$array[ $key ] = $value;
+		}
+
+		return $array;
+	}
+
+	// =========================
+	// ! Instantiated Version
 	// =========================
 
 	/**
@@ -290,7 +333,7 @@ abstract class Smart_Plugin{
 	}
 
 	// =========================
-	// !Static Version
+	// ! Static Version
 	// =========================
 
 	/**
