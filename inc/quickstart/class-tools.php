@@ -177,6 +177,7 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Load the requested helper files.
 	 *
+	 * @since 1.13.0 Added entry for Unpublish helper.
 	 * @since 1.11.0 Added entries for Sections and Term Meta helpers.
 	 * @since 1.10.0 Added option to load all helpers, also sanitize helper name.
 	 * @since 1.7.1  Added use of constants to flag which helpers have been loaded.
@@ -198,6 +199,7 @@ class Tools extends \Smart_Plugin {
 				'sections',
 				'teaser',
 				'term_meta',
+				'unpublish',
 				'walkers',
 				'wpedit',
 			);
