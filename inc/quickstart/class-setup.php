@@ -1108,6 +1108,11 @@ class Setup extends \Smart_Plugin {
 				$args['fields'] = array(
 					$setting => $args['field'],
 				);
+
+				// Update field_id if specified
+				if ( is_array( $args['field'] ) && isset( $args['field']['id'] ) ) {
+					$field_id = $args['field']['id'];
+				}
 			} elseif ( ! isset( $args['fields'] ) ) {
 				// Assume $args is the literal arguments for the field,
 				// create a fields entry, default wrap_with_label to false
@@ -1119,6 +1124,11 @@ class Setup extends \Smart_Plugin {
 				$args['fields'] = array(
 					$setting => $args,
 				);
+
+				// Update field_id if specified
+				if ( isset( $args['id'] ) ) {
+					$field_id = $args['id'];
+				}
 			}
 
 			// Handle any shorthand in the fields
@@ -2382,7 +2392,7 @@ class Setup extends \Smart_Plugin {
 			$this->index_page_request( $post_types );
 			$this->index_page_title_part();
 			$this->index_page_link();
-			$this->index_page_admin_bar( $post_types );
+			$this->index_page_admin_bar();
 		}
 	}
 
@@ -2564,11 +2574,10 @@ class Setup extends \Smart_Plugin {
 	 * @since 1.12.2
 	 *
 	 * @param WP_Admin_Bar $wp_admin_bar The admin bar for editing (skip when saving).
-	 * @param array        $post_types   The list of post types supporting index pages.
 	 */
-	protected function _index_page_admin_bar( $wp_admin_bar, $post_types ) {
+	protected function _index_page_admin_bar( $wp_admin_bar ) {
 		// Abort if not an archive for the supported post types
-		if ( ! is_post_type_archive( $post_types ) ) {
+		if ( ! is_post_type_archive() ) {
 			return;
 		}
 
