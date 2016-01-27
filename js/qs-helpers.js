@@ -91,7 +91,7 @@ jQuery(function( $ ) {
 				$parent.find( '.qs-value' ).val( '' );
 
 				// And update the parent's value-* class
-				$parent.removeClass( 'qs-media-value-filled' ).addClass( 'qs-media-value-empty' );
+				$parent.removeClass( 'value-filled' ).addClass( 'value-empty' );
 			} else if ( $parent.hasClass( 'gallery' ) ) {
 				// Empty the gallery preview and input value
 				$parent.find( '.qs-preview' ).animate({
