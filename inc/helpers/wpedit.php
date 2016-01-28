@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage WPEdit
+ *
  * @since 1.10.0
  */
 

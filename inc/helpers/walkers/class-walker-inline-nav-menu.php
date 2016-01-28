@@ -2,7 +2,11 @@
 /**
  * Create a single-level, inline nav menu (not a list)
  *
+ * @package QuickStart
+ * @subpackage Walkers
+ *
  * @since 1.12.0
+ *
  * @uses Walker_Nav_Menu
  */
 class Walker_Inline_Nav_Menu extends Walker_Nav_Menu {

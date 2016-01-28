@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage Sections
+ *
  * @since 1.11.0
  */
 

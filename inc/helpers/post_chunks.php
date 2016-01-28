@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage Post_Chunks
+ *
  * @since 1.0.0
  */
 

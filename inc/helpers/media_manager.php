@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage Media_Manager
+ *
  * @since 1.0.0
  */
 

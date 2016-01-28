@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage Index
+ *
  * @since 1.6.0
  */
 

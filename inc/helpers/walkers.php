@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage Walkers
+ *
  * @since 1.12.0
  */
 

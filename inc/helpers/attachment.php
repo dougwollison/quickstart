@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage Thumbnail
+ *
  * @since 1.6.0
  */
 

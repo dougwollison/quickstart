@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage Term_Meta
+ *
  * @since 1.10.0
  */
 global $wpdb;

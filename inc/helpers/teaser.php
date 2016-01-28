@@ -4,6 +4,7 @@
  *
  * @package QuickStart
  * @subpackage Teaser
+ *
  * @since 1.0.0
  */
 
