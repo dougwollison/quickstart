@@ -115,3 +115,8 @@ Bug fixes, key changes, documented example code.
 
 = 1.0.0 =
 Initial public release.
+
+== Upgrade Notice ==
+
+= 1.12.1 =
+**INCOMPATIBILITY NOTICE:** Due to WordPress 4.4 finally implementing their own `get/the_post_thumbnail_url()` function, the one added by the Attachment helper has been renamed to `get/the_post_attachment_image_url()`. Please update your theme files to use this new name for the function.
