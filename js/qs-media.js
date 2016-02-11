@@ -345,7 +345,7 @@ window.QS = window.QS || {};
 			// Check for preload option
 			var do_preload = $elm.data('preload');
 				// Default to true if not set
-				if ( do_preload === null || do_preload === '' ) {
+				if ( typeof do_preload === 'undefined' || do_preload === null || do_preload === '' ) {
 					do_preload = true;
 				}
 
