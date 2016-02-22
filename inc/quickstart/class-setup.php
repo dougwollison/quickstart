@@ -2442,6 +2442,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Filter the post states to flag a page as a custom index page.
 	 *
+	 * @since 1.12.2 Store the post state in an explicit key.
 	 * @since 1.10.0
 	 *
 	 * @param array  $post_states The list of post states. (skip when saving)
