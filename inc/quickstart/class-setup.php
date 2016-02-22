@@ -2462,7 +2462,7 @@ class Setup extends \Smart_Plugin {
 			// add the "POST_TYPE Page" state
 			if ( get_index( $post_type ) == $post->ID ) {
 				$post_type = get_post_type_object( $post_type );
-				$post_states[] = sprintf( '%s Page', $post_type->label );
+				$post_states[ "page_for_{$post_type->name}_posts" ] = sprintf( '%s Page', $post_type->label );
 			}
 		}
 
