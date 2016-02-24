@@ -337,7 +337,7 @@ class Tools extends \Smart_Plugin {
 			// Check post type and nonce (if provided)
 			! $post_type_check || ! $nonce_check ||
 			// Check for capability to edit this post
-			! current_user_can( $post_type_obj->cap->edit_post ) ) {
+			! current_user_can( $post_type_obj->cap->edit_post, $post_id ) ) {
 			return false;
 		}
 
