@@ -304,6 +304,7 @@ class Tools extends \Smart_Plugin {
 	 * Run the appropriate checks to make sure that.
 	 * this save_post callback should proceed.
 	 *
+	 * @since 1.12.2 Changed to use $_REQUEST instead of $_POST, also pass $post_id to current_user_can().
 	 * @since 1.2.0
 	 *
 	 * @param int          $post_id     The ID of the post being saved.
@@ -315,7 +316,7 @@ class Tools extends \Smart_Plugin {
 	 */
 	public static function save_post_check( $post_id, $post_type = null, $nonce_name = null, $nonce_value = null ) {
 		// Load the posted post type
-		$post_type_obj = get_post_type_object( $_POST['post_type'] );
+		$post_type_obj = get_post_type_object( $_REQUEST['post_type'] );
 
 		// Default post_type and nonce checks to true
 		$post_type_check = $nonce_check = true;
@@ -328,7 +329,7 @@ class Tools extends \Smart_Plugin {
 
 		// If nonce name & value are passed, check it
 		if ( ! is_null( $nonce_name ) ) {
-			$nonce_check = isset( $_POST[ $nonce_name ] ) && wp_verify_nonce( $_POST[ $nonce_name ], $nonce_value );
+			$nonce_check = isset( $_REQUEST[ $nonce_name ] ) && wp_verify_nonce( $_REQUEST[ $nonce_name ], $nonce_value );
 		}
 
 		// Check for autosave and post revisions
@@ -1181,6 +1182,7 @@ class Tools extends \Smart_Plugin {
 	 *
 	 * Saves desired field after running static::save_post_check().
 	 *
+	 * @since 1.12.2 Changed to use $_REQUEST instead of $_POST, also check if field is even present.
 	 * @since 1.8.0
 	 *
 	 * @param int    $post_id    The ID of the post being saved (skip when saving).
@@ -1195,11 +1197,11 @@ class Tools extends \Smart_Plugin {
 			$field_name = $meta_key;
 		}
 
-		if ( ! isset( $_POST[ $field_name ] ) ) {
+		if ( ! isset( $_REQUEST[ $field_name ] ) ) {
 			return;
 		}
 
-		$value = $_POST[ $field_name ];
+		$value = $_REQUEST[ $field_name ];
 		update_post_meta( $post_id, $meta_key, $value );
 	}
 
@@ -1208,6 +1210,8 @@ class Tools extends \Smart_Plugin {
 	 *
 	 * Saves desired field after running static::save_post_check().
 	 *
+	 *
+	 * @since 1.12.2 Changed to use $_REQUEST instead of $_POST, also check if field is even present.
 	 * @since 1.10.0
 	 *
 	 * @param int    $post_id    The ID of the post being saved (skip when saving).
@@ -1223,14 +1227,14 @@ class Tools extends \Smart_Plugin {
 			$field_name = $post_field;
 		}
 
-		if ( ! isset( $_POST[ $field_name ] ) ) {
+		if ( ! isset( $_REQUEST[ $field_name ] ) ) {
 			return;
 		}
 
 		// Auto prefix if needed
 		$post_field = static::maybe_prefix_post_field( $post_field );
 
-		$value = $_POST[ $field_name ];
+		$value = $_REQUEST[ $field_name ];
 
 		$wpdb->update( $wpdb->posts, array(
 			$post_field => $value,
