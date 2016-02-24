@@ -1195,6 +1195,10 @@ class Tools extends \Smart_Plugin {
 			$field_name = $meta_key;
 		}
 
+		if ( ! isset( $_POST[ $field_name ] ) ) {
+			return;
+		}
+
 		$value = $_POST[ $field_name ];
 		update_post_meta( $post_id, $meta_key, $value );
 	}
@@ -1217,6 +1221,10 @@ class Tools extends \Smart_Plugin {
 
 		if ( is_null( $field_name ) ) {
 			$field_name = $post_field;
+		}
+
+		if ( ! isset( $_POST[ $field_name ] ) ) {
+			return;
 		}
 
 		// Auto prefix if needed
