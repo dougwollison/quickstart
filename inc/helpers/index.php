@@ -89,10 +89,10 @@ function get_index( $post_type = null, $return = 'id' ) {
  *
  * @see get_index()
  */
-function the_index() {
+function the_index( $post_type = null ) {
 	global $post;
 
-	$post = get_index( null, 'object' );
+	$post = get_index( $post_type, 'object' );
 	setup_postdata( $post );
 }
 
