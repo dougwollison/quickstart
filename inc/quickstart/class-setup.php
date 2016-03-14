@@ -1054,7 +1054,7 @@ class Setup extends \Smart_Plugin {
 		$field_id = Form::make_id( $setting );
 
 		// Strip any array keys from setting name
-		$setting_name = preg_replace( '/^[^\[].*/', '$1', $setting );
+		$setting_name = preg_replace( '/^([^\[]+).*$/', '$1', $setting );
 
 		// Check for $args as callback
 		if ( is_callable( $args ) ) {
