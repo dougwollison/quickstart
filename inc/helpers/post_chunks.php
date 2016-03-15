@@ -88,7 +88,10 @@ function get_chunk( $i = null, $filter = 'the_content' ) {
 		$post->chunk++;
 	}
 
-	$chunk = $post->chunks[ $i - 1 ];
+	$chunk = '';
+	if ( isset( $post->chunks[ $i - 1 ] ) ) {
+		$chunk = $post->chunks[ $i - 1 ];
+	}
 
 	if ( $filter ) {
 		$chunk = apply_filters( $filter, $chunk ) ;
