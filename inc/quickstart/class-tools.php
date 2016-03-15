@@ -315,6 +315,11 @@ class Tools extends \Smart_Plugin {
 	 * @return bool Wether or not to proceed.
 	 */
 	public static function save_post_check( $post_id, $post_type = null, $nonce_name = null, $nonce_value = null ) {
+		// Abort if no post type is detected
+		if ( ! isset( $_REQUEST['post_type'] ) ) {
+			return false;
+		}
+
 		// Load the posted post type
 		$post_type_obj = get_post_type_object( $_REQUEST['post_type'] );
 
