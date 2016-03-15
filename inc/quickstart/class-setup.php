@@ -257,7 +257,7 @@ class Setup extends \Smart_Plugin {
 	 */
 	protected static function maybe_load_media_manager( $fields ) {
 		// Skip if media manager already loaded
-		if ( defined( 'QS_LOADED_MEDIA_MANAGER' ) || QS_LOADED_MEDIA_MANAGER ) {
+		if ( defined( 'QS_LOADED_MEDIA_MANAGER' ) && QS_LOADED_MEDIA_MANAGER ) {
 			return;
 		}
 
@@ -2232,7 +2232,7 @@ class Setup extends \Smart_Plugin {
 
 		// Check if any of the objects are taxonomies (registered or configured), load term_meta helper if so
 		foreach ( $objects as $object ) {
-			if ( is_taxonomy( $object ) || isset( $this->configs['taxonomies'][ $object ] ) ) {
+			if ( taxonomy_exists( $object ) || isset( $this->configs['taxonomies'][ $object ] ) ) {
 				Tools::load_helpers( 'term_meta' );
 				break;
 			}
