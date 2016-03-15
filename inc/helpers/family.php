@@ -93,13 +93,13 @@ function has_children( $post_id = null ) {
 	global $wpdb;
 
 	// Get the post ID
-	if ( is_null( $post ) ) {
+	if ( is_null( $post_id ) ) {
 		global $post;
-		$post_id = $post->ID;
 		$post_type = $post->post_type;
-	} else if ( is_object( $post ) ) {
 		$post_id = $post->ID;
-		$post_type = $post->post_type;
+	} else if ( is_object( $post_id ) ) {
+		$post_type = $post_id->post_type;
+		$post_id = $post_id->ID;
 	} else {
 		$post_type = get_post_type( $post_id );
 	}
