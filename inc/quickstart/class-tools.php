@@ -1251,7 +1251,8 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Add counts for a post type to the Right Now widget on the dashboard.
 	 *
-	 * @since 1.3.1 Revised logic to work with the new dashboard_right_now markup.
+	 * @since 1.12.2 Updated to print link vs span based on current user's capabilities.
+	 * @since 1.3.1  Revised logic to work with the new dashboard_right_now markup.
 	 * @since 1.0.0
 	 *
 	 * @param array  $elements  The list of items to add (skip when saving).
