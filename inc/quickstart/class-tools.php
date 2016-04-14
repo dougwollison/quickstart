@@ -1274,7 +1274,11 @@ class Tools extends \Smart_Plugin {
 			$label = sprintf( $format, number_format_i18n( $num_posts->publish ) );
 
 			// Add the new item to the list
-			$elements[] = '<a href="edit.php?post_type=' . $post_type . '">' . $label . '</a>';
+			if ( current_user_can( $object->cap->edit_posts ) ) {
+				$elements[] = '<a href="edit.php?post_type=' . $post_type . '">' . $label . '</a>';
+            } else {
+				$elements[] = '<span>' . $label . '</span>';
+            }
 		}
 
 		return $elements;
