@@ -607,7 +607,8 @@ class Tools extends \Smart_Plugin {
 	/**
 	 * Helper function for static::enqueue()
 	 *
-	 * @since 1.9.0 Updated argument handling to use.
+	 * @since 1.12.2 Added mtime for $ver and CSV handling of $deps
+	 * @since 1.9.0  Updated argument handling to use.
 	 * @since 1.8.0
 	 *
 	 * @param mixed  $enqueues  The enqueues to handle.
@@ -651,7 +652,16 @@ class Tools extends \Smart_Plugin {
 				}
 
 				// Ensure $deps is an array
-				$deps = (array) $deps;
+				csv_array_ref( $deps );
+
+				// Check if version is supposed to be a timestamp
+				if ( $ver == 'mtime' ) {
+					$ver = time();
+					$local = str_replace( get_option( 'siteurl' ), $_SERVER['DOCUMENT_ROOT'], $src );
+					if ( file_exists( $local ) ) {
+						$ver = filemtime( $local );
+					}
+				}
 
 				// Enqueue it
 				call_user_func( $function, $handle, $src, $deps, $ver, $option );
