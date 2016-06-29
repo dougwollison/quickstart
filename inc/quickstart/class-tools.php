@@ -1197,7 +1197,7 @@ class Tools extends \Smart_Plugin {
 	 *
 	 * Saves desired field after running static::save_post_check().
 	 *
-	 * @since 1.12.2 Changed to use $_REQUEST instead of $_POST, also check if field is even present.
+	 * @since 1.13.0 Changed to use $_REQUEST instead of $_POST, also check if field is even present.
 	 * @since 1.8.0
 	 *
 	 * @param int    $post_id    The ID of the post being saved (skip when saving).
