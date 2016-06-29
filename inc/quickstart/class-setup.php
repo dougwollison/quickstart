@@ -517,7 +517,7 @@ class Setup extends \Smart_Plugin {
 		$args = wp_parse_args( $args, $defaults );
 
 		// If icon is present instead of menu_icon, reassing
-		if ( isset( $args['icon'] ) && ! $args['menu_icon'] ) {
+		if ( isset( $args['icon'] ) && ! isset( $args['menu_icon'] ) ) {
 			$args['menu_icon'] = $args['icon'];
 		}
 
