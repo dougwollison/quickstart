@@ -30,6 +30,7 @@ add_action( 'admin_enqueue_scripts', 'qs_helper_sections_enqueue' );
 /**
  * Get the sections for a post.
  *
+ * @since 1.13.0 Added fix to prevent accidentally fetching all sections.
  * @since 1.11.0
  *
  * @param int|object $post_id Optional The ID or object of the post to get sections for.
@@ -46,6 +47,8 @@ function get_sections( $post_id = null ) {
 
 	// Get the list of sections
 	$sections = get_post_meta( $post_id, '_qs_section' );
+	// Add blank ID to prevent accidentally fetching ALL sections
+	$sections[] = 0;
 
 	// Execute the query and return the result
 	$query = new WP_Query( array(
