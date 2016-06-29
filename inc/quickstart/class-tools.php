@@ -64,7 +64,7 @@ class Tools extends \Smart_Plugin {
 	 * @access public
 	 * @var array
 	 */
-	public static $accepted_attrs = array( 'accesskey', 'autocomplete', 'checked', 'class', 'cols', 'disabled', 'id', 'max', 'maxlength', 'min', 'multiple', 'name', 'placeholder', 'readonly', 'required', 'rows', 'size', 'style', 'tabindex', 'title', 'value' );
+	public static $accepted_attrs = array( 'accesskey', 'autocomplete', 'checked', 'class', 'cols', 'disabled', 'id', 'max', 'maxlength', 'min', 'multiple', 'name', 'placeholder', 'readonly', 'required', 'rows', 'size', 'step', 'style', 'tabindex', 'title', 'value' );
 
 	/**
 	 * A list of tags that should have no content.
