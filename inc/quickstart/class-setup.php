@@ -343,7 +343,7 @@ class Setup extends \Smart_Plugin {
 
 			// Check if this post type uses thumbnails, and
 			// make sure the theme supports includes it
-			if ( in_array( 'thumbnail', $pt_args['supports'] ) && ! in_array( 'post-thumbnails', $configs['supports'] ) && ! isset( $config['supports']['post-thumbnails'] ) ) {
+			if ( is_array( $pt_args['supports'] ) && in_array( 'thumbnail', $pt_args['supports'] ) && ! in_array( 'post-thumbnails', $configs['supports'] ) && ! isset( $config['supports']['post-thumbnails'] ) ) {
 				$configs['supports'][] = 'post-thumbnails';
 			}
 
