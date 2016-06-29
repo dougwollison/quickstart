@@ -308,6 +308,7 @@ class Setup extends \Smart_Plugin {
 	 * Proccess the content setups; extracting any local setups defined
 	 * within each post_type configuration.
 	 *
+	 * @since 1.12.1 Post types supports as boolean now allowed.
 	 * @since 1.12.0 Updated to use external handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand(),
 	 *               Moved meta box registration to run_admin_setups(), added conditions
@@ -335,8 +336,10 @@ class Setup extends \Smart_Plugin {
 			// Handle any shorthand in this post type
 			handle_shorthand( 'post_type', $meta_box, $args );
 
-			// Make sure supports is an array
-			csv_array_ref( $pt_args['supports'] );
+			// Make sure supports is an array or boolean
+			if ( ! is_bool( $pt_args['supports'] ) ) {
+				csv_array_ref( $pt_args['supports'] );
+			}
 
 			// Check if this post type uses thumbnails, and
 			// make sure the theme supports includes it
