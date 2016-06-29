@@ -828,6 +828,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Save the data for a term meta field.
 	 *
+	 * @since 1.13.0 Added save_single support.
 	 * @since 1.10.0
 	 *
 	 * @param object $term_id  The term being edited. (skip when saving)
@@ -850,7 +851,21 @@ class Setup extends \Smart_Plugin {
 
 		// Save the field if it's been passed
 		if ( isset( $_POST[ $post_key ] ) ) {
-			update_term_meta( $term_id, $meta_key, $_POST[ $post_key ] );
+			// Determine save_single rule
+			$save_single = true;
+			if ( isset( $args['save_single'] ) ) {
+				$save_single = $args['save_single'];
+			}
+
+			$value = $_POST[ $post_key ];
+			if ( is_array( $value ) && ! $save_single ) {
+				delete_term_meta( $term_id, $meta_key );
+				foreach ( $value as $val ) {
+					add_term_meta( $term_id, $meta_key, $val );
+				}
+			} else {
+				update_term_meta( $term_id, $meta_key, $value );
+			}
 		}
 	}
 
@@ -2048,6 +2063,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Save the data for a user meta field.
 	 *
+	 * @since 1.13.0 Added save_single support.
 	 * @since 1.10.0
 	 *
 	 * @param object $user_id  The user being edited. (skip when saving)
@@ -2070,7 +2086,21 @@ class Setup extends \Smart_Plugin {
 
 		// Save the field if it's been passed
 		if ( isset( $_POST[ $post_key ] ) ) {
-			update_user_meta( $user_id, $meta_key, $_POST[ $post_key ] );
+			// Determine save_single rule
+			$save_single = true;
+			if ( isset( $args['save_single'] ) ) {
+				$save_single = $args['save_single'];
+			}
+
+			$value = $_POST[ $post_key ];
+			if ( is_array( $value ) && ! $save_single ) {
+				delete_user_meta( $user_id, $meta_key );
+				foreach ( $value as $val ) {
+					add_user_meta( $user_id, $meta_key, $val );
+				}
+			} else {
+				update_user_meta( $user_id, $meta_key, $value );
+			}
 		}
 	}
 
