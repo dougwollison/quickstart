@@ -235,6 +235,7 @@ class Form {
 	/**
 	 * Get a list of objects for use in a fields 'values' setting.
 	 *
+	 * @since 1.13.0 Added query_args setting.
 	 * @since 1.11.0
 	 *
 	 * @param string $object_type The type of object to get.
@@ -311,6 +312,11 @@ class Form {
                 if ( is_null( $settings['parent'] ) ) {
 	                // Set parent to 0 if post type is hierachical, or false to disable it
 					$settings['parent'] = is_post_type_hierarchical( $settings['post_type'] ) ? 0 : false;
+				}
+
+				// Merge in the query_args if present
+				if ( isset( $settings['query_args'] ) ) {
+					$args = array_merge( $args, $settings['query_args'] );
 				}
 
 				// Add posts to the values list
