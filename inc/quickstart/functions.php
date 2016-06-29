@@ -16,6 +16,7 @@ namespace QuickStart;
  * Shorthand syntax differs based on context; typically, $name will have multiple
  * kinds of shorthand markers supported, while some options may only use 1 kind.
  *
+ * @since 1.13.0 Fixed opening if statement logic, added more flexible handled-flagging.
  * @since 1.12.0 Relocated to independant function.
  * @since 1.11.1 Added check to make sure $name is a string or array.
  * @since 1.11.0
@@ -46,8 +47,8 @@ function handle_shorthand( $context, &$name, &$args = array() ) {
 		return;
 	}
 
-	// Abort if it appears this has already been handled
-	if ( isset( $args['__handled_shorthand'] ) ) {
+	// Abort if it appears this has already been handled for this context
+	if ( isset( $args['__handled_shorthand'] ) && in_array( $context, $args['__handled_shorthand'] ) ) {
 		return;
 	}
 
@@ -176,5 +177,8 @@ function handle_shorthand( $context, &$name, &$args = array() ) {
 	// More argument shorthand supports to come...
 
 	// Mark the $args so as to prevent redundant rehandling
-	$args['__handled_shorthand'] = true;
+	if ( ! isset( $args['__handled_shorthand'] ) ) {
+		$args['__handled_shorthand'] = array();
+	}
+	$args['__handled_shorthand'][] = $context;
 }
