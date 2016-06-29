@@ -1672,7 +1672,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the settings for this page.
 	 *
-	 * @sicne 1.13.0 Added filtering of capability for saving settings.
+	 * @since 1.13.0 Added filtering of capability for saving settings.
+	 * @since 1.12.1 Added get_fields option support.
 	 * @since 1.12.0 Updated to use external handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.9.0  Now protected.
@@ -1696,6 +1697,19 @@ class Setup extends \Smart_Plugin {
 				register_setting( $page, $setting, $sanitize );
 			}
 		}
+
+		// Check if fields need to be generated
+        if ( isset( $args['get_fields'] ) && is_callable( $args['get_fields'] ) ) {
+            /**
+             * Dynamically generate the fields array.
+             *
+             * @since 1.13.0
+             *
+             * @param string $setting The id of the page to register.
+             * @param array  $args    The page configuration.
+             */
+            $args['fields'] = call_user_func( $args['get_fields'], $page, $args );
+        }
 
 		// Run through any bare fields (assume belonging to default, which will be added automatically)
 		if ( isset( $args['fields'] ) ) {
