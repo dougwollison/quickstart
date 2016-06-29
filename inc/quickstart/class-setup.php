@@ -308,7 +308,7 @@ class Setup extends \Smart_Plugin {
 	 * Proccess the content setups; extracting any local setups defined
 	 * within each post_type configuration.
 	 *
-	 * @since 1.12.1 Post types supports as boolean now allowed.
+	 * @since 1.13.0 Post types supports as boolean now allowed.
 	 * @since 1.12.0 Updated to use external handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand(),
 	 *               Moved meta box registration to run_admin_setups(), added conditions
@@ -881,7 +881,7 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Proccess the theme setups; registering the various features and supports.
 	 *
-	 * @since 1.12.1 Added version tagging to editor stylesheet URL.
+	 * @since 1.13.0 Added version tagging to editor stylesheet URL.
 	 * @since 1.11.0 Sidebar registration moved to separate method to run on widgets_init.
 	 * @since 1.9.0  Now protected, no longer accepts external $configs argument.
 	 * @since 1.1.0  'menus' is now 'nav_menus', $defaults['sidebars'] is now $defaults['sidebar'].
@@ -1672,8 +1672,8 @@ class Setup extends \Smart_Plugin {
 	/**
 	 * Register the settings for this page.
 	 *
-	 * @since 1.13.0 Added filtering of capability for saving settings.
-	 * @since 1.12.1 Added get_fields option support.
+	 * @since 1.13.0 Added get_fields option support.
+	 *               Added filtering of capability for saving settings.
 	 * @since 1.12.0 Updated to use external handle_shorthand().
 	 * @since 1.11.0 Added use of static::handle_shorthand().
 	 * @since 1.9.0  Now protected.
