@@ -96,7 +96,7 @@ function qs_helper_termmeta_clauses( $clauses, $taxonomies, $args ) {
 	global $wpdb;
 
 	// Check if meta key is set, add additional WHERE clause
-	if ( isset( $args['meta_key'] ) ) {
+	if ( isset( $args['meta_key'] ) && ! empty( $args['meta_key'] ) ) {
 		// Update the JOIN clause to include the term meta table
 		$clauses['join'] .= " LEFT JOIN $wpdb->termmeta AS tm ON t.term_id = tm.term_id";
 
