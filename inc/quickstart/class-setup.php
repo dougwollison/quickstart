@@ -55,6 +55,7 @@ class Setup extends \Smart_Plugin {
 		'add_page_to_menu'       => array( 'admin_menu', 0 ),
 
 		// Feature Hooks
+		'load_media_manager'     => array( 'admin_enqueue_scripts', 10, 0 ),
 		'order_manager_pages'    => array( 'init', 10, 0 ),
 		'order_manager_save'     => array( 'admin_init', 10, 0 ),
 		'parent_filtering_input' => array( 'restrict_manage_posts', 10, 0 ),
@@ -240,7 +241,25 @@ class Setup extends \Smart_Plugin {
 	}
 
 	/**
-	 * Check a list of fields for types that would require the media_manager helper.
+	 * Enqueues the necessary style/script for the media manager extension.
+	 *
+	 * @since mu
+	 */
+	protected static function _load_media_manager(){
+		wp_enqueue_media();
+
+		Tools::enqueue( array(
+			'css' => array(
+				'qs-media-css' => array( plugins_url( '/css/qs-media.css', QS_FILE ), array( 'media-views' ), 'mtime' )
+			),
+			'js' => array(
+				'qs-media-js' => array( plugins_url( '/js/qs-media.js', QS_FILE ), array( 'underscore', 'media-editor' ), 'mtime' )
+			)
+		) );
+	}
+
+	/**
+	 * Check a list of fields for types that would require the media manager extension.
 	 *
 	 * @since 1.8.1 Added 'media' to dependants list.
 	 * @since 1.7.1
@@ -261,8 +280,8 @@ class Setup extends \Smart_Plugin {
 		foreach ( $fields as $field ) {
 			$dependants = array( 'media', 'addfile', 'editgallery', 'setimage' );
 			if ( is_array( $field ) && isset( $field['type'] ) && in_array( $field['type'], $dependants ) ) {
-				// Make sure the media_manager helper is loaded
-				Tools::load_helpers( 'media_manager' );
+				// Load the media manager extension
+				self::load_media_manager();
 				break;
 			}
 		}
@@ -446,14 +465,6 @@ class Setup extends \Smart_Plugin {
 				// Add this column for this post type to the columns section of $config
 				$configs['columns'][ $post_type ] = $pt_args['columns'];
 				unset( $pt_args['columns'] );
-			}
-		}
-
-		// Loop through each taxonomy, check if meta_fields are being used and load term_meta helper if so
-		foreach ( $configs['taxonomies'] as $taxonomy => $tx_args ) {
-			if ( isset( $tx_args['meta_fields'] ) ) {
-				// Ensure the term meta helper is loaded
-				Tools::load_helpers( 'term_meta' );
 			}
 		}
 
@@ -774,9 +785,6 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $fields   The fields to build/save.
 	 */
 	public function setup_termmeta( $taxonomy, $fields ) {
-		// Make sure term_meta helper is loaded
-		Tools::load_helpers( 'term_meta' );
-
 		// Do nothing if not in the admin
 		if ( is_frontend() ) {
 			return;
@@ -1150,7 +1158,7 @@ class Setup extends \Smart_Plugin {
 			// Handle any shorthand in the fields
 			handle_shorthand( 'field', $args['fields'] );
 
-			// Check if media_manager helper needs to be loaded
+			// Check if media manager extension needs to be loaded
 			self::maybe_load_media_manager( $args['fields'] );
 
 			// arguments for build_settings_field
@@ -1325,7 +1333,7 @@ class Setup extends \Smart_Plugin {
 		if ( isset( $args['fields'] ) && is_array( $args['fields'] ) ) {
 			handle_shorthand( 'field', $args['fields'] );
 
-			// Check if media_manager helper needs to be loaded
+			// Check if media manager extension needs to be loaded
 			self::maybe_load_media_manager( $args['fields'] );
 
 			// Register all meta keys found
@@ -2134,9 +2142,6 @@ class Setup extends \Smart_Plugin {
 		// Handle any simple Tool configs if set
 		if ( isset( $configs['hide'] ) ) {
 			Tools::hide( $configs['hide'] );
-		}
-		if ( isset( $configs['helpers'] ) ) {
-			Tools::load_helpers( $configs['helpers'] );
 		}
 		if ( isset( $configs['relabel_posts'] ) ) {
 			Tools::relabel_posts( $configs['relabel_posts'] );
