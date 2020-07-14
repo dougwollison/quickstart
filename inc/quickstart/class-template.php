@@ -332,7 +332,7 @@ class Template extends \Smart_Plugin {
 	 * @param string|int|array $settings Optional The stylesheet URL and/or version number
 	 */
 	public static function ie_css( $settings = null ) {
-		$version = 8;
+		$version = 9;
 		$css_url = get_stylesheet_directory_uri() . '/css/ie.css';
 
 		// If multiple arguments were passed, make that $settings
