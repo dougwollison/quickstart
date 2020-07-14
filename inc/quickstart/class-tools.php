@@ -528,8 +528,20 @@ class Tools extends \Smart_Plugin {
 			'key' => $api_key,
 		) );
 
+		if ( defined( 'GEOCODE_CACHE_DIR' ) ) {
+			@mkdir( GEOCODE_CACHE_DIR );
+
+			$cache = GEOCODE_CACHE_DIR . '/geocode-' . sha1( $url );
+			if ( file_exists( $cache ) ) {
+				$result = file_get_contents( $cache );
+			} else {
+				$result = file_get_contents( $url );
+				file_put_contents( $cache, $result );
+			}
+		}
+
 		// Get the JSON data, and return the first result's location if successful
-		if ( ( $result = file_get_contents( $url ) )
+		if ( $result
 		&& ( $result = json_decode( $result, true ) )
 		&& 'OK' == $result['status'] ) {
 			return $result['results'][0]['geometry']['location'];
