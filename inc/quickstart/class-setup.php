@@ -49,6 +49,7 @@ class Setup extends \Smart_Plugin {
 		// Settings Hooks
 		'register_setting'       => array( 'admin_init', 10, 0 ),
 		'register_settings'      => array( 'admin_init', 10, 0 ),
+		'setup_usermeta'         => array( 'init', 10, 0 ),
 
 		// Menu Page Hooks
 		'register_page_settings' => array( 'admin_init', 10, 0 ),
@@ -2008,7 +2009,7 @@ class Setup extends \Smart_Plugin {
 	 *
 	 * @param array $fields The fields to build/save.
 	 */
-	public function setup_usermeta( $fields ) {
+	public function _setup_usermeta( $fields ) {
 		// Do nothing if not in the admin
 		if ( is_frontend() ) {
 			return;
