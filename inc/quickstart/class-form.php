@@ -491,9 +491,9 @@ class Form {
 			 * @since 1.4.2
 			 *
 			 * @param mixed  $data     The source for the value.
+			 * @param string $source   The type of value source.
 			 * @param array  $settings The settings for the field.
 			 * @param string $field    The name of the field being built.
-			 * @param string $source   The type of value source.
 			 *
 			 * @return mixed The value to use for building the field.
 			 */
