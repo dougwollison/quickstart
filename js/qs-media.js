@@ -467,7 +467,7 @@ window.QS = window.QS || {};
 								// Clear the preview
 								plugin.$preview.empty();
 
-								if ( attachment.type == 'image' ) {
+								if ( attachment.type === 'image' ) {
 									// Attachment is an image, set the img.src to medium size...
 									if ( typeof attachment.sizes.medium !== 'undefined'  ) {
 										img.src = attachment.sizes.medium.url;
