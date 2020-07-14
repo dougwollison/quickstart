@@ -2302,11 +2302,11 @@ class Setup extends \Smart_Plugin {
 		if ( is_admin() && ( ! defined( 'QS_ORDER_ENQUEUED' ) || ! QS_ORDER_ENQUEUED ) ) {
 			Tools::backend_enqueue( array(
 				'css' => array(
-					'qs-order-css' => array( plugins_url( '/css/qs-order.css', QS_FILE ) ),
+					'qs-order-css' => array( plugins_url( '/css/qs-order.css', QS_FILE ), 'mtime' ),
 				),
 				'js' => array(
 					'jquery-ui-nested-sortable' => array( plugins_url( '/js/jquery.ui.nestedSortable.js', QS_FILE ), array( 'jquery-ui-sortable' ) ),
-					'qs-order-js' => array( plugins_url( '/js/qs-order.js', QS_FILE ), array( 'jquery-ui-nested-sortable' ) ),
+					'qs-order-js' => array( plugins_url( '/js/qs-order.js', QS_FILE ), array( 'jquery-ui-nested-sortable' ), 'mtime' ),
 				),
 			) );
 			define( 'QS_ORDER_ENQUEUED', true );
