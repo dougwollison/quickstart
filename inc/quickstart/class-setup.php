@@ -2184,6 +2184,12 @@ class Setup extends \Smart_Plugin {
 					if ( isset( $value['buttons'] ) ) {
 						$this->add_mce_buttons( $value['buttons'] );
 					}
+					if ( isset( $value['buttons_2'] ) ) {
+						$this->add_mce_buttons_2( $value['buttons_2'] );
+					}
+					if ( isset( $value['buttons_3'] ) ) {
+						$this->add_mce_buttons_3( $value['buttons_3'] );
+					}
 					// Register plugins if set
 					if ( isset( $value['plugins'])){
 						$this->register_mce_plugins( $value['plugins'] );
