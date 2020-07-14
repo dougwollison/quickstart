@@ -47,8 +47,8 @@ class Template extends \Smart_Plugin {
 		}
 		?>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
-	<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+	<meta charset="<?php bloginfo( 'charset' ); ?>" />
+	<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 	<?php
 	// A list of methods that should run at the beginning of wp_head
@@ -184,7 +184,7 @@ class Template extends \Smart_Plugin {
 			$settings = implode( ',', $content );
 		}
 
-		echo '<meta name="viewport" content="' . $settings . '">';
+		echo '<meta name="viewport" content="' . $settings . '" />';
 		echo "\n";
 	}
 
