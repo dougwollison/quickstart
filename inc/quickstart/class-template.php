@@ -419,6 +419,10 @@ class Template extends \Smart_Plugin {
 		$production = null;
 		$universal = true;
 
+		if ( ! $settings ) {
+			return;
+		}
+
 		// If multiple arguments were passed, make that $settings
 		if ( func_num_args() > 1 ) {
 			$settings = func_get_args();

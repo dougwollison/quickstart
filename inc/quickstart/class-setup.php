@@ -1080,7 +1080,7 @@ class Setup extends \Smart_Plugin {
 
 		// Default arguments
 		$default_args = array(
-			'title'    => make_legible( $setting ),
+			'title'    => isset( $args['label'] ) ? $args['label'] : make_legible( $setting ),
 			'sanitize' => null,
 		);
 
@@ -1322,7 +1322,7 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Handle any shorthand in the fields if it's an array
-		if ( is_array( $args['fields'] ) ) {
+		if ( isset( $args['fields'] ) && is_array( $args['fields'] ) ) {
 			handle_shorthand( 'field', $args['fields'] );
 
 			// Check if media_manager helper needs to be loaded
@@ -1976,10 +1976,10 @@ class Setup extends \Smart_Plugin {
 			 * @param string $column_id The id of the column to output for.
 			 */
 			call_user_func( $args['output'], $post_id, $column_id );
-		} elseif ( $args['meta_key'] ) {
+		} elseif ( isset( $args['meta_key'] ) && $args['meta_key'] ) {
 			// Output the meta_value for this posts meta_key
 			echo get_post_meta( $post_id, $args['meta_key'], true );
-		} elseif ( $args['post_field'] ) {
+		} elseif ( isset( $args['post_field'] ) && $args['post_field'] ) {
 			// Output the post_filed for this post
 			echo get_post( $post_id )->{ $args['meta_key'] };
 		}
@@ -2376,7 +2376,7 @@ class Setup extends \Smart_Plugin {
 			// Loop through the list of posts and update
 			foreach ( $_POST['menu_order'] as $order => $id ) {
 				// Get the parent
-				$parent = $_POST['parent'][ $id ];
+				$parent = isset( $_POST['parent'] ) ? $_POST['parent'][ $id ] : 0;
 
 				// Update the object
 				if ( $object_type == 'taxonomy' ) {

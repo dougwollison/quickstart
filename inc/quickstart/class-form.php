@@ -281,6 +281,7 @@ class Form {
 					'none_option' => '&mdash; None &mdash;',
 					'orderby'     => array( 'menu_order', 'post_title' ),
 					'order'       => 'asc',
+					'parent'      => null,
 				);
 
 				// Parse the passed settings with the defaults
@@ -509,9 +510,9 @@ class Form {
 
 			// Get the post_terms for $value
 			$post_terms = get_the_terms( $data->ID, $settings['taxonomy'] );
-			$value = array_map( function( $term ) {
+			$value = $post_terms ? array_map( function( $term ) {
 				return $term->term_id;
-			}, (array) $post_terms );
+			}, (array) $post_terms ) : null;
 
 			// Get the query args for get_terms
 			if ( isset( $settings['term_query'] ) ) {
@@ -560,19 +561,22 @@ class Form {
 
 		// Check if the "get_values" callback is present,
 		// Run it and replace "values" key with the returned value.
-		if ( isset( $settings['get_values'] ) && is_callable( $settings['get_values'] ) ) {
-			/**
-			 * Custom callback for getting the values setting for the field.
-			 *
-			 * @since 1.3.0
-			 *
-			 * @param string $field    The name of the field to build.
-			 * @param array  $settings The settings for the field.
-			 * @param mixed  $data     The original data passed to this function.
-			 *
-			 * @return mixed The values setting for the field.
-			 */
-			$settings['values'] = call_user_func( $settings['get_values'], $field, $settings, $data );
+		if ( isset( $settings['get_values'] ) ) {
+			$settings['values'] = array();
+			if ( is_callable( $settings['get_values'] ) ) {
+				/**
+				 * Custom callback for getting the values setting for the field.
+				 *
+				 * @since 1.3.0
+				 *
+				 * @param string $field    The name of the field to build.
+				 * @param array  $settings The settings for the field.
+				 * @param mixed  $data     The original data passed to this function.
+				 *
+				 * @return mixed The values setting for the field.
+				 */
+				$settings['values'] = call_user_func( $settings['get_values'], $field, $settings, $data );
+			}
 		}
 
 		// Build the field by calling the appropriate method

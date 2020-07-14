@@ -356,7 +356,7 @@ class Tools extends \Smart_Plugin {
 
 			// First, handle any special processing of the fields
 			foreach ( $fields as $field => &$settings ) {
-				if ( $context == 'meta_box' && isset( $settings['type'] ) ) {
+				if ( $context == 'meta_box' && is_array( $settings ) && isset( $settings['type'] ) ) {
 					// Special conditions for meta boxes
 					switch ( $settings['type'] ) {
 						case 'editor':
@@ -441,7 +441,7 @@ class Tools extends \Smart_Plugin {
 		$default_args = array(
 			'id'    => 'qs_field_' . Form::make_id( $field ),
 			'name'  => $field,
-			'title' => Form::make_label( $field ),
+			'title' => isset( $args['label'] ) ? $args['label'] : Form::make_label( $field ),
 		);
 		$args = wp_parse_args( $args, $default_args );
 
