@@ -173,72 +173,73 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $template The template of special labels to create.
 	 */
 	protected static function maybe_setup_labels( $object, &$args, $template ) {
-		// Check if labels need to be auto created
+		// Create empty labels array if needed
 		if ( ! isset( $args['labels'] ) ) {
-			// Auto create the singular form if needed
-			if ( ! isset( $args['singular'] ) ) {
-				if ( isset( $args['plural'] ) ) {
-					$args['singular'] = singularize( $args['plural'] );
-				} else {
-					$args['singular'] = make_legible( $object );
-				}
-			}
-
-			// Auto create the plural form if needed
-			if ( ! isset( $args['plural'] ) ) {
-				$args['plural'] = pluralize( $args['singular'] );
-			}
-
-			// Auto create the menu name if needed
-			if ( ! isset( $args['menu_name'] ) ) {
-				$args['menu_name'] = $args['plural'];
-			}
-
-			$singular  = $args['singular'];
-			$plural    = $args['plural'];
-			$menu_name = $args['menu_name'];
-
-			$labels = array(
-				'name'          => _x( $plural, 'post type general name' ),
-				'singular_name' => _x( $singular, 'post type singular name' ),
-				'menu_name'     => _x( $menu_name, 'post type menu name' ),
-				'add_new'       => _x( 'Add New', $object ),
-			);
-
-			$template = wp_parse_args( $template, array(
-				'add_new_item'          => 'Add New %S',
-				'edit_item'             => 'Edit %S',
-				'new_item'              => 'New %S',
-				'view_item'             => 'View %S',
-				'all_items'             => 'All %P',
-				'search_items'          => 'Search %P',
-				'parent_item_colon'     => 'Parent %S:',
-				'not_found'             => 'No %p found.',
-				'items_list_navigation' => '%P list navigation',
-				'items_list'            => '%P list',
-			) );
-
-			$find = array( '%S', '%P', '%s', '%p' );
-			$replace = array( $singular, $plural, strtolower( $singular ), strtolower( $plural ) );
-
-			foreach ( $template as $label => $format ) {
-				$text = str_replace( $find, $replace, $format );
-				$labels[ $label ] = __( $text );
-			}
-
-			/**
-			 * Filter the processed labels list.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param array  $labels The list of labels for the object.
-			 * @param string $object The slug of the post_type/taxonomy.
-			 * @param array  $args   The registration arguments.
-			 */
-			$labels = apply_filters( 'qs_setup_labels', $labels, $object, $args );
-
-			$args['labels'] = $labels;
+			$args['labels'] = array();
 		}
+
+		// Auto create the singular form if needed
+		if ( ! isset( $args['singular'] ) ) {
+			if ( isset( $args['plural'] ) ) {
+				$args['singular'] = singularize( $args['plural'] );
+			} else {
+				$args['singular'] = make_legible( $object );
+			}
+		}
+
+		// Auto create the plural form if needed
+		if ( ! isset( $args['plural'] ) ) {
+			$args['plural'] = pluralize( $args['singular'] );
+		}
+
+		// Auto create the menu name if needed
+		if ( ! isset( $args['menu_name'] ) ) {
+			$args['menu_name'] = $args['plural'];
+		}
+
+		$singular  = $args['singular'];
+		$plural    = $args['plural'];
+		$menu_name = $args['menu_name'];
+
+		$labels = array(
+			'name'          => $plural,
+			'singular_name' => $singular,
+			'menu_name'     => $menu_name,
+			'add_new'       => 'Add New',
+		);
+
+		$template = wp_parse_args( $template, array(
+			'add_new_item'          => 'Add New %S',
+			'edit_item'             => 'Edit %S',
+			'new_item'              => 'New %S',
+			'view_item'             => 'View %S',
+			'all_items'             => 'All %P',
+			'search_items'          => 'Search %P',
+			'parent_item_colon'     => 'Parent %S:',
+			'not_found'             => 'No %p found.',
+			'items_list_navigation' => '%P list navigation',
+			'items_list'            => '%P list',
+		) );
+
+		$find = array( '%S', '%P', '%s', '%p' );
+		$replace = array( $singular, $plural, strtolower( $singular ), strtolower( $plural ) );
+
+		foreach ( $template as $label => $format ) {
+			$labels[ $label ] = str_replace( $find, $replace, $format );
+		}
+
+		/**
+		 * Filter the processed labels list.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array  $labels The list of labels for the object.
+		 * @param string $object The slug of the post_type/taxonomy.
+		 * @param array  $args   The registration arguments.
+		 */
+		$labels = apply_filters( 'qs_setup_labels', $labels, $object, $args );
+
+		$args['labels'] = wp_parse_args( $args['labels'], $labels );
 	}
 
 	/**
