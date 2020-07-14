@@ -459,6 +459,10 @@ class Form {
 		// Parse the passed settings with the defaults
 		$settings = wp_parse_args( $settings, $default_settings );
 
+		// Sanitize the (field_)id values
+		$settings['field_id'] = static::make_id( $settings['field_id'] );
+		$settings['id'] = static::make_id( $settings['id'] );
+
 		// If no data_name is set, make it the same as name
 		if ( ! isset( $settings['data_name'] ) ) {
 			$settings['data_name'] = $settings['name'];
