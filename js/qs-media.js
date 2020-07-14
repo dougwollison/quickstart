@@ -353,7 +353,7 @@ window.QS = window.QS || {};
 			var show = $elm.data( 'show' );
 
 			// Get media type
-			var mimetype = $elm.data( 'type' );
+			var mimetype = $elm.data( 'type' ) || '';
 
 			// Create the type's name for label purposes
 			var typename = ucwords( mimetype ) || 'File';
