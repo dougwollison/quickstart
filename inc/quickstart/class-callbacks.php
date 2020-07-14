@@ -71,10 +71,17 @@ class Callbacks extends \Smart_Plugin {
 				<input type="hidden" name="object_type" value="<?php echo $object_type?>" />
 				<input type="hidden" name="object_name" value="<?php echo $object_name?>" />
 				<?php wp_nonce_field( 'manage_menu_order', '_qsnonce' )?>
+
+				<p class="description">
+					Drag to reorder <?php echo $object->label; ?>.
+					<?php if ( $object->hierarchical ) : ?>
+						You can also drag child items to assign them to new parents.
+					<?php endif; ?>
+				</p>
+
 				<div class="qs-order-manager <?php if ( $object->hierarchical ) echo 'qs-nested'?>">
 					<?php self::$method( $object )?>
 
-					<?php if ( ! $object->hierarchical ) :?>
 					<p class="qs-sort">
 						<label>Quick Sort:</label>
 						<button type="button" class="button-secondary" value="name">Alphabetical</button>
@@ -85,7 +92,6 @@ class Callbacks extends \Smart_Plugin {
 						<?php endif; ?>
 						<button type="button" class="button-secondary" value="flip">Reverse</button>
 					</p>
-					<?php endif;?>
 				</div>
 				<button type="submit" class="button-primary">Save Order</button>
 			</form>
