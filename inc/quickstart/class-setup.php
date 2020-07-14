@@ -859,8 +859,8 @@ class Setup extends \Smart_Plugin {
 		}
 
 		// Check if an explicit meta key is set
-		if ( isset( $args['meta_key'] ) ) {
-			$meta_key = $args['meta_key'];
+		if ( isset( $args['data_name'] ) ) {
+			$meta_key = $args['data_name'];
 		}
 
 		// Save the field if it's been passed
