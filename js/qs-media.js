@@ -486,6 +486,9 @@ window.QS = window.QS || {};
 
 								// Ensure the empty class is removed and the filled class added
 								plugin.$elm.removeClass( 'value-empty' ).addClass( 'value-filled' );
+
+								// Trigger the media-inserted event
+								plugin.$elm.trigger( 'qs:media-inserted', [ attachment ] );
 							} else {
 								// Loop through attachments and add them to the preview
 								var $item, $preview, $input;
@@ -534,8 +537,8 @@ window.QS = window.QS || {};
 									plugin.$container.append( $item ).removeClass( 'value-empty' ).addClass( 'value-filled' );
 
 									// Trigger the media-added event
-									$item.trigger( 'qs:media-added' );
-								});
+									$item.trigger( 'qs:media-added', [ attachment ] );
+								} );
 							}
 
 							// Trigger the media-changed event
