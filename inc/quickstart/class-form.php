@@ -1450,6 +1450,9 @@ class Form {
 			$settings['label'] = 'Add ' . singularize( $settings['label'] );
 		}
 
+		// Determine sortable utility support
+		$is_sortable = ! isset( $settings['sortable'] ) || $settings['sortable'];
+
 		// Write the repeater container
 		$html = sprintf( '<div class="qs-repeater" id="%s-repeater">', $name );
 			// The button to open the media manager
@@ -1465,7 +1468,7 @@ class Form {
 
 
 			// Write the existing items if present
-			$html .= '<div class="qs-container qs-sortable" data-axis="y">';
+			$html .= '<div class="qs-container ' . ( $is_sortable ? 'qs-sortable' : '' ) . '" data-axis="y">';
 			if ( $value ) {
 				// Loop through each entry in the data, write the items
 				foreach ( $value as $i => $item ) {
