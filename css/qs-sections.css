@@ -5,16 +5,20 @@
   #qs_sections-repeater .qs-item:before {
     height: 45px;
     line-height: 45px; }
+
 #qs_sections-repeater .qs-item-fields {
   margin-right: 120px; }
+
 #qs_sections-repeater .qs-delete,
 #qs_sections-repeater .qs-edit-section {
   position: absolute;
   top: 8px; }
+
 #qs_sections-repeater .qs-delete {
   right: 48px;
   margin: 0;
   width: 65px; }
+
 #qs_sections-repeater .qs-edit-section {
   right: 118px;
   width: 45px; }
