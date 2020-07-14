@@ -24,10 +24,10 @@
 function qs_helpers_enqueue(){
 	QuickStart\Tools::enqueue( array(
 		'css' => array(
-			'qs-helpers-css' => array( plugins_url( '/css/qs-helpers.css', QS_FILE ) ),
+			'qs-helpers-css' => array( plugins_url( '/css/qs-helpers.css', QS_FILE ), array(), 'mtime' ),
 		),
 		'js' => array(
-			'qs-helpers-js' => array( plugins_url( '/js/qs-helpers.js', QS_FILE ), array( 'underscore', 'jquery', 'jquery-ui-sortable' ) ),
+			'qs-helpers-js' => array( plugins_url( '/js/qs-helpers.js', QS_FILE ), array( 'underscore', 'jquery', 'jquery-ui-sortable' ), 'mtime' ),
 		),
 	) );
 	define( 'QS_HELPERS_ENQUEUED', true );
