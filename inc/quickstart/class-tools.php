@@ -611,7 +611,7 @@ class Tools extends \Smart_Plugin {
 	 * @param string $function  The function to call.
 	 * @param string $option_var The name of the 5th enqueue argument (css = media, js = in_footer).
 	 */
-	protected static function do_enqueues( $enqueues, $function, $option_var ) {
+	protected static function do_enqueues( $enqueues, $function, $option_var, $extra_function, $extra_var ) {
 		//  Check if its a callback, run it and get the value from that
 		if ( is_callable( $enqueues ) ) {
 			$enqueues = call_user_func( $enqueues );
@@ -662,6 +662,13 @@ class Tools extends \Smart_Plugin {
 
 				// Enqueue it
 				call_user_func( $function, $handle, $src, $deps, $ver, $option );
+
+				if ( isset( $args[ $extra_var ] ) ) {
+					$extra_args = $args[ $extra_var ];
+					array_unshift( $extra_args, $handle );
+
+					call_user_func_array( $extra_function, $extra_args );
+				}
 			}
 		}
 	}
@@ -677,11 +684,11 @@ class Tools extends \Smart_Plugin {
 	 */
 	public static function enqueue( array $enqueues = array() ) {
 		if ( isset( $enqueues['css'] ) ) {
-			static::do_enqueues( $enqueues['css'], 'wp_enqueue_style', 'media' );
+			static::do_enqueues( $enqueues['css'], 'wp_enqueue_style', 'media', 'wp_add_inline_style', 'inline' );
 		}
 
 		if ( isset( $enqueues['js'] ) ) {
-			static::do_enqueues( $enqueues['js'], 'wp_enqueue_script', 'in_footer' );
+			static::do_enqueues( $enqueues['js'], 'wp_enqueue_script', 'in_footer', 'wp_localize_script', 'localize' );
 		}
 	}
 
