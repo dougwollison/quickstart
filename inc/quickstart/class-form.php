@@ -1514,8 +1514,6 @@ class Form {
 				 *
 				 * @param mixed  $item The data for this item.
 				 * @param int    $i The index of this item.
-				 * @param string $name The name of this repeater's field.
-				 * @param array  $settings The settings for this repeater.
 				 *
 				 * @return string The HTML of the repeater item.
 				 */
