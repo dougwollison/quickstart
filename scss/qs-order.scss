@@ -1,8 +1,8 @@
-.qs-order-manager{
+.qs-order-manager {
 	margin: 0 0 10px 0;
 	max-width: 500px;
 
-	ol{
+	ol {
 		margin: 0;
 		position: relative;
 
@@ -15,12 +15,12 @@
 			border-left: 1px dotted #ccc;
 		}
 
-		ol{
+		ol {
 			margin-left: 10px;
 		}
 
 		&:before,
-		&:after{
+		&:after {
 			content: '';
 			position: absolute;
 			left: -1px;
@@ -28,7 +28,7 @@
 			background: #f1f1f1;
 		}
 	}
-		li{
+		li {
 			clear: both;
 			list-style: none;
 			position: relative;
@@ -36,32 +36,32 @@
 			margin: 0;
 
 			&:before,
-			&:after{
+			&:after {
 				content: '';
 			}
 
-			&:before{
+			&:before {
 				position: relative;
 				float: left;
 				width: 10px;
 				border-bottom: 1px dotted #ccc;
 				margin: 12px 5px 0 -1px;
 			}
-			& li:first-child:before{
+			& li:first-child:before {
 				border-left: 1px dotted #ccc;
 				height: 12px;
 				margin-top: 0;
 			}
 		}
-			.inner{
+			.inner {
 				margin-left: 10px;
 				border: 1px dotted transparent;
 
-				&:hover{
+				&:hover {
 					border-color: #ccc;
 				}
 			}
-		.qs-placeholder{
+		.qs-placeholder {
 			height: 23px;
 		}
 }

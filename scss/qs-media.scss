@@ -1,58 +1,59 @@
 @import 'utilities';
 
-.qs-media{
-	.qs-container{
+.qs-media {
+	.qs-container {
 		padding: 0;
 		background: transparent;
 	}
 
-	&.single{
-		.qs-container{
+	&.single {
+		.qs-container {
 			margin: 0;
 			border-top: none;
 		}
 
-		img{
+		img {
+			display: block;
 			max-width: 100%;
 			height: auto;
 			width: auto;
 		}
 	}
 
-	&.multiple{
-		.qs-preview{
+	&.multiple {
+		.qs-preview {
 			float: left;
 			padding: 5px 0;
 			margin: 0;
 			font-style: italic;
 
-			img{
+			img {
 				vertical-align: middle;
 				margin-right: 1em;
 			}
 		}
-		&.media-image{
-			.qs-item{
+		&.media-image {
+			.qs-item {
 				float: left;
 				width: 156px;
 				padding: 10px 10px 0 0;
 				border: none;
 
-				&:before{
+				&:before {
 					content: none;
 				}
 
-				&:hover .qs-delete{
+				&:hover .qs-delete {
 					opacity: 1;
 				}
 			}
-				.qs-preview{
+				.qs-preview {
 					float: none;
 					display: block;
 					padding: 2px;
 					border: 1px solid #eee;
 				}
-				.qs-delete{
+				.qs-delete {
 					float: none;
 					position: absolute;
 					bottom: 3px;
@@ -60,19 +61,19 @@
 					width: 150px;
 					border-radius: 0;
 					opacity: 0;
-					@include transition(opacity .2s linear);
+					transition: opacity .2s linear;
 				}
 		}
 	}
 
-	&.gallery{
-		img{
+	&.gallery {
+		img {
 			float: left;
 			margin: 4px 4px 0 0;
 			padding: 2px;
 			border: 1px solid #ddd;
 		}
-		.qs-preview{
+		.qs-preview {
 			@extend %clearfix;
 			margin: 6px 0 0;
 			padding: 0;

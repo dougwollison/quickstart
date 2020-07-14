@@ -1,11 +1,8 @@
-@import 'compass/utilities/general/clearfix';
-@import 'compass/css3/transition';
-@import 'compass/css3/inline-block';
-
-%clearfix{
-	@include pie-clearfix;
-}
-
-%inline-block{
-	@include inline-block;
+%clearfix {
+	&:after {
+		content: ' ';
+		display: table;
+		height: 0;
+		clear: both;
+	}
 }
