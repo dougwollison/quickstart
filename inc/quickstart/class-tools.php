@@ -289,6 +289,43 @@ class Tools extends \Smart_Plugin {
 	}
 
 	/**
+	 * Save the meta data accordingly.
+	 *
+	 * @since 1.13.1
+	 *
+	 * @param string $meta_type  The type of object.
+	 * @param string $object_id  The ID of the object.
+	 * @param string $field_name The name of the POST field to look in.
+	 * @param string $meta_key   Optional. The meta key; defaults ot $field_name.
+	 * @param mixed  $args       Optional. The metabox arguments.
+	 * @param bool   $if_set     Optional. Wether to update only if POST field is set.
+	 */
+	public static function save_meta_data( $meta_type, $object_id, $field_name, $meta_key = null, $args = null, $if_set = false ) {
+		if ( $if_set && ! isset( $_POST[ $field_name ] ) ) {
+			return;
+		}
+
+		$meta_key = $meta_key ?: $field_name;
+		$value = isset( $_POST[ $field_name ] ) ? $_POST[ $field_name ] : null;
+
+		$save_single = true;
+		if ( is_array( $args ) && isset( $args['save_single'] ) ) {
+			$save_single = $args['save_single'];
+		} elseif ( ! is_array( $args ) ) {
+			$save_single = $args;
+		}
+
+		if ( ! $save_single ) {
+			delete_metadata( $meta_type, $object_id, $meta_key );
+			foreach ( (array) $value as $val ) {
+				add_metadata( $meta_type, $object_id, $meta_key, $val );
+			}
+		} else {
+			update_metadata( $meta_type, $object_id, $meta_key, $value );
+		}
+	}
+
+	/**
 	 * Print the fields via Form or custom callback.
 	 *
 	 * Determines the fields array or callback based on the arguments.
