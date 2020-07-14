@@ -52,7 +52,7 @@ class Template extends \Smart_Plugin {
 
 	<?php
 	// A list of methods that should run at the beginning of wp_head
-	$pre_wp_head = array( 'viewport', 'title', 'favicon' );
+	$pre_wp_head = array( 'viewport', 'title', 'favicon', 'html5shiv' );
 
 	// Call each feature method
 	foreach ( $features as $method => $settings ) {
@@ -364,7 +364,7 @@ class Template extends \Smart_Plugin {
 	 */
 	public static function html5shiv( $shiv_url = null ){
 		if ( empty( $shiv_url ) ) {
-			$shiv_url = '//html5shiv.googlecode.com/svn/trunk/html5.js';
+			$shiv_url = 'https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js';
 		}
 
 		// Print out within an IE conditional comment
