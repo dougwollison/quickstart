@@ -200,8 +200,10 @@ jQuery(function( $ ) {
 		// Have updateItems triggered when one is deleted
 		.on( 'click', '.qs-delete', updateItems );
 
-		// Add an update callback to the sortable
-		$container.sortable( 'option', 'update', updateItems );
+		if ( $container.hasClass( 'qs-sortable' ) ) {
+			// Add an update callback to the sortable
+			$container.sortable( 'option', 'update', updateItems );
+		}
 	});
 
 	// Setup map fields, provided google maps is loaded
