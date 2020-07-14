@@ -1206,6 +1206,9 @@ class Form {
 		// Determine multiple file support (not the same as gallery)
 		$is_multi = ! $is_gallery && isset( $settings['multiple'] ) && $settings['multiple'];
 
+		// Determine sortable utility support
+		$is_sortable = ! isset( $settings['sortable'] ) || $settings['sortable'];
+
 		// Determine quicksort utility support
 		$use_sort = $is_multi && isset( $settings['quicksort'] ) && $settings['quicksort'];
 
@@ -1277,7 +1280,7 @@ class Form {
 			$html .= ' <button type="button" class="button qs-clear">' . $settings['remove_label'] . '</button>';
 
 			// Start the preview list container, adding axis setting for non-image media types
-			$html .= sprintf( '<div class="qs-container qs-sortable" %s>', $media == 'image' ? '' : 'data-axis="y"' );
+			$html .= sprintf( '<div class="qs-container %s" %s>', $is_sortable ? 'qs-sortable' : '', $media == 'image' ? '' : 'data-axis="y"' );
 			// Print the items if present
 			if ( $value ) {
 				// Ensure value is in the form of an array
