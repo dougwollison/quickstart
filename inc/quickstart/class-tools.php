@@ -984,7 +984,9 @@ class Tools extends \Smart_Plugin {
 
 			default:
 				$start = 0;
-				$end = end( array_keys( $menu ) );
+				$keys = array_map( 'floatval', array_keys( $menu ) );
+				sort( $keys );
+				$end = end( $keys );
 		}
 
 		// Storage for new and old items
