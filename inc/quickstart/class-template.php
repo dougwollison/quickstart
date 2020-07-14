@@ -279,7 +279,7 @@ class Template extends \Smart_Plugin {
 	 * @param string|array $settings Optional The favicon URL or array of favicons.
 	 */
 	public static function favicon( $settings = null ) {
-		$icon_url = home_url('/favicon.ico');
+		$icon_url = site_url( '/favicon.ico' );
 		$apple_touch = array();
 		$settings = (array) $settings;
 
@@ -333,7 +333,7 @@ class Template extends \Smart_Plugin {
 	 */
 	public static function ie_css( $settings = null ) {
 		$version = 8;
-		$css_url = THEME_URL . '/css/ie.css';
+		$css_url = get_stylesheet_directory_uri() . '/css/ie.css';
 
 		// If multiple arguments were passed, make that $settings
 		if ( func_num_args() > 1 ) {
@@ -389,7 +389,7 @@ class Template extends \Smart_Plugin {
 	 * @since 1.8.0
 	 */
 	public static function template_url(){
-		echo '<script>var template_url = "' . TEMPLATE_URL . '";</script>';
+		echo '<script>var template_url = "' . get_template_directory_uri() . '";</script>';
 		echo "\n";
 	}
 
@@ -400,7 +400,7 @@ class Template extends \Smart_Plugin {
 	 * @since 1.9.0
 	 */
 	public static function theme_url(){
-		echo '<script>var theme_url = "' . THEME_URL . '";</script>';
+		echo '<script>var theme_url = "' . get_stylesheet_directory_uri() . '";</script>';
 		echo "\n";
 	}
 
