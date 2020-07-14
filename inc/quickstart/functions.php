@@ -11,6 +11,54 @@ namespace QuickStart;
  */
 
 /**
+ * Check if a condition test setting is present, test it.
+ *
+ * This logic is used by meta boxes, fields, and enqueues to determine
+ * if they should in fact be setup. It tests if a "condition" setting is
+ * present in the $args list, and if so, parses it and runs it, returning
+ * the result.
+ *
+ * For documentation on what $test_args consists of, see the calling method.
+ *
+ * @since IDS
+ *
+ * @param array $args      The arguments to check for a condition test setting.
+ * @param array $test_args The arguments to pass to the condition test.
+ *
+ * @return bool TRUE if absent or passes, FALSE if fails.
+ */
+function test_condition( $args, $test_args ) {
+	// Check if condition callback exists; test it before proceeding
+	if ( isset( $args['condition'] ) ) {
+		$callback = $args['condition'];
+
+		$test = true;
+		if ( is_string( $callback ) && strpos( $callback, '!' ) === 0 ) {
+			$test = false;
+			$callback = substr( $callback, 1 );
+		}
+
+		if ( is_callable( $callback ) ) {
+			/**
+			 * Test if the field should be printed.
+			 *
+			 * @since 1.8.0
+			 *
+			 * @see The caller of this function for argument details.
+			 *
+			 * @return bool The result of the test.
+			 */
+			$result = call_user_func_array( $callback, $test_args );
+
+			// Return the test results
+			return $result == $test;
+		}
+	}
+
+	return true;
+}
+
+/**
  * Examine the field name and settings and hanlde any recognized shorthand found.
  *
  * Shorthand syntax differs based on context; typically, $name will have multiple

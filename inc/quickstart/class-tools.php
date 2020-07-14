@@ -574,19 +574,20 @@ class Tools extends \Smart_Plugin {
 				extract( get_array_values( $args, 'src', 'deps', 'ver', $option_var ) );
 				$option = $$option_var;
 
-				// If a condition callback was passed, test it and skip if it fails
-				if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
-					/**
-					 * Test if the current style should be enqueued.
-					 *
-					 * @since 1.8.0
-					 *
-					 * @param array $style The style settings.
-					 *
-					 * @return bool Wether or not to continue enqueuing.
-					 */
-					$result = call_user_func( $args['condition'], $args );
-					if ( ! $result ) continue;
+				/**
+				 * Test if the current style should be enqueued.
+				 *
+				 * The actually call of the condition callback is in QuickStart\test_condition().
+				 *
+				 * @since IDS Moved logic to test_condition().
+				 * @since 1.8.0
+				 *
+				 * @param array $style The style settings.
+				 *
+				 * @return bool Wether or not to continue enqueuing.
+				 */
+				if ( ! test_condition( $args, array( $args ) ) ) {
+					continue;
 				}
 
 				// Ensure $deps is an array

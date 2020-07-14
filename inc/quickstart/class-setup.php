@@ -1295,31 +1295,30 @@ class Setup extends \Smart_Plugin {
 	        $args['priority'] = $args['context'] == 'normal' ? 'high' : 'default';
 		}
 
-		// Check if condition callback exists; test it before proceeding
-		if ( isset( $args['condition'] ) && is_callable( $args['condition'] ) ) {
-			// Get the ID of the current post
-			$post_id = null;
-			if ( isset( $_POST['post_ID'] ) ) {
-				$post_id = $_POST['post_ID'];
-			} else if ( isset( $_GET['post'] ) ) {
-				$post_id = $_GET['post'];
-			}
+		// Get the ID of the current post
+		$post_id = null;
+		if ( isset( $_POST['post_ID'] ) ) {
+			$post_id = $_POST['post_ID'];
+		} else if ( isset( $_GET['post'] ) ) {
+			$post_id = $_GET['post'];
+		}
 
-			/**
-			 * Test if the meta box should be registered for this post.
-			 *
-			 * @since 1.8.0
-			 *
-			 * @param int    $post_id  The ID of the current post (null if new).
-			 * @param string $meta_box The slug of the meta box to register.
-			 * @param array  $args     The arguments for registration.
-			 *
-			 * @return bool The result of the test.
-			 */
-			$result = call_user_func( $args['condition'], $post_id, $meta_box, $args );
-
-			// If test fails, don't setup the meta box
-			if ( ! $result ) return;
+		/**
+		 * Test if the meta box should be registered for this post.
+		 *
+		 * The actually call of the condition callback is in QuickStart\test_condition().
+		 *
+		 * @since IDS Moved logic to test_condition().
+		 * @since 1.8.0
+		 *
+		 * @param int    $post_id  The ID of the current post (null if new).
+		 * @param string $meta_box The slug of the meta box to register.
+		 * @param array  $args     The arguments for registration.
+		 *
+		 * @return bool The result of the test.
+		 */
+		if ( ! test_condition( $args, array( $post_id, $meta_box, $args ) ) ) {
+			return;
 		}
 
 		// Handle any shorthand in the fields if it's an array
