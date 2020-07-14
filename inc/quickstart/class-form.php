@@ -1336,6 +1336,9 @@ class Form {
 
 		$html .= '</div>';
 
+		$settings['wrap_with_label'] = false;
+		$html = self::maybe_wrap_field( $html, $settings );
+
 		return $html;
 	}
 
