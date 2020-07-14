@@ -62,6 +62,54 @@ function qs_hook_ajax_geocode() {
 
 add_action( 'wp_ajax_qs_helper_geocode', 'qs_hook_ajax_geocode' );
 
+/**
+ * AJAX Handler for Geocoding requests from the map field.
+ *
+ * @since 1.11.0
+ *
+ * @uses QuickStart\Tools::geocode_address()
+ */
+function qs_hook_ajax_search() {
+	// Check for the address parameter
+	if ( isset( $_REQUEST['object_type'] ) && isset( $_REQUEST['object_subtype'] ) && isset( $_REQUEST['search'] ) ) {
+		global $wpdb;
+
+		$object_type = $_REQUEST['object_type'];
+		$object_subtype = $_REQUEST['object_subtype'];
+		$search = $_REQUEST['search'];
+
+		$like = '%' . $wpdb->esc_like( $search ) . '%';
+
+		if ( $object_type == 'term' ) {
+			$query = "SELECT t.term_id, t.name FROM $wpdb->terms AS t LEFT JOIN $wpdb->term_taxonomy AS x ON (t.term_id = x.term_id) WHERE x.taxonomy = %s AND t.name LIKE %s ORDER BY t.name ASC";
+			$query = $wpdb->prepare( $query, $object_subtype, $like );
+			$results = $wpdb->get_results( $query );
+
+			$results = simplify_object_array( $results, 'term_id', 'name' );
+		} else {
+			//$query = "SELECT ID, post_title FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = %s AND post_title LIKE %s ORDER BY post_title ASC";
+			$query = new WP_Query( array(
+				'post_type' => $object_subtype,
+				'post_status' => 'publish',
+				's' => $search,
+				'posts_per_page' => -1,
+				'orderby' => 'post_title',
+				'order' => 'asc',
+			) );
+			$results = $query->posts;
+
+			$results = simplify_object_array( $results, 'ID', 'post_title' );
+		}
+
+		echo json_encode( $results );
+		exit;
+	}
+
+	die(0);
+}
+
+add_action( 'wp_ajax_qs_helper_search', 'qs_hook_ajax_search' );
+
 // =========================
 // ! Update Notice System
 // =========================
