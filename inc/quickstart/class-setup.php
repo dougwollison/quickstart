@@ -362,6 +362,7 @@ class Setup extends \Smart_Plugin {
 
 			// Check for taxonomies to register for the post type
 			if ( isset( $pt_args['taxonomies'] ) ) {
+				$taxonomies = array();
 				// Loop through each taxonomy, move it to $taxonomies if not registered yet
 				foreach ( $pt_args['taxonomies'] as $taxonomy => $tx_args ) {
 					// Fix if dumb taxonomy was passed (numerically, not associatively)
@@ -380,8 +381,10 @@ class Setup extends \Smart_Plugin {
 						//and remove from this post type
 						unset( $pt_args['taxonomies'][ $taxonomy ] );
 					}
+
+					$taxonomies[] = $taxonomy;
 				}
-				unset( $pt_args['taxonomies'] );
+				$pt_args['taxonomies'] = $taxonomies;
 			}
 
 			// Check for features to register for the post type
