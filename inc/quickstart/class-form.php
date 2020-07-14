@@ -1657,9 +1657,9 @@ class Form {
 
 			// Add the address search option if available
 			if ( isset( $settings['search'] ) && $settings['search'] ) {
-				$html .= '<div class="qs-map-field">';
-					$html .= '<label>Search for Address: <input type="text" class="qs-map-search regular-text" /></label>';
-					$html .= '<button type="button" class="button qs-search">Find</button>';
+				$html .= '<div class="qs-map-search">';
+					$html .= '<label>Search for Address: <input type="search" class="qs-query regular-text" /></label>';
+					$html .= '<button type="button" class="button qs-submit">Find</button>';
 				$html .= '</div>';
 			}
 

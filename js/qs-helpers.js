@@ -294,8 +294,8 @@ jQuery(function( $ ) {
 			// Search feature if present
 			if ( $search.length > 0 ){
 				// Setup the search functionality
-				$ui.find( '.qs-search' ).click(function() {
-					var query = $search.val();
+				$search.find( '.qs-submit' ).click(function() {
+					var query = $search.find( '.qs-query' ).val();
 
 					$.ajax({
 						url: ajaxurl,
@@ -318,7 +318,7 @@ jQuery(function( $ ) {
 							// Update the fields
 							$lat.val( lat );
 							$lng.val( lng );
-							$zoom.val( 10 );
+							$zoom.val( 14 );
 
 							// Update the marker
 							marker.setPosition( coords );
