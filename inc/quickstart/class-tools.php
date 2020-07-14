@@ -851,24 +851,24 @@ class Tools extends \Smart_Plugin {
 			$labels = $args;
 		}
 
-		$singular = $plural = $menuname = null;
+		$singular = $plural = $menu_name = null;
 
 		// Get the labels
-		extract( get_array_values( $labels, 'singular', 'plural', 'menuname' ) );
+		extract( get_array_values( $labels, 'singular', 'plural', 'menu_name' ) );
 
 		// Figure out the plural form and menu name if not provided
 		if ( ! $plural ) {
 			$plural = pluralize( $singular );
 		}
-		if ( ! $menuname ) {
-			$menuname = $plural;
+		if ( ! $menu_name ) {
+			$menu_name = $plural;
 		}
 
 		// Update the post type directory
-		static::relabel_posts_object( $singular, $plural );
+		static::relabel_posts_object( $singular, $plural, $menu_name );
 
 		// Update the menus
-		static::relabel_posts_menu( $singular, $plural, $menuname );
+		static::relabel_posts_menu( $singular, $plural, $menu_name );
 	}
 
 	/**
@@ -880,8 +880,9 @@ class Tools extends \Smart_Plugin {
 	 *
 	 * @param string $singular The singular form to use in the replacement.
 	 * @param string $plural   The plural form to use in the replacement.
+	 * @param string $menu_name The new menu name to use.
 	 */
-	protected static function _relabel_posts_object( $singular, $plural ) {
+	protected static function _relabel_posts_object( $singular, $plural, $menu_name ) {
 		global $wp_post_types;
 
 		str_replace_in_array(
@@ -889,6 +890,8 @@ class Tools extends \Smart_Plugin {
 			array( $plural, $singular ),
 			$wp_post_types['post']->labels
 		);
+
+		$wp_post_types['post']->labels->menu_name = $menu_name;
 	}
 
 	/**
@@ -899,9 +902,9 @@ class Tools extends \Smart_Plugin {
 	 * @global array $menu The admin menu items array.
 	 * @global array $submenu The admin submenu items array.
 	 *
-	 * @param string $singular The singular form to use in the replacement.
-	 * @param string $plural   The plural form to use in the replacement.
-	 * @param string $menuname The new menu name to use.
+	 * @param string $singular  The singular form to use in the replacement.
+	 * @param string $plural    The plural form to use in the replacement.
+	 * @param string $menu_name The new menu name to use.
 	 */
 	protected static function _relabel_posts_menu( $singular, $plural, $menuname ) {
 		global $menu, $submenu;
