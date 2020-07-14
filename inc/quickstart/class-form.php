@@ -1685,4 +1685,90 @@ class Form {
 
 		return $html;
 	}
+
+	/**
+	 * Build an object search field for post/term finding.
+	 *
+	 * @since LATEST
+	 *
+	 * @see Form::build_generic()
+	 */
+	public static function build_search( $settings, $value, $data = null, $source = null ) {
+		// Get the field name
+		$name = $settings['name'];
+
+		$value = $value ? $value : array();
+		$value = array_filter( $value );
+
+		$object_type = isset( $settings['taxonomy'] ) ? 'term' : 'post';
+		$object_subtype = isset( $settings['taxonomy'] ) ? $settings['taxonomy'] : ( isset( $settings['post_type'] ) ? $settings['post_type'] : 'post' );
+
+		if ( $object_type == 'taxonomy' ) {
+			$values = array_combine( $values, array_map( function( $term_id ) use ( $object_subtype ) {
+				$term = get_term( $term_id, $object_subtype );
+				return $term ? $term->name : '[Unknown Term]';
+			}, $value ) );
+		} else {
+			$values = array_combine( $value, array_map( 'get_the_title', $value ) );
+		}
+
+		// Setup data attributes (default values)
+		$data_atts = array();
+
+		$html = sprintf( '<div class="qs-search" id="%s-search" data-object_type="%s" data-object_subtype="%s">', $name, $object_type, $object_subtype );
+			$html .= sprintf( '<input type="hidden" name="%s" value="" />', $name );
+
+			// Write the search input
+			$html .= '<div class="qs-search-field">';
+				$html .= '<label>Search: <input type="text" class="qs-object-search regular-text" /></label>';
+			$html .= '</div>';
+
+			// Write the result item template
+			$html .= '<template class="qs-template">';
+				$html .= static::build_search_item( $settings );
+			$html .= '</template>';
+
+			// Write the existing items if present
+			$html .= '<div class="qs-container qs-sortable" data-axis="y">';
+			if ( $value ) {
+				// Loop through each entry in the data, write the items
+				foreach ( $values as $id => $title ) {
+					$html .= static::build_search_item( $settings, $id, $title );
+				}
+			}
+			$html .= '</div>';
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Build a single search result item.
+	 *
+	 * @since LATEST
+	 *
+	 * @param array $search The settings of the repeater.
+	 * @param array $id     Optional The item id.
+	 * @param array $title  Optional The item title.
+	 */
+	private static function build_search_item( $search, $id = null, $title = null ) {
+		$name = $search['name'];
+
+		$html = vsprintf( '<div class="qs-item">' .
+			// The input for the ID
+			'<input type="hidden" class="qs-value" name="%s[]" value="%s" />' .
+
+			// The title wrapper
+			'<span class="qs-label">%s</span>' .
+
+			// Add the delete button
+			'<button type="button" class="button qs-delete">Delete</button>' .
+		'</div>', array(
+			$name,
+			$id,
+			$title,
+		) );
+
+		return $html;
+	}
 }
