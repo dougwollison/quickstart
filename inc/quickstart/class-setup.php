@@ -686,9 +686,9 @@ class Setup extends \Smart_Plugin {
 				return;
 			}
 
-			// Now that it's registered, fetch the resulting show_ui argument,
+			// Now that it's registered, fetch the resulting show_admin_column argument,
 			// and add the taxonomy_filter hooks if true
-			if ( $taxonomy_obj->show_ui ){
+			if ( $taxonomy_obj->show_admin_column ){
 				Tools::taxonomy_filter( $taxonomy );
 			}
 
