@@ -299,7 +299,9 @@ class Form {
 
 				// If it's for a post and no exclude is passed, set it to the post ID
 				if ( is_null( $settings['exclude'] ) && $data && $source == 'post' ) {
-					$settings['exclude'] = $data->ID;
+					if ( $settings['post_type'] && ( $settings['post_type'] == 'any' || get_post_type( $data->ID ) == $settings['post_type'] ) ) {
+						$settings['exclude'] = $data->ID;
+					}
 				}
 
 				// Make sure exclude is an array
