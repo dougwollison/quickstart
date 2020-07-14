@@ -1110,6 +1110,14 @@ class Setup extends \Smart_Plugin {
 		// Parse the arguments with the defaults
 		$args = wp_parse_args( $args, $default_args );
 
+		if ( isset( $args['page'] ) ) {
+			$page = $args['page'];
+		}
+
+		if ( isset( $args['section'] ) ) {
+			$section = $args['section'];
+		}
+
 		// Default callback is the build_settings_field tool.
 		$callback = array( __NAMESPACE__ . '\Tools', 'build_settings_field' );
 
