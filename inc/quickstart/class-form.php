@@ -1464,7 +1464,10 @@ class Form {
 		$is_sortable = ! isset( $settings['sortable'] ) || $settings['sortable'];
 
 		// Write the repeater container
-		$html = sprintf( '<div class="qs-repeater" id="%s-repeater">', $name );
+		$html = sprintf( '<div class="qs-repeater" id="%s-repeater">', $settings['field_id'] );
+			// A blank input to fallback to for saving
+			$html .= '<input type="hidden" name="' . $name . '" value="" />';
+
 			// The button to open the media manager
 			$html .= '<button type="button" class="button button-primary qs-add">' . $settings['label'] . '</button>';
 
