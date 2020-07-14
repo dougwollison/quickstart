@@ -1443,7 +1443,10 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $args     The arguments from registration.
 	 */
 	protected function _save_meta_box( $post_id, $meta_box, $args ) {
-		if ( ! Tools::save_post_check( $post_id, $args['post_type'], "_qsnonce-$meta_box", $meta_box ) ) return;
+		if ( ( isset( $_POST['post_ID'] ) && $_POST['post_ID'] != $post_id )
+		|| ! Tools::save_post_check( $post_id, $args['post_type'], "_qsnonce_{$meta_box}", "{$meta_box}-{$post_id}" ) ) {
+			return;
+		}
 
 		// Determine method to save meta box data
 		if ( isset( $args['save'] ) && is_callable( $args['save'] ) ) {
@@ -1643,10 +1646,15 @@ class Setup extends \Smart_Plugin {
 	 * @param array  $args     The arguments from registration.
 	 */
 	protected function _add_meta_box( $meta_box, $args ) {
+		$id = 'qs_metabox_' . $meta_box;
+		if ( isset( $args['id'] ) ) {
+			$id = $args['id'];
+		}
+
 		$post_types = csv_array( $args['post_type'] );
 		foreach ( $post_types as $post_type ) {
 			add_meta_box(
-				'qs_metabox_' . $meta_box,
+				$id,
 				$args['title'],
 				array( __NAMESPACE__ . '\Tools', 'build_meta_box' ),
 				$post_type,
@@ -1963,7 +1971,7 @@ class Setup extends \Smart_Plugin {
 				$columns[ $column_id ] = $title;
 			} elseif ( is_array( $args ) ) { // Add a new column, but only if it has arguments
 				// Default title is legible version of id
-				$title = make_legible( $id );
+				$title = make_legible( $column_id );
 
 				if ( isset( $args['title'] ) ) {
 					$title = $args['title'];
@@ -2017,7 +2025,7 @@ class Setup extends \Smart_Plugin {
 			echo get_post_meta( $post_id, $args['meta_key'], true );
 		} elseif ( isset( $args['post_field'] ) && $args['post_field'] ) {
 			// Output the post_filed for this post
-			echo get_post( $post_id )->{ $args['meta_key'] };
+			echo get_post( $post_id )->{ $args['post_field'] };
 		}
 
 		// No output otherwise

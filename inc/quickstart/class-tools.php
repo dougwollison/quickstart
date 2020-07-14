@@ -436,7 +436,7 @@ class Tools extends \Smart_Plugin {
 		}
 
 		// Print nonce field
-		wp_nonce_field( $id, "_qsnonce-$id" );
+		static::print_nonce_field( $id, $post->ID );
 
 		// Wrap in container for any specific targeting needed
 		echo '<div class="qs-meta-box">';
@@ -510,6 +510,7 @@ class Tools extends \Smart_Plugin {
 	 */
 	public static function extra_editor( $name, $settings = array() ) {
 		$settings = wp_parse_args( $settings, array(
+			'id' => $name,
 			'name' => $name,
 			'meta_key' => $name,
 			'post_type' => 'page',
@@ -519,9 +520,9 @@ class Tools extends \Smart_Plugin {
 
 		// Determine and setup the necessary save hook, based on settings
 		if ( isset( $settings['post_field'] ) ) {
-			static::post_type_save_field( $settings['post_type'], $settings['post_field'], $settings['name'] );
+			static::post_type_save_field( $settings['post_type'], $settings['post_field'], $settings['name'], $settings['id'] );
 		} else {
-			static::post_type_save_meta( $settings['post_type'], $settings['meta_key'], $settings['name'] );
+			static::post_type_save_meta( $settings['post_type'], $settings['meta_key'], $settings['name'], $settings['id'] );
 		}
 
 		// Determine and call the necessary method, based on location
@@ -585,6 +586,14 @@ class Tools extends \Smart_Plugin {
 		}
 
 		return false;
+	}
+
+	public static function validate_nonce_field( $name, $id ) {
+		return isset( $_REQUEST[ "_qsnonce_$name" ] ) ? wp_verify_nonce( $_REQUEST[ "_qsnonce_$name" ], "$name-$id" ) : false;
+	}
+
+	public static function print_nonce_field( $name, $id ) {
+		wp_nonce_field( "$name-$id", "_qsnonce_$name" );
 	}
 
 	// =========================
@@ -1193,8 +1202,14 @@ class Tools extends \Smart_Plugin {
 	 * @param string $meta_key   The meta_key to save the value to.
 	 * @param string $field_name Optional The name of the $_POST field to use (defaults to $meta_key).
 	 */
-	protected static function _post_type_save_meta( $post_id, $post_type, $meta_key, $field_name = null ) {
-		if ( ! static::save_post_check( $post_id, $post_type ) ) return;
+	protected static function _post_type_save_meta( $post_id, $post_type, $meta_key, $field_name = null, $nonce_base = null ) {
+		$nonce_name = $nonce_value = null;
+		if ( $nonce_base ) {
+			$nonce_name = "_qsnonce_{$nonce_base}";
+			$nonce_value = "{$nonce_base}-{$post_id}";
+		}
+
+		if ( ! static::save_post_check( $post_id, $post_type, $nonce_name, $nonce_value ) ) return;
 
 		if ( is_null( $field_name ) ) {
 			$field_name = $meta_key;
@@ -1223,8 +1238,14 @@ class Tools extends \Smart_Plugin {
 	 * @param string $post_field The field in the posts table to save the value to.
 	 * @param string $field_name Optional The name of the $_POST field to use (defaults to $post_field).
 	 */
-	protected static function _post_type_save_field( $post_id, $post_type, $post_field, $field_name = null ) {
-		if ( ! static::save_post_check( $post_id, $post_type ) ) return;
+	protected static function _post_type_save_field( $post_id, $post_type, $post_field, $field_name = null, $nonce_base = null ) {
+		$nonce_name = $nonce_value = null;
+		if ( $nonce_base ) {
+			$nonce_name = "_qsnonce_{$nonce_base}";
+			$nonce_value = "{$nonce_base}-{$post_id}";
+		}
+
+		if ( ! static::save_post_check( $post_id, $post_type, $nonce_name, $nonce_value ) ) return;
 		global $wpdb;
 
 		if ( is_null( $field_name ) ) {
@@ -1425,8 +1446,10 @@ class Tools extends \Smart_Plugin {
 			$value = get_post_meta( $post->ID, $settings['meta_key'], true );
 		}
 
+		static::print_nonce_field( $settings['id'], $post->ID );
+
 		printf( '<div class="qs-editor-wrap" id="%s-editor-wrap">', $settings['name'] );
-			echo '<h3>' . $settings['title'] . '</h3>';
+			echo '<h3 class="qs-label">' . $settings['title'] . '</h3>';
 			echo Form::build_editor( $settings, $value );
 		echo '</div>';
 	}
