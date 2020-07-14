@@ -1360,6 +1360,11 @@ class Setup extends \Smart_Plugin {
 
 			// Register all meta keys found
 			foreach ( $args['fields'] as $field => $_args ) {
+				// If a callback, treat as having no arguments
+				if ( ! is_array( $_args ) ) {
+					$_args = array();
+				}
+
 				// Skip if this field is for a post field or taxonomy
 				if ( isset( $_args['post_field'] ) || isset( $_args['taxonomy'] ) ) {
 					continue;
@@ -1382,7 +1387,9 @@ class Setup extends \Smart_Plugin {
 				}
 
 				// Register the meta (it will automatically be protected)
-				register_meta( 'post', $meta_key, $sanitize_callback, '__return_false' );
+				register_meta( 'post', $meta_key, array(
+					'sanitize_callback' => $sanitize_callback,
+				) );
 			}
 		}
 
