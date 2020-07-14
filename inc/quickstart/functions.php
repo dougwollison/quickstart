@@ -47,6 +47,17 @@ function handle_shorthand( $context, &$name, &$args = array() ) {
 		return;
 	}
 
+	// Handle arguments that are numeric (flags).
+	$assoc_args = array();
+	foreach ( $args as $key => $val ) {
+		if ( is_int( $key ) ) {
+			$key = ltrim( $val, '!' );
+			$val = strpos( $val, '!' ) !== 0;
+		}
+		$assoc_args[ $key ] = $val;
+	}
+	$args = $assoc_args;
+
 	// Abort if it appears this has already been handled for this context
 	if ( isset( $args['__handled_shorthand'] ) && in_array( $context, $args['__handled_shorthand'] ) ) {
 		return;
