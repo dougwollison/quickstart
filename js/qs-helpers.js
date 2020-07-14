@@ -1,4 +1,4 @@
-/* global alert, _, QS, google, ajaxurl */
+/* globals jQuery, _, QS, google, ajaxurl */
 window.QS = window.QS || {};
 
 (function( $ ) {

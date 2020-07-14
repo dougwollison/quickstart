@@ -1,4 +1,4 @@
-/* global QS */
+/* globals jQuery, QS */
 window.QS = window.QS || {};
 
 jQuery(function( $ ) {

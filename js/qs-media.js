@@ -1,4 +1,4 @@
-/* global _, wp, QS */
+/* globals jQuery, _, wp, QS */
 window.QS = window.QS || {};
 
 (function( $ ) {
