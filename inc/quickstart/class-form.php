@@ -921,7 +921,7 @@ class Form {
 
 		// Default the wrapper to right sided
 		if ( ! isset( $settings['format'] ) ) {
-			$settings['format'] = array( 'right' );
+			$settings['format'] = array( 'right', 'div', 'inside' );
 		}
 
 		// If the values match, mark as checked
