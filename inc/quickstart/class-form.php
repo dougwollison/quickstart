@@ -48,22 +48,34 @@ class Form {
 	 * @since 1.5.0  Added %id-field id.
 	 * @since 1.4.0
 	 *
-	 * @param string $side Which side the label should appear on (left/right).
-	 * @param string $tag  The tag name to use in the format.
+	 * @param string $side   Which side the label should appear on (left/right).
+	 * @param string $tag    The tag name to use in the format.
+	 * @param bool   $inside Wether or not to print the element WITHIN the label.
 	 *
 	 * @return string The generated format string.
 	 */
-	public static function build_field_wrapper( $side = 'left', $tag = 'div' ) {
+	public static function build_field_wrapper( $side = 'left', $tag = 'div', $inside = false ) {
 		$format = '<' . $tag . ' class="%wrapper_class" id="%id-wrapper">';
 
-		$label = '<label for="%id" class="qs-label qs-label-' . $side . '">%label</label>';
-		if ( $side == 'right' ) {
-			$format .= "%input $label";
+		if ( $inside ) {
+			$format .= '<label class="qs-label qs-label-' . $side . '">';
+			if ( $side == 'right' ) {
+				$format .= '%input %label';
+			} else {
+				$format .= '%label %input';
+			}
+			$format .= '</label>';
 		} else {
-			$format .= "$label %input";
+			$label = '<label for="%id" class="qs-label qs-label-' . $side . '">%label</label>';
+
+			if ( $side == 'right' ) {
+				$format .= "%input $label";
+			} else {
+				$format .= "$label %input";
+			}
 		}
 
-		$format .= '%description';
+		$format .= ' %description';
 
 		$format .= '</' . $tag . '>';
 
