@@ -175,68 +175,6 @@ class Tools extends \Smart_Plugin {
 	}
 
 	/**
-	 * Load the requested helper files.
-	 *
-	 * @since 1.13.0 Added entry for Unpublish helper.
-	 * @since 1.11.0 Added entries for Sections and Term Meta helpers.
-	 * @since 1.10.0 Added option to load all helpers, also sanitize helper name.
-	 * @since 1.7.1  Added use of constants to flag which helpers have been loaded.
-	 * @since 1.0.0
-	 *
-	 * @param mixed $helpers A name or array of helper files to load (sans extention).
-	 */
-	public static function load_helpers( $helpers ) {
-		// Check if ALL helpers are requested
-		if ( $helpers == 'all' ) {
-			$helpers = array(
-				'attachment',
-				'family',
-				'index',
-				'media_manager',
-				'post_chunks',
-				'post_field',
-				'post_meta',
-				'sections',
-				'teaser',
-				'term_meta',
-				'unpublish',
-				'walkers',
-				'wpedit',
-			);
-		}
-
-		csv_array_ref( $helpers );
-		foreach ( $helpers as $helper ) {
-			$constant = 'QS_LOADED_' . strtoupper( sanitize_title( $helper ) );
-			if ( defined( $constant ) ) {
-				continue;
-			}
-			$file = QS_DIR . "/inc/helpers/$helper.php";
-			if ( file_exists( $file ) ){
-				define( $constant, true );
-				require_once( $file );
-			}
-		}
-	}
-
-	/**
-	 * Call the appropriate hide_[object] method(s).
-	 *
-	 * @since 1.10.0 Hide methods now separate helpers, reworked handling to match.
-	 * @since 1.0.0
-	 *
-	 * @param mixed $objects An object name, comma separated string, or array of objects to disable.
-	 */
-	public static function hide( $objects ) {
-		csv_array_ref( $objects );
-		$helpers = array();
-		foreach ( $objects as $object ) {
-			$helpers[] = "hide/$object";
-		}
-		static::load_helpers( $helpers );
-	}
-
-	/**
 	 * Take care of uploading and inserting an attachment.
 	 *
 	 * @since 1.11.0 Added detection/loading of wp_handle_upload().

@@ -124,7 +124,6 @@ class Setup extends \Smart_Plugin {
 
 			// Miscellaneous stuff
 			'hide'          => null,    // Default things to hide/disable
-			'helpers'       => null,    // QuickStart helpers to load
 			'relabel_posts' => null,    // Rename the Posts post type
 			'shortcodes'    => null,    // Custom shortcodes to register
 			'enqueue'       => array(), // Styles/scripts to eneuque
