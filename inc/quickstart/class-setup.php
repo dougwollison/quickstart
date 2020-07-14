@@ -547,6 +547,15 @@ class Setup extends \Smart_Plugin {
 			Tools::post_type_count( $post_type );
 		}
 
+		// Register any extra editors if present
+		if ( isset( $args['editors'] ) ) {
+			foreach ( $args['editors'] as $editor_id => $editor_options ) {
+				$editor_options['post_type'] = $post_type;
+
+				Tools::extra_editor( $editor_id, $editor_options );
+			}
+		}
+
 		// Check the has_archive argument,
 		// setup day/month/year archive rewrites if true
 		if ( $post_type_obj->has_archive ) {
