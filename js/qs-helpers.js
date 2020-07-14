@@ -160,8 +160,10 @@ jQuery(function( $ ) {
 			$repeater.find( '.qs-item' ).each(function( i ) {
 				$( this ).find( 'input, select, textarea' ).each(function() {
 					var name = $( this ).attr( 'name' );
-					name = name.replace( /\[-?\d+\]/, '[' + i + ']' );
-					$( this ).attr( 'name', name );
+					if ( name ) {
+						name = name.replace( /\[-?\d+\]/, '[' + i + ']' );
+						$( this ).attr( 'name', name );
+					}
 				});
 			});
 		};
